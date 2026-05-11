@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-11T16:36:38.208Z",
+  "updated": "2026-05-11T16:39:22.868Z",
   "movies": [
     {
       "id": 1,
@@ -30745,12 +30745,5 @@
       "rating": 0
     }
   ],
-  "liveCache": {
-    "1720": {
-      "pct": 74,
-      "ytKey": "Ma1x7ikpid8",
-      "tmdbUrl": "https://www.themoviedb.org/movie/83533",
-      "imdbUrl": "https://www.imdb.com/title/tt1757678/"
-    }
-  }
+  "liveCache": {}
 }
