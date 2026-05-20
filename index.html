@@ -1023,6 +1023,16 @@ input,textarea,.tmdb-inp,select{
     </select>
   </div>
 
+  <div class="sett-row">
+    <div class="sett-label">Zdroj videa</div>
+    <div class="sett-control">
+      <select id="videoSourceSelect" class="sett-select">
+        <option value="network">Sieťový zdroj</option>
+        <option value="local">Lokálny súbor</option>
+      </select>
+    </div>
+  </div>
+
   <!-- ════ SKIN (TÉMA) ══════════════════════════════════════════ -->
   <div class="sett-sec">Vzhľad / Skin</div>
   <div class="skin-row" id="skinGrid">
@@ -1406,6 +1416,7 @@ function init(){
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
   if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
+  initVideoSettingsUI();
   renderAll();
 }
 
@@ -1922,8 +1933,16 @@ function openDet(id){
     '</div>'+
     (genres?'<div class="det-genres">'+genres+'</div>':"")+
     '<div class="sec">Prehrávanie</div>'+
+    '<div class="det-actions" style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">'+
+      '<button id="playMovieBtn" class="sett-btn primary">'+
+        '<span class="sett-btn-icon">▶</span>'+
+        '<span class="sett-btn-label">Prehrať film</span>'+
+      '</button>'+
+    '</div>'+
     '<div class="det-player-wrap" id="detPlayerWrap">'+
-      '<video class="det-player" id="detPlayer" controls preload="none" src="'+esc(buildVideoSrc(m))+'"></video>'+
+      '<div class="video-container" style="margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border2);">'+
+        '<video class="det-player" id="moviePlayer" width="100%" controls style="display:block;background:#000;">Váš prehliadač nepodporuje prehrávanie tohto videa.</video>'+
+      '</div>'+
       '<div class="det-player-info">'+esc(getMoviePath(m))+'</div>'+
     '</div>'+
     '<div class="sec">Trailer & Linky</div>'+
@@ -1954,6 +1973,11 @@ function openDet(id){
   });
   document.getElementById("btnPlayCopy").addEventListener("click",function(){copyMoviePath(id);});
   document.getElementById("btnTr").addEventListener("click",function(){openTrailer(id);});
+  // Wire play button
+  var playBtn = document.getElementById("playMovieBtn");
+  if (playBtn) {
+    playBtn.onclick = function() { playMovie(m); };
+  }
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -2391,6 +2415,13 @@ function handleFile(){
         hideMod();renderAll();
         toast("Importovaných "+mv.length+" filmov (#"+mv[0].num+"-#"+mv[mv.length-1].num+")");
         if(tmdbKey){toast("Automaticky spúšťam TMDB...");setTimeout(settStartBatch,1500);}
+        // AUTO-SYNC: ak je GitHub token nastavený, automaticky pushneme dáta
+        if(ghToken){
+          setTimeout(function(){
+            toast("🔄 Auto-sync do GitHubu...");
+            ghPush();
+          },2000);
+        }
       },500);
     }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   } else {
@@ -4055,6 +4086,136 @@ function buildVlcUrl(m) {
 function buildVideoSrc(m) {
   // For HTML5 <video> element: use raw local path or SMB path
   return getMoviePath(m);
+}
+
+// ----- Video settings (network/local) -----
+const VIDEO_SETTINGS_KEY = 'videoSettings';
+
+// Optional base URL for serving files over HTTP (used by getMovieNetworkUrl)
+const VIDEO_NETWORK_BASE_KEY = 'videoNetworkBase';
+var videoNetworkBase = localStorage.getItem(VIDEO_NETWORK_BASE_KEY) || 'http://localhost:8080/';
+
+function loadVideoSettings() {
+  const raw = localStorage.getItem(VIDEO_SETTINGS_KEY);
+  if (!raw) {
+    return { sourceMode: 'network' };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && (parsed.sourceMode === 'network' || parsed.sourceMode === 'local')) {
+      return parsed;
+    }
+    return { sourceMode: 'network' };
+  } catch (e) {
+    return { sourceMode: 'network' };
+  }
+}
+
+function saveVideoSettings(settings) {
+  localStorage.setItem(VIDEO_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+let videoSettings = loadVideoSettings();
+
+function initVideoSettingsUI() {
+  const select = document.getElementById('videoSourceSelect');
+  if (!select) return;
+
+  // inicializácia hodnoty v UI
+  select.value = videoSettings.sourceMode;
+
+  // reaguj na zmenu
+  select.addEventListener('change', () => {
+    videoSettings.sourceMode = select.value;
+    saveVideoSettings(videoSettings);
+  });
+}
+
+function getMovieLocalUrl(movie) {
+  if (!movie) return '';
+  var raw = movie._localPath || '';
+  if (!raw) return '';
+  var p = raw.replace(/\\/g, '/');
+  if (p.startsWith('file://')) return p;
+  // If starts with drive letter like D:/ or W:/
+  if (/^[A-Za-z]:\//.test(p)) {
+    return 'file:///' + p;
+  }
+  return 'file:///' + p;
+}
+
+function getMovieNetworkUrl(movie) {
+  // Map local movie filename to an HTTP-accessible URL using
+  // a configurable base (default: http://localhost:8080/).
+  // Returns an encoded URL to the movie filename. If you don't
+  // serve files over HTTP, this will return an empty string.
+  if (!movie) return '';
+  var base = localStorage.getItem(VIDEO_NETWORK_BASE_KEY) || videoNetworkBase || 'http://localhost:8080/';
+  if (!base) return '';
+  if (base[base.length-1] !== '/') base += '/';
+  // Prefer explicit local path when available, otherwise build filename
+  var filename = '';
+  if (movie._localPath) {
+    // Extract basename from path
+    var p = movie._localPath.replace(/\\/g, '/');
+    filename = p.split('/').pop();
+  } else {
+    filename = buildMovieFilename(movie);
+  }
+  // Note: HTML5 <video> requires MP4/WebM containers with compatible codecs.
+  return base + encodeURIComponent(filename);
+}
+
+function getMovieSource(movie) {
+  if (videoSettings.sourceMode === 'local') {
+    return getMovieLocalUrl(movie);
+  } else {
+    const net = getMovieNetworkUrl(movie);
+    return net || getMovieLocalUrl(movie);
+  }
+}
+
+function playMovie(movie) {
+  // If user selected "local" source mode, open the file in an
+  // external/system player instead of trying to play via HTML5.
+  if (videoSettings && videoSettings.sourceMode === 'local') {
+    const localUrl = getMovieLocalUrl(movie);
+    if (!localUrl) {
+      console.warn('No local path for movie');
+      return;
+    }
+    try {
+      window.open(localUrl);
+    } catch (e) {
+      // Fallback to navigation if open() is blocked
+      window.location.href = localUrl;
+    }
+    return;
+  }
+
+  // Network mode — keep using the <video> element for playback.
+  const player = document.getElementById('moviePlayer');
+  if (!player) {
+    console.warn('moviePlayer element not found');
+    return;
+  }
+
+  const src = getMovieNetworkUrl(movie);
+  if (!src) {
+    console.warn('No network URL for this movie');
+    return;
+  }
+
+  try { player.pause(); } catch (e) {}
+  player.src = src;
+  player.load();
+
+  const playPromise = player.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise.catch(err => {
+      console.error('Autoplay blocked or error during play:', err);
+    });
+  }
 }
 
 function playLocalMovie(id) {
