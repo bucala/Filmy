@@ -1,97 +1,153 @@
 # Changelog — Filmová Databáza
 
-Všetky významné zmeny sú zdokumentované v tomto súbore.  
-Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/).  
-Verziovanie sleduje [Semantic Versioning](https://semver.org/).
+Všetky významné zmeny sú zdokumentované v tomto súbore.
+Formát: [Keep a Changelog](https://keepachangelog.com/sk/) · Verziovanie: [Semantic Versioning](https://semver.org/)
+
+---
+
+## [9.1.0] — 2026-05-24
+
+### 🐛 Opravené
+- **PREHĽAD / presvitajúce štatistiky** — text sekcie "Prehľad" z nastavení bol viditeľný za kartami filmov; príčina: `scrnBody` nemal explicitnú farbu pozadia; opravené nastavením `background: var(--bg)` na `.scrn-body` a `.sett-panel`
+- **Ikona hviezdy obľúbených** — `☆/⭐` emoji sa zobrazovala ako samostatný element medzi kartami v list mode; príčina: `lcard` nemal `display:flex`; opravené + `lfav` button má teraz explicitné rozmery `36×36px`; ikony prepísané na SVG `currentColor`
+- **Accordion "Rozšírené nastavenia"** — matúci double-accordion (všetky sekcie boli vnorené v jednom togglevom bloku); accordion (`advToggle` + `advBody`) odstránený, všetky sekcie nastavení sú teraz vždy viditeľné a priamo prístupné
+
+### 🔄 Zmenené
+- Ikona hviezdy: emoji `★☆` → SVG `polygon` (reaguje na farbu akcentu skinu)
+- Nastavenia: lineárny scroll cez sekcie namiesto accordion
 
 ---
 
 ## [9.0.0] — 2026-05-24
 
 ### ✨ Pridané
-- **Separátory s presvitajúcimi štatistikami** — každý separator medzi kartami filmov obsahuje zaoblený štvorček (`28×28 px`) s ikonou; cez ikonu presvitá ghost číslo (polopriesvitné, `opacity 0.18–0.22`):
-  - Hviezdičková ikona → aktuálny počet obľúbených filmov (mení sa živě)
-  - Hodinová ikona → rok filmov v danom bloku (napr. `25` pre 2025)
-  - Zoznamová ikona → celkový počet filmov v databáze (`1736`)
-- **Animácia hviezdy obľúbených** — `star-pop` keyframe (scale 1→1.5→0.85→1 s rotáciou) + 7 iskier (`spark-fly`) rozletujúcich sa do okolia
-- **Ghost čísla na pozadí filmových kariet** — poradie (`data-rank-short`) presvitá cez `::before` pseudo-element, `opacity 0.025`, pri hoveri `0.04`
-- **Ghost čísla v stat kartách** — každá štatistická karta má `::after` s veľkým presvitajúcim číslom v pozadí
-- **Rozšírené nastavenia** — nové skupiny v skladateľnom paneli:
-  - Toggle: Štatistiky v separátoroch (vypne/zapne ghost čísla)
-  - Toggle: Ghost čísla na kartách
-  - Select: Export databázy (JSON / CSV)
-  - Sekcia Nebezpečná zóna: Vymazať databázu
-- **Progress bar videných filmov** — vizuálna lišta s percentom (`89 / 1736 = 5.1 %`)
-- **Tmavý / svetlý režim** — pill prepínač ☀️ / 🌙 v topbare (okamžitý, bez reloadu)
-- **Live vyhľadávanie** — input v topbare filtruje podľa názvu aj réžiséra; aktualizuje počítadlo `X z Y`
-- **Filter žánrov** — chip lišta (Všetky · Horor · Sci-Fi · Thriller · Mysteriózny · Dobrodružný · Akčný)
+- Prepínač **natívny prehrávač zariadenia** vs VLC Protocol Handler v sekcii Prehrávanie filmov
+- Auto-push na GitHub pri interakciách — obľúbené, watchlist, videné (5s debounce); TMDB Admin Panel pushuje okamžite (800ms delay)
+- Toggle **Automatický push pri zmenách** v GitHub sync sekcii
 
 ### 🔄 Zmenené
-- Topbar redesign — logo + vyhľadávací vstup + theme pill + gear ikona
-- Filmové karty prepracované na `grid-template-columns: 56px 1fr 38px`
-- Poster má vnorený rank badge (absolútne pozicionovaný, blur backdrop)
-- Stat karty zmenšené na 4-stĺpcovú mriežku, fluid `clamp()` veľkosti
-- Separátory zmenené z čistej dekorácie na interaktívne štatistické elementy
-- Nastavenia — panel teraz používa `grid-template-rows: 0fr → 1fr` pre plynulé otvorenie (bez JS výšky)
-- Farba akcentu zjednotená: fialová `#a78bfa` (primary), zlatá `#fbbf24` (obľúbené)
+- Všetky emoji ikony v UI nahradené SVG stroke ikonami s `stroke="currentColor"` — reagujú na akcentovú farbu aktívneho skinu
+- Body font: `Crimson Pro, Georgia, serif` → `-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif`
+- Inline `<video>` player z karty detailu **odstránený** — zostáva iba tlačidlo `▶ Prehrať film`
+- Sekcia `Lokálne prehrávanie (VLC)` (stará) odstránená — zostáva iba `Prehrávanie filmov` s prepínačom lokálna/SMB
+- `Zdroj videa` dropdown v ZOBRAZENIE sekcii odstránený (duplikát)
 
 ### 🐛 Opravené
-- Separator ghost číslo sa teraz aktualizuje pri každom toggle obľúbeného
-- Filter chips správne resetuje search query pri zmene žánru
-- Fav badge počítadlo synchronizované so stat kartou
+- `init()` už nepoužíva baked-in `MOVIES` (C00..C21) ako fallback — pri prázdnom `localStorage` zobrazí empty state s tlačidlami `Nahrať ZIP/PDF` / `Načítať z GitHubu`
+- `autoCheckGitHub()` bezpečne pulluje z GitHubu keď sú lokálne dáta prázdne (nebude sa volať ak `all[]` je neprázdne)
+- `ghPush()` validuje `all.length` pred uploadom — zabraňuje uloženiu prázdnej databázy
 
 ---
 
-## [8.0.0] — 2026-05-24
+## [8.0.0] — 2026-05-23
 
 ### ✨ Pridané
-- Základné separátory medzi kartami s hviezdičkovou ikonou
-- Zoznam obľúbených s live aktualizáciou
-- Skladateľný panel nastavení (Zobrazenie · Triedenie · Synchronizácia · Nebezpečná zóna)
-- Star-pop animácia + particle efekt pri pridaní do obľúbených
-- Ghost rank čísla na pozadí filmových kariet
-- Stats banner s presvitajúcim číslom
+- **EMDB ZIP import** — `parseEMDBZip()` extrahuje z `HTML/index.html` + `HTML/movies/*.html` + `HTML/covers/*.jpg`; importuje: názov, rok, réžisér, žánre, krajina, dĺžka, YouTube trailer, TMDB/IMDB ID, lokálna cesta k `.mkv`, popis, obsadenie, plagáty
+- `JSZip` library pre parsovanie ZIP
+- `fileInpUpdate` + `handleFileUpdate()` — aktualizácia z EMDB (merge, nie replace): zachová hodnotenia, trailery, plagáty existujúcich filmov
+- Empty state s akčnými tlačidlami `📥 Nahrať ZIP/PDF` / `☁ Načítať z GitHubu`
+- `scheduleAutoPush()` — throttlovaný auto-push na GitHub (5s debounce po zmenách)
+- **GitHub SHA mismatch fix** — `ghPush()` prepísaný na Contents API + automatický retry so cache bust pri 409/422
+- `validateGhToken()` — overenie PAT tokenu pri uložení cez `GET /api.github.com/user`
+- 401/404 diagnostické hlášky pri GitHub Push/Pull
+- `.switch` / `.slider` CSS prepínač
+- `adjustScrnBody()` — dynamické meranie výšky headera
 
 ### 🔄 Zmenené
-- Kompletný redesign filmových kariet
-- Nová farebná paleta — tmavé povrchy s fialovým akcentom
+- Import `PDF` → primárne `ZIP`, PDF zachovaný ako fallback (backwards compatible)
+- Settings panel: sekcie `📥 Databáza filmov` · `🎬 TMDB Metadáta` · `☁ Záloha` · `⚙ Admin` · `⚠ Nebezpečná zóna` + `▶ Prehrávanie filmov`
+- `handleFile()` — ZIP vetva používa `parseEMDBZip`, PDF vetva zachovaná
+- `settStartBatch()` — ukladá `poster_thumb` URL do `localStorage` každých 50 filmov + na konci
+
+### 🐛 Opravené
+- Modal CSS (`z-index: 9000`, `position: fixed`) — progress bar bol neviditeľný
+- `fileInp` `accept` atribút — neumožňoval výber ZIP súborov; duplikátny `fileInp` element odstránený
+- `batchBar` presunutý na `position: fixed; top: 0; z-index: 8000` — viditeľný počas načítavania
 
 ---
 
-## [7.0.0] — 2026-05-23
+## [7.0.0] — 2026-05-22
 
 ### ✨ Pridané
-- Stats banner (celkom / obľúbené / videné / hodnotenie)
-- Filter chips pre žánre
-- Bottom navigation bar
+- **Inline video player** v detaile (`<video>` element s `preload="none"`)
+- **Prepínač lokálna/SMB cesta** (`pathModeToggle`) — `Lokálna (W:\)` alebo `Sieťová (smb://DESKTOP-EGOG348/Movies/)`
+- `getMoviePath()` + `localPathToSmb()` — konverzia Windows ciest na SMB URL
+- Importuje `_localPath` z EMDB HTML (tag `<b>Umiestnenie:</b>`)
+- `autoCheckGitHub()` — po načítaní pulluje z GitHubu ak sú `localStorage` prázdne
 
 ### 🔄 Zmenené
-- Migrovaný font z Inter na Satoshi
-- Spacing systém prepísaný na 4px grid s CSS premennými
+- `buildVlcUrl()` prioritizuje `_localPath` z EMDB; fallback na SMB konštrukciu
+- `ghPush()` prepísaný: Git Data API (3 kroky) → Contents API (1 krok) + SHA retry
+- Nastavenia reorganizované do skupín so sekciami `sett-grp`
+
+### 🐛 Opravené
+- VLC URL mangling: `<a href="vlc://...">` → `<button onclick="location.href=...">` (prehliadač neparsuje protokol)
+- `getMoviePath()` používa forward slashes `/` pre URL kompatibilitu
 
 ---
 
-## [6.0.0] — 2026-05-22
+## [6.0.0] — 2026-05-21
 
 ### ✨ Pridané
-- Hviezda obľúbených na každej karte
-- Tmavý režim (základný)
-- Sticky topbar s blur efektom
+- **VLC Protocol Handler integrácia** — spustenie `.mkv` súborov cez `vlc://` protokol
+- `removeDiacritics()` — konverzia SK/CZ diakritiky pre názvy súborov
+- `buildVlcUrl()` + `buildMovieFilename()` — konštrukcia VLC URL zo SMB základu + roku + názvu
+- SMB base URL konfigurácia v nastaveniach (`smb://DESKTOP-EGOG348/Movies/`)
+- Tlačidlo `▶ Prehrať film` v detaile + `📋` (kopírovať cestu)
+- Overlay ▶ na plagáte v grid mode (pri hover)
+- **TMDB poster fetch** — `doTMDBFetch()` sťahuje `poster_path` z TMDB (`/t/p/w300`)
+- Floating `batchBar` (`position: fixed; top: 0`)
+- SVG ikony sekcií nastavení (nahradili emoji)
+
+### 🔄 Zmenené
+- `handleFile()` extrahuje plagáty z PDF strán cez `getOperatorList()` (PDF.js)
+- `handleFileUpdate()` — merge importu: zachová TMDB dáta existujúcich filmov
+- Settings panel: clear sekcie Databáza · TMDB · Záloha · Admin · Nebezpečná zóna
+
+### 🐛 Opravené
+- Modal CSS chýbal celý — `.m-ov`, `.modal`, `.m-bar`, `.m-fill` neboli definované
+- Scroll: `scrnBody` wrapper (pôvodne mimo `mainSc`) dostal `position: fixed; top: 88px` pre korektné dimenzie
 
 ---
 
-## [5.0.0] — 2026-05-21
+## [5.0.0] — 2026-05-20
 
 ### ✨ Pridané
-- Filmové karty s posterom, titulom, metadátami, tagmi
-- CSS design tokeny (farby, spacing, typografia)
-- Základná responzivita pre mobile
+- **TMDB API integrácia** — `doTMDBFetch()`, `settStartBatch()` — hromadné stiahnutie hodnotení a trailerov
+- `liveCache` — dočasná cache TMDB dát (hodnotenie %, YouTube kľúč, TMDB/IMDB URL)
+- `saveLiveCache()` / `loadLiveCache()` — persistencia cache do `localStorage`
+- **GitHub sync** — `ghPush()`, `ghPull()`, `ghToken`, `GH_REPO/GH_FILE/GH_BRANCH` constants
+- 6 skin-ov: Dark · Slate · Crimson · Forest · Linen · Paper
+- Vlastná farba akcentu (color picker + prednastavené swatches)
+- Sort controls: dropdown `Poradie/Názov/Rok/Hodnotenie` + tlačidlo smeru
+- Filter chips v header row 2 (`fpPills`)
+- Detail view: posuvná karta s plagátom, popis, obsadenie, podobné filmy, trailer overlay
+- Stats panel (`statSc`) — štatistiky z `liveCache`
+- TMDB Admin Panel — vyhľadávanie a pridanie jednotlivého filmu
+
+### 🔄 Zmenené
+- Kompletný redesign UI: dark `#0a0a0f`, zlatá `#d4a943`, `Bebas Neue` + `JetBrains Mono`
+- Card layout: grid + list mode s toggle
+- `parseEMDB()` — PDF text parser s rozpoznaním EMDB export formátu
+
+### 🐛 Opravené
+- Scroll na mobile: `overflow-y: scroll`, `touch-action: pan-y`, `overscroll-behavior: contain`
+- Fuse.js `tokenize` parameter deprecated — nahradený `useExtendedSearch`
 
 ---
 
-## [1.0.0 – 4.0.0] — 2026-05-20
+## [4.0.0] — 2026-05-19
 
-### Iniciálne verzie
-- Základný HTML zoznam filmov
-- Iteratívne UI vylepšenia
-- Pridanie CSS premenných a fluid typografie
+### ✨ Pridané
+- PDF import cez `pdf.js` — parsovanie EMDB exportu
+- `parseEMDB()` — extrakcia filmov z PDF textu (regex pre číslo, názov, rok, réžisér, žánre, krajina, dĺžka)
+- Modal progress dialog pre import (`showMod`, `hideMod`, `setP`)
+- `localStorage` persistencia (`mdb_v5`, `mdb_fav5`, `mdb_wl1`, `mdb_watched1`)
+- Watchlist (`togWl`) + Watched (`togWatched`) funkcie
+- Fuse.js full-text vyhľadávanie
+- `appendCards()` + infinite scroll (`IntersectionObserver`)
+- Baked-in data chunks `C00–C21` pre offline demo
+
+### 🔄 Zmenené
+- Všetky dáta migrované do premennej `all[]` (runtime array)
+- Oddelené `favs`, `wl`, `watched`, `liveCache` kolekcie

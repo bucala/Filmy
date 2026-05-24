@@ -1,66 +1,96 @@
 # 🎬 Filmová Databáza
 
-> Osobná filmová databáza s pokročilými UI funkciami — verzia 9
+> Osobná filmová databáza — single-file HTML aplikácia, dark mode, TMDB integrácia, VLC prehrávanie
 
-![screenshot](screenshot.jpg)
+## Popis
 
-## Popis projektu
-
-Filmová Databáza je mobilne-first webová aplikácia (static HTML) na správu a prehľad osobnej zbierky filmov. Navrhnutá pre použitie s existujúcim backendom (GitHub: [bucala/Filmy](https://github.com/bucala/Filmy)).
+**Filmová Databáza** je mobilne-first webová aplikácia (čistý static HTML, žiadny build krok) na správu osobnej zbierky filmov. Dáta sa ukladajú do `localStorage` a synchronizujú na GitHub cez API.
 
 ---
 
-## ✨ Funkcie — Verzia 9
+## ✨ Hlavné funkcie (v9.x)
 
-### 1. Separátory s presvitajúcimi štatistikami
-Medzi každými dvoma kartami filmov je malá zaoblená ikona (hviezdička / hodiny / zoznam). Cez túto ikonu **presvitá relevantné číslo** — počet obľúbených, rok, celkový počet filmov. Číslo je polopriesvitné (ghost overlay), ikona zostáva čitateľná.
-
-### 2. Ikona hviezdy obľúbených
-- Každá filmová karta má tlačidlo s hviezdičkou vpravo
-- Kliknutie spustí **pop animáciu** + 7 zlatých iskier (particle efekt)
-- Aktívna hviezda: zlatá výplň + `drop-shadow` žiara
-- Živý zoznam obľúbených sa okamžite aktualizuje
-- Počítadlo obľúbených v štatistikách sa mení v reálnom čase
-
-### 3. Rozšírené menu nastavení (accordion)
-Plynulá CSS animácia (`grid-template-rows: 0fr → 1fr`). Sekcie:
-- **Zobrazenie** — rozloženie, tmavý režim, ghost čísla, štatistiky v separátoroch
-- **Triedenie** — radiť podľa, pamätať filtre
-- **Dáta** — záloha do cloudu, export JSON/CSV
-- **Nebezpečná zóna** — vymazanie databázy
-
-### 4. Ďalšie vylepšenia
-- Live vyhľadávanie (filter podľa názvu + réžiséra)
-- Filter chips podľa žánru
-- Progress bar videných filmov
-- Svetlá / tmavá téma (toggle v topbare)
-- Ghost čísla (rank) na pozadí každej karty
-- WCAG AA kontrast, keyboard navigácia, `aria-label` na všetkých tlačidlách
+| Funkcia | Detail |
+|---|---|
+| 📥 Import z EMDB ZIP | Automatický import filmov, plagátov, trailerov a ciest zo ZIP exportu z EMDB |
+| 🎬 TMDB integrácia | Stiahnutie hodnotení, trailer linkov a HD plagátov pre všetky filmy (~7 min) |
+| ▶ VLC prehrávanie | Spustenie lokálnych `.mkv` súborov cez VLC Protocol Handler alebo natívny prehrávač |
+| 🔄 SMB/lokálna cesta | Prepínač medzi lokálnou (W:\) a sieťovou (smb://) cestou k filmom |
+| ☁ GitHub sync | Push/Pull dát do repozitára `bucala/Filmy` cez PAT token; auto-push pri zmenách |
+| 🔎 Vyhľadávanie | Fulltextové cez Fuse.js (názov, réžisér) s živým zvýraznením |
+| 🔖 Filtrovanie | Filter chips podľa žánru, zobrazenie obľúbených / watchlistu / videných |
+| 📊 Štatistiky | Panel so štatistikami, hodnoteniami a prehľadom databázy |
+| 🎨 6 skin-ov | Dark · Slate · Crimson · Forest · Linen · Paper — s vlastnou farbou akcentu |
 
 ---
 
 ## 🚀 Spustenie
 
-Súbor je čistý **static HTML** — žiadne závislosti, žiadny build krok.
-
 ```bash
-# Otvorte priamo v prehliadači:
-open filmova-databaza-v9.html
+# Otvorte priamo v prehliadači (lokálne prehrávanie funguje iba lokálne):
+open index.html
 
 # Alebo cez lokálny server:
-npx serve .
 python3 -m http.server 8080
+```
+
+Aplikácia funguje ako **pure static HTML** — žiadne závislosti, žiadny build. Externé CDN:
+- `pdf.js` — parsovanie PDF
+- `jszip` — parsovanie EMDB ZIP exportu
+- `fuse.js` — fuzzy vyhľadávanie
+- Google Fonts: `Bebas Neue`, `JetBrains Mono`
+
+---
+
+## 📁 Štruktúra repozitára
+
+```
+index.html     ← kompletná aplikácia (single-file, ~19 MB s dátami)
+data.json      ← synchronizovaná databáza filmov (cez GitHub API)
+README.md      ← tento súbor
+changelog.md   ← história verzií
 ```
 
 ---
 
-## 📁 Štruktúra
+## ⚙ Nastavenia
 
-```
-filmova-databaza-v9.html   ← kompletná aplikácia (single-file)
-README.md                  ← tento súbor
-CHANGELOG.md               ← história verzií
-```
+### Import databázy
+1. Exportujte z EMDB: `File → Export → HTML`
+2. V aplikácii: `Nastavenia → Databáza filmov → NAHRAŤ NOVÚ DATABÁZU`
+3. Vyberte `.zip` súbor
+
+### TMDB API
+1. Zaregistrujte sa na [themoviedb.org](https://www.themoviedb.org/)
+2. `Settings → API → API Key (v3 auth)`
+3. Vložte do `Nastavenia → TMDB Metadáta → API kľúč`
+4. Kliknite `Spustiť načítanie dát`
+
+### GitHub sync
+1. Vytvorte [PAT token](https://github.com/settings/tokens/new?scopes=repo) so scope `repo`
+2. Vložte do `Nastavenia → Záloha → GitHub sync`
+3. `Uložiť do GitHubu` — uloží do `data.json` v tomto repozitári
+
+### VLC prehrávanie
+- Nainštalujte [VLC Protocol Handler](https://github.com/Morgyn/VLCProtocol-Handler/releases) do priečinka VLC
+- V nastaveniach prepnite režim ciest: `Lokálna (W:\)` alebo `Sieťová (SMB)`
+- Kliknite `▶ Prehrať film` v detaile libovolného filmu
+
+---
+
+## 🛠 Technológie
+
+| Technológia | Použitie |
+|---|---|
+| HTML5 + CSS3 + Vanilla JS | Celá aplikácia, bez frameworkov |
+| CSS custom properties | Design tokens, 6 skin-ov, dynamické farby |
+| `JSZip` | Parsovanie EMDB HTML ZIP exportu |
+| `pdf.js` | Legacy PDF import (backwards compat) |
+| `Fuse.js` | Fuzzy vyhľadávanie |
+| TMDB API | HD plagáty, hodnotenia, trailery |
+| GitHub Contents API | Sync `data.json` |
+| VLC Protocol Handler | Spustenie `.mkv` z prehliadača |
+| `Bebas Neue` + `JetBrains Mono` | Typografia |
 
 ---
 
@@ -70,33 +100,4 @@ CHANGELOG.md               ← história verzií
 https://github.com/bucala/Filmy
 ```
 
----
-
-## 🛠 Technológie
-
-| Technológia | Použitie |
-|---|---|
-| HTML5 + CSS3 | Štruktúra a dizajn |
-| Vanilla JS | Interaktivita, animácie |
-| Satoshi (Fontshare) | Typografia |
-| CSS custom properties | Design tokens (dark/light mode) |
-| `grid-template-rows` animácia | Accordion nastavenia |
-| `drop-shadow` filter | Glow efekt hviezdy |
-| OKLCH color space | Moderné miešanie farieb |
-
----
-
-## 📸 Dizajnové rozhodnutia
-
-### Separátorová ikona
-Inšpirovaná originálnym dizajnom aplikácie (screenshot). Malý zaoblený štvorček s ikonou uprostred, umiestnený na stredovej čiare medzi kartami. Cez ikonu presvitá číslo štatistiky — `position: absolute`, `opacity: 0.18–0.22`, `font-weight: 900`.
-
-### Farebná schéma
-- Primary: `#a78bfa` (fialová) — tmavý režim
-- Primary: `#7c3aed` (tmavšia fialová) — svetlý režim
-- Gold: `#fbbf24` — obľúbené/hviezdičky
-- Pozadie: `#0d0d10` (tmavý) / `#f0eff5` (svetlý)
-
----
-
-*Vytvorené: 24. mája 2026*
+*Vytvorené: máj 2026*
