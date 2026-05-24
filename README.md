@@ -1,70 +1,70 @@
-# đźŽ¬ FilmovĂˇ DatabĂˇza
+# 🎬 Filmová Databáza
 
-> OsobnĂˇ filmovĂˇ databĂˇza s pokroÄŤilĂ˝mi UI funkciami â€” verzia 9
+> Osobná filmová databáza s pokročilými UI funkciami — verzia 9
 
 ![screenshot](screenshot.jpg)
 
 ## Popis projektu
 
-FilmovĂˇ DatabĂˇza je mobilne-first webovĂˇ aplikĂˇcia (static HTML) na sprĂˇvu a prehÄľad osobnej zbierky filmov. NavrhnutĂˇ pre pouĹľitie s existujĂşcim backendom (GitHub: [bucala/Filmy](https://github.com/bucala/Filmy)).
+Filmová Databáza je mobilne-first webová aplikácia (static HTML) na správu a prehľad osobnej zbierky filmov. Navrhnutá pre použitie s existujúcim backendom (GitHub: [bucala/Filmy](https://github.com/bucala/Filmy)).
 
 ---
 
-## âś¨ Funkcie â€” Verzia 9
+## ✨ Funkcie — Verzia 9
 
-### 1. SeparĂˇtory s presvitajĂşcimi Ĺˇtatistikami
-Medzi kaĹľdĂ˝mi dvoma kartami filmov je malĂˇ zaoblenĂˇ ikona (hviezdiÄŤka / hodiny / zoznam). Cez tĂşto ikonu **presvitĂˇ relevantnĂ© ÄŤĂ­slo** â€” poÄŤet obÄľĂşbenĂ˝ch, rok, celkovĂ˝ poÄŤet filmov. ÄŚĂ­slo je polopriesvitnĂ© (ghost overlay), ikona zostĂˇva ÄŤitateÄľnĂˇ.
+### 1. Separátory s presvitajúcimi štatistikami
+Medzi každými dvoma kartami filmov je malá zaoblená ikona (hviezdička / hodiny / zoznam). Cez túto ikonu **presvitá relevantné číslo** — počet obľúbených, rok, celkový počet filmov. Číslo je polopriesvitné (ghost overlay), ikona zostáva čitateľná.
 
-### 2. Ikona hviezdy obÄľĂşbenĂ˝ch
-- KaĹľdĂˇ filmovĂˇ karta mĂˇ tlaÄŤidlo s hviezdiÄŤkou vpravo
-- Kliknutie spustĂ­ **pop animĂˇciu** + 7 zlatĂ˝ch iskier (particle efekt)
-- AktĂ­vna hviezda: zlatĂˇ vĂ˝plĹ + `drop-shadow` Ĺľiara
-- Ĺ˝ivĂ˝ zoznam obÄľĂşbenĂ˝ch sa okamĹľite aktualizuje
-- PoÄŤĂ­tadlo obÄľĂşbenĂ˝ch v ĹˇtatistikĂˇch sa menĂ­ v reĂˇlnom ÄŤase
+### 2. Ikona hviezdy obľúbených
+- Každá filmová karta má tlačidlo s hviezdičkou vpravo
+- Kliknutie spustí **pop animáciu** + 7 zlatých iskier (particle efekt)
+- Aktívna hviezda: zlatá výplň + `drop-shadow` žiara
+- Živý zoznam obľúbených sa okamžite aktualizuje
+- Počítadlo obľúbených v štatistikách sa mení v reálnom čase
 
-### 3. RozĹˇĂ­renĂ© menu nastavenĂ­ (accordion)
-PlynulĂˇ CSS animĂˇcia (`grid-template-rows: 0fr â†’ 1fr`). Sekcie:
-- **Zobrazenie** â€” rozloĹľenie, tmavĂ˝ reĹľim, ghost ÄŤĂ­sla, Ĺˇtatistiky v separĂˇtoroch
-- **Triedenie** â€” radiĹĄ podÄľa, pamĂ¤taĹĄ filtre
-- **DĂˇta** â€” zĂˇloha do cloudu, export JSON/CSV
-- **NebezpeÄŤnĂˇ zĂłna** â€” vymazanie databĂˇzy
+### 3. Rozšírené menu nastavení (accordion)
+Plynulá CSS animácia (`grid-template-rows: 0fr → 1fr`). Sekcie:
+- **Zobrazenie** — rozloženie, tmavý režim, ghost čísla, štatistiky v separátoroch
+- **Triedenie** — radiť podľa, pamätať filtre
+- **Dáta** — záloha do cloudu, export JSON/CSV
+- **Nebezpečná zóna** — vymazanie databázy
 
-### 4. ÄŽalĹˇie vylepĹˇenia
-- Live vyhÄľadĂˇvanie (filter podÄľa nĂˇzvu + rĂ©ĹľisĂ©ra)
-- Filter chips podÄľa ĹľĂˇnru
-- Progress bar videnĂ˝ch filmov
-- SvetlĂˇ / tmavĂˇ tĂ©ma (toggle v topbare)
-- Ghost ÄŤĂ­sla (rank) na pozadĂ­ kaĹľdej karty
-- WCAG AA kontrast, keyboard navigĂˇcia, `aria-label` na vĹˇetkĂ˝ch tlaÄŤidlĂˇch
+### 4. Ďalšie vylepšenia
+- Live vyhľadávanie (filter podľa názvu + réžiséra)
+- Filter chips podľa žánru
+- Progress bar videných filmov
+- Svetlá / tmavá téma (toggle v topbare)
+- Ghost čísla (rank) na pozadí každej karty
+- WCAG AA kontrast, keyboard navigácia, `aria-label` na všetkých tlačidlách
 
 ---
 
-## đźš€ Spustenie
+## 🚀 Spustenie
 
-SĂşbor je ÄŤistĂ˝ **static HTML** â€” Ĺľiadne zĂˇvislosti, Ĺľiadny build krok.
+Súbor je čistý **static HTML** — žiadne závislosti, žiadny build krok.
 
 ```bash
-# Otvorte priamo v prehliadaÄŤi:
+# Otvorte priamo v prehliadači:
 open filmova-databaza-v9.html
 
-# Alebo cez lokĂˇlny server:
+# Alebo cez lokálny server:
 npx serve .
 python3 -m http.server 8080
 ```
 
 ---
 
-## đź“ Ĺ truktĂşra
+## 📁 Štruktúra
 
 ```
-filmova-databaza-v9.html   â† kompletnĂˇ aplikĂˇcia (single-file)
-README.md                  â† tento sĂşbor
-CHANGELOG.md               â† histĂłria verziĂ­
+filmova-databaza-v9.html   ← kompletná aplikácia (single-file)
+README.md                  ← tento súbor
+CHANGELOG.md               ← história verzií
 ```
 
 ---
 
-## đź”— RepozitĂˇr
+## 🔗 Repozitár
 
 ```
 https://github.com/bucala/Filmy
@@ -72,31 +72,31 @@ https://github.com/bucala/Filmy
 
 ---
 
-## đź›  TechnolĂłgie
+## 🛠 Technológie
 
-| TechnolĂłgia | PouĹľitie |
+| Technológia | Použitie |
 |---|---|
-| HTML5 + CSS3 | Ĺ truktĂşra a dizajn |
-| Vanilla JS | Interaktivita, animĂˇcie |
+| HTML5 + CSS3 | Štruktúra a dizajn |
+| Vanilla JS | Interaktivita, animácie |
 | Satoshi (Fontshare) | Typografia |
 | CSS custom properties | Design tokens (dark/light mode) |
-| `grid-template-rows` animĂˇcia | Accordion nastavenia |
+| `grid-template-rows` animácia | Accordion nastavenia |
 | `drop-shadow` filter | Glow efekt hviezdy |
-| OKLCH color space | ModernĂ© mieĹˇanie farieb |
+| OKLCH color space | Moderné miešanie farieb |
 
 ---
 
-## đź“¸ DizajnovĂ© rozhodnutia
+## 📸 Dizajnové rozhodnutia
 
-### SeparĂˇtorovĂˇ ikona
-InĹˇpirovanĂˇ originĂˇlnym dizajnom aplikĂˇcie (screenshot). MalĂ˝ zaoblenĂ˝ ĹˇtvorÄŤek s ikonou uprostred, umiestnenĂ˝ na stredovej ÄŤiare medzi kartami. Cez ikonu presvitĂˇ ÄŤĂ­slo Ĺˇtatistiky â€” `position: absolute`, `opacity: 0.18â€“0.22`, `font-weight: 900`.
+### Separátorová ikona
+Inšpirovaná originálnym dizajnom aplikácie (screenshot). Malý zaoblený štvorček s ikonou uprostred, umiestnený na stredovej čiare medzi kartami. Cez ikonu presvitá číslo štatistiky — `position: absolute`, `opacity: 0.18–0.22`, `font-weight: 900`.
 
-### FarebnĂˇ schĂ©ma
-- Primary: `#a78bfa` (fialovĂˇ) â€” tmavĂ˝ reĹľim
-- Primary: `#7c3aed` (tmavĹˇia fialovĂˇ) â€” svetlĂ˝ reĹľim
-- Gold: `#fbbf24` â€” obÄľĂşbenĂ©/hviezdiÄŤky
-- Pozadie: `#0d0d10` (tmavĂ˝) / `#f0eff5` (svetlĂ˝)
+### Farebná schéma
+- Primary: `#a78bfa` (fialová) — tmavý režim
+- Primary: `#7c3aed` (tmavšia fialová) — svetlý režim
+- Gold: `#fbbf24` — obľúbené/hviezdičky
+- Pozadie: `#0d0d10` (tmavý) / `#f0eff5` (svetlý)
 
 ---
 
-*VytvorenĂ©: 24. mĂˇja 2026*
+*Vytvorené: 24. mája 2026*
