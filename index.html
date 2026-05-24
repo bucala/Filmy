@@ -1387,7 +1387,6 @@ function init(){
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
   if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
-  initVideoSettingsUI();
   renderAll();
 }
 
@@ -2600,10 +2599,9 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 
 document.addEventListener("DOMContentLoaded",function(){
-
-  document.getElementById("settBtnPdfUpdate").addEventListener("click", impPdfUpdate);
-  document.getElementById("fileInpUpdate").addEventListener("change", handleFileUpdate);
-init();
+  init();
+  var _su=document.getElementById("settBtnPdfUpdate");if(_su)_su.addEventListener("click",impPdfUpdate);
+  var _fu=document.getElementById("fileInpUpdate");if(_fu)_fu.addEventListener("change",handleFileUpdate);
   var ebZip = document.getElementById('emptyBtnZip');
   if (ebZip) ebZip.addEventListener('click', function(){document.getElementById('fileInp').click();});
   var ebPull = document.getElementById('emptyBtnPull');
@@ -2654,10 +2652,10 @@ init();
   document.getElementById("srchInp").addEventListener("input",function(){document.getElementById("srchClr").style.display=this.value?"block":"none";applyFilters();});
   document.getElementById("srchClr").addEventListener("click",function(){document.getElementById("srchInp").value="";this.style.display="none";applyFilters();});
   /* sortSel.change handled by initSortCycle */
-  document.getElementById("viewTog").addEventListener("click",function(){
+  var _eviewTo=document.getElementById("viewTog");if(_eviewTo)_eviewTo.addEventListener("click",function(){
     settSetView(grid ? "list" : "grid");
   });
-  document.getElementById("btnSett").addEventListener("click",openSett);
+  var _ebtnSet=document.getElementById("btnSett");if(_ebtnSet)_ebtnSet.addEventListener("click",openSett);
   document.getElementById("btnStat").addEventListener("click",showStats);
   document.getElementById("btnFav").addEventListener("click",function(){
     favMode=!favMode;wlMode=false;
@@ -2682,21 +2680,21 @@ init();
   document.getElementById("fileInp").addEventListener("change",handleFile);
   /* old emptyPdfBtn removed */
   document.getElementById("settOverlay").addEventListener("click",closeSett);
-  document.getElementById("ttabList").addEventListener("click",function(){settSetView("list");});
-  document.getElementById("ttabGrid").addEventListener("click",function(){settSetView("grid");});
+  var _ettabLi=document.getElementById("ttabList");if(_ettabLi)_ettabLi.addEventListener("click",function(){settSetView("list");});
+  var _ettabGr=document.getElementById("ttabGrid");if(_ettabGr)_ettabGr.addEventListener("click",function(){settSetView("grid");});
   document.getElementById("settSortSel").addEventListener("change",function(){settSetSort(this.value);});
-  document.getElementById("tmdbEye").addEventListener("click",function(){var inp=document.getElementById("tmdbKeyInp");inp.type=inp.type==="password"?"text":"password";this.textContent=inp.type==="password"?"\uD83D\uDC41":"\uD83D\uDE48";});
-  document.getElementById("tmdbSaveKey").addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB kluc ulozeny!":"TMDB kluc vymazany");});
-  document.getElementById("tmdbDelKey").addEventListener("click",function(){tmdbKey="";localStorage.removeItem("tmdb_key");document.getElementById("tmdbKeyInp").value="";keyStatus("tmdbKeySt","");});
+  var _etmdbEy=document.getElementById("tmdbEye");if(_etmdbEy)_etmdbEy.addEventListener("click",function(){var inp=document.getElementById("tmdbKeyInp");inp.type=inp.type==="password"?"text":"password";this.textContent=inp.type==="password"?"\uD83D\uDC41":"\uD83D\uDE48";});
+  var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB kluc ulozeny!":"TMDB kluc vymazany");});
+  var _etmdbDe=document.getElementById("tmdbDelKey");if(_etmdbDe)_etmdbDe.addEventListener("click",function(){tmdbKey="";localStorage.removeItem("tmdb_key");document.getElementById("tmdbKeyInp").value="";keyStatus("tmdbKeySt","");});
   document.getElementById("settBtnPdf").addEventListener("click",impPdf);
-  document.getElementById("settBtnBatch").addEventListener("click",settStartBatch);
-  document.getElementById("settBtnStop").addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
-  document.getElementById("settBtnExport").addEventListener("click",exportHtml);
-  document.getElementById("settBtnClearLive").addEventListener("click",clearLiveData);
-  document.getElementById("settBtnClearAll").addEventListener("click",clearAllData);
+  var _esettBt=document.getElementById("settBtnBatch");if(_esettBt)_esettBt.addEventListener("click",settStartBatch);
+  var _esettBt=document.getElementById("settBtnStop");if(_esettBt)_esettBt.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
+  var _esettBt=document.getElementById("settBtnExport");if(_esettBt)_esettBt.addEventListener("click",exportHtml);
+  var _esettBt=document.getElementById("settBtnClearLive");if(_esettBt)_esettBt.addEventListener("click",clearLiveData);
+  var _esettBt=document.getElementById("settBtnClearAll");if(_esettBt)_esettBt.addEventListener("click",clearAllData);
 
   // Admin panel
-  document.getElementById("settBtnAdmin").addEventListener("click",openAdmin);
+  var _esettBt=document.getElementById("settBtnAdmin");if(_esettBt)_esettBt.addEventListener("click",openAdmin);
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
   document.getElementById("adminSearchBtn").addEventListener("click",adminSearch);
   document.getElementById("adminSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")adminSearch();});
@@ -4060,136 +4058,6 @@ function buildVlcUrl(m) {
 function buildVideoSrc(m) {
   // For HTML5 <video> element: use raw local path or SMB path
   return getMoviePath(m);
-}
-
-// ----- Video settings (network/local) -----
-const VIDEO_SETTINGS_KEY = 'videoSettings';
-
-// Optional base URL for serving files over HTTP (used by getMovieNetworkUrl)
-const VIDEO_NETWORK_BASE_KEY = 'videoNetworkBase';
-var videoNetworkBase = localStorage.getItem(VIDEO_NETWORK_BASE_KEY) || 'http://localhost:8080/';
-
-function loadVideoSettings() {
-  const raw = localStorage.getItem(VIDEO_SETTINGS_KEY);
-  if (!raw) {
-    return { sourceMode: 'network' };
-  }
-  try {
-    const parsed = JSON.parse(raw);
-    if (parsed && (parsed.sourceMode === 'network' || parsed.sourceMode === 'local')) {
-      return parsed;
-    }
-    return { sourceMode: 'network' };
-  } catch (e) {
-    return { sourceMode: 'network' };
-  }
-}
-
-function saveVideoSettings(settings) {
-  localStorage.setItem(VIDEO_SETTINGS_KEY, JSON.stringify(settings));
-}
-
-let videoSettings = loadVideoSettings();
-
-function initVideoSettingsUI() {
-  const select = document.getElementById('videoSourceSelect');
-  if (!select) return;
-
-  // inicializácia hodnoty v UI
-  select.value = videoSettings.sourceMode;
-
-  // reaguj na zmenu
-  select.addEventListener('change', () => {
-    videoSettings.sourceMode = select.value;
-    saveVideoSettings(videoSettings);
-  });
-}
-
-function getMovieLocalUrl(movie) {
-  if (!movie) return '';
-  var raw = movie._localPath || '';
-  if (!raw) return '';
-  var p = raw.replace(/\\/g, '/');
-  if (p.startsWith('file://')) return p;
-  // If starts with drive letter like D:/ or W:/
-  if (/^[A-Za-z]:\//.test(p)) {
-    return 'file:///' + p;
-  }
-  return 'file:///' + p;
-}
-
-function getMovieNetworkUrl(movie) {
-  // Map local movie filename to an HTTP-accessible URL using
-  // a configurable base (default: http://localhost:8080/).
-  // Returns an encoded URL to the movie filename. If you don't
-  // serve files over HTTP, this will return an empty string.
-  if (!movie) return '';
-  var base = localStorage.getItem(VIDEO_NETWORK_BASE_KEY) || videoNetworkBase || 'http://localhost:8080/';
-  if (!base) return '';
-  if (base[base.length-1] !== '/') base += '/';
-  // Prefer explicit local path when available, otherwise build filename
-  var filename = '';
-  if (movie._localPath) {
-    // Extract basename from path
-    var p = movie._localPath.replace(/\\/g, '/');
-    filename = p.split('/').pop();
-  } else {
-    filename = buildMovieFilename(movie);
-  }
-  // Note: HTML5 <video> requires MP4/WebM containers with compatible codecs.
-  return base + encodeURIComponent(filename);
-}
-
-function getMovieSource(movie) {
-  if (videoSettings.sourceMode === 'local') {
-    return getMovieLocalUrl(movie);
-  } else {
-    const net = getMovieNetworkUrl(movie);
-    return net || getMovieLocalUrl(movie);
-  }
-}
-
-function playMovie(movie) {
-  // If user selected "local" source mode, open the file in an
-  // external/system player instead of trying to play via HTML5.
-  if (videoSettings && videoSettings.sourceMode === 'local') {
-    const localUrl = getMovieLocalUrl(movie);
-    if (!localUrl) {
-      console.warn('No local path for movie');
-      return;
-    }
-    try {
-      window.open(localUrl);
-    } catch (e) {
-      // Fallback to navigation if open() is blocked
-      window.location.href = localUrl;
-    }
-    return;
-  }
-
-  // Network mode — keep using the <video> element for playback.
-  const player = document.getElementById('moviePlayer');
-  if (!player) {
-    console.warn('moviePlayer element not found');
-    return;
-  }
-
-  const src = getMovieNetworkUrl(movie);
-  if (!src) {
-    console.warn('No network URL for this movie');
-    return;
-  }
-
-  try { player.pause(); } catch (e) {}
-  player.src = src;
-  player.load();
-
-  const playPromise = player.play();
-  if (playPromise && typeof playPromise.then === 'function') {
-    playPromise.catch(err => {
-      console.error('Autoplay blocked or error during play:', err);
-    });
-  }
 }
 
 function playLocalMovie(id) {
