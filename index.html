@@ -2,12 +2,16 @@
 <html lang="sk" data-skin="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
+<meta name="application-name" content="Filmy">
+<meta name="msapplication-TileColor" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <title>Marcelova Filmova Databaza</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="manifest" id="pwaManifest">
+<link rel="manifest" id="pwaManifest" href="manifest.webmanifest">
 
 <!-- CDN: PDF.js, Fuse.js, Chart.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -463,7 +467,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .fp-sel{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:8px 10px;color:var(--text);font-family:"JetBrains Mono",monospace;font-size:11px;outline:none;cursor:pointer}
 .fp-sel:focus{border-color:var(--gold)}
 .fp-genres{display:flex;flex-wrap:wrap;gap:6px}
-.fp-genre-chip{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;color:var(--text2);transition:all .15s;user-select:none}
+.fp-genre-chip{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:5px 11px;font-size:11px;cursor:pointer;color:var(--text2);transition:all .15s;-webkit-user-select:none;user-select:none}
 .fp-genre-chip:hover{border-color:var(--gold);color:var(--text)}
 .fp-genre-chip.on{background:var(--gold);color:#0a0a0f;border-color:var(--gold);font-weight:700}
 .fp-footer{display:flex;gap:8px;margin-top:16px}
@@ -662,20 +666,21 @@ cons ─────────────────────────
 
 /* ── Prevent text selection on cards ────────────────────────── */
 .mcard,.mcard *,.lcard,.lcard *,.hdr-act,.ctrl-btn{
-  user-select:none;-webkit-user-select:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  user-select:none;
   -webkit-tap-highlight-color:transparent}
 .cfav{outline:none;-webkit-tap-highlight-color:transparent}
 
 /* ── Native thin scrollbar ───────────────────────────────────── */
 
-kground:transparent}
-t selection on UI elements ───────────────────────── */
+/* ── Prevent text selection on UI elements ───────────────────────── */
 .hdr,.hdr *,.mcard,.mcard *,.lcard,.lcard *,
 .hdr-act,.ctrl-btn,.sort-sel,.fp-btn,
 .sett-panel,.sett-panel *{
-  user-select:none;
   -webkit-user-select:none;
   -moz-user-select:none;
+  user-select:none;
   -webkit-tap-highlight-color:transparent}
 /* Allow selection only in inputs */
 input,textarea,select{user-select:text;-webkit-user-select:text}
@@ -880,7 +885,7 @@ input,textarea,.tmdb-inp,select{
         <span class="srch-ic"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><line x1="14" y1="14" x2="18" y2="18"/></svg></span>
         <input class="srch-inp" id="srchInp" type="text" placeholder="Hľadaj film, režiséra, rok..." autocomplete="off">
         <span class="srch-mode-badge" id="srchModeBadge"></span>
-        <button class="srch-clr" id="srchClr">
+        <button class="srch-clr" id="srchClr" type="button" title="Vyčisti vyhľadávanie" aria-label="Vyčisti vyhľadávanie">
           <svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg>
         </button>
       </div>
@@ -1007,7 +1012,7 @@ input,textarea,.tmdb-inp,select{
     </div>
   </div>
   <div class="sett-row">
-    <span class="sett-lbl">Predvolené zoradenie</span>
+    <label class="sett-lbl" for="settSortSel">Predvolené zoradenie</label>
     <select class="sett-sel" id="settSortSel">
       <option value="num">Pôvodné poradie</option>
       <option value="title">Podľa názvu</option>
@@ -1066,7 +1071,7 @@ input,textarea,.tmdb-inp,select{
     <div class="color-swatch" data-gold="#ff7040" data-gold2="#ff9966" style="background:#ff7040" title="Oranžová"></div>
     <div class="color-swatch" data-gold="#22ccaa" data-gold2="#55ffdd" style="background:#22ccaa" title="Tyrkys"></div>
     <div class="color-inp-wrap" title="Vlastná farba">
-      <input type="color" id="colorCustom" value="#d4a943">
+      <input type="color" id="colorCustom" value="#d4a943" title="Vlastná farba akcentu" aria-label="Vlastná farba akcentu">
     </div>
   </div>
 
@@ -1096,9 +1101,9 @@ input,textarea,.tmdb-inp,select{
     <div class="sett-grp-title">API kľúč</div>
     <div class="sett-key-row">
       <input class="sett-key-inp" id="tmdbKeyInp" type="password" placeholder="API kľúč z themoviedb.org" autocomplete="off">
-      <button class="sett-icon-btn" id="tmdbEye" title="Zobraziť/skryť"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="sett-icon-btn" id="tmdbEye" title="Zobraziť/skryť" aria-label="Zobraziť alebo skryť API kľúč"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="tmdbSaveKey">OK</button>
-      <button class="sett-icon-btn danger" id="tmdbDelKey" title="Vymazať"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+      <button class="sett-icon-btn danger" id="tmdbDelKey" title="Vymazať" aria-label="Vymazať API kľúč"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
     </div>
     <div class="sett-key-st" id="tmdbKeySt"></div>
     </div>
@@ -1131,7 +1136,7 @@ input,textarea,.tmdb-inp,select{
 
     <div class="sett-grp">
     <div class="sett-grp-title">GitHub sync</div>
-    <div class="sett-btn-hint">Potrebuješ <a href="https://github.com/settings/tokens/new?scopes=repo&description=FilmDB" target="_blank" style="color:var(--gold)">GitHub PAT token</a> s právom <code>repo</code>.</div>
+    <div class="sett-btn-hint">Potrebuješ <a href="https://github.com/settings/tokens/new?scopes=repo&description=FilmDB" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">GitHub PAT token</a> s právom <code>repo</code>.</div>
     <div class="sett-key-row" style="margin-top:6px">
       <input class="sett-key-inp" id="ghTokenInp" type="password" placeholder="ghp_... Personal Access Token" autocomplete="new-password">
       <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="ghTokenSave">OK</button>
@@ -1169,7 +1174,7 @@ input,textarea,.tmdb-inp,select{
     </div>
     <div class="sett-btn-hint" style="margin-top:8px">
       <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Funguje pri lokálnom otvorení HTML.<br>
-      <b>Sieťová:</b> Prevedie na SMB cestu pre prehrávanie cez sieť. Vyžaduje <a href="https://github.com/Morgyn/VLCProtocol-Handler/releases" target="_blank" style="color:var(--gold)">VLC Protocol Handler</a>.
+      <b>Sieťová:</b> Prevedie na SMB cestu pre prehrávanie cez sieť. Vyžaduje <a href="https://github.com/Morgyn/VLCProtocol-Handler/releases" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">VLC Protocol Handler</a>.
     </div>
     <div class="sett-sub-row" style="margin-top:10px">
       <label class="sett-lbl" style="font-size:10px">SMB základ:</label>
@@ -1207,7 +1212,7 @@ input,textarea,.tmdb-inp,select{
 
 <div class="tr-ov hidden" id="trOv">
   <button class="tr-close" id="trClose">&#x2715;</button>
-  <iframe class="tr-frame" id="trFrame" allowfullscreen allow="autoplay;encrypted-media"></iframe>
+  <iframe class="tr-frame" id="trFrame" title="Trailer" allowfullscreen allow="autoplay;encrypted-media"></iframe>
 </div>
 <div class="m-ov hidden" id="mOv">
   <div class="modal">
@@ -1275,12 +1280,12 @@ input,textarea,.tmdb-inp,select{
   <div class="fp-sec">MIN. HODNOTENIE TMDB</div>
   <div class="fp-row">
     <span class="fp-lbl">Min. %</span>
-    <input class="fp-slider" id="fpRatingSlider" type="range" min="0" max="100" step="5" value="0">
+    <input class="fp-slider" id="fpRatingSlider" type="range" min="0" max="100" step="5" value="0" title="Minimálne percento TMDB" aria-label="Minimálne percento TMDB">
     <span class="fp-val" id="fpRatingVal">0%</span>
   </div>
 
   <div class="fp-sec">KRAJINA</div>
-  <select class="fp-sel" id="fpCountry">
+  <select class="fp-sel" id="fpCountry" title="Vybrať krajinu" aria-label="Vybrať krajinu">
     <option value="">Všetky krajiny</option>
   </select>
 
@@ -2302,6 +2307,22 @@ function openSett(){
     infoItem("Filmov",all.length)+infoItem("S plagatom",all.filter(function(m){return m.poster_thumb&&m.poster_thumb.length>10;}).length)+
     infoItem("Hodnotenia",lc)+infoItem("Oblubene",favs.size)+infoItem("Watchlist",wl.size)+infoItem("Videne",watched.size);
   var vt=document.getElementById("viewTog"); if(vt && vt.tagName==="SELECT") vt.value=grid?"grid":"list";
+  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
+    b.className = 'ttab' + (b.dataset.mode === pathMode ? ' on' : '');
+  });
+  var smbInp = document.getElementById('smbPathInp');
+  if (smbInp) smbInp.value = smbBase;
+  var localInp = document.getElementById('localPathInp');
+  if (localInp) {
+    var firstLocal = Object.keys(smbMap)[0] || 'W:\\Movies\\';
+    localInp.value = firstLocal;
+  }
+  var smbSt = document.getElementById('smbPathSt');
+  if (smbSt && smbBase) {
+    var lk = Object.keys(smbMap)[0] || '';
+    smbSt.textContent = '\u2713 ' + lk + ' \u2192 ' + smbBase;
+    smbSt.className = 'sett-key-st ok';
+  }
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
@@ -2705,19 +2726,6 @@ document.addEventListener("DOMContentLoaded",function(){
   document.getElementById('btnRnd').addEventListener('click', openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', cycleWatchedMode);
   initGhSync();
-  // Advanced settings toggle
-  
-    var isOpening = !this.classList.contains('open');
-    this.classList.toggle('open');
-    var body = document.getElementById('advBody');
-    body.classList.toggle('open');
-    // Scroll the settings panel so the adv section is visible
-    if (isOpening) {
-      setTimeout(function() {
-        body.scrollIntoView({behavior:'smooth', block:'nearest'});
-      }, 50);
-    }
-  });
 
   document.getElementById('ghTokenSave').addEventListener('click', function() {
     var t = document.getElementById('ghTokenInp').value.trim();
