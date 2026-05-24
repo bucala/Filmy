@@ -3122,8 +3122,17 @@ function ghPull() {
   if (!ghToken) { ghSetStatus('Nastav GitHub token.', 'err'); return; }
   ghSetStatus('Načítavam z GitHubu…', 'info');
 
+  var ghPullAttempt = function(attempt) {
   fetch(ghApiFileUrl(), { headers: ghHeaders() })
     .then(function(r) {
+      if (r.status === 401) throw new Error('401_UNAUTH');
+      if (r.status === 403) {
+        var reset = r.headers.get('X-RateLimit-Reset');
+        var wait  = reset ? Math.ceil((reset*1000 - Date.now())/60000) : '?';
+        throw new Error('403_RATELIMIT:' + wait);
+      }
+      if (r.status === 429) throw new Error('429_RATELIMIT');
+      if (r.status === 404) throw new Error('404');
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     })
@@ -3181,10 +3190,23 @@ function ghPull() {
     .catch(function(e) {
       if (e.message.indexOf('404') >= 0) {
         ghSetStatus('data.json ešte neexistuje — najprv ulož (Push).', 'err');
+      } else if (e.message.indexOf('401_UNAUTH') >= 0) {
+        ghSetStatus('⚠ Neplatný GitHub token — skontroluj nastavenia.', 'err');
+      } else if (e.message.indexOf('403_RATELIMIT') >= 0) {
+        var wait = e.message.split(':')[1] || '?';
+        ghSetStatus('⏳ GitHub rate limit — skús znova o ' + wait + ' min.', 'err');
+      } else if (e.message.indexOf('429_RATELIMIT') >= 0) {
+        ghSetStatus('⏳ GitHub rate limit — skús znova o chvíľu.', 'err');
+      } else if (attempt < 2) {
+        ghSetStatus('Opakujem pokus ' + (attempt+1) + '/2…', 'info');
+        setTimeout(function() { ghPullAttempt(attempt + 1); }, 3000);
+        return;
       } else {
         ghSetStatus('Chyba: ' + e.message, 'err');
       }
     });
+  };
+  ghPullAttempt(0);
 }
 
 function initGhSync() {
