@@ -1893,7 +1893,17 @@ function ghPull() {
         setTimeout(function() { ghPullAttempt(attempt + 1); }, 3000);
         return;
       } else {
-        ghSetStatus('Chyba: ' + e.message, 'err');
+        var _snap = null;
+        try { _snap = JSON.parse(localStorage.getItem(OK)); } catch(_e) {}
+        if (_snap && localStorage.getItem(SK)) {
+          var _age = Math.round((Date.now() - _snap.ts) / 86400000);
+          var _date = new Date(_snap.ts).toLocaleDateString('sk');
+          ghSetStatus('⚠ GitHub nedostupný — offline záloha z ' + _date + ' (' + _snap.count + ' filmov)', 'err');
+          toast('⚠ Offline — zobrazujem zálohu ' + (_age === 0 ? 'dnes' : _age + 'd starú'));
+          buildFuse(); renderAll();
+        } else {
+          ghSetStatus('Chyba: ' + e.message, 'err');
+        }
       }
     });
   };
