@@ -1999,7 +1999,7 @@ function applyLive(id,data){
 function doTMDBFetch(m,cb){
   if(!tmdbKey){cb(null);return;}
   fetch("https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&year="+(m.year||"")+"&language=sk")
-    .then(function(r){return r.json();})
+    .then(function(r){if(r.status===429){throw new Error('429');}return r.json();})
     .then(function(sd){
       if(!sd.results||!sd.results.length){cb(null);return;}
       var res=sd.results[0],tmdbId=res.id;
@@ -2017,7 +2017,7 @@ function doTMDBFetch(m,cb){
               tmdbUrl:"https://www.themoviedb.org/movie/"+tmdbId,
               imdbUrl:imdbId?"https://www.imdb.com/title/"+imdbId+"/":null});
         });
-    }).catch(function(){cb(null);});
+    }).catch(function(e){cb(null,e&&e.message==="429");});
 }
 
 function settStartBatch(){
@@ -2053,7 +2053,7 @@ function settStartBatch(){
       return;
     }
     var m=queue.shift();
-    doTMDBFetch(m,function(data){
+    doTMDBFetch(m,function(data,is429){if(is429){queue.unshift(m);document.getElementById("batchInfo").textContent="Rate limit! Cakam 10s...";setTimeout(next,10000);return;}
       if(data)liveCache[m.id]=data;
       done++;
       document.getElementById("batchFill").style.width=Math.round(done/total*100)+"%";
@@ -4392,6 +4392,14 @@ function scheduleAutoPush(reason) {
     if (all && all.length) ghPush();
   }, 5000);
 }
+
+  // ── Safety: flush pending auto-push before tab closes ──────────
+  window.addEventListener('beforeunload', function() {
+    if (ghToken && prefs.autoPush !== false && all && all.length) {
+      if (autoPushTimer) { clearTimeout(autoPushTimer); autoPushTimer = null; }
+      try { localStorage.setItem(SK, JSON.stringify(all.map(function(m){ var c=Object.assign({},m); if(c.poster_thumb&&c.poster_thumb.indexOf('data:')===0)c.poster_thumb=''; return c; }))); } catch(e) {}
+    }
+  });
 
 })();
 </script>
