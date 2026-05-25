@@ -841,19 +841,9 @@ input,textarea,.tmdb-inp,select{
 .cpost-play:hover{background:rgba(40,180,80,.4);border-color:#4cda6a}
 
 /* ── Inline video player in detail view ──────────────────────── */
-.det-player-wrap{
-  margin:10px 0 16px;padding:0;
-  border-radius:10px;overflow:hidden;
-  background:#000;border:1px solid var(--border2)}
-.det-player{
-  width:100%;max-height:400px;display:block;
-  background:#000;outline:none}
-.det-player-info{
-  padding:4px 10px;
-  font-family:"JetBrains Mono",monospace;font-size:9px;
-  color:var(--text3);background:var(--card2);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  border-top:1px solid var(--border)}
+
+
+
 
 .estate-btn{background:var(--card);border:1px solid var(--border2);
   color:var(--text);padding:10px 18px;border-radius:24px;
@@ -863,6 +853,17 @@ input,textarea,.tmdb-inp,select{
 .estate-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold2));
   color:#0a0a0f;border-color:var(--gold);font-weight:600}
 .estate-btn.primary:hover{filter:brightness(1.08)}
+
+/* ── Toggle switch (autoPushTog, nativePlayerTog) ─────────────── */
+.switch{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0;vertical-align:middle}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.slider{position:absolute;cursor:pointer;inset:0;background:#3a3a45;border-radius:22px;transition:.25s}
+.slider:before{content:"";position:absolute;height:16px;width:16px;left:3px;bottom:3px;
+  background:#fff;border-radius:50%;transition:.25s}
+.switch input:checked + .slider{background:var(--gold)}
+.switch input:checked + .slider:before{transform:translateX(20px);background:#0a0a0f}
+[data-skin="linen"] .switch input:checked + .slider:before,
+[data-skin="paper"] .switch input:checked + .slider:before{background:#fff}
 </style>
 </head>
 <body>
@@ -1129,6 +1130,13 @@ input,textarea,.tmdb-inp,select{
 
     <div class="sett-grp">
     <div class="sett-grp-title">GitHub sync</div>
+    <div class="sett-row" style="margin-bottom:8px;display:flex;align-items:center;gap:10px">
+      <span class="sett-lbl" style="flex:1;font-size:12px">Automatický push pri zmenách</span>
+      <label class="switch">
+        <input type="checkbox" id="autoPushTog" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
     <div class="sett-btn-hint">Potrebuješ <a href="https://github.com/settings/tokens/new?scopes=repo&description=FilmDB" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">GitHub PAT token</a> s právom <code>repo</code>.</div>
     <div class="sett-key-row" style="margin-top:6px">
       <input class="sett-key-inp" id="ghTokenInp" type="password" placeholder="ghp_... Personal Access Token" autocomplete="new-password">
@@ -1160,6 +1168,18 @@ input,textarea,.tmdb-inp,select{
 
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Prehrávanie filmov</div>
     <div class="sett-grp">
+    <div class="sett-grp-title">Spôsob prehrávania</div>
+    <div class="sett-row" style="margin-bottom:10px;display:flex;align-items:center;gap:10px">
+      <span class="sett-lbl" style="flex:1;font-size:12px">Použiť natívny prehrávač (file://)</span>
+      <label class="switch">
+        <input type="checkbox" id="nativePlayerTog">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="sett-btn-hint" style="margin-bottom:10px;font-size:10px">
+      <b>Vypnuté:</b> VLC Protocol Handler (vlc://...)<br>
+      <b>Zapnuté:</b> Systémový prehrávač (file:// alebo smb://)
+    </div>
     <div class="sett-grp-title">Režim ciest k súborom</div>
     <div class="sett-toggle" id="pathModeToggle">
       <button class="ttab" id="pathModeLocal" data-mode="local"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Lokálna cesta (W:\)</button>
@@ -1820,6 +1840,7 @@ function cardHTML(m){
 function togFav(id,btn){
   if(favs.has(id))favs.delete(id);else favs.add(id);
   localStorage.setItem(FK,JSON.stringify(Array.from(favs)));
+  scheduleAutoPush('togFav');
   if(btn)btn.innerHTML=favs.has(id)?'<svg viewBox="0 0 24 24" width="16" height="16" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
   var db=document.getElementById("dfavBtn");if(db&&curId===id)updFavBtn(db,id);
   if(favMode)applyFilters();
@@ -1827,6 +1848,7 @@ function togFav(id,btn){
 function togWl(id,btn){
   if(wl.has(id))wl.delete(id);else wl.add(id);
   localStorage.setItem(WK,JSON.stringify(Array.from(wl)));
+  scheduleAutoPush('togWl');
   if(btn)btn.innerHTML=wl.has(id)?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
   var db=document.getElementById("dwlBtn");if(db&&curId===id)updWlBtn(db,id);
   if(wlMode)applyFilters();
@@ -1883,12 +1905,6 @@ function openDet(id){
         '<span class="sett-btn-icon">▶</span>'+
         '<span class="sett-btn-label">Prehrať film</span>'+
       '</button>'+
-    '</div>'+
-    '<div class="det-player-wrap" id="detPlayerWrap">'+
-      '<div class="video-container" style="margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border2);">'+
-        '<video class="det-player" id="moviePlayer" width="100%" controls style="display:block;background:#000;">Váš prehliadač nepodporuje prehrávanie tohto videa.</video>'+
-      '</div>'+
-      '<div class="det-player-info">'+esc(getMoviePath(m))+'</div>'+
     '</div>'+
     '<div class="sec">Trailer & Linky</div>'+
     '<div class="tr-row">'+
@@ -2587,6 +2603,27 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
+  // Auto-push toggle
+  var _apt = document.getElementById('autoPushTog');
+  if (_apt) {
+    _apt.checked = prefs.autoPush !== false;
+    _apt.addEventListener('change', function(){
+      prefs.autoPush = this.checked;
+      savePrefs();
+      toast('Auto-push: ' + (this.checked ? 'zapnutý' : 'vypnutý'));
+    });
+  }
+  // Native player toggle
+  var _npt = document.getElementById('nativePlayerTog');
+  if (_npt) {
+    _npt.checked = useNativePlayer;
+    _npt.addEventListener('change', function(){
+      useNativePlayer = this.checked;
+      localStorage.setItem(NATIVE_PLAYER_KEY, this.checked ? '1' : '0');
+      toast('Prehrávač: ' + (this.checked ? 'natívny' : 'VLC handler'));
+    });
+  }
+
   var _su=document.getElementById("settBtnPdfUpdate");if(_su)_su.addEventListener("click",impPdfUpdate);
   var _fu=document.getElementById("fileInpUpdate");if(_fu)_fu.addEventListener("change",handleFileUpdate);
   var ebZip = document.getElementById('emptyBtnZip');
@@ -2941,6 +2978,9 @@ function adminAddMovie() {
   buildFuse();   // rebuild search index
   renderAll();
   closeAdmin();
+  if (ghToken && prefs.autoPush !== false) {
+    setTimeout(function() { toast('☁ Ukladám na GitHub...'); ghPush(); }, 800);
+  }
 }
 
 /** Save all[] to localStorage (posters stripped — restored from buildMovies() on load) */
@@ -3412,6 +3452,7 @@ function togWatched(id, btn) {
   }
   try { localStorage.setItem(VK,  JSON.stringify(Array.from(watched))); }    catch(e) {}
   try { localStorage.setItem(VDK, JSON.stringify(watchedDates)); }           catch(e) {}
+  scheduleAutoPush('togWatched');
   if (btn) updWatchedBtn(btn, id);
   // Update detail view badge if open
   var db = document.getElementById('dwatchedBtn');
@@ -3985,6 +4026,9 @@ function extractPostersFromPdf(pdf, mv){
    SMB share path configurable in settings
    ══════════════════════════════════════════════════════════════════ */
 var SMB_KEY     = 'mdb_smb_base';
+var NATIVE_PLAYER_KEY = 'mdb_native_player';
+var useNativePlayer = localStorage.getItem('mdb_native_player') === '1';
+
 var PATH_MODE_KEY = 'mdb_path_mode';
 var smbBase    = localStorage.getItem(SMB_KEY) || 'smb://DESKTOP-EGOG348/Movies/';
 var pathMode   = localStorage.getItem(PATH_MODE_KEY) || 'smb'; // 'local' or 'smb'
@@ -4048,6 +4092,10 @@ function getMoviePath(m) {
 
 function buildVlcUrl(m) {
   var path = getMoviePath(m);
+  if (useNativePlayer) {
+    if (pathMode === 'smb') return path;
+    return 'file:///' + path.replace(/\\/g, '/');
+  }
   return 'vlc://' + path;
 }
 
@@ -4309,6 +4357,18 @@ function autoCheckGitHub() {
   }
   toast('Žiadne lokálne dáta. Načítavam z GitHubu...');
   setTimeout(function() { ghPull(); }, 600);
+}
+
+
+/* ── Auto-push to GitHub (5s debounce) ──────────────────────────── */
+var autoPushTimer = null;
+function scheduleAutoPush(reason) {
+  if (!ghToken || prefs.autoPush === false) return;
+  if (autoPushTimer) clearTimeout(autoPushTimer);
+  autoPushTimer = setTimeout(function() {
+    autoPushTimer = null;
+    if (all && all.length) ghPush();
+  }, 5000);
 }
 
 })();
