@@ -151,3 +151,19 @@ Formát: [Keep a Changelog](https://keepachangelog.com/sk/) · Verziovanie: [Sem
 ### 🔄 Zmenené
 - Všetky dáta migrované do premennej `all[]` (runtime array)
 - Oddelené `favs`, `wl`, `watched`, `liveCache` kolekcie
+
+---
+
+## [9.4.0] — 2026-05-25
+
+### 🐛 Opravené (kritické)
+- **Chýbajúci `<div id="skinGrid">` wrapper** — počas predchádzajúcich úprav sa stratil otvárací tag spolu s DARK skin chip a sekciou "Vzhľad / Skin"; výsledok: skin chips boli orphan deti `<div class="sett-panel">` a celé nastavenia vyzerali rozbité (zobrazenie skončilo na skin chips, ďalšie sekcie boli skryté za `overflow:auto` ale neviditeľné)
+- **DARK skin chip pridaný späť** — bol prvý v zozname ale chýbal úplne
+- **Sekcia "Vzhľad / Skin"** pridaná ako sett-sec header pred skinGrid (SVG palette ikona + text)
+
+### 🔄 Zmenené
+- **Hviezda obľúbených (lfav button)** — väčšia (38×38px namiesto 36×36px), výraznejšie pozadie (`var(--card2)` namiesto `none`), pridaný `:active` stav so scale animáciou
+- **Star SVG ikony** — štandardizované na 18×18px so stroke-width 2 (predtým 16×16, stroke 1.8) — viditeľnejšie a konzistentnejšie naprieč skinmi
+
+### ⚠ Poznámka
+Zmena štruktúry settPanel z v9.4 odhalila že úpravy cez app/git import niekedy poškodia HTML štruktúru. Odporúča sa pred každým commitom skontrolovať že `id="skinGrid"` a všetky `data-skin="..."` chipy sú prítomné.

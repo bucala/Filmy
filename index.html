@@ -160,10 +160,11 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   line-height:1.2;display:block}
 .lmeta{font-family:"JetBrains Mono",monospace;font-size:9px;color:#d4a943}
 .lright{display:flex;gap:3px;flex-shrink:0;padding:0 4px;align-items:center}
-.lfav{flex-shrink:0;width:36px;height:36px;padding:0;display:flex;align-items:center;justify-content:center;
-  background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;
+.lfav{flex-shrink:0;width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;
+  background:var(--card2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;
   color:var(--text3);font-size:17px;line-height:1;-webkit-tap-highlight-color:transparent;
-  transition:color .15s,border-color .15s,background .15s}
+  transition:color .15s,border-color .15s,background .15s,transform .1s}
+.lfav:active{transform:scale(.94)}
 .lfav:hover{color:var(--gold)!important;border-color:var(--gold)!important;background:rgba(var(--gold-rgb,212,169,67),.1)!important}
 .mlist.grid .mcard{flex-direction:row;margin-bottom:0;height:190px;
   background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
@@ -1020,7 +1021,16 @@ input,textarea,.tmdb-inp,select{
     </select>
   </div>
 
-  
+  <!-- ════ VZHĽAD / SKIN ════════════════════════════════════════ -->
+  <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.5-.62 1.5-1.5 0-.39-.15-.75-.38-1.02-.22-.26-.37-.61-.37-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.52-4.48-9.5-10-9.5z"/></svg>Vzhľad / Skin</div>
+  <div class="skin-grid" id="skinGrid">
+    <div class="skin-chip" data-skin="dark" style="background:#0f0f14">
+      <div class="skin-dot" style="background:#d4a943;border-color:#7a5818"></div>
+      <div class="skin-info">
+        <div class="skin-name" style="color:#d4a943">DARK</div>
+        <div class="skin-desc" style="color:#a08858">Tmavo &middot; zlatá</div>
+      </div>
+    </div>
     <div class="skin-chip" data-skin="slate" style="background:#141c26">
       <div class="skin-dot" style="background:#5aabff;border-color:#1a4a7a"></div>
       <div class="skin-info">
@@ -1825,7 +1835,7 @@ function cardHTML(m){
           (m.director?'<div class="cdir">'+dirH+'</div>':'')+
           '<div class="cgenres">'+genres+'</div>'+
         '</div>'+
-        '<div class="cbot">'+badge+'<button class="cfav">'+(fav?'<svg viewBox="0 0 24 24" width="16" height="16" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>'+
+        '<div class="cbot">'+badge+'<button class="cfav">'+(fav?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>'+
       '</div>'+
     '</div>';
   }
@@ -1834,7 +1844,7 @@ function cardHTML(m){
     '<div class="lnum">'+m.num+'</div>'+
     '<div class="lbody"><div class="ltitle">'+titleH+'</div><div class="lmeta">'+esc(ym)+'</div></div>'+
     '<div class="lright">'+genres+badge+'</div>'+
-    '<button class="lfav">'+(fav?'<svg viewBox="0 0 24 24" width="16" height="16" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>';
+    '<button class="lfav">'+(fav?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>';
 }
 
 
@@ -1847,7 +1857,7 @@ function togFav(id,btn){
   if(favs.has(id))favs.delete(id);else favs.add(id);
   localStorage.setItem(FK,JSON.stringify(Array.from(favs)));
   scheduleAutoPush('togFav');
-  if(btn)btn.innerHTML=favs.has(id)?'<svg viewBox="0 0 24 24" width="16" height="16" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  if(btn)btn.innerHTML=favs.has(id)?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
   var db=document.getElementById("dfavBtn");if(db&&curId===id)updFavBtn(db,id);
   if(favMode)applyFilters();
 }

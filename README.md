@@ -101,3 +101,7 @@ https://github.com/bucala/Filmy
 ```
 
 *Vytvorené: máj 2026*
+
+### 🆕 v9.4
+- Obnovená sekcia **Vzhľad / Skin** v nastaveniach (chýbal `skinGrid` wrapper + DARK chip)
+- Hviezda obľúbených: väčšia, výraznejšie pozadie, scale animácia pri kliknutí
