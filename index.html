@@ -171,9 +171,6 @@
 </div>
 
 <!-- ══ SETTINGS PANEL ══ -->
-<!-- settOverlay = outer wrapper (hidden by default)
-     sett-bg    = click-to-close backdrop
-     sett-panel = the actual panel (stopPropagation prevents closing when clicking inside) -->
 <div id="settOverlay" class="hidden" onclick="closeSett()">
   <div class="sett-bg"></div>
   <div class="sett-panel" id="settPanel" onclick="event.stopPropagation()">
@@ -224,10 +221,6 @@
           <label style="color:var(--text2);font-size:13px">Auto-push:</label>
           <input type="checkbox" id="autoPushTog">
         </div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-          <label style="color:var(--text2);font-size:13px">Natívny prehrávač:</label>
-          <input type="checkbox" id="nativePlayerTog">
-        </div>
       </div>
 
       <div class="sett-section">
@@ -264,6 +257,10 @@
           <button id="smbPathSave" class="sett-btn">Uložiť</button>
         </div>
         <div id="smbPathSt" class="sett-key-st"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+          <label style="color:var(--text2);font-size:13px">Natívny prehrávač:</label>
+          <input type="checkbox" id="nativePlayerTog">
+        </div>
       </div>
 
       <div class="sett-section">
