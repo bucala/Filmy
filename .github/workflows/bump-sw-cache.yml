@@ -9,6 +9,9 @@ on:
       - 'index.html'
       - 'data.js'
 
+permissions:
+  contents: write
+
 jobs:
   bump-cache:
     runs-on: ubuntu-latest
