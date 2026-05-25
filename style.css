@@ -1,0 +1,13 @@
+/* ══ Filmová Databáza — styles ══ */
+
+:root{
+  /* ── BASE (overridden by data-theme / data-skin) ── */
+  --gold:#d4a943;--gold2:#b8892a;
+  --bg:#0a0a0f;--bg2:#111118;--bg3:#16161e;
+  --card:#1a1a24;--card2:#1e1e2a;
+  --border:#2a2a3a;--border2:#333345;
+  --text:#e8e4d8;--text2:#b0a898;--text3:#706860;
+  --hdr:linear-gradient(180deg,#0f0f18 0%,#0a0a0f 100%);
+  --radius:10px;--radius2:6px;
+  --shadow:0 4px 20px rgba(0,0,0,.5);
+}
