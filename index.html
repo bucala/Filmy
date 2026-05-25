@@ -21,21 +21,15 @@
 <!-- HEADER -->
 <div class="hdr" id="hdr">
   <div class="hdr-row1">
-
-    <!-- Logo -->
     <div class="logo-wrap" id="logoWrap">
       <span class="logo-s">Marcelova</span>
       <span class="logo-t">Filmová Databáza</span>
     </div>
-
-    <!-- Search -->
     <div class="hdr-srch">
       <input type="search" id="srchInp" placeholder="Hľadať film..." autocomplete="off">
-      <button id="srchClr" style="display:none">&times;</button>
+      <button id="srchClr" style="display:none;position:absolute;right:28px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0">&times;</button>
       <span class="srch-mode-badge" id="srchModeBadge"></span>
     </div>
-
-    <!-- Controls: sort + filter + view -->
     <div class="hdr-controls">
       <div class="sort-pill">
         <select id="sortSel" style="display:none"></select>
@@ -49,16 +43,14 @@
         <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>
       </button>
     </div>
-
-    <!-- Action buttons -->
     <div class="hdr-act">
-      <button id="btnFav" class="hdr-act hdr-act-fav" title="Obľúbené">
+      <button id="btnFav" class="hdr-act-fav" title="Obľúbené">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </button>
-      <button id="btnWl" class="hdr-act hdr-act-wl" title="Watchlist">
+      <button id="btnWl" class="hdr-act-wl" title="Watchlist">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
       </button>
-      <button id="btnWatched" class="hdr-act hdr-act-watch" title="Videné">
+      <button id="btnWatched" class="hdr-act-watch" title="Videné">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
       <button id="btnRnd" title="Náhodný film">
@@ -72,27 +64,25 @@
       </button>
     </div>
   </div>
-
-  <!-- Filter pills row -->
   <div class="fp-pills" id="fpPills"></div>
-  <!-- Genre chips -->
   <div class="fbar" id="fbar"></div>
-  <!-- Batch progress bar -->
-  <div class="batch-bar hidden" id="batchBar">
-    <div class="batch-bar-fill" id="batchFill" style="width:0%"></div>
-    <span class="batch-bar-info" id="batchInfo"></span>
+  <!-- Batch bar: hidden by default via .hidden class (requires style.css .hidden rule) -->
+  <div id="batchBar" class="batch-bar hidden">
+    <div id="batchFill" class="batch-bar-fill" style="width:0%"></div>
+    <span id="batchInfo" class="batch-bar-info"></span>
     <button id="btnBatchStop">Stop</button>
   </div>
 </div><!-- /hdr -->
 
-<!-- SCREENS -->
 <div id="loadSt" style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text2)">Načítavam...</div>
+
 <div id="emptySt" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px">
   <div style="font-size:48px">🎬</div>
   <div style="color:var(--text2);font-size:16px">Databáza je prázdna</div>
   <button class="sett-btn" id="emptyBtnZip">📂 Importovať ZIP</button>
   <button class="sett-btn" id="emptyBtnPull">☁ Načítať z GitHubu</button>
 </div>
+
 <div id="noRes" style="display:none;flex-direction:column;align-items:center;padding:40px;color:var(--text2)">
   <div style="font-size:32px">🔍</div>
   <div id="noResTxt">Nič sa nenašlo</div>
@@ -119,9 +109,7 @@
       <img id="detInsetImg" src="" alt="">
     </div>
   </div>
-  <div class="det-meta">
-    <div id="detYr" class="det-yr"></div>
-  </div>
+  <div class="det-meta"><div id="detYr" class="det-yr"></div></div>
   <div id="detBody" class="det-body"></div>
 </div>
 
@@ -163,6 +151,16 @@
   </div>
 </div>
 
+<!-- ══ PROGRESS MODAL ══ -->
+<div id="mOv" class="hidden">
+  <div class="modal">
+    <div id="mTtl"></div>
+    <div id="mSub"></div>
+    <div class="m-bar"><div id="mFill"></div></div>
+    <div id="mStat"></div>
+  </div>
+</div>
+
 <!-- ══ TRAILER OVERLAY ══ -->
 <div id="trOv" class="hidden">
   <div class="tr-overlay-bg" id="trClose"></div>
@@ -173,21 +171,23 @@
 </div>
 
 <!-- ══ SETTINGS PANEL ══ -->
-<div id="settOverlay" class="hidden">
-  <div class="sett-bg" id="settBg"></div>
-  <div class="sett-panel" id="settPanel">
+<!-- settOverlay = outer wrapper (hidden by default)
+     sett-bg    = click-to-close backdrop
+     sett-panel = the actual panel (stopPropagation prevents closing when clicking inside) -->
+<div id="settOverlay" class="hidden" onclick="closeSett()">
+  <div class="sett-bg"></div>
+  <div class="sett-panel" id="settPanel" onclick="event.stopPropagation()">
     <div class="sett-hdr">
       <span>⚙️ Nastavenia</span>
-      <button id="settCloseBtn">&times;</button>
+      <button id="settCloseBtn" onclick="closeSett()">&times;</button>
     </div>
     <div class="sett-body" id="settBody">
 
-      <!-- GitHub Sync -->
       <div class="sett-section">
         <div class="sett-section-title">☁ GitHub Sync</div>
         <div class="sync-status" id="ghSyncStatus"></div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="ghTokenInp" type="password" placeholder="ghp_... Personal Access Token" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+          <input id="ghTokenInp" type="password" placeholder="ghp_... Personal Access Token" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px">
           <button id="ghTokenSave" class="sett-btn">Uložiť</button>
         </div>
         <div id="ghTokenSt" class="sett-key-st"></div>
@@ -197,18 +197,14 @@
         </div>
       </div>
 
-      <!-- Import -->
       <div class="sett-section">
         <div class="sett-section-title">📂 Import</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button id="settBtnPdf" class="sett-btn">📄 Import ZIP/PDF</button>
           <button id="settBtnPdfUpdate" class="sett-btn">🔄 Aktualizovať DB</button>
         </div>
-        <input type="file" id="fileInp" accept=".zip,.pdf" style="display:none">
-        <input type="file" id="fileInpUpdate" accept=".zip,.pdf" style="display:none">
       </div>
 
-      <!-- View & Sort -->
       <div class="sett-section">
         <div class="sett-section-title">🖼 Zobrazenie</div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
@@ -217,7 +213,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <label style="color:var(--text2);font-size:13px">Radenie:</label>
-          <select id="settSortSel" style="padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text)">
+          <select id="settSortSel" style="padding:6px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text)">
             <option value="num">Poradové číslo</option>
             <option value="title">Názov A–Z</option>
             <option value="year">Rok</option>
@@ -234,11 +230,10 @@
         </div>
       </div>
 
-      <!-- TMDB -->
       <div class="sett-section">
         <div class="sett-section-title">🎬 TMDB API</div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="tmdbKeyInp" type="password" placeholder="TMDB API kľúč" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+          <input id="tmdbKeyInp" type="password" placeholder="TMDB API kľúč" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px">
           <button id="tmdbEye" class="sett-btn">👁</button>
           <button id="tmdbSaveKey" class="sett-btn">Uložiť</button>
           <button id="tmdbDelKey" class="sett-btn">🗑</button>
@@ -255,7 +250,6 @@
         </div>
       </div>
 
-      <!-- Paths -->
       <div class="sett-section">
         <div class="sett-section-title">📁 Cesty k súborom</div>
         <div style="display:flex;gap:8px;margin-bottom:8px" id="pathModeToggle">
@@ -263,16 +257,15 @@
           <button class="ttab" data-mode="local">Lokálny</button>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="smbPathInp" type="text" placeholder="smb://server/share/" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+          <input id="smbPathInp" type="text" placeholder="smb://server/share/" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px">
         </div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input id="localPathInp" type="text" placeholder="W:\Movies\" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+          <input id="localPathInp" type="text" placeholder="W:\Movies\" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:13px">
           <button id="smbPathSave" class="sett-btn">Uložiť</button>
         </div>
         <div id="smbPathSt" class="sett-key-st"></div>
       </div>
 
-      <!-- Theme & Colors -->
       <div class="sett-section">
         <div class="sett-section-title">🎨 Téma & Farby</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
@@ -283,7 +276,7 @@
           <button class="skin-chip" data-skin="linen">Linen</button>
           <button class="skin-chip" data-skin="paper">Paper</button>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px" id="colorSwatches">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
           <button class="color-swatch" data-gold="#d4a943" data-gold2="#f0c060" style="background:#d4a943"></button>
           <button class="color-swatch" data-gold="#4a9eff" data-gold2="#88ccff" style="background:#4a9eff"></button>
           <button class="color-swatch" data-gold="#e85555" data-gold2="#ff8080" style="background:#e85555"></button>
@@ -294,13 +287,11 @@
         <input type="color" id="colorCustom" value="#d4a943" style="width:40px;height:32px;border:none;background:none;cursor:pointer">
       </div>
 
-      <!-- Info grid -->
       <div class="sett-section">
         <div class="sett-section-title">ℹ Info</div>
         <div id="settInfoGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
       </div>
 
-      <!-- Export & Reset -->
       <div class="sett-section">
         <div class="sett-section-title">💾 Export & Reset</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -325,19 +316,19 @@
     <div id="fpBody" style="padding:12px 16px;overflow-y:auto;flex:1">
       <div style="margin-bottom:12px">
         <label style="font-size:12px;color:var(--text2)">ROK OD</label>
-        <input id="fpYearFrom" type="number" placeholder="napr. 1990" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);margin-top:4px">
+        <input id="fpYearFrom" type="number" placeholder="napr. 1990" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);margin-top:4px">
       </div>
       <div style="margin-bottom:12px">
         <label style="font-size:12px;color:var(--text2)">ROK DO</label>
-        <input id="fpYearTo" type="number" placeholder="napr. 2024" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);margin-top:4px">
+        <input id="fpYearTo" type="number" placeholder="napr. 2024" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);margin-top:4px">
       </div>
       <div style="margin-bottom:12px">
         <label style="font-size:12px;color:var(--text2)">MIN. HODNOTENIE: <span id="fpRatingVal">0%</span></label>
-        <input id="fpRatingSlider" type="range" min="0" max="100" value="0" style="width:100%;margin-top:4px">
+        <input id="fpRatingSlider" type="range" min="0" max="100" value="0" style="width:100%;margin-top:4px;accent-color:var(--gold)">
       </div>
       <div style="margin-bottom:12px">
         <label style="font-size:12px;color:var(--text2)">KRAJINA</label>
-        <select id="fpCountry" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);margin-top:4px"></select>
+        <select id="fpCountry" style="width:100%;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card2);color:var(--text);margin-top:4px"></select>
       </div>
       <div>
         <label style="font-size:12px;color:var(--text2)">ŽÁNRE</label>
@@ -351,29 +342,27 @@
   </div>
 </div>
 
+<!-- FILE INPUTS -->
+<input type="file" id="fileInp" accept=".zip,.pdf" style="display:none">
+<input type="file" id="fileInpUpdate" accept=".zip,.pdf" style="display:none">
+
 <!-- FAST SCROLL -->
 <div class="fscroll" id="fscroll"><div class="fscroll-track"><div class="fscroll-thumb" id="fscrollThumb"></div></div></div>
 
 <!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- FILE INPUTS (hidden) -->
-<input type="file" id="fileInp" accept=".zip,.pdf" style="display:none">
-<input type="file" id="fileInpUpdate" accept=".zip,.pdf" style="display:none">
+<div class="toast" id="toast" style="display:none"></div>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
 
-<!-- PWA: Service Worker registration -->
 <script>
 if("serviceWorker" in navigator){
   window.addEventListener("load", function(){
     navigator.serviceWorker.register("./sw.js")
-      .then(function(r){ console.log("[SW] registered, scope:", r.scope); })
-      .catch(function(e){ console.warn("[SW] registration failed:", e); });
+      .then(function(r){ console.log("[SW] registered", r.scope); })
+      .catch(function(e){ console.warn("[SW] failed", e); });
   });
 }
 </script>
-
 </body>
 </html>
