@@ -1,0 +1,36 @@
+name: Auto-bump SW cache version
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app.js'
+      - 'style.css'
+      - 'index.html'
+      - 'data.js'
+
+jobs:
+  bump-cache:
+    runs-on: ubuntu-latest
+    # Skip if this commit was already made by the bot (avoid infinite loop)
+    if: "!contains(github.event.head_commit.message, '[sw-bump]')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump SW cache version
+        run: |
+          VERSION="filmy-$(date -u +%Y%m%d-%H%M)"
+          sed -i "s/const CACHE *= *\"filmy-[^\"]*/const CACHE = \"${VERSION}/" sw.js
+          echo "New cache version: ${VERSION}"
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet sw.js || (
+            git add sw.js &&
+            git commit -m "chore: bump SW cache version [sw-bump]" &&
+            git push
+          )
