@@ -1,4 +1,4 @@
-﻿(function(){
+(function(){
 "use strict";
 if(typeof pdfjsLib!=="undefined")
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -17,7 +17,7 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
 var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
 function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
 var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
-var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
+var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs",OK="mdb_offline_snap";
 var liveCache={},liveRunning=false;
 var prefs={view:"list",sort:"num",sortDir:"desc"};
 
@@ -1868,6 +1868,7 @@ function ghPull() {
           return c;
         });
         localStorage.setItem(SK, JSON.stringify(toSave));
+        try { localStorage.setItem(OK, JSON.stringify({ts: Date.now(), count: toSave.length})); } catch(e2) {}
       } catch(e) {}
 
       var ts = payload.updated ? new Date(payload.updated).toLocaleString('sk') : '?';
