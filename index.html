@@ -700,7 +700,7 @@ input,textarea,select{user-select:text;-webkit-user-select:text}
 .screen *{
   -webkit-user-select:none;user-select:none;
   -webkit-tap-highlight-color:transparent}
-input,textarea,.tmdb-inp{
+input,textarea,.tmdb-inp,select{
   -webkit-user-select:text!important;user-select:text!important}
 
 /* ── User select + scrollbar ─────────────────────────────────── */
@@ -1429,7 +1429,10 @@ function loadPrefs(){
   if(validSorts.indexOf(prefs.sort)<0)prefs.sort="num";
   savePrefs();
   grid=(prefs.view==="grid");
-  if(grid){var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");if(ml)ml.className="mlist grid";if(vt){ vt.innerHTML=grid?'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>':'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>'; vt.setAttribute('data-mode',grid?'grid':'list'); }}
+  if(grid){var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");if(ml)ml.className="mlist grid";if(vt){ vt.innerHTML=grid?'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>':'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>'; vt.setAttribute('data-mode',grid?'grid':'list'); }
+    var tl=document.getElementById('ttabList'),tg=document.getElementById('ttabGrid');
+    if(tl)tl.className='ttab';
+    if(tg)tg.className='ttab on';}
   document.getElementById("sortSel").value=prefs.sort||"num";
   updateSortDirBtn(); if(typeof syncSortPill==="function") syncSortPill();
 }
