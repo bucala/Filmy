@@ -607,10 +607,7 @@ function openDet(id){
   document.getElementById("btnPlayCopy").addEventListener("click",function(){copyMoviePath(id);});
   document.getElementById("btnTr").addEventListener("click",function(){openTrailer(id);});
   // Wire play button
-  var playBtn = document.getElementById("playMovieBtn");
-  if (playBtn) {
-    playBtn.onclick = function() { playMovie(m); };
-  }
+  /* playMovieBtn removed — use btnPlay */
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;

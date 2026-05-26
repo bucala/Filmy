@@ -61,3 +61,32 @@
 - PWA manifest
 - VLC Protocol Handler integrácia (SMB + lokálne cesty)
 - Štatistiky a grafy (Chart.js)
+
+---
+
+## [10.0.0] — 2026-05-26
+
+### ✨ Nová štruktúra (v10)
+Aplikácia reštrukturalizovaná z single-file na modulárnu architektúru:
+- `index.html` (21 KB) — HTML šablóna
+- `app.js` (143 KB) — celá aplikačná logika
+- `style.css` (29 KB) — všetky štýly
+- `data.json` (1.9 MB) — databáza filmov
+- `sw.js` — Service Worker (PWA)
+- `manifest.webmanifest` — PWA manifest
+- Chart.js pre štatistiky
+
+### 🐛 Opravené (Fáza 1 — kritické)
+- **`.switch`/`.slider` CSS chýbal** — toggle prepínače (autoPush, nativePlayer) boli neviditeľné; pridaný kompletný switch CSS vrátane light-skin variant
+- **`skinGrid` wrapper chýbal** — skin chips boli orphan v DOM bez grid layoutu; pridaný `<div id="skinGrid">` wrapper
+- **DARK skin chip chýbal** — prvý skin bol úplne vymazaný; pridaný späť
+- **"Vzhľad / Skin" section header** — chýbal nadpis pred skin chips; pridaný SVG palette ikona + text
+- **`--gold-rgb` CSS premenná** — chýbala vo všetkých skinoch; pridaná (dark: 212,169,67 · slate: 90,171,255 · crimson: 232,85,85 · forest: 106,200,64 · linen: 122,92,24 · paper: 26,78,124)
+- **`.gtag` (žánre pills)** — prepísaný na `rgba(var(--gold-rgb),.1)` — reaguje na zmenu skinu
+
+### 🐛 Opravené (Fáza 2 — konzistentnosť)
+- **`.cfav` (grid star)** — zmenený z `background:none;border:none` na 38×38px button s pozadím, borderom, hover a active stavom
+- **`.lfav` (list star)** — zjednotený s `.cfav` designom (identický button look)
+- **`.batch-bar`** — `position:fixed;top:0;z-index:8000` — progress bar vždy viditeľný na vrchu stránky
+- **`.hdr-row1` CSS duplikát** — odstránený
+- **`playMovieBtn` orphan handler** — odstránený z `app.js`
