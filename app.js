@@ -317,7 +317,7 @@ function applyFilters(){
   if(wlMode&&!q&&!genre&&!fpActiveCount())label="Watchlist: "+list.length+" filmov";
   if(favMode&&!q&&!genre&&!fpActiveCount())label="Oblubene: "+list.length+" filmov";
   if(watchedMode&&!q&&!genre&&!fpActiveCount())label="Videne: "+list.length+" filmov";
-  document.getElementById("resCnt").textContent=label;
+  var _rc=document.getElementById("resCnt"); if(_rc) _rc.textContent=label;
 }
 
 /** Build highlight ranges for exact substring match */
@@ -440,7 +440,7 @@ function renderList(list){
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
   curPage=0;ml.innerHTML="";appendCards(list,ml);
-  ml.onscroll=null;
+  var _scrollHandler = null; if(_scrollHandler) ml.removeEventListener("scroll", _scrollHandler);
   ml.addEventListener("scroll",function(){
     if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-200){curPage++;appendCards(list,ml);}
     
@@ -578,12 +578,6 @@ function openDet(id){
     '</div>'+
     (genres?'<div class="det-genres">'+genres+'</div>':"")+
     '<div class="sec">Prehrávanie</div>'+
-    '<div class="det-actions" style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">'+
-      '<button id="playMovieBtn" class="sett-btn primary">'+
-        '<span class="sett-btn-icon">▶</span>'+
-        '<span class="sett-btn-label">Prehrať film</span>'+
-      '</button>'+
-    '</div>'+
     '<div class="sec">Trailer & Linky</div>'+
     '<div class="tr-row">'+
       '<button class="btn-play" id="btnPlay" title="'+esc(getMoviePath(m))+'">&#9654; Prehrať film</button>'+

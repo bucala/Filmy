@@ -105,3 +105,9 @@ https://github.com/bucala/Filmy
 ### 🆕 v9.4
 - Obnovená sekcia **Vzhľad / Skin** v nastaveniach (chýbal `skinGrid` wrapper + DARK chip)
 - Hviezda obľúbených: väčšia, výraznejšie pozadie, scale animácia pri kliknutí
+
+## Posledné zmeny (v2.1 — 2026-05-26)
+- Oprava scroll/lazy-load: načítava sa viac ako 40 filmov
+- Odstránené duplicitné tlačidlo prehrávania v detaile
+- Null-guardy pre DOM elementy
+- Zálohy súborov pred patchom
