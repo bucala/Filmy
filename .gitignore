@@ -4,3 +4,4 @@ Filmy/
 patch_d2.py
 patch_filmy.py
 .venv/
+*.bak
