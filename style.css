@@ -324,6 +324,25 @@ a{color:inherit;text-decoration:none}
   .mlist.grid{grid-template-columns:1fr 1fr}
 }
 
+
+/* ── FOCUS / OUTLINE RESET ── */
+button:focus,button:focus-visible,
+input:focus,select:focus,textarea:focus,
+[tabindex]:focus{
+  outline:none;
+  box-shadow:none;
+}
+button:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:2px;
+}
+/* Vsetky buttony - ziadne modre/fialove highlight */
+button{-webkit-tap-highlight-color:transparent;}
+/* Karty a lcard - no selection highlight */
+.mcard,.lcard,.sim-card,.admin-result-item{
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
