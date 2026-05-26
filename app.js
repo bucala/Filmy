@@ -440,11 +440,11 @@ function renderList(list){
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
   curPage=0;ml.innerHTML="";appendCards(list,ml);
-  var _scrollHandler = null; if(_scrollHandler) ml.removeEventListener("scroll", _scrollHandler);
-  ml.addEventListener("scroll",function(){
+  if(ml._listScroll) ml.removeEventListener("scroll", ml._listScroll);
+  ml._listScroll = function(){
     if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-200){curPage++;appendCards(list,ml);}
-    
-  });
+  };
+  ml.addEventListener("scroll", ml._listScroll);
 }
 function appendCards(list,ml){
   var start=curPage*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,list.length);
