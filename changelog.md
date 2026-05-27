@@ -90,3 +90,21 @@ Aplikácia reštrukturalizovaná z single-file na modulárnu architektúru:
 - **`.batch-bar`** — `position:fixed;top:0;z-index:8000` — progress bar vždy viditeľný na vrchu stránky
 - **`.hdr-row1` CSS duplikát** — odstránený
 - **`playMovieBtn` orphan handler** — odstránený z `app.js`
+
+---
+
+## [10.1.0] — 2026-05-27
+
+### 🐛 Opravené
+- **Settings X button nefungoval** — `closeSett()` bola vnútri IIFE scope, `onclick="closeSett()"` ju nenašiel; prepísané na `addEventListener` v DCL bloku
+- **Scroll zobrazoval iba 40 filmov** — `#scrnBody` nemal `top:90px` → absolutne pozicovaný div nemal výšku → `overflow-y:auto` nefungovalo; infinite scroll prepojený na `scrnBody` namiesto `mlist`
+- **Scrollbar na ľavej strane nereagoval** — `fscroll` sledoval `mlist.scrollTop` ale scroll bol na `scrnBody`; prepojený na správny element
+- **Pokročilý filter** — `openFp()` a `initFp()` boli správne wired, CSS `.fp-panel.open` existoval; problém bol maskovaný broken scrollom
+- **Import/Pull tlačidlá na hlavnej ploche** — `emptyBtnZip`/`emptyBtnPull` boli wired ale `fileInp.click()` nefungoval kvôli broken layoutu; po fix #3 fungujú
+
+### 🔄 Zmenené
+- **Permanentne označený text v nastaveniach** — pridaný `user-select:none` na `.sett-panel`
+- **hdr-left** (Obľúbené/Watchlist/Videné/Náhodný/Štatistiky) — `flex:1` s horizontálnym scrollom, `scrollbar-width:none`
+- **hdr-right** (Filter/Sort/View/Settings) — `position:sticky;right:0` s pozadím — vždy viditeľné na pravej strane
+- **hdr-icon active/on state** — vizuálna zmena pri zakliknutí (`color:var(--gold)`, bg highlight)
+- **Infinite scroll** — citlivejší trigger (300px pred koncom namiesto 200px)

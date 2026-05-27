@@ -74,7 +74,7 @@ a{color:inherit;text-decoration:none}
 .batch-bar-wrap{height:3px;background:var(--card2);position:relative;overflow:hidden}
 
 /* ── MAIN LIST ── */
-#scrnBody{position:absolute;left:0;right:0;bottom:0;overflow-y:auto}
+#scrnBody{position:absolute;top:90px;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .scrnBody{padding:8px 10px}
 .mlist{display:grid;gap:8px}
 
@@ -198,7 +198,7 @@ a{color:inherit;text-decoration:none}
 /* ── SETTINGS OVERLAY ── */
 #settOverlay{position:fixed;inset:0;z-index:800;display:flex;align-items:stretch;justify-content:flex-end}
 .sett-bg{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
-.sett-panel{position:relative;z-index:1;width:min(380px,100vw);background:var(--card);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.sett-panel{-webkit-user-select:none;user-select:none;position:relative;z-index:1;width:min(380px,100vw);background:var(--card);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
 /* legacy class aliases */
 .settOv{position:fixed;inset:0;z-index:800}
 .settBox{position:fixed;top:0;right:0;bottom:0;width:min(360px,100vw);background:var(--card);border-left:1px solid var(--border);overflow-y:auto;z-index:801;display:flex;flex-direction:column}
@@ -385,7 +385,11 @@ a{color:inherit;text-decoration:none}
   gap:2px;
   flex:0 0 auto;
   flex-shrink:0;
-}
+  position:sticky;
+  right:0;
+  z-index:2;
+  background:var(--hdr);
+  padding-left:6px}
 /* Active state for hdr-left buttons */
 .hdr-left button.active{
   color:var(--gold);
@@ -470,3 +474,6 @@ mark.fz-hl{background:rgba(212,169,67,.3);color:var(--gold);border-radius:2px;pa
 .switch input:checked + .slider:before{transform:translateX(20px);background:#0a0a0f}
 [data-skin="linen"] .switch input:checked + .slider:before,
 [data-skin="paper"] .switch input:checked + .slider:before{background:#fff}
+
+/* ── Header icon active state ────────────────────────────────── */
+.hdr-icon.active,.hdr-icon.on{color:var(--gold);background:rgba(var(--gold-rgb,212,169,67),.15);border-color:var(--gold)}

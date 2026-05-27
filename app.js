@@ -440,11 +440,13 @@ function renderList(list){
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
   curPage=0;ml.innerHTML="";appendCards(list,ml);
-  if(ml._listScroll) ml.removeEventListener("scroll", ml._listScroll);
-  ml._listScroll = function(){
-    if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-200){curPage++;appendCards(list,ml);}
+  // Infinite scroll on scrnBody (parent with overflow-y:auto)
+  var scrollEl = document.getElementById('scrnBody');
+  if(scrollEl._listScroll) scrollEl.removeEventListener("scroll", scrollEl._listScroll);
+  scrollEl._listScroll = function(){
+    if(scrollEl.scrollTop+scrollEl.clientHeight>=scrollEl.scrollHeight-300){curPage++;appendCards(list,ml);}
   };
-  ml.addEventListener("scroll", ml._listScroll);
+  scrollEl.addEventListener("scroll", scrollEl._listScroll);
 }
 function appendCards(list,ml){
   var start=curPage*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,list.length);
@@ -1272,6 +1274,10 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
+  // Settings close button
+  var _scb = document.getElementById('settCloseBtn');
+  if (_scb) _scb.addEventListener('click', closeSett);
+
   // Auto-push toggle
   var _apt = document.getElementById('autoPushTog');
   if (_apt) {
