@@ -61,6 +61,13 @@ function init(){
   document.getElementById("loadSt").style.display="none";
   buildFuse();
   renderAll();
+  // Auto-pull from GitHub on startup if enabled and token is set
+  if (autoPull && ghToken && typeof ghPull === "function") {
+    setTimeout(function() {
+      ghSetStatus("Automatické načítanie z GitHubu…", "info");
+      ghPull();
+    }, 800);
+  }
 }
 
 
@@ -498,7 +505,7 @@ function cardHTML(m){
   if(grid){
     var hp=m.poster_thumb&&m.poster_thumb.length>10;
     var post=hp
-      ?'<div class="cpost-wrap"><img class="cpost" src="'+m.poster_thumb+'" alt="" loading="lazy"><a class="cpost-play" href="'+buildVlcUrl(m)+'" title="Prehrať" onclick="event.stopPropagation()">&#9654;</a></div>'
+      ?'<div class="cpost-wrap"><img class="cpost" src="'+m.poster_thumb+'" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehrať" onclick="event.preventDefault();event.stopPropagation();var _ci='+m.id+';var _cm=all.find(function(x){return x.id===_ci;});if(_cm)window.location.href=buildVlcUrl(_cm);">&#9654;</a></div>'
       :'<div class="cpost-ph"><div class="cpost-n">#'+m.num+'</div>' +
       '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="2" y="3" width="15" height="18" rx="2"/><path d="M17 7h3l2 4-2 4h-3"/><circle cx="9" cy="12" r="3"/></svg>' +
       '</div>';
@@ -592,16 +599,16 @@ function openDet(id){
     '</div>'+
     (genres?'<div class="det-genres">'+genres+'</div>':"")+
     '<div class="sec">Prehrávanie</div>'+
-    '<div class="det-actions" style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">'+
+    '<div class="det-actions">'+
       '<button id="playMovieBtn" class="sett-btn primary">'+
-        '<span class="sett-btn-icon">▶</span>'+
+        '<span class="sett-btn-icon">&#9654;</span>'+
         '<span class="sett-btn-label">Prehrať film</span>'+
       '</button>'+
+      '<button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru">&#128203; Kopírovať cestu</button>'+
+      '<div class="det-path-hint" style="width:100%;font-size:10px;opacity:.5;margin-top:4px;word-break:break-all">'+esc(getMoviePath(m))+'</div>'+
     '</div>'+
     '<div class="sec">Trailer & Linky</div>'+
     '<div class="tr-row">'+
-      '<button class="btn-play" id="btnPlay" title="'+esc(getMoviePath(m))+'">&#9654; Prehrať film</button>'+
-      '<button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu">&#128203;</button>'+
       '<button class="btn-trailer" id="btnTr">&#9654; YouTube Trailer</button>'+
       '<a class="btn-tmdb" id="btnTmdb" href="'+esc(tmdbUrl)+'" target="_blank">TMDB</a>'+
       (imdbUrl?'<a class="btn-imdb" id="btnImdb" href="'+esc(imdbUrl)+'" target="_blank">&#9733; IMDB</a>':
@@ -620,17 +627,13 @@ function openDet(id){
   document.querySelectorAll(".sim-card").forEach(function(c){
     c.addEventListener("click",function(){openDet(parseInt(c.dataset.sid));});
   });
-  document.getElementById("btnPlay").addEventListener("click",function(){
-    var url = buildVlcUrl(all.find(function(x){return x.id===id;}));
-    window.location.href = url;
-  });
+  // Single play button — buildVlcUrl called at click time (respects current toggle)
+  var playBtn = document.getElementById("playMovieBtn");
+  if (playBtn) playBtn.onclick = function() {
+    window.location.href = buildVlcUrl(all.find(function(x){return x.id===id;}) || m);
+  };
   document.getElementById("btnPlayCopy").addEventListener("click",function(){copyMoviePath(id);});
   document.getElementById("btnTr").addEventListener("click",function(){openTrailer(id);});
-  // Wire play button
-  var playBtn = document.getElementById("playMovieBtn");
-  if (playBtn) {
-    playBtn.onclick = function() { playMovie(m); };
-  }
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -1383,6 +1386,10 @@ document.addEventListener("DOMContentLoaded",function(){
       this.className = 'ttab on';
       toast('Režim: ' + (pathMode === 'smb' ? 'Sieťový (SMB)' : 'Lokálny (W:)'));
     });
+  // Set initial active state for pathMode buttons based on localStorage
+  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
+    b.className = (b.dataset.mode === pathMode) ? 'ttab on' : 'ttab';
+  });
   });
   var smbSaveBtn = document.getElementById('smbPathSave');
   if (smbSaveBtn) smbSaveBtn.addEventListener('click', function(){
@@ -1504,6 +1511,15 @@ document.addEventListener("DOMContentLoaded",function(){
   });
   document.getElementById('ghPushBtn').addEventListener('click', ghPush);
   document.getElementById('ghPullBtn').addEventListener('click', ghPull);
+  var _apt = document.getElementById('autoPullTog');
+  if (_apt) {
+    _apt.checked = autoPull;
+    _apt.addEventListener('change', function(){
+      autoPull = this.checked;
+      localStorage.setItem(AUTO_PULL_KEY, this.checked ? '1' : '0');
+      toast('Auto-načítanie z GitHubu: ' + (this.checked ? 'zapnuté' : 'vypnuté'));
+    });
+  }
   var tx=0;
   ["detSc","statSc"].forEach(function(id){
     var el=document.getElementById(id);
@@ -1748,6 +1764,8 @@ var GH_KEY    = 'mdb_gh_token';
 var GH_REPO   = 'bucala/Filmy';
 var GH_FILE   = 'data.json';
 var GH_BRANCH = 'main';
+var AUTO_PULL_KEY = 'mdb_auto_pull';
+var autoPull = localStorage.getItem(AUTO_PULL_KEY) === '1';
 var ghToken   = localStorage.getItem('mdb_gh_token') || '';
 
 
@@ -1872,7 +1890,7 @@ function ghPull() {
   ghSetStatus('Načítavam z GitHubu…', 'info');
 
   var ghPullAttempt = function(attempt) {
-  fetch(ghApiFileUrl(), { headers: ghHeaders() })
+  fetch(ghApiFileUrl() + '&t=' + Date.now(), { headers: ghHeaders() })
     .then(function(r) {
       if (r.status === 401) throw new Error('401_UNAUTH');
       if (r.status === 403) {
@@ -1886,12 +1904,17 @@ function ghPull() {
       return r.json();
     })
     .then(function(file) {
+      if (!file || !file.content) {
+        throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
+      }
       var b64clean = file.content.replace(/\s/g, '');
       var binary   = atob(b64clean);
       var bytes    = new Uint8Array(binary.length);
       for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      var raw      = new TextDecoder('utf-8').decode(bytes);
-      var payload = JSON.parse(raw);
+      var raw = new TextDecoder('utf-8').decode(bytes);
+      var payload;
+      try { payload = JSON.parse(raw); }
+      catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
 
       if (!payload.movies || !payload.movies.length) {
         ghSetStatus('Súbor data.json je prázdny — najprv ulož (Push).', 'err');
