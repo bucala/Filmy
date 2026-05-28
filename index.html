@@ -107,15 +107,12 @@
     <button class="batch-stop" id="btnBatchStop">Stop</button>
   </div>
   <div id="scrnBody" class="scrn-body">
-    <div id="mainPullStatus" style="display:none;position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--c2);border:1px solid var(--gold);border-radius:12px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);box-shadow:0 4px 20px rgba(0,0,0,.6);min-width:220px;max-width:320px">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-    <span style="color:var(--gold)">⬇</span>
-    <span id="mainPullStatusText">Načítavam z GitHubu…</span>
-  </div>
-  <div style="height:3px;background:var(--border2);border-radius:3px;overflow:hidden">
-    <div id="mainPullBar" style="height:100%;background:var(--gold);width:0%;transition:width .4s ease;border-radius:3px"></div>
-  </div>
+    <div id="mainPullStatus" class="batch-bar hidden">
+  <span style="color:var(--gold);margin-right:4px">⬇</span>
+  <div class="batch-info" id="mainPullStatusText">Načítavam z GitHubu…</div>
+  <div class="batch-pbar"><div class="batch-pfill" id="mainPullBar"></div></div>
 </div>
+<div id="loadSt" class="estate"><div class="estate-ic">&#127902;</div><div class="estate-t">Nacitavam...</div><div class="estate-s">Pripravujem databazu.</div></div>
 <div id="loadSt" class="estate"><div class="estate-ic">&#127902;</div><div class="estate-t">Nacitavam...</div><div class="estate-s">Pripravujem databazu.</div></div>
     <div id="emptySt" class="estate" style="display:none">
       <div class="estate-ic">&#127917;</div>
@@ -339,6 +336,12 @@
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
       <span class="sett-btn-label">TMDB Admin Panel — pridať film</span>
     </button>
+    <div style="height:8px"></div>
+    <button class="sett-btn" id="settBtnSaveAll" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)">
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></span>
+      <span class="sett-btn-label">Uložiť všetky nastavenia</span>
+    </button>
+    <div class="sett-key-st" id="saveAllSt" style="margin-top:4px"></div>
 
     </div>
 
