@@ -680,6 +680,7 @@ function settStartBatch(){
   var total=queue.length,done=0;
   var bar=document.getElementById("batchBar");
   bar.classList.remove("hidden");
+  _shiftScrnBody(true);
   document.getElementById("batchInfo").textContent="0/"+total;
   document.getElementById("batchFill").style.width="0%";
 
@@ -704,6 +705,7 @@ function settStartBatch(){
         liveRunning=false;
         if(tmdbAbortCtrl){tmdbAbortCtrl.abort();tmdbAbortCtrl=null;}
         bar.classList.add("hidden");
+        _shiftScrnBody(false);
         savePersistent();
         renderList(filt);
         toast("Načítané: "+done+"/"+total+" filmov!");
@@ -1399,7 +1401,7 @@ document.addEventListener("DOMContentLoaded",function(){
   document.getElementById("btnBack").addEventListener("click",closeDet);
   document.getElementById("btnStatCls").addEventListener("click",closeStat);
   document.getElementById("trClose").addEventListener("click",closeTr);
-  document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
+  document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");_shiftScrnBody(false);saveLiveCache();renderList(filt);toast("Prerusene.");});
   document.getElementById("fileInp").addEventListener("change",handleFile);
   /* old emptyPdfBtn removed */
   document.getElementById("settOverlay").addEventListener("click",closeSett);
@@ -1760,10 +1762,16 @@ var ghToken       = localStorage.getItem('mdb_gh_token') || '';
 /* ══════════════════════════════════════════════════════════
    MODULE: GitHub Sync — push/pull data.json
    ══════════════════════════════════════════════════════════ */
+function _shiftScrnBody(on) {
+  var sb = document.getElementById('scrnBody');
+  if (!sb) return;
+  // batch-bar height ~34px → posunúť scrn-body nadol keď je bar viditeľný
+  sb.style.top = on ? '122px' : '';
+}
+
 function ghSetStatus(msg, type) {
   var el = document.getElementById('ghSyncStatus');
   if (el) { el.textContent = msg; el.className = 'sync-status ' + (type || 'info'); }
-  // Aktualizuj aj hlavný status bar
   var mb = document.getElementById('mainPullStatus');
   var mt = document.getElementById('mainPullStatusText');
   var ep = document.getElementById('emptyPullStatus');
@@ -1773,14 +1781,24 @@ function ghSetStatus(msg, type) {
     if (type === 'ok') {
       var bar = document.getElementById('mainPullBar');
       if (bar) bar.style.width = '100%';
-      setTimeout(function(){ mb.classList.add('hidden'); if(bar) bar.style.width = '0%'; }, 1400);
+      setTimeout(function(){
+        mb.classList.add('hidden');
+        if (bar) bar.style.width = '0%';
+        _shiftScrnBody(false);
+      }, 1400);
     } else if (type === 'err') {
       mb.classList.remove('hidden');
       mb.style.borderBottomColor = '#e05555';
-      setTimeout(function(){ mb.classList.add('hidden'); mb.style.borderBottomColor = ''; }, 3500);
+      _shiftScrnBody(true);
+      setTimeout(function(){
+        mb.classList.add('hidden');
+        mb.style.borderBottomColor = '';
+        _shiftScrnBody(false);
+      }, 3500);
     } else {
       mb.classList.remove('hidden');
       mb.style.borderBottomColor = '';
+      _shiftScrnBody(true);
     }
   }
 }
