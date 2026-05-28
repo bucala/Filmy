@@ -497,7 +497,7 @@ function cardHTML(m){
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();var _m=all.find(x=>x.id===${m.id});if(_m)window.location.href=buildVlcUrl(_m);">▶</a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();playMovie(${m.id});">▶</a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
@@ -1684,9 +1684,9 @@ function adminSaveAll() {
 var GH_KEY    = 'mdb_gh_token';
 var GH_REPO   = 'bucala/Filmy';
 var GH_FILE   = 'data.json';
-var GH_BRANCH = 'main';
+var GH_BRANCH = 'Perplexity';
 var AUTO_PULL_KEY = 'mdb_auto_pull';
-var autoPull = localStorage.getItem(AUTO_PULL_KEY) === '1';
+var autoPull = localStorage.getItem(AUTO_PULL_KEY) !== '0'; // default: ON
 var ghToken   = localStorage.getItem('mdb_gh_token') || '';
 
 
