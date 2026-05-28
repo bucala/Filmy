@@ -70,7 +70,7 @@ function init(){
   buildFuse();
   renderAll();
   // Auto-pull from GitHub on startup if enabled and token is set
-  if (autoPull && ghToken && typeof ghPull === "function") {
+  if (autoPull && typeof ghPull === "function") {
     setTimeout(function() {
       ghSetStatus("Automatické načítanie z GitHubu…", "info");
       ghPull();
@@ -1302,10 +1302,7 @@ document.addEventListener("DOMContentLoaded",function(){
   var ebZip = document.getElementById('emptyBtnZip');
   if (ebZip) ebZip.addEventListener('click', function(){document.getElementById('fileInp').click();});
   var ebPull = document.getElementById('emptyBtnPull');
-  if (ebPull) ebPull.addEventListener('click', function(){
-    if (!ghToken) { toast('Najprv nastav GitHub token'); openSett(); return; }
-    ghPull();
-  });
+  if (ebPull) ebPull.addEventListener('click', function(){ ghPull(); });
 
   autoCheckGitHub();
   // Path mode toggle + SMB settings
@@ -1315,7 +1312,16 @@ document.addEventListener("DOMContentLoaded",function(){
       localStorage.setItem(PATH_MODE_KEY, pathMode);
       document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className = 'ttab on';
-      toast(`Režim: ${pathMode==='smb'?'Sieťový (SMB)':'Lokálny (W:)'}`);
+      toast('Režim: ' + (pathMode==='smb'?'Sieťový (SMB)':'Lokálny (W:)'));
+      // Aktualizuj hint s ukážkou cesty
+      var _hint = document.getElementById('pathModeHint');
+      if (_hint) {
+        var _sample = all.length ? getMoviePath(all[0]) : (pathMode==='smb' ? (smbBase+'Film.mkv') : 'W:/Movies/Film.mkv');
+        _hint.textContent = '▶ ' + _sample;
+      }
+      // Aktualizuj detail panel ak je otvorený
+      var _dpth = document.querySelector('.det-path-hint');
+      if (_dpth && curId) { var _cm = all.find(function(x){return x.id===curId;}); if(_cm) _dpth.textContent = getMoviePath(_cm); }
     });
   // Set initial active state for pathMode buttons based on localStorage
   document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
@@ -1325,12 +1331,13 @@ document.addEventListener("DOMContentLoaded",function(){
   var smbSaveBtn = document.getElementById('smbPathSave');
   if (smbSaveBtn) smbSaveBtn.addEventListener('click', function(){
     var val = document.getElementById('smbPathInp').value.trim();
-    var localVal = document.getElementById('localPathInp').value.trim();
     if (val) {
       if (val[val.length-1] !== '/') val += '/';
       smbBase = val;
       localStorage.setItem(SMB_KEY, val);
     }
+    // Sync smbMap s aktuálnym localPathInp
+    var localVal = document.getElementById('localPathInp').value.trim();
     if (localVal && val) {
       if (localVal[localVal.length-1] !== '\\' && localVal[localVal.length-1] !== '/') localVal += '\\';
       var newMap = {};
@@ -1339,8 +1346,24 @@ document.addEventListener("DOMContentLoaded",function(){
       localStorage.setItem(SMB_MAP_KEY, JSON.stringify(newMap));
     }
     var st = document.getElementById('smbPathSt');
-    if (st) { st.textContent = '✓ Uložené: ' + (localVal||'W:\\') + ' → ' + (val||smbBase); st.className = 'sett-key-st ok'; }
-    toast('Cesty uložené');
+    if (st) { st.textContent = '✓ SMB: ' + (val||smbBase); st.className = 'sett-key-st ok'; }
+    toast('SMB základ uložený');
+  });
+
+  // Samostatný listener pre localPathSave
+  var localSaveBtn = document.getElementById('localPathSave');
+  if (localSaveBtn) localSaveBtn.addEventListener('click', function(){
+    var localVal = document.getElementById('localPathInp').value.trim();
+    if (!localVal) { toast('Zadaj lokálny základ (napr. W:\\Movies\\)'); return; }
+    if (localVal[localVal.length-1] !== '\\' && localVal[localVal.length-1] !== '/') localVal += '\\';
+    // Aktualizuj smbMap: localVal → smbBase
+    var newMap = {};
+    newMap[localVal] = smbBase;
+    smbMap = newMap;
+    localStorage.setItem(SMB_MAP_KEY, JSON.stringify(newMap));
+    var st = document.getElementById('smbPathSt');
+    if (st) { st.textContent = '✓ Mapovanie: ' + localVal + ' → ' + smbBase; st.className = 'sett-key-st ok'; }
+    toast('Lokálny základ uložený');
   });
 
   
@@ -1815,11 +1838,20 @@ function ghPush() {
 }
 
 function ghPull() {
-  if (!ghToken) { ghSetStatus('Nastav GitHub token.', 'err'); return; }
   ghSetStatus('Načítavam z GitHubu…', 'info');
 
+  // Bez tokenu: použijeme public raw URL (len čítanie)
+  // S tokenom: použijeme API URL (vyšší rate limit, private repo)
   var ghPullAttempt = function(attempt) {
-  fetch(ghApiFileUrl() + '&t=' + Date.now(), { headers: ghHeaders() })
+  var pullUrl, pullHeaders;
+  if (ghToken) {
+    pullUrl     = ghApiFileUrl() + '&t=' + Date.now();
+    pullHeaders = ghHeaders();
+  } else {
+    pullUrl     = 'https://raw.githubusercontent.com/' + GH_REPO + '/' + GH_BRANCH + '/' + GH_FILE + '?t=' + Date.now();
+    pullHeaders = {};
+  }
+  fetch(pullUrl, { headers: pullHeaders })
     .then(function(r) {
       if (r.status === 401) throw new Error('401_UNAUTH');
       if (r.status === 403) {
@@ -1832,18 +1864,26 @@ function ghPull() {
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       return r.json();
     })
+    .then(function(r2) { return ghToken ? r2.json() : r2.text(); })
     .then(function(file) {
-      if (!file || !file.content) {
-        throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
-      }
-      var b64clean = file.content.replace(/\s/g, '');
-      var binary   = atob(b64clean);
-      var bytes    = new Uint8Array(binary.length);
-      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      var raw = new TextDecoder('utf-8').decode(bytes);
       var payload;
-      try { payload = JSON.parse(raw); }
-      catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
+      if (typeof file === 'string') {
+        // raw URL → priamy JSON text
+        try { payload = JSON.parse(file); }
+        catch(je) { throw new Error('Neplatný JSON: ' + je.message); }
+      } else {
+        // API URL → base64 encoded
+        if (!file || !file.content) {
+          throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
+        }
+        var b64clean = file.content.replace(/\s/g, '');
+        var binary   = atob(b64clean);
+        var bytes    = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        var raw = new TextDecoder('utf-8').decode(bytes);
+        try { payload = JSON.parse(raw); }
+        catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
+      }
 
       if (!payload.movies || !payload.movies.length) {
         ghSetStatus('Súbor data.json je prázdny — najprv ulož (Push).', 'err');
