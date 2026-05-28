@@ -58,6 +58,7 @@ function init(){
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
   if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
+  buildFuse();
   renderAll();
 }
 
@@ -95,7 +96,11 @@ function updateSortDirBtn(){syncSortPill();}
 /* ══════════════════════════════════════════════════════════
    MODULE: Render Pipeline — list, cards, chips
    ══════════════════════════════════════════════════════════ */
-function renderAll(){buildChips();buildFuse();applyFilters();}
+function renderAll(){
+  buildChips();
+  // Fuse index is rebuilt only when data changes.
+  applyFilters();
+}
 
 function buildChips(){
   var gc={};
@@ -438,12 +443,15 @@ function renderList(list){
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
   curPage=0;ml.innerHTML="";appendCards(list,ml);
-  
-  // Infinite scroll on scrnBody (parent with overflow-y:auto)
+
+  // FIX1: Remove previous scroll handler before attaching a new one.
+  // Without this, every renderList() call stacks a new listener — 87+ duplicates after TMDB batch.
   var _sb=document.getElementById("scrnBody")||ml.parentElement;
-  _sb.addEventListener("scroll",function(){
+  if(_sb._scrollHandler) _sb.removeEventListener("scroll",_sb._scrollHandler);
+  _sb._scrollHandler=function(){
     if(_sb.scrollTop+_sb.clientHeight>=_sb.scrollHeight-300){curPage++;appendCards(list,ml);}
-  });
+  };
+  _sb.addEventListener("scroll",_sb._scrollHandler);
 }
 function appendCards(list,ml){
   var start=curPage*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,list.length);
@@ -1050,6 +1058,7 @@ function handleFile(){
       });
       
       all = mv;
+      buildFuse(); // rebuild Fuse index after GitHub pull
       // Save — strip base64 posters to save space (keep URL posters)
       try{
         var toSave=all.map(function(m){
@@ -1090,7 +1099,9 @@ function handleFile(){
       .then(function(txt){
         setP(52,"Parsovanie...");var mv=parseEMDB(txt);
         if(!mv.length){hideMod();toast("Nenašli sa filmy v PDF.");return;}
-        all=mv;try{localStorage.setItem(SK,JSON.stringify(all));}catch(e){}
+        all=mv;
+        buildFuse(); // rebuild Fuse index after PDF import
+        try{localStorage.setItem(SK,JSON.stringify(all));}catch(e){}
         setP(100,"Hotovo!");setTimeout(function(){hideMod();renderAll();toast("Importovaných "+mv.length+" filmov");if(tmdbKey){toast("Spúšťam TMDB...");setTimeout(settStartBatch,1500);}},500);
       }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   }
@@ -1241,6 +1252,7 @@ function clearAllData(){
   genre='';favMode=false;wlMode=false;watchedMode=false;
   prefs={view:'list',sort:'num',sortDir:'desc'};
   all=[];filt=[];closeSett();
+  fuseInst=null; // reset Fuse index on clear
   var ml=document.getElementById('mlist');if(ml)ml.style.display='none';
   var es=document.getElementById('emptySt');if(es)es.style.display='flex';
   var ls=document.getElementById('loadSt');if(ls)ls.style.display='none';
