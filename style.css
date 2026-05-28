@@ -187,7 +187,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .estate-ic{font-size:64px;opacity:.6}
 .estate-t{font-family:"Bebas Neue",sans-serif;font-size:26px;letter-spacing:2px;color:var(--text2)}
 .estate-s{color:var(--text3);font-size:14px;line-height:1.6}
-.batch-bar{position:fixed;top:0;left:0;right:0;z-index:8000;padding:6px 14px;background:var(--card);border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:10px;font-size:12px;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.batch-bar{position:fixed;top:88px;left:0;right:0;z-index:150;padding:6px 14px;background:var(--card);border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:10px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .batch-bar.hidden{display:none}
 .batch-info{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text2);white-space:nowrap}
 .batch-pbar{height:6px;background:var(--border);border-radius:2px;flex:1;overflow:hidden}
