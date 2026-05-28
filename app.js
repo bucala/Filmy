@@ -497,7 +497,7 @@ function cardHTML(m){
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();var _m=all.find(x=>x.id===${m.id});if(_m)window.location.href=buildVlcUrl(_m);">▶</a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();playMovie(${m.id});">▶</a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
@@ -942,9 +942,16 @@ function openSett(){
   }
   // Sync autoPullTog
   const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
+  const _npt=document.getElementById("nativePlayerTog"); if(_npt)_npt.checked=useNativePlayer;
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
+
+function closeSett() {
+  document.getElementById("settOverlay").classList.add("hidden");
+  document.getElementById("settPanel").classList.add("hidden");
+}
+
 function infoItem(l, v) {
   return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
 }
@@ -1691,7 +1698,7 @@ var GH_REPO       = 'bucala/Filmy';
 var GH_FILE       = 'data.json';
 var GH_BRANCH     = 'Perplexity';
 var AUTO_PULL_KEY = 'mdb_auto_pull';
-var autoPull      = localStorage.getItem(AUTO_PULL_KEY) === '1';
+var autoPull      = localStorage.getItem(AUTO_PULL_KEY) !== '0'; // default: ON
 var ghToken       = localStorage.getItem('mdb_gh_token') || '';
 
 /* ══════════════════════════════════════════════════════════
@@ -2767,6 +2774,12 @@ function getMoviePath(m) {
     return localPathToSmb(rawPath);
   }
   return rawPath;
+}
+
+function playMovie(id){
+  var m=all.find(function(x){return x.id===id;});
+  if(!m)return;
+  window.location.href=buildVlcUrl(m);
 }
 
 function buildVlcUrl(m) {
