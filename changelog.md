@@ -58,3 +58,12 @@ Aplikácia prepísaná z pôvodného single-file (236KB) na modulárnu architekt
 - `.hdr-icon.active` stav CSS
 - CSS duplikáty vyčistené (23 → 0)
 - `onclick="closeSett()"` nahradený `addEventListener`
+
+---
+
+## [11.1.0] — 2026-05-28
+
+### 🐛 Opravené
+- **Settings X button nefungoval** — `closeSett()` je vnútri IIFE, `onclick` z HTML ju nedosiahol; pridaný `addEventListener` v DCL bloku + overlay click
+- **Scroll zobrazoval iba 40 filmov** — infinite scroll bol napojený na `mlist` (display:grid, žiadny overflow), nie na `scrnBody` (position:fixed, overflow-y:auto); prepojený na `scrnBody` s 300px triggerom
+- **hdr-row2-right (filter/sort/view)** — nebolo `position:sticky` → ikony zmizli pri horizontálnom scroll ikon; pridané `sticky;right:0` s pozadím

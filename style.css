@@ -589,7 +589,9 @@ cons ─────────────────────────
 .hdr-row2-left::-webkit-scrollbar{display:none}
 .hdr-row2-right{
   display:flex;align-items:center;gap:5px;
-  padding:0 8px;flex-shrink:0}
+  padding:0 8px;flex-shrink:0;
+  position:sticky;right:0;z-index:2;
+  background:var(--hdr-bg,var(--bg))}
 
 /* ═══════════════════════════════════════════════════
    RIGHT CONTROLS — shared ctrl-btn style
@@ -856,3 +858,5 @@ input,textarea,.tmdb-inp,select{
 .switch input:checked + .slider:before{transform:translateX(20px);background:#0a0a0f}
 
 .hdr-icon.active,.hdr-icon.on{color:var(--gold);background:rgba(var(--gold-rgb,212,169,67),.15);border-color:var(--gold)}
+
+.hdr-left::-webkit-scrollbar{display:none}

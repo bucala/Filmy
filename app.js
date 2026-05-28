@@ -438,10 +438,11 @@ function renderList(list){
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
   curPage=0;ml.innerHTML="";appendCards(list,ml);
-  ml.onscroll=null;
-  ml.addEventListener("scroll",function(){
-    if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-200){curPage++;appendCards(list,ml);}
-    
+  
+  // Infinite scroll on scrnBody (parent with overflow-y:auto)
+  var _sb=document.getElementById("scrnBody")||ml.parentElement;
+  _sb.addEventListener("scroll",function(){
+    if(_sb.scrollTop+_sb.clientHeight>=_sb.scrollHeight-300){curPage++;appendCards(list,ml);}
   });
 }
 function appendCards(list,ml){
@@ -1279,6 +1280,11 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
+  var _scb = document.getElementById('settCloseBtn');
+  if (_scb) _scb.addEventListener('click', closeSett);
+  var _so = document.getElementById('settOverlay');
+  if (_so) _so.addEventListener('click', closeSett);
+
   // Auto-push toggle
   var _apt = document.getElementById('autoPushTog');
   if (_apt) {
