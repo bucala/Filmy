@@ -352,6 +352,7 @@
       <button class="ttab" id="pathModeLocal" data-mode="local"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Lokálna cesta (W:\)</button>
       <button class="ttab" id="pathModeSmb" data-mode="smb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Sieťová cesta (SMB)</button>
     </div>
+    <div id="pathModeHint" style="margin-top:6px;font-size:11px;color:var(--accent);min-height:14px"></div>
     <div class="sett-btn-hint" style="margin-top:8px">
       <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Funguje pri lokálnom otvorení HTML.<br>
       <b>Sieťová:</b> Prevedie na SMB cestu pre prehrávanie cez sieť. Vyžaduje <a href="https://github.com/Morgyn/VLCProtocol-Handler/releases" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">VLC Protocol Handler</a>.
@@ -367,6 +368,7 @@
       <label class="sett-lbl" style="font-size:10px">Lokálny základ (mapovanie):</label>
       <div class="sett-key-row">
         <input class="sett-key-inp" id="localPathInp" type="text" placeholder="W:\Movies\" autocomplete="off">
+        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="localPathSave">OK</button>
       </div>
     </div>
     <div class="sett-key-st" id="smbPathSt"></div>
