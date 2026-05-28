@@ -1,63 +1,69 @@
 # Changelog — Filmová Databáza
 
-## [1.3.0] — 2026-05-25
+## [10.2.0] — 2026-05-28
 
-### 🔴 Kritické opravy
-- **`doWrite()` — `r.json()` bez `.catch()`**: Pri non-JSON odpovedi GitHubu (napr. HTTP 503) crash bez feedbacku. Pridaný `.catch()` ktorý vráti `{status, ok:false, d:{message:'HTTP '+r.status}}` a zobrazí chybu používateľovi.
+### 🏗 Kompletná reštrukturalizácia
+Aplikácia prepísaná z pôvodného single-file (236KB) na modulárnu architektúru:
+- `index.html` (35 KB) — HTML šablóna, odkazy na externý CSS/JS
+- `style.css` (50 KB) — všetky štýly, 6 skinov s --gold-rgb
+- `app.js` (127 KB) — celá aplikačná logika (115 funkcií, IIFE)
+- `data.json` — databáza filmov (GitHub sync)
+- `sw.js` — Service Worker (PWA)
+- `manifest.webmanifest` — PWA manifest
 
-### 🟡 Stredné opravy
-- **`buildMovies()` mimo IIFE**: Pridaný vysvetľujúci komentár `/* buildMovies is intentionally global */` — funkcia musí zostať v separátnom `<script>` tagu kvôli C00–C21 export mechanizmu.
-- **`window.__toggleSortDir` → `toggleSortDir`**: Premenované globals (odstránený `__` prefix). Opravené aj `onclick`/`onchange` atribúty v HTML.
-- **`updateSortDirBtn()` — prázdny wrapper**: Funkcia odstránená, priame volanie `syncSortPill()`.
-- **`88px` hardcoded v CSS**: Nahradené `var(--hdr-height, 88px)` — CSS custom property s fallbackom.
+### ✨ Pridané / Obnovené z pôvodnej verzie
+- Všetkých 115 pôvodných funkcií zachovaných
+- ZIP import (parseEMDBZip), PDF fallback, TMDB batch, VLC prehrávanie
+- GitHub sync (ghPush/ghPull, 401/404/409 handling, validateGhToken)
+- scheduleAutoPush, autoCheckGitHub, autoPushTog
+- Pokročilý filter panel (openFp, initFp, applyFp, resetFp)
+- 6 skinov (Dark, Slate, Crimson, Forest, Linen, Paper)
 
-### 🟢 Code Quality
-- **`catch(e){}` prázdne bloky**: Pridané `console.warn` do 5 kľúčových miest:
-  - `[Init] localStorage parse error` — korumpovaná DB pri štarte
-  - `[Init] favs / watchlist / watched parse error`
-  - `[ghPull] buildMovies poster restore failed`
-- **18 nepoužívaných CSS tried odstránených** (−2 153 chars): `.gbar*`, `.sort-wrap`, `.sort-dir`, `.sett-row-2`, `.bg-palette-*`, `.text-palette-swatch`, `.dec-row`, `.dec-c`, `.frollbar`, `.btn-tr`, `.act-lbl`, `.tmdb-inp` (duplikát).
-- **`!important` — 14× → 7×**: Nepoužívané triedy niesli zbytočné `!important`; zvyšok je odôvodnený (utility `.hidden`, skin overrides).
-- **`onclick`/`onchange` inline → `addEventListener`**: `initSortCycle()` prerobená — `sortDir` a `sortSel` teraz používajú `addEventListener`.
-- **`decEnt()` komentár**: Pridaný `/* textarea trick is safe here — no user input, only EMDB-generated HTML */`.
-
-### 🎨 Ikony — toolbar
-- **Obľúbené** `⭐ polygon star` → **srdce** `♥` — intuitívnejšie pre "obľúbené"
-- **Watchlist** `👁 eye` → **záložka + plus** `🔖+` — jasnejší sémantický rozdiel od "Videné"
-- **Videné** `✓ checkmark` — zachovaný
-- **Náhodný film** `🎲 kocka` — zachovaná
-- **Štatistiky** `📊 bar chart` — zachovaný
-
----
-
-## [1.2.0] — 2026-05-24
-
-### Fuse.js Fuzzy Search
-- Implementovaná Fuse.js knižnica pre vyhľadávanie s toleranciou preklepov
-- Dvojfázový systém: Exact match (zelený badge PRESNE) → Fuzzy fallback (zlatý badge FUZZY ~)
-- Zvýrazňovanie nájdených zhôd (`<mark class="fz-hl">`) priamo v názvoch a menách
-- Váhy: `title` 0.55, `director` 0.20, `year` 0.10, `genres` 0.10, `description` 0.05
-- Threshold: 0.42 — dobrý balans medzi toleranciou a presnosťou
+### 🐛 Opravené (kombinácia všetkých predchádzajúcich fixov)
+- **Settings X button** — closeSett() vnútri IIFE scope, onclick nefungovalo; prepísané na addEventListener
+- **Scroll iba 40 filmov** — #scrnBody nemal top:88px; infinite scroll prepojený na scrnBody namiesto mlist
+- **Scrollbar (fscroll) nereagoval** — sledoval mlist namiesto scrnBody
+- **hdr-row2-right ikony zmizli** — pridané position:sticky;right:0;background:var(--hdr)
+- **hdr-row2-left nepokrývali** — overflow-x:auto s -webkit-overflow-scrolling:touch, skrytý scrollbar
+- **Text v nastaveniach sa označoval** — user-select:none na sett-panel
+- **sett-sec neviditeľné** — display:flex;align-items:center;gap:6px;white-space:nowrap
+- **skinGrid wrapper chýbal** — pridaný div#skinGrid + DARK chip + Vzhľad/Skin section header
+- **Genre pills nerespektovali skin** — .gtag prepísaný na rgba(var(--gold-rgb))
+- **cfav/lfav nekonzistentné** — zjednotené na 38×38px s bg, border, hover, active stavy
+- **.switch/.slider CSS chýbal** — toggle prepínače fungujú
+- **batch-bar neviditeľný** — position:fixed;top:0;z-index:8000
+- **--gold-rgb** pridané do všetkých 6 skinov
+- **hdr-icon active/on stav** — vizuálna zmena pri zakliknutí
+- **playMovieBtn orphan** — odstránený
 
 ---
 
-## [1.1.0] — 2026-05-23
+## [11.0.0] — 2026-05-28
 
-### Oprava posterov po importe
-- Trojvrstvová záchrana posterov (runtime `all[]` → localStorage snapshot → baked-in C00 dáta)
-- Opravený bug: `localStorage.setItem` mohol crashnúť pri 19 MB base64 dátach (quota limit)
+### ✨ Kompletný rebuild
+- Aplikácia prebudovaná z pôvodného single-file zdroja (Google Drive) do modulárnej štruktúry
+- Zdrojový kód: `index.html` (35 KB) + `style.css` (50 KB) + `app.js` (127 KB)
+- 115 funkcií, 0 duplikátov, 20/20 features ✅
+
+### 🐛 Opravené (kumulatívne zo všetkých predchádzajúcich verzií)
+- `.sett-sec display:flex` — nastavenia sekcie viditeľné (SVG + text v jednom riadku)
+- `.gtag` (žánre pills) — `rgba(var(--gold-rgb),.13)` namiesto hardcoded `#1a1a2e`
+- `--gold-rgb` CSS var — pridaná do všetkých 6 skinov
+- `.cfav` + `.lfav` (hviezda obľúbených) — 38×38px button s bg/border/hover/active
+- `.batch-bar` — `position:fixed;top:0;z-index:8000`
+- `.sett-panel` — `user-select:none`, `background:var(--bg)` (opaque)
+- `.scrn-body` — `background:var(--bg)` (žiadne presvitanie)
+- `skinGrid` wrapper + DARK chip + "Vzhľad / Skin" header obnovené
+- `.switch`/`.slider` CSS pre toggle prepínače
+- `.hdr-icon.active` stav CSS
+- CSS duplikáty vyčistené (23 → 0)
+- `onclick="closeSett()"` nahradený `addEventListener`
 
 ---
 
-## [1.0.0] — 2026-05-22
+## [11.1.0] — 2026-05-28
 
-### Základ
-- Filmová databáza s PDF/ZIP importom (EMDB formát)
-- Grid + list zobrazenie, žánrové filtre, obľúbené
-- TMDB batch fetch: hodnotenia, trailery, plagáty
-- GitHub sync (Push/Pull)
-- 6 skinov: Dark, Slate, Crimson, Forest, Linen, Paper
-- Vlastná farba akcentu (color picker)
-- PWA manifest
-- VLC Protocol Handler integrácia (SMB + lokálne cesty)
-- Štatistiky a grafy (Chart.js)
+### 🐛 Opravené
+- **Settings X button nefungoval** — `closeSett()` je vnútri IIFE, `onclick` z HTML ju nedosiahol; pridaný `addEventListener` v DCL bloku + overlay click
+- **Scroll zobrazoval iba 40 filmov** — infinite scroll bol napojený na `mlist` (display:grid, žiadny overflow), nie na `scrnBody` (position:fixed, overflow-y:auto); prepojený na `scrnBody` s 300px triggerom
+- **hdr-row2-right (filter/sort/view)** — nebolo `position:sticky` → ikony zmizli pri horizontálnom scroll ikon; pridané `sticky;right:0` s pozadím
