@@ -1851,12 +1851,19 @@ function ghPush() {
         toast('GitHub 401: Token neplatný. Vygeneruj nový PAT s scope repo.');
         throw new Error('401');
       }
-      if (r.status === 404) {
-        // File doesn't exist yet — create it (no SHA needed)
-        return null;
-      }
+      if (r.status === 404) return null;
       if (!r.ok) throw new Error('GET failed: ' + r.status);
-      return r.json().then(function(d) { return d.sha; });
+      return r.json().then(function(d) {
+        // Pre veľké súbory d.sha môže chýbať → použij git/trees API
+        if (d.sha) return d.sha;
+        // Fallback: get SHA via git trees
+        return fetch(`${baseUrl}/git/trees/${GH_BRANCH}`, { headers: hdrs })
+          .then(function(tr) { return tr.json(); })
+          .then(function(tree) {
+            var f = (tree.tree||[]).find(function(x){ return x.path === GH_FILE; });
+            return f ? f.sha : null;
+          });
+      });
     })
     // Step 2: Write with the SHA
     .then(function(sha) {
@@ -1919,18 +1926,32 @@ function ghPull() {
       return r.json();
     })
     .then(function(file) {
-      var payload;
-      // GitHub API vracia base64 encoded content
-      if (!file || !file.content) {
-        throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
+      // Pre veľké súbory (>1MB) GitHub API nevracia content → použijeme download_url
+      if (!file) throw new Error('data.json neexistuje na GitHub — najprv ulož (Push).');
+      if (!file.content && file.download_url) {
+        // Fallback: fetch priamo cez download_url (raw URL, bez CORS problémov pre public repo)
+        return fetch(file.download_url + '?t=' + Date.now())
+          .then(function(r2) { if (!r2.ok) throw new Error('download_url failed: ' + r2.status); return r2.text(); })
+          .then(function(rawText) {
+            var payload2;
+            try { payload2 = JSON.parse(rawText); } catch(je) { throw new Error('Neplatný JSON: ' + je.message); }
+            return payload2;
+          });
+      }
+      if (!file.content) {
+        throw new Error('data.json neobsahuje dáta — najprv ulož databázu cez Push.');
       }
       var b64clean = file.content.replace(/\s/g, '');
       var binary   = atob(b64clean);
       var bytes    = new Uint8Array(binary.length);
       for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
       var raw = new TextDecoder('utf-8').decode(bytes);
+      var payload;
       try { payload = JSON.parse(raw); }
       catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
+      return payload;
+    })
+    .then(function(payload) {
 
       if (!payload.movies || !payload.movies.length) {
         ghSetStatus('Súbor data.json je prázdny — najprv ulož (Push).', 'err');
