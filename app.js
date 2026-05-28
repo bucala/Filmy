@@ -991,7 +991,10 @@ function openSett(){
   document.getElementById("settPanel").classList.remove("hidden");
 }
 function infoItem(l,v){return'<div class="sett-info-item"><div class="sett-info-lbl">'+l+'</div><div class="sett-info-val">'+v+'</div></div>';}
-function closeSett(){document.getElementById("settOverlay").classList.add("hidden");document.getElementById("settPanel").classList.add("hidden");}
+function closeSett(){
+  document.getElementById("settOverlay").classList.add("hidden");
+  document.getElementById("settPanel").classList.add("hidden");
+}
 function settSetView(v){
   grid = v === 'grid';
   var ml = document.getElementById('mlist');
@@ -1686,7 +1689,7 @@ function adminSaveAll() {
 var GH_KEY    = 'mdb_gh_token';
 var GH_REPO   = 'bucala/Filmy';
 var GH_FILE   = 'data.json';
-var GH_BRANCH = 'main';
+var GH_BRANCH = 'Perplexity';
 var ghToken   = localStorage.getItem('mdb_gh_token') || '';
 
 
