@@ -1,5 +1,6 @@
 (function(){
 "use strict";
+var APP_VERSION = "6.1.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
 if(typeof pdfjsLib!=="undefined")
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
@@ -956,10 +957,6 @@ function infoItem(l, v) {
   return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
 }
 
-function closeSett() {
-  document.getElementById("settOverlay").classList.add("hidden");
-  document.getElementById("settPanel").classList.add("hidden");
-}
 function settSetView(v){
   grid = v === 'grid';
   var ml = document.getElementById('mlist');
