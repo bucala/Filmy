@@ -605,7 +605,7 @@ function openDet(id){
   document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
   document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
   const playBtn=document.getElementById("playMovieBtn");
-  if(playBtn)playBtn.onclick=()=>{window.location.href=buildVlcUrl(all.find(x=>x.id===id)||m);};
+  if(playBtn)playBtn.onclick=function(){openMovieUrl(buildVlcUrl(all.find(function(x){return x.id===id;})||m));};
   document.getElementById("btnPlayCopy").addEventListener("click",()=>copyMoviePath(id));
   document.getElementById("btnTr").addEventListener("click",()=>openTrailer(id));
   document.getElementById("mainSc").classList.add("hidden");
@@ -2814,10 +2814,21 @@ function getMoviePath(m) {
   return rawPath;
 }
 
+function openMovieUrl(url) {
+  // window.open works for custom protocols (vlc://, file://, smb://)
+  // window.location.href is blocked by browsers for file:// when on https://
+  var a = document.createElement('a');
+  a.href = url;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); }, 500);
+}
+
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
-  window.location.href=buildVlcUrl(m);
+  openMovieUrl(buildVlcUrl(m));
 }
 
 function buildVlcUrl(m) {
