@@ -1418,6 +1418,42 @@ document.addEventListener("DOMContentLoaded",function(){
 
   // Admin panel
   var _esettBt=document.getElementById("settBtnAdmin");if(_esettBt)_esettBt.addEventListener("click",openAdmin);
+
+  // Uložiť všetky nastavenia
+  var _eSaveAll = document.getElementById('settBtnSaveAll');
+  if (_eSaveAll) _eSaveAll.addEventListener('click', function() {
+    // GitHub token
+    var ghInp = document.getElementById('ghTokenInp');
+    if (ghInp && ghInp.value.trim()) { ghToken = ghInp.value.trim(); localStorage.setItem(GH_KEY, ghToken); }
+    // TMDB key
+    var tmdbInp = document.getElementById('tmdbKeyInp');
+    if (tmdbInp && tmdbInp.value.trim()) { localStorage.setItem('mdb_tmdb_key', tmdbInp.value.trim()); }
+    // SMB base
+    var smbInp = document.getElementById('smbPathInp');
+    if (smbInp && smbInp.value.trim()) {
+      var sv = smbInp.value.trim();
+      if (sv[sv.length-1] !== '/') sv += '/';
+      smbBase = sv; localStorage.setItem(SMB_KEY, sv);
+    }
+    // Local path
+    var locInp = document.getElementById('localPathInp');
+    if (locInp && locInp.value.trim()) {
+      var lv = locInp.value.trim();
+      if (lv[lv.length-1] !== '\\' && lv[lv.length-1] !== '/') lv += '\\';
+      var nm = {}; nm[lv] = smbBase; smbMap = nm;
+      localStorage.setItem(SMB_MAP_KEY, JSON.stringify(nm));
+    }
+    // Native player toggle
+    var natTog = document.getElementById('nativePlayerTog');
+    if (natTog) { useNativePlayer = natTog.checked; localStorage.setItem(NATIVE_PLAYER_KEY, natTog.checked ? '1' : '0'); }
+    // Auto pull toggle
+    var apTog = document.getElementById('autoPullTog');
+    if (apTog) { localStorage.setItem(AUTO_PULL_KEY, apTog.checked ? '1' : '0'); }
+    // Status
+    var st = document.getElementById('saveAllSt');
+    if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
+    toast('Nastavenia uložené ✓');
+  });
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
   document.getElementById("adminSearchBtn").addEventListener("click",adminSearch);
   document.getElementById("adminSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")adminSearch();});
@@ -1716,7 +1752,7 @@ function adminSaveAll() {
 var GH_KEY        = 'mdb_gh_token';
 var GH_REPO       = 'bucala/Filmy';
 var GH_FILE       = 'data.json';
-var GH_BRANCH     = 'Perplexity';
+var GH_BRANCH     = 'main';
 var AUTO_PULL_KEY = 'mdb_auto_pull';
 var autoPull      = localStorage.getItem(AUTO_PULL_KEY) !== '0'; // default: ON
 var ghToken       = localStorage.getItem('mdb_gh_token') || '';
@@ -1734,19 +1770,17 @@ function ghSetStatus(msg, type) {
   if (mt) mt.textContent = msg;
   if (ep) ep.textContent = msg;
   if (mb) {
-    if (type === 'ok' || (!msg)) {
-      // Dokonči progress bar a skry
+    if (type === 'ok') {
       var bar = document.getElementById('mainPullBar');
       if (bar) bar.style.width = '100%';
-      setTimeout(function(){ mb.style.display = 'none'; if(bar) bar.style.width = '0%'; }, 1200);
+      setTimeout(function(){ mb.classList.add('hidden'); if(bar) bar.style.width = '0%'; }, 1400);
     } else if (type === 'err') {
-      mb.style.background = 'rgba(224,85,85,.15)';
-      mb.style.borderColor = '#e05555';
-      setTimeout(function(){ mb.style.display = 'none'; mb.style.background = ''; mb.style.borderColor = ''; }, 3000);
+      mb.classList.remove('hidden');
+      mb.style.borderBottomColor = '#e05555';
+      setTimeout(function(){ mb.classList.add('hidden'); mb.style.borderBottomColor = ''; }, 3500);
     } else {
-      mb.style.display = 'block';
-      mb.style.background = '';
-      mb.style.borderColor = '';
+      mb.classList.remove('hidden');
+      mb.style.borderBottomColor = '';
     }
   }
 }
@@ -2849,10 +2883,23 @@ function playMovie(id){
 function buildVlcUrl(m) {
   var path = getMoviePath(m);
   if (useNativePlayer) {
-    if (pathMode === 'smb') return path;
-    return 'file:///' + path.replace(/\\/g, '/');
+    if (pathMode === 'smb') {
+      // SMB cesta: smb:// prefix ak chýba
+      if (path.indexOf('smb://') === 0) return path;
+      return 'smb://' + path.replace(/^[\/]+/, '');
+    }
+    // Lokálna cesta: file:///W:/Movies/...
+    var fp = path.replace(/\\/g, '/');
+    if (fp.indexOf('/') === 0) fp = fp.substring(1); // remove leading /
+    return 'file:///' + fp;
   }
-  return 'vlc://' + path;
+  // VLC Protocol Handler
+  if (pathMode === 'smb') {
+    var sp = path;
+    if (sp.indexOf('smb://') === 0) sp = sp.substring(6);
+    return 'vlc://' + sp;
+  }
+  return 'vlc:///' + path.replace(/\\/g, '/');
 }
 
 function buildVideoSrc(m) {
