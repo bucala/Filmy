@@ -942,9 +942,16 @@ function openSett(){
   }
   // Sync autoPullTog
   const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
+  const _npt=document.getElementById("nativePlayerTog"); if(_npt)_npt.checked=useNativePlayer;
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
+
+function closeSett(){
+  document.getElementById("settOverlay").classList.add("hidden");
+  document.getElementById("settPanel").classList.add("hidden");
+}
+
 function infoItem(l,v){
   return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
 }
@@ -2764,6 +2771,12 @@ function getMoviePath(m) {
     return localPathToSmb(rawPath);
   }
   return rawPath;
+}
+
+function playMovie(id){
+  var m=all.find(function(x){return x.id===id;});
+  if(!m)return;
+  window.location.href=buildVlcUrl(m);
 }
 
 function buildVlcUrl(m) {
