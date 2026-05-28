@@ -947,13 +947,18 @@ function openSett(){
   document.getElementById("settPanel").classList.remove("hidden");
 }
 
-function closeSett(){
+function closeSett() {
   document.getElementById("settOverlay").classList.add("hidden");
   document.getElementById("settPanel").classList.add("hidden");
 }
 
-function infoItem(l,v){
+function infoItem(l, v) {
   return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
+}
+
+function closeSett() {
+  document.getElementById("settOverlay").classList.add("hidden");
+  document.getElementById("settPanel").classList.add("hidden");
 }
 function settSetView(v){
   grid = v === 'grid';
@@ -1688,15 +1693,13 @@ function adminSaveAll() {
    the GitHub REST API and a Personal Access Token (PAT).
    ══════════════════════════════════════════════════════════════════ */
 
-var GH_KEY    = 'mdb_gh_token';
-var GH_REPO   = 'bucala/Filmy';
-var GH_FILE   = 'data.json';
-var GH_BRANCH = 'Perplexity';
+var GH_KEY        = 'mdb_gh_token';
+var GH_REPO       = 'bucala/Filmy';
+var GH_FILE       = 'data.json';
+var GH_BRANCH     = 'Perplexity';
 var AUTO_PULL_KEY = 'mdb_auto_pull';
-var autoPull = localStorage.getItem(AUTO_PULL_KEY) !== '0'; // default: ON
-var ghToken   = localStorage.getItem('mdb_gh_token') || '';
-
-
+var autoPull      = localStorage.getItem(AUTO_PULL_KEY) !== '0'; // default: ON
+var ghToken       = localStorage.getItem('mdb_gh_token') || '';
 
 /* ══════════════════════════════════════════════════════════
    MODULE: GitHub Sync — push/pull data.json
