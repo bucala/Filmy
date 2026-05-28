@@ -1,7 +1,6 @@
 (function(){
 "use strict";
-var APP_VERSION = "6.1.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅ (main/Vercel)");
-var APP_VERSION = "6.1.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
+var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
 if(typeof pdfjsLib!=="undefined")
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
@@ -1727,9 +1726,34 @@ var ghToken       = localStorage.getItem('mdb_gh_token') || '';
    ══════════════════════════════════════════════════════════ */
 function ghSetStatus(msg, type) {
   var el = document.getElementById('ghSyncStatus');
-  if (!el) return;
-  el.textContent = msg;
-  el.className   = 'sync-status ' + (type || 'info');
+  if (el) { el.textContent = msg; el.className = 'sync-status ' + (type || 'info'); }
+  // Aktualizuj aj hlavný status bar
+  var mb = document.getElementById('mainPullStatus');
+  var mt = document.getElementById('mainPullStatusText');
+  var ep = document.getElementById('emptyPullStatus');
+  if (mt) mt.textContent = msg;
+  if (ep) ep.textContent = msg;
+  if (mb) {
+    if (type === 'ok' || (!msg)) {
+      // Dokonči progress bar a skry
+      var bar = document.getElementById('mainPullBar');
+      if (bar) bar.style.width = '100%';
+      setTimeout(function(){ mb.style.display = 'none'; if(bar) bar.style.width = '0%'; }, 1200);
+    } else if (type === 'err') {
+      mb.style.background = 'rgba(224,85,85,.15)';
+      mb.style.borderColor = '#e05555';
+      setTimeout(function(){ mb.style.display = 'none'; mb.style.background = ''; mb.style.borderColor = ''; }, 3000);
+    } else {
+      mb.style.display = 'block';
+      mb.style.background = '';
+      mb.style.borderColor = '';
+    }
+  }
+}
+
+function ghPullProgress(pct) {
+  var bar = document.getElementById('mainPullBar');
+  if (bar) bar.style.width = pct + '%';
 }
 
 function ghHeaders() {
@@ -1838,19 +1862,15 @@ function ghPush() {
 }
 
 function ghPull() {
+  ghPullProgress(10);
   ghSetStatus('Načítavam z GitHubu…', 'info');
 
   // Bez tokenu: použijeme public raw URL (len čítanie)
   // S tokenom: použijeme API URL (vyšší rate limit, private repo)
   var ghPullAttempt = function(attempt) {
-  var pullUrl, pullHeaders;
-  if (ghToken) {
-    pullUrl     = ghApiFileUrl() + '&t=' + Date.now();
-    pullHeaders = ghHeaders();
-  } else {
-    pullUrl     = 'https://raw.githubusercontent.com/' + GH_REPO + '/' + GH_BRANCH + '/' + GH_FILE + '?t=' + Date.now();
-    pullHeaders = {};
-  }
+  // GitHub Contents API má CORS hlavičky → funguje bez tokenu pre public repo
+  var pullUrl     = ghApiFileUrl() + '&t=' + Date.now();
+  var pullHeaders = ghToken ? ghHeaders() : { 'Accept': 'application/vnd.github.v3+json' };
   fetch(pullUrl, { headers: pullHeaders })
     .then(function(r) {
       if (r.status === 401) throw new Error('401_UNAUTH');
@@ -1864,26 +1884,20 @@ function ghPull() {
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       return r.json();
     })
-    .then(function(r2) { return ghToken ? r2.json() : r2.text(); })
+    .then(function(r2) { return r2.json(); })
     .then(function(file) {
       var payload;
-      if (typeof file === 'string') {
-        // raw URL → priamy JSON text
-        try { payload = JSON.parse(file); }
-        catch(je) { throw new Error('Neplatný JSON: ' + je.message); }
-      } else {
-        // API URL → base64 encoded
-        if (!file || !file.content) {
-          throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
-        }
-        var b64clean = file.content.replace(/\s/g, '');
-        var binary   = atob(b64clean);
-        var bytes    = new Uint8Array(binary.length);
-        for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-        var raw = new TextDecoder('utf-8').decode(bytes);
-        try { payload = JSON.parse(raw); }
-        catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
+      // GitHub API vracia base64 encoded content
+      if (!file || !file.content) {
+        throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
       }
+      var b64clean = file.content.replace(/\s/g, '');
+      var binary   = atob(b64clean);
+      var bytes    = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      var raw = new TextDecoder('utf-8').decode(bytes);
+      try { payload = JSON.parse(raw); }
+      catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
 
       if (!payload.movies || !payload.movies.length) {
         ghSetStatus('Súbor data.json je prázdny — najprv ulož (Push).', 'err');
@@ -1905,6 +1919,7 @@ function ghPull() {
         if ((!m.poster_thumb||m.poster_thumb.length<10) && bakedMap[m.num]) m.poster_thumb = bakedMap[m.num];
       });
 
+      ghPullProgress(50);
       all = payload.movies;
       if (payload.liveCache) {
         Object.assign(liveCache, payload.liveCache);
@@ -1921,11 +1936,12 @@ function ghPull() {
         localStorage.setItem(SK, JSON.stringify(toSave));
       } catch(e) {}
 
-      var ts = payload.updated ? new Date(payload.updated).toLocaleString('sk') : '?';
+      ghPullProgress(80);
       var ts2=new Date().toLocaleTimeString('sk');
-      ghSetStatus(`✓ Načítané ${ts2} · ${all.length} filmov`, 'ok');
       buildFuse();
       renderAll();
+      ghPullProgress(100);
+      ghSetStatus('✓ Načítané ' + ts2 + ' · ' + all.length + ' filmov', 'ok');
       toast('Databáza načítaná z GitHubu!');
     })
     .catch(function(e) {
