@@ -1884,7 +1884,6 @@ function ghPull() {
       if(!r.ok)throw new Error(`HTTP ${r.status}`);
       return r.json();
     })
-    .then(function(r2) { return r2.json(); })
     .then(function(file) {
       var payload;
       // GitHub API vracia base64 encoded content
