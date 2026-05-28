@@ -3,6 +3,12 @@
 if(typeof pdfjsLib!=="undefined")
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
+/* ── SVG icon constants — avoids duplication across cardHTML, openDet ── */
+var STAR_ON  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+var STAR_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+var EYE_ON   = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var EYE_OFF  = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+var FILM_ICO = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="2" y="3" width="15" height="18" rx="2"/><path d="M17 7h3l2 4-2 4h-3"/><circle cx="9" cy="12" r="3"/></svg>';
 var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={},genre="",grid=false,favMode=false,wlMode=false,watchedMode=false,curId=null;
 
 /* fpState declared here (with other global state) so applyFilters() can safely
@@ -441,12 +447,17 @@ function sortList(list){
 var PAGE_SIZE=40,curPage=0;
 function renderList(list){
   var ml=document.getElementById("mlist"),em=document.getElementById("emptySt"),nr=document.getElementById("noRes");
-  if(!all.length){em.style.display="flex"; ml.style.display="none"; nr.style.display="none";return;}
+  if(!ml)return; // guard: DOM not ready
+  if(!all.length){
+    if(em)em.style.display="flex"; ml.style.display="none"; if(nr)nr.style.display="none";
+    return;
+  }
   em.style.display="none";
   if(!list.length){
-    ml.style.display="none"; nr.style.display="flex";
-    var q=document.getElementById("srchInp").value;
-    document.getElementById("noResTxt").textContent=q?"Nic pre \""+q+"\"":favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
+    ml.style.display="none"; if(nr)nr.style.display="flex";
+    var q=(document.getElementById("srchInp")||{}).value||"";
+    var nrt=document.getElementById("noResTxt");
+    if(nrt)nrt.textContent=q?"Nic pre \""+q+"\"":favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
     return;
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
@@ -495,39 +506,22 @@ function pctBadge(cached){
 }
 
 function cardHTML(m){
-  var fav=favs.has(m.id),cached=liveCache[m.id];
-  var genres=(m.genres||[]).slice(0,2).map(function(g){return'<span class="gtag">'+esc(g)+'</span>';}).join("");
-  var ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
-  var badge=pctBadge(cached);
-  // Use highlighted versions when search is active
-  var titleH=hlField(m,"title");
-  var dirH=m.director?hlField(m,"director"):"";
+  const fav=favs.has(m.id), cached=liveCache[m.id];
+  const genres=(m.genres||[]).slice(0,2).map(g=>`<span class="gtag">${esc(g)}</span>`).join("");
+  const ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
+  const badge=pctBadge(cached);
+  const titleH=hlField(m,"title");
+  const dirH=m.director?hlField(m,"director"):"";
+  const favBtn=`<button class="cfav">${fav?STAR_ON:STAR_OFF}</button>`;
   if(grid){
-    var hp=m.poster_thumb&&m.poster_thumb.length>10;
-    var post=hp
-      ?'<div class="cpost-wrap"><img class="cpost" src="'+m.poster_thumb+'" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehrať" onclick="event.preventDefault();event.stopPropagation();var _ci='+m.id+';var _cm=all.find(function(x){return x.id===_ci;});if(_cm)window.location.href=buildVlcUrl(_cm);">&#9654;</a></div>'
-      :'<div class="cpost-ph"><div class="cpost-n">#'+m.num+'</div>' +
-      '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="2" y="3" width="15" height="18" rx="2"/><path d="M17 7h3l2 4-2 4h-3"/><circle cx="9" cy="12" r="3"/></svg>' +
-      '</div>';
-    return '<div class="mcard" data-id="'+m.id+'">'+
-      post+
-      '<div class="cbody">'+
-        '<div class="cmain">'+
-          '<div class="ctitle">'+titleH+'</div>'+
-          '<div class="cmeta">'+esc(ym)+'</div>'+
-          (m.director?'<div class="cdir">'+dirH+'</div>':'')+
-          '<div class="cgenres">'+genres+'</div>'+
-        '</div>'+
-        '<div class="cbot">'+badge+'<button class="cfav">'+(fav?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>'+
-      '</div>'+
-    '</div>';
+    const hp=m.poster_thumb&&m.poster_thumb.length>10;
+    const post=hp
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();var _m=all.find(x=>x.id===${m.id});if(_m)window.location.href=buildVlcUrl(_m);">▶</a></div>`
+      :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
+    return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
-  // List mode
-  return '<div class="mcard lcard" data-id="'+m.id+'">'+
-    '<div class="lnum">'+m.num+'</div>'+
-    '<div class="lbody"><div class="ltitle">'+titleH+'</div><div class="lmeta">'+esc(ym)+'</div></div>'+
-    '<div class="lright">'+genres+badge+'</div>'+
-    '<button class="lfav">'+(fav?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>';
+  const lfavBtn=`<button class="lfav">${fav?STAR_ON:STAR_OFF}</button>`;
+  return `<div class="mcard lcard" data-id="${m.id}"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 }
 
 
@@ -562,78 +556,75 @@ function updFavBtn(btn,id){var f=favs.has(id);btn.innerHTML=f?"&#11088; Odstrani
    MODULE: Detail View — full film info, trailer, similar
    ══════════════════════════════════════════════════════════ */
 function openDet(id){
-  var m=all.find(function(x){return x.id===id;});if(!m)return;
+  const m=all.find(x=>x.id===id); if(!m)return;
   curId=id;
   document.getElementById("detTitle").textContent=m.title;
   document.getElementById("detYr").textContent=[m.year||"",m.duration,m.country].filter(Boolean).join(" - ");
-  var hp=m.poster_thumb&&m.poster_thumb.length>10;
-  ["detBlur","detCover"].forEach(function(eid){var el=document.getElementById(eid);el.style.display=hp?"block":"none";if(hp)el.src=m.poster_thumb;});
-  var ins=document.getElementById("detInset");ins.style.display=hp?"block":"none";
+  const hp=m.poster_thumb&&m.poster_thumb.length>10;
+  ["detBlur","detCover"].forEach(eid=>{
+    const el=document.getElementById(eid);
+    el.style.display=hp?"block":"none"; if(hp)el.src=m.poster_thumb;
+  });
+  const ins=document.getElementById("detInset"); ins.style.display=hp?"block":"none";
   if(hp)document.getElementById("detInsetImg").src=m.poster_thumb;
   document.getElementById("detBg").style.display=hp?"none":"block";
 
-  var fav=favs.has(id),cached=liveCache[id];
-  var genres=(m.genres||[]).map(function(g){return'<span class="dg-tag">'+esc(g)+'</span>';}).join("");
-  var items=[];if(m.director)items.push(["Reziser",m.director]);
-  items.push(["Rok",m.year||"-"],["Dlzka",m.duration||"-"],["Krajina",m.country||"-"],["#",m.num]);
-  var tmdbUrl=cached&&cached.tmdbUrl?cached.tmdbUrl:"https://www.themoviedb.org/search?query="+encodeURIComponent(m.title);
-  var imdbUrl=cached&&cached.imdbUrl?cached.imdbUrl:null;
+  const fav=favs.has(id), cached=liveCache[id];
+  const genres=(m.genres||[]).map(g=>`<span class="dg-tag">${esc(g)}</span>`).join("");
+  const items=[];
+  if(m.director)items.push(["Režíser",m.director]);
+  items.push(["Rok",m.year||"–"],["Dĺžka",m.duration||"–"],["Krajina",m.country||"–"],["#",m.num]);
+  const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
+  const imdbUrl=(cached&&cached.imdbUrl)||null;
 
-  // TMDB rating pill
-  var ratingHtml;
+  // Rating pill
+  let ratingHtml;
   if(!cached){
-    ratingHtml='<div class="rating-pill-na" id="ratingBox">'+(tmdbKey?"Nacitavam...":"–")+'</div>';
+    ratingHtml=`<div class="rating-pill-na" id="ratingBox">${tmdbKey?"Načítavam…":"–"}</div>`;
   } else if(cached.pct!=null){
-    var col=cached.pct>=70?"#00c853":cached.pct>=50?"#ffd600":"#e53935";
-    ratingHtml='<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:'+col+'">'+cached.pct+'%</div></div>';
+    const col=cached.pct>=70?"#00c853":cached.pct>=50?"#ffd600":"#e53935";
+    ratingHtml=`<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:${col}">${cached.pct}%</div></div>`;
   } else {
     ratingHtml='<div class="rating-pill-na">N/A</div>';
   }
 
-  var html=
-    '<div class="det-frow">'+ratingHtml+
-      '<button class="btn-fav'+(fav?" on":"")+'" id="dfavBtn">'+(fav?"&#11088; Odstranit":"&#9734; Oblubene")+'</button>'+
-      '<button class="btn-wl'+(wl.has(id)?" on":"")+'" id="dwlBtn">'+(wl.has(id)?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Odstrániť z WL':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Watchlist')+'</button>'+
-      '<button class="btn-watched'+(watched.has(id)?" on":"")+'" id="dwatchedBtn">'+(watched.has(id)?"&#10003; Videne":"– Nevidene")+'</button>'+
-      (watchedDates[id]?'<span class="watched-date">Videne: '+watchedDates[id]+'</span>':'')+
-    '</div>'+
-    (genres?'<div class="det-genres">'+genres+'</div>':"")+
-    '<div class="sec">Prehrávanie</div>'+
-    '<div class="det-actions">'+
-      '<button id="playMovieBtn" class="sett-btn primary">'+
-        '<span class="sett-btn-icon">&#9654;</span>'+
-        '<span class="sett-btn-label">Prehrať film</span>'+
-      '</button>'+
-      '<button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru">&#128203; Kopírovať cestu</button>'+
-      '<div class="det-path-hint" style="width:100%;font-size:10px;opacity:.5;margin-top:4px;word-break:break-all">'+esc(getMoviePath(m))+'</div>'+
-    '</div>'+
-    '<div class="sec">Trailer & Linky</div>'+
-    '<div class="tr-row">'+
-      '<button class="btn-trailer" id="btnTr">&#9654; YouTube Trailer</button>'+
-      '<a class="btn-tmdb" id="btnTmdb" href="'+esc(tmdbUrl)+'" target="_blank">TMDB</a>'+
-      (imdbUrl?'<a class="btn-imdb" id="btnImdb" href="'+esc(imdbUrl)+'" target="_blank">&#9733; IMDB</a>':
-               '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">&#9733; IMDB</a>')+
-    '</div>'+
-    (m.description&&m.description.trim()?'<div class="sec">Popis</div><div class="det-desc">'+esc(m.description)+'</div>':"")+
-    '<div class="sec">Detaily</div>'+
-    '<div class="det-grid">'+items.map(function(it){return'<div class="det-item"><div class="det-item-l">'+it[0]+'</div><div class="det-item-v">'+esc(String(it[1]))+'</div></div>';}).join("")+'</div>'+
-    (m.cast&&m.cast.trim()?'<div class="sec">Obsadenie</div><div class="det-cast">'+esc(m.cast)+'</div>':"")+buildSimilarHtml(m);
+  const html=
+    `<div class="det-frow">
+      ${ratingHtml}
+      <button class="btn-fav${fav?" on":""}" id="dfavBtn">${fav?"⭐ Odstrániť":"☆ Obľúbene"}</button>
+      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn">${wl.has(id)?"EYE_ON Odstrán.z WL":"EYE_OFF Watchlist"}</button>
+      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn">${watched.has(id)?"&#10003; Videné":"&#8211; Nevidené"}</button>
+      ${watchedDates[id]?`<span class="watched-date">Videné: ${watchedDates[id]}</span>`:""}
+    </div>
+    ${genres?`<div class="det-genres">${genres}</div>`:""}
+    <div class="sec">Prehrávanie</div>
+    <div class="det-actions">
+      <button id="playMovieBtn" class="sett-btn primary"><span class="sett-btn-icon">▶</span><span class="sett-btn-label">Prehráť film</span></button>
+      <button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru">📋 Kopírovať cestu</button>
+      <div class="det-path-hint">${esc(getMoviePath(m))}</div>
+    </div>
+    <div class="sec">Trailer &amp; Linky</div>
+    <div class="tr-row">
+      <button class="btn-trailer" id="btnTr">▶ YouTube Trailer</button>
+      <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
+      ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
+               '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
+    </div>
+    ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
+    <div class="sec">Detaily</div>
+    <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${esc(String(it[1]))}</div></div>`).join("")}</div>
+    ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${esc(m.cast)}</div>`:""}
+    ${buildSimilarHtml(m)}`;
 
   document.getElementById("detBody").innerHTML=html;
-  document.getElementById("dfavBtn").addEventListener("click",function(){togFav(id,null);updFavBtn(this,id);});
-  document.getElementById("dwlBtn").addEventListener("click",function(){togWl(id,null);updWlBtn(this,id);});
-  document.getElementById("dwatchedBtn").addEventListener("click",function(){togWatched(id,null);updWatchedBtn(this,id);});
-  // Wire similar film cards
-  document.querySelectorAll(".sim-card").forEach(function(c){
-    c.addEventListener("click",function(){openDet(parseInt(c.dataset.sid));});
-  });
-  // Single play button — buildVlcUrl called at click time (respects current toggle)
-  var playBtn = document.getElementById("playMovieBtn");
-  if (playBtn) playBtn.onclick = function() {
-    window.location.href = buildVlcUrl(all.find(function(x){return x.id===id;}) || m);
-  };
-  document.getElementById("btnPlayCopy").addEventListener("click",function(){copyMoviePath(id);});
-  document.getElementById("btnTr").addEventListener("click",function(){openTrailer(id);});
+  document.getElementById("dfavBtn").addEventListener("click",()=>{togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);});
+  document.getElementById("dwlBtn").addEventListener("click",()=>{togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);});
+  document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
+  document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
+  const playBtn=document.getElementById("playMovieBtn");
+  if(playBtn)playBtn.onclick=()=>{window.location.href=buildVlcUrl(all.find(x=>x.id===id)||m);};
+  document.getElementById("btnPlayCopy").addEventListener("click",()=>copyMoviePath(id));
+  document.getElementById("btnTr").addEventListener("click",()=>openTrailer(id));
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -797,13 +788,8 @@ function destroySingleChart(id) {
 }
 
 /* Helper: stat card HTML — used by showStats() */
-function sc(icon, label, value, sub) {
-  return '<div class="scard">' +
-    '<div class="sic">' + icon + '</div>' +
-    '<div><div class="slbl">' + label + '</div>' +
-    '<div class="sval">' + value + '</div>' +
-    (sub ? '<div class="ssub">' + sub + '</div>' : '') +
-    '</div></div>';
+function sc(icon,label,value,sub){
+  return `<div class="scard"><div class="sic">${icon}</div><div><div class="slbl">${label}</div><div class="sval">${value}</div>${sub?`<div class="ssub">${sub}</div>`:""}</div></div>`;
 }
 
 function showStats() {
@@ -1022,11 +1008,14 @@ function openSett(){
     smbSt.textContent = '\u2713 ' + lk + ' \u2192 ' + smbBase;
     smbSt.className = 'sett-key-st ok';
   }
+  // Sync autoPullTog
+  const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
-function infoItem(l,v){return'<div class="sett-info-item"><div class="sett-info-lbl">'+l+'</div><div class="sett-info-val">'+v+'</div></div>';}
-function closeSett(){document.getElementById("settOverlay").classList.add("hidden");document.getElementById("settPanel").classList.add("hidden");}
+function infoItem(l,v){
+  return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
+}
 function settSetView(v){
   grid = v === 'grid';
   var ml = document.getElementById('mlist');
@@ -1799,7 +1788,7 @@ function ghPush() {
     toast('Databáza je prázdna');
     return;
   }
-  ghSetStatus('Pripravujem ' + all.length + ' filmov na upload...', 'info');
+  ghSetStatus(`Pripravujem ${all.length} filmov na upload...`, 'info');
 
   var payload = {
     version:   1,
@@ -1856,7 +1845,7 @@ function ghPush() {
     .then(function(res) {
       if (res.ok) {
         var ts = new Date().toLocaleTimeString('sk');
-        ghSetStatus('✓ Uložené ' + ts + ' · ' + all.length + ' filmov', 'ok');
+        ghSetStatus(`✓ Uložené ${ts} · ${all.length} filmov`, 'ok');
         toast('Databáza uložená na GitHub!');
       } else if (res.status === 409 || res.status === 422) {
         // SHA mismatch (409 Conflict or 422) — re-fetch SHA and retry ONCE
@@ -1954,7 +1943,7 @@ function ghPull() {
 
       var ts = payload.updated ? new Date(payload.updated).toLocaleString('sk') : '?';
       var ts2=new Date().toLocaleTimeString('sk');
-      ghSetStatus('✓ Načítané '+ts2+' · '+all.length+' filmov', 'ok');
+      ghSetStatus(`✓ Načítané ${ts2} · ${all.length} filmov`, 'ok');
       buildFuse();
       renderAll();
       toast('Databáza načítaná z GitHubu!');
@@ -2338,22 +2327,16 @@ function getSimilarFilms(movie, n) {
   return scored.slice(0, n).map(function(x) { return x.m; });
 }
 
-function buildSimilarHtml(movie) {
-  var similar = getSimilarFilms(movie, 6);
-  if (!similar.length) return '';
-
-  var cards = similar.map(function(m) {
-    var poster = m.poster_thumb && m.poster_thumb.length > 10
-      ? '<img class="sim-poster" src="' + m.poster_thumb + '" alt="" loading="lazy">'
-      : '<div class="sim-poster-ph">🎬</div>';
-    return '<div class="sim-card" data-sid="' + m.id + '">' +
-      poster +
-      '<div class="sim-title">' + esc(m.title) + '</div>' +
-    '</div>';
-  }).join('');
-
-  return '<div class="sec">PODOBNÉ FILMY</div>' +
-    '<div class="similar-row" id="simRow">' + cards + '</div>';
+function buildSimilarHtml(movie){
+  const similar=getSimilarFilms(movie,6);
+  if(!similar.length)return "";
+  const cards=similar.map(m=>{
+    const poster=m.poster_thumb&&m.poster_thumb.length>10
+      ?`<img class="sim-poster" src="${m.poster_thumb}" alt="" loading="lazy">`
+      :'<div class="sim-poster-ph">🎬</div>';
+    return `<div class="sim-card" data-sid="${m.id}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
+  }).join("");
+  return `<div class="sec">PODOBNÉ FILMY</div><div class="similar-row" id="simRow">${cards}</div>`;
 }
 
 
@@ -2772,8 +2755,7 @@ function extractPostersFromPdf(pdf, mv){
   
   return chain.then(function(){
     setP(87, "Extrahovaných " + extracted + " plagátov z " + mv.length + " filmov");
-    console.log("Poster extraction: " + extracted + "/" + mv.length);
-  });
+});
 }
 
 
@@ -3112,11 +3094,13 @@ function validateGhToken(token, cb) {
    ══════════════════════════════════════════════════════════════════ */
 function autoCheckGitHub() {
   if (all.length > 0) return;
+  var es = document.getElementById('emptySt');
   if (!ghToken) {
-    var es = document.getElementById('emptySt');
     if (es) es.style.display = 'flex';
     return;
   }
+  // If autoPull is enabled, init() already scheduled a ghPull — don't double-fetch.
+  if (autoPull) return;
   toast('Žiadne lokálne dáta. Načítavam z GitHubu...');
   setTimeout(function() { ghPull(); }, 600);
 }
