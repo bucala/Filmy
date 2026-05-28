@@ -3,6 +3,12 @@
 if(typeof pdfjsLib!=="undefined")
   pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
+/* ── SVG icon constants — avoids duplication across cardHTML, openDet ── */
+var STAR_ON  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+var STAR_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+var EYE_ON   = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var EYE_OFF  = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+var FILM_ICO = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="2" y="3" width="15" height="18" rx="2"/><path d="M17 7h3l2 4-2 4h-3"/><circle cx="9" cy="12" r="3"/></svg>';
 var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={},genre="",grid=false,favMode=false,wlMode=false,watchedMode=false,curId=null;
 
 /* fpState declared here (with other global state) so applyFilters() can safely
@@ -61,6 +67,13 @@ function init(){
   document.getElementById("loadSt").style.display="none";
   buildFuse();
   renderAll();
+  // Auto-pull from GitHub on startup if enabled and token is set
+  if (autoPull && ghToken && typeof ghPull === "function") {
+    setTimeout(function() {
+      ghSetStatus("Automatické načítanie z GitHubu…", "info");
+      ghPull();
+    }, 800);
+  }
 }
 
 
@@ -241,87 +254,68 @@ function buildFuse(){
    MODULE: Filters — genre chips, year, rating, country
    ══════════════════════════════════════════════════════════ */
 function applyFilters(){
-  var raw=document.getElementById("srchInp").value;
-  var q=raw.trim();
-  var badge=document.getElementById("srchModeBadge");
+  const raw=(document.getElementById("srchInp")||{}).value||"";
+  const q=raw.trim();
+  const badge=document.getElementById("srchModeBadge");
   fuseHighlights={};
 
-  var pool=all.filter(function(m){
-    // ── Collection filters ─────────────────────────────────────
+  const pool=all.filter(m=>{
     if(favMode&&!favs.has(m.id))return false;
     if(wlMode&&!wl.has(m.id))return false;
     if(watchedMode&&!watched.has(m.id))return false;
-    // ── Genre: panel multi-select takes priority over fbar single ─
     if(fpState.genres.length>0){
-      var hasMatch=fpState.genres.some(function(g){return(m.genres||[]).indexOf(g)>=0;});
-      if(!hasMatch)return false;
+      if(!fpState.genres.some(g=>(m.genres||[]).includes(g)))return false;
     } else if(genre&&!(m.genres||[]).includes(genre)){
       return false;
     }
-    // ── Advanced panel filters ─────────────────────────────────
     if(fpState.yearFrom>0&&(m.year||0)<fpState.yearFrom)return false;
     if(fpState.yearTo>0&&(m.year||0)>fpState.yearTo)return false;
     if(fpState.minRating>0){
-      var lv=liveCache[m.id];
-      var pct=lv&&lv.pct!=null?lv.pct:null;
+      const lv=liveCache[m.id];
+      const pct=lv&&lv.pct!=null?lv.pct:null;
       if(pct===null||pct<fpState.minRating)return false;
     }
     if(fpState.country){
-      var cStr=(m.country||'').toLowerCase();
-      if(cStr.indexOf(fpState.country.toLowerCase())<0)return false;
+      if(!(m.country||"").toLowerCase().includes(fpState.country.toLowerCase()))return false;
     }
     return true;
   });
 
-  var list;
-
+  let list;
   if(!q){
-    // No query — show everything in pool
     list=pool;
-    badge.className="srch-mode-badge";
-    badge.textContent="";
+    if(badge){badge.className="srch-mode-badge";badge.textContent="";}
   } else {
-    // Exact substring check first (fast path)
-    var ql=q.toLowerCase();
-    var exactMatches=pool.filter(function(m){
-      return (m.title||"").toLowerCase().indexOf(ql)>=0||
-             (m.director||"").toLowerCase().indexOf(ql)>=0||
-             String(m.year||"").indexOf(ql)>=0||
-             (m.genres||[]).join(" ").toLowerCase().indexOf(ql)>=0;
-    });
-
+    const ql=q.toLowerCase();
+    const exactMatches=pool.filter(m=>
+      (m.title||"").toLowerCase().includes(ql)||
+      (m.director||"").toLowerCase().includes(ql)||
+      String(m.year||"").includes(ql)||
+      (m.genres||[]).join(" ").toLowerCase().includes(ql)
+    );
     if(exactMatches.length>0){
-      // Exact match path — highlight exact spans
       list=exactMatches;
-      badge.className="srch-mode-badge exact";
-      badge.textContent="PRESNE";
-      exactMatches.forEach(function(m){
-        fuseHighlights[m.id]=buildExactHighlights(m,ql);
-      });
+      if(badge){badge.className="srch-mode-badge exact";badge.textContent="PRESNE";}
+      exactMatches.forEach(m=>{fuseHighlights[m.id]=buildExactHighlights(m,ql);});
     } else {
-      // Fuzzy path — use Fuse.js on the pre-filtered pool
       if(!fuseInst)buildFuse();
-      // Re-run fuse on the pool subset
-      var poolFuse=new Fuse(pool,fuseInst._options);
-      var results=poolFuse.search(q);
-      list=results.map(function(r){return r.item;});
-      badge.className="srch-mode-badge fuzzy";
-      badge.textContent="FUZZY ~";
-      results.forEach(function(r){
-        fuseHighlights[r.item.id]=parseFuseMatches(r.matches);
-      });
+      const poolFuse=new Fuse(pool,fuseInst._options);
+      const results=poolFuse.search(q);
+      list=results.map(r=>r.item);
+      if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
+      results.forEach(r=>{fuseHighlights[r.item.id]=parseFuseMatches(r.matches);});
     }
   }
 
   sortList(list);
   filt=list;
   renderList(list);
-  var modeActive=q||genre||favMode||wlMode||watchedMode||fpActiveCount()>0;
-  var label=modeActive?list.length+" z "+all.length+" filmov":all.length+" filmov";
-  if(wlMode&&!q&&!genre&&!fpActiveCount())label="Watchlist: "+list.length+" filmov";
-  if(favMode&&!q&&!genre&&!fpActiveCount())label="Oblubene: "+list.length+" filmov";
-  if(watchedMode&&!q&&!genre&&!fpActiveCount())label="Videne: "+list.length+" filmov";
-  document.getElementById("resCnt").textContent=label;
+  const modeActive=q||genre||favMode||wlMode||watchedMode||fpActiveCount()>0;
+  let label=modeActive?`${list.length} z ${all.length} filmov`:`${all.length} filmov`;
+  if(wlMode&&!q&&!genre&&!fpActiveCount())label=`Watchlist: ${list.length} filmov`;
+  if(favMode&&!q&&!genre&&!fpActiveCount())label=`Obľúbené: ${list.length} filmov`;
+  if(watchedMode&&!q&&!genre&&!fpActiveCount())label=`Videné: ${list.length} filmov`;
+  const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
 }
 
 /** Build highlight ranges for exact substring match */
@@ -434,12 +428,17 @@ function sortList(list){
 var PAGE_SIZE=40,curPage=0;
 function renderList(list){
   var ml=document.getElementById("mlist"),em=document.getElementById("emptySt"),nr=document.getElementById("noRes");
-  if(!all.length){em.style.display="flex"; ml.style.display="none"; nr.style.display="none";return;}
+  if(!ml)return; // guard: DOM not ready
+  if(!all.length){
+    if(em)em.style.display="flex"; ml.style.display="none"; if(nr)nr.style.display="none";
+    return;
+  }
   em.style.display="none";
   if(!list.length){
-    ml.style.display="none"; nr.style.display="flex";
-    var q=document.getElementById("srchInp").value;
-    document.getElementById("noResTxt").textContent=q?"Nic pre \""+q+"\"":favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
+    ml.style.display="none"; if(nr)nr.style.display="flex";
+    var q=(document.getElementById("srchInp")||{}).value||"";
+    var nrt=document.getElementById("noResTxt");
+    if(nrt)nrt.textContent=q?"Nic pre \""+q+"\"":favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
     return;
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
@@ -488,39 +487,22 @@ function pctBadge(cached){
 }
 
 function cardHTML(m){
-  var fav=favs.has(m.id),cached=liveCache[m.id];
-  var genres=(m.genres||[]).slice(0,2).map(function(g){return'<span class="gtag">'+esc(g)+'</span>';}).join("");
-  var ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
-  var badge=pctBadge(cached);
-  // Use highlighted versions when search is active
-  var titleH=hlField(m,"title");
-  var dirH=m.director?hlField(m,"director"):"";
+  const fav=favs.has(m.id), cached=liveCache[m.id];
+  const genres=(m.genres||[]).slice(0,2).map(g=>`<span class="gtag">${esc(g)}</span>`).join("");
+  const ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
+  const badge=pctBadge(cached);
+  const titleH=hlField(m,"title");
+  const dirH=m.director?hlField(m,"director"):"";
+  const favBtn=`<button class="cfav">${fav?STAR_ON:STAR_OFF}</button>`;
   if(grid){
-    var hp=m.poster_thumb&&m.poster_thumb.length>10;
-    var post=hp
-      ?'<div class="cpost-wrap"><img class="cpost" src="'+m.poster_thumb+'" alt="" loading="lazy"><a class="cpost-play" href="'+buildVlcUrl(m)+'" title="Prehrať" onclick="event.stopPropagation()">&#9654;</a></div>'
-      :'<div class="cpost-ph"><div class="cpost-n">#'+m.num+'</div>' +
-      '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="2" y="3" width="15" height="18" rx="2"/><path d="M17 7h3l2 4-2 4h-3"/><circle cx="9" cy="12" r="3"/></svg>' +
-      '</div>';
-    return '<div class="mcard" data-id="'+m.id+'">'+
-      post+
-      '<div class="cbody">'+
-        '<div class="cmain">'+
-          '<div class="ctitle">'+titleH+'</div>'+
-          '<div class="cmeta">'+esc(ym)+'</div>'+
-          (m.director?'<div class="cdir">'+dirH+'</div>':'')+
-          '<div class="cgenres">'+genres+'</div>'+
-        '</div>'+
-        '<div class="cbot">'+badge+'<button class="cfav">'+(fav?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>'+
-      '</div>'+
-    '</div>';
+    const hp=m.poster_thumb&&m.poster_thumb.length>10;
+    const post=hp
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();var _m=all.find(x=>x.id===${m.id});if(_m)window.location.href=buildVlcUrl(_m);">▶</a></div>`
+      :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
+    return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
-  // List mode
-  return '<div class="mcard lcard" data-id="'+m.id+'">'+
-    '<div class="lnum">'+m.num+'</div>'+
-    '<div class="lbody"><div class="ltitle">'+titleH+'</div><div class="lmeta">'+esc(ym)+'</div></div>'+
-    '<div class="lright">'+genres+badge+'</div>'+
-    '<button class="lfav">'+(fav?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>')+'</button></div>';
+  const lfavBtn=`<button class="lfav">${fav?STAR_ON:STAR_OFF}</button>`;
+  return `<div class="mcard lcard" data-id="${m.id}"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 }
 
 
@@ -555,82 +537,75 @@ function updFavBtn(btn,id){var f=favs.has(id);btn.innerHTML=f?"&#11088; Odstrani
    MODULE: Detail View — full film info, trailer, similar
    ══════════════════════════════════════════════════════════ */
 function openDet(id){
-  var m=all.find(function(x){return x.id===id;});if(!m)return;
+  const m=all.find(x=>x.id===id); if(!m)return;
   curId=id;
   document.getElementById("detTitle").textContent=m.title;
   document.getElementById("detYr").textContent=[m.year||"",m.duration,m.country].filter(Boolean).join(" - ");
-  var hp=m.poster_thumb&&m.poster_thumb.length>10;
-  ["detBlur","detCover"].forEach(function(eid){var el=document.getElementById(eid);el.style.display=hp?"block":"none";if(hp)el.src=m.poster_thumb;});
-  var ins=document.getElementById("detInset");ins.style.display=hp?"block":"none";
+  const hp=m.poster_thumb&&m.poster_thumb.length>10;
+  ["detBlur","detCover"].forEach(eid=>{
+    const el=document.getElementById(eid);
+    el.style.display=hp?"block":"none"; if(hp)el.src=m.poster_thumb;
+  });
+  const ins=document.getElementById("detInset"); ins.style.display=hp?"block":"none";
   if(hp)document.getElementById("detInsetImg").src=m.poster_thumb;
   document.getElementById("detBg").style.display=hp?"none":"block";
 
-  var fav=favs.has(id),cached=liveCache[id];
-  var genres=(m.genres||[]).map(function(g){return'<span class="dg-tag">'+esc(g)+'</span>';}).join("");
-  var items=[];if(m.director)items.push(["Reziser",m.director]);
-  items.push(["Rok",m.year||"-"],["Dlzka",m.duration||"-"],["Krajina",m.country||"-"],["#",m.num]);
-  var tmdbUrl=cached&&cached.tmdbUrl?cached.tmdbUrl:"https://www.themoviedb.org/search?query="+encodeURIComponent(m.title);
-  var imdbUrl=cached&&cached.imdbUrl?cached.imdbUrl:null;
+  const fav=favs.has(id), cached=liveCache[id];
+  const genres=(m.genres||[]).map(g=>`<span class="dg-tag">${esc(g)}</span>`).join("");
+  const items=[];
+  if(m.director)items.push(["Režíser",m.director]);
+  items.push(["Rok",m.year||"–"],["Dĺžka",m.duration||"–"],["Krajina",m.country||"–"],["#",m.num]);
+  const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
+  const imdbUrl=(cached&&cached.imdbUrl)||null;
 
-  // TMDB rating pill
-  var ratingHtml;
+  // Rating pill
+  let ratingHtml;
   if(!cached){
-    ratingHtml='<div class="rating-pill-na" id="ratingBox">'+(tmdbKey?"Nacitavam...":"–")+'</div>';
+    ratingHtml=`<div class="rating-pill-na" id="ratingBox">${tmdbKey?"Načítavam…":"–"}</div>`;
   } else if(cached.pct!=null){
-    var col=cached.pct>=70?"#00c853":cached.pct>=50?"#ffd600":"#e53935";
-    ratingHtml='<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:'+col+'">'+cached.pct+'%</div></div>';
+    const col=cached.pct>=70?"#00c853":cached.pct>=50?"#ffd600":"#e53935";
+    ratingHtml=`<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:${col}">${cached.pct}%</div></div>`;
   } else {
     ratingHtml='<div class="rating-pill-na">N/A</div>';
   }
 
-  var html=
-    '<div class="det-frow">'+ratingHtml+
-      '<button class="btn-fav'+(fav?" on":"")+'" id="dfavBtn">'+(fav?"&#11088; Odstranit":"&#9734; Oblubene")+'</button>'+
-      '<button class="btn-wl'+(wl.has(id)?" on":"")+'" id="dwlBtn">'+(wl.has(id)?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Odstrániť z WL':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Watchlist')+'</button>'+
-      '<button class="btn-watched'+(watched.has(id)?" on":"")+'" id="dwatchedBtn">'+(watched.has(id)?"&#10003; Videne":"– Nevidene")+'</button>'+
-      (watchedDates[id]?'<span class="watched-date">Videne: '+watchedDates[id]+'</span>':'')+
-    '</div>'+
-    (genres?'<div class="det-genres">'+genres+'</div>':"")+
-    '<div class="sec">Prehrávanie</div>'+
-    '<div class="det-actions" style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">'+
-      '<button id="playMovieBtn" class="sett-btn primary">'+
-        '<span class="sett-btn-icon">▶</span>'+
-        '<span class="sett-btn-label">Prehrať film</span>'+
-      '</button>'+
-    '</div>'+
-    '<div class="sec">Trailer & Linky</div>'+
-    '<div class="tr-row">'+
-      '<button class="btn-play" id="btnPlay" title="'+esc(getMoviePath(m))+'">&#9654; Prehrať film</button>'+
-      '<button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu">&#128203;</button>'+
-      '<button class="btn-trailer" id="btnTr">&#9654; YouTube Trailer</button>'+
-      '<a class="btn-tmdb" id="btnTmdb" href="'+esc(tmdbUrl)+'" target="_blank">TMDB</a>'+
-      (imdbUrl?'<a class="btn-imdb" id="btnImdb" href="'+esc(imdbUrl)+'" target="_blank">&#9733; IMDB</a>':
-               '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">&#9733; IMDB</a>')+
-    '</div>'+
-    (m.description&&m.description.trim()?'<div class="sec">Popis</div><div class="det-desc">'+esc(m.description)+'</div>':"")+
-    '<div class="sec">Detaily</div>'+
-    '<div class="det-grid">'+items.map(function(it){return'<div class="det-item"><div class="det-item-l">'+it[0]+'</div><div class="det-item-v">'+esc(String(it[1]))+'</div></div>';}).join("")+'</div>'+
-    (m.cast&&m.cast.trim()?'<div class="sec">Obsadenie</div><div class="det-cast">'+esc(m.cast)+'</div>':"")+buildSimilarHtml(m);
+  const html=
+    `<div class="det-frow">
+      ${ratingHtml}
+      <button class="btn-fav${fav?" on":""}" id="dfavBtn">${fav?"⭐ Odstrániť":"☆ Obľúbene"}</button>
+      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn">${wl.has(id)?"EYE_ON Odstrán.z WL":"EYE_OFF Watchlist"}</button>
+      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn">${watched.has(id)?"&#10003; Videné":"&#8211; Nevidené"}</button>
+      ${watchedDates[id]?`<span class="watched-date">Videné: ${watchedDates[id]}</span>`:""}
+    </div>
+    ${genres?`<div class="det-genres">${genres}</div>`:""}
+    <div class="sec">Prehrávanie</div>
+    <div class="det-actions">
+      <button id="playMovieBtn" class="sett-btn primary"><span class="sett-btn-icon">▶</span><span class="sett-btn-label">Prehráť film</span></button>
+      <button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru">📋 Kopírovať cestu</button>
+      <div class="det-path-hint">${esc(getMoviePath(m))}</div>
+    </div>
+    <div class="sec">Trailer &amp; Linky</div>
+    <div class="tr-row">
+      <button class="btn-trailer" id="btnTr">▶ YouTube Trailer</button>
+      <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
+      ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
+               '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
+    </div>
+    ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
+    <div class="sec">Detaily</div>
+    <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${esc(String(it[1]))}</div></div>`).join("")}</div>
+    ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${esc(m.cast)}</div>`:""}
+    ${buildSimilarHtml(m)}`;
 
   document.getElementById("detBody").innerHTML=html;
-  document.getElementById("dfavBtn").addEventListener("click",function(){togFav(id,null);updFavBtn(this,id);});
-  document.getElementById("dwlBtn").addEventListener("click",function(){togWl(id,null);updWlBtn(this,id);});
-  document.getElementById("dwatchedBtn").addEventListener("click",function(){togWatched(id,null);updWatchedBtn(this,id);});
-  // Wire similar film cards
-  document.querySelectorAll(".sim-card").forEach(function(c){
-    c.addEventListener("click",function(){openDet(parseInt(c.dataset.sid));});
-  });
-  document.getElementById("btnPlay").addEventListener("click",function(){
-    var url = buildVlcUrl(all.find(function(x){return x.id===id;}));
-    window.location.href = url;
-  });
-  document.getElementById("btnPlayCopy").addEventListener("click",function(){copyMoviePath(id);});
-  document.getElementById("btnTr").addEventListener("click",function(){openTrailer(id);});
-  // Wire play button
-  var playBtn = document.getElementById("playMovieBtn");
-  if (playBtn) {
-    playBtn.onclick = function() { playMovie(m); };
-  }
+  document.getElementById("dfavBtn").addEventListener("click",()=>{togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);});
+  document.getElementById("dwlBtn").addEventListener("click",()=>{togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);});
+  document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
+  document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
+  const playBtn=document.getElementById("playMovieBtn");
+  if(playBtn)playBtn.onclick=()=>{window.location.href=buildVlcUrl(all.find(x=>x.id===id)||m);};
+  document.getElementById("btnPlayCopy").addEventListener("click",()=>copyMoviePath(id));
+  document.getElementById("btnTr").addEventListener("click",()=>openTrailer(id));
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -794,147 +769,93 @@ function destroySingleChart(id) {
 }
 
 /* Helper: stat card HTML — used by showStats() */
-function sc(icon, label, value, sub) {
-  return '<div class="scard">' +
-    '<div class="sic">' + icon + '</div>' +
-    '<div><div class="slbl">' + label + '</div>' +
-    '<div class="sval">' + value + '</div>' +
-    (sub ? '<div class="ssub">' + sub + '</div>' : '') +
-    '</div></div>';
+function sc(icon,label,value,sub){
+  return `<div class="scard"><div class="sic">${icon}</div><div><div class="slbl">${label}</div><div class="sval">${value}</div>${sub?`<div class="ssub">${sub}</div>`:""}</div></div>`;
 }
 
-function showStats() {
-  if (!all.length) { toast('Žiadne filmy'); return; }
+function showStats(){
+  if(!all.length){toast('Žiadne filmy');return;}
   destroyCharts();
 
-  // ── Data crunching ─────────────────────────────────────────────
-  var withYear  = all.filter(function(m) { return m.year > 0; });
-  var years     = withYear.map(function(m) { return m.year; });
-  var minYear   = years.length ? Math.min.apply(null, years) : '–';
-  var maxYear   = years.length ? Math.max.apply(null, years) : '–';
+  const withYear=all.filter(m=>m.year>0);
+  const years=withYear.map(m=>m.year);
+  const minYear=years.length?Math.min(...years):"–";
+  const maxYear=years.length?Math.max(...years):"–";
 
   // Genre counts (top 10)
-  var genreCounts = {};
-  all.forEach(function(m) {
-    (m.genres || []).forEach(function(g) { genreCounts[g] = (genreCounts[g] || 0) + 1; });
-  });
-  var topGenres = Object.entries(genreCounts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  const genreCounts={};
+  all.forEach(m=>(m.genres||[]).forEach(g=>{genreCounts[g]=(genreCounts[g]||0)+1;}));
+  const topGenres=Object.entries(genreCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
   // Decade counts
-  var decadeCounts = {};
-  withYear.forEach(function(m) { var d = Math.floor(m.year / 10) * 10; decadeCounts[d] = (decadeCounts[d] || 0) + 1; });
-  var decades = Object.entries(decadeCounts).sort(function(a, b) { return a[0] - b[0]; });
+  const decadeCounts={};
+  withYear.forEach(m=>{const d=Math.floor(m.year/10)*10;decadeCounts[d]=(decadeCounts[d]||0)+1;});
+  const decades=Object.entries(decadeCounts).sort((a,b)=>a[0]-b[0]);
 
-  // Hours (estimate: average film ~105 min)
-  var totalWithDur = all.filter(function(m) { return m.duration; });
-  var totalMins = totalWithDur.reduce(function(acc, m) {
-    var mins = parseInt((m.duration || '').replace(/\D/g, '')) || 0;
-    return acc + mins;
-  }, 0) + (all.length - totalWithDur.length) * 105;
-  var hours = Math.round(totalMins / 60);
+  // Watch time estimate
+  const totalWithDur=all.filter(m=>m.duration);
+  const totalMins=totalWithDur.reduce((acc,m)=>acc+(parseInt((m.duration||"").replace(/\D/g,""))||0),0)
+    +(all.length-totalWithDur.length)*105;
+  const hours=Math.round(totalMins/60);
 
-  // TMDB data quality
-  var withLive = Object.keys(liveCache).length;
-  var withPoster = all.filter(function(m) { return m.poster_thumb && m.poster_thumb.length > 10; }).length;
+  const withLive=Object.keys(liveCache).length;
+  const withPoster=all.filter(m=>m.poster_thumb&&m.poster_thumb.length>10).length;
 
-  // ── Stat cards ─────────────────────────────────────────────────
-  var statHtml =
-    sc('🎬', 'FILMOV CELKOM', all.length, '') +
-    sc('🕐', 'HODÍN SLEDOVANIA', hours, '(odhad)') +
-    sc('🖼', 'S PLAGÁTOM', withPoster, 'filmov') +
-    sc('📊', 'TMDB DÁTA', withLive, 'filmov s hodnotením') +
-    sc('❤️', 'OBĽÚBENÉ', favs.size, '') +
-    sc('👁', 'WATCHLIST', wl.size, '') +
-    sc('✓', 'VIDENÉ', watched.size, '') +
-    sc('📅', 'ROKY', minYear + '–' + maxYear, '');
+  const statHtml=
+    sc("🎬","FILMOV CELKOM",all.length,"")+
+    sc("🕐","HODÍN SLEDOVANIA",hours,"(odhad)")+
+    sc("🖼","S PLAGÁTOM",withPoster,"filmov")+
+    sc("📊","TMDB DÁTA",withLive,"filmov s hodnotením")+
+    sc("❤️","OBĽÚBENÉ",favs.size,"")+
+    sc("👁","WATCHLIST",wl.size,"")+
+    sc("✓","VIDENÉ",watched.size,"")+
+    sc("📅","ROKY",`${minYear}–${maxYear}`,"");
 
-  // ── Charts HTML ────────────────────────────────────────────────
-  var chartsHtml = '<div class="stat-charts">';
+  let chartsHtml='<div class="stat-charts">';
+  if(topGenres.length)chartsHtml+='<div class="chart-card"><div class="chart-title">TOP ŽÁNRE</div><div class="chart-wrap"><canvas id="chartGenres"></canvas></div></div>';
+  if(decades.length)chartsHtml+='<div class="chart-card"><div class="chart-title">FILMY PODĽA DEKÁDY</div><div class="chart-wrap"><canvas id="chartDecades"></canvas></div></div>';
+  chartsHtml+='</div>';
 
-  if (topGenres.length) {
-    chartsHtml +=
-      '<div class="chart-card">' +
-        '<div class="chart-title">TOP ŽÁNRE</div>' +
-        '<div class="chart-wrap"><canvas id="chartGenres"></canvas></div>' +
-      '</div>';
-  }
-  if (decades.length) {
-    chartsHtml +=
-      '<div class="chart-card">' +
-        '<div class="chart-title">FILMY PODĽA DEKÁDY</div>' +
-        '<div class="chart-wrap"><canvas id="chartDecades"></canvas></div>' +
-      '</div>';
-  }
+  document.getElementById("statBody").innerHTML=statHtml+chartsHtml;
+  document.getElementById("mainSc").classList.add("hidden");
+  document.getElementById("statSc").classList.remove("hidden");
 
-  chartsHtml += '</div>';
+  const PALETTE=["#d4a943","#f0c060","#4a9eff","#22cc88","#cc44aa","#ff6644","#9966ff","#44ccff","#ff4477","#88dd44"];
 
-  document.getElementById('statBody').innerHTML = statHtml + chartsHtml;
-
-  // Show screen
-  document.getElementById('mainSc').classList.add('hidden');
-  document.getElementById('statSc').classList.remove('hidden');
-
-  // ── Render charts after DOM update ────────────────────────────
-  var PALETTE = [
-    '#d4a943','#f0c060','#4a9eff','#22cc88','#cc44aa',
-    '#ff6644','#9966ff','#44ccff','#ff4477','#88dd44'
-  ];
-
-  if (topGenres.length) {
-    buildChart('chartGenres', {
-      type: 'doughnut',
-      data: {
-        labels: topGenres.map(function(e) { return e[0]; }),
-        datasets: [{
-          data: topGenres.map(function(e) { return e[1]; }),
-          backgroundColor: PALETTE,
-          borderColor: '#0a0a0f',
-          borderWidth: 2
-        }]
+  if(topGenres.length){
+    buildChart("chartGenres",{
+      type:"doughnut",
+      data:{
+        labels:topGenres.map(e=>e[0]),
+        datasets:[{data:topGenres.map(e=>e[1]),backgroundColor:PALETTE,borderColor:"#0a0a0f",borderWidth:2}]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: { color: '#9090a8', font: { size: 11 }, boxWidth: 12, padding: 8 }
-          },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) {
-                var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-                var pct = Math.round(ctx.parsed / total * 100);
-                return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
-              }
-            }
-          }
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:"right",labels:{color:"#9090a8",font:{size:11},boxWidth:12,padding:8}},
+          tooltip:{callbacks:{label(ctx){
+            const total=ctx.dataset.data.reduce((a,b)=>a+b,0);
+            const pct=Math.round(ctx.parsed/total*100);
+            return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+          }}}
         }
       }
     });
   }
 
-  if (decades.length) {
-    buildChart('chartDecades', {
-      type: 'bar',
-      data: {
-        labels: decades.map(function(e) { return e[0] + 's'; }),
-        datasets: [{
-          label: 'Počet filmov',
-          data: decades.map(function(e) { return e[1]; }),
-          backgroundColor: '#d4a943cc',
-          borderColor: '#d4a943',
-          borderWidth: 1,
-          borderRadius: 4
-        }]
+  if(decades.length){
+    buildChart("chartDecades",{
+      type:"bar",
+      data:{
+        labels:decades.map(e=>`${e[0]}s`),
+        datasets:[{label:"Počet filmov",data:decades.map(e=>e[1]),backgroundColor:"#d4a943cc",borderColor:"#d4a943",borderWidth:1,borderRadius:4}]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#9090a8', font: { size: 11 } }, grid: { color: '#2a2a3a' } },
-          y: { ticks: { color: '#9090a8', font: { size: 11 }, stepSize: 1 }, grid: { color: '#2a2a3a' }, beginAtZero: true }
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:"#9090a8",font:{size:11}},grid:{color:"#2a2a3a"}},
+          y:{ticks:{color:"#9090a8",font:{size:11},stepSize:1},grid:{color:"#2a2a3a"},beginAtZero:true}
         }
       }
     });
@@ -1019,11 +940,14 @@ function openSett(){
     smbSt.textContent = '\u2713 ' + lk + ' \u2192 ' + smbBase;
     smbSt.className = 'sett-key-st ok';
   }
+  // Sync autoPullTog
+  const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
-function infoItem(l,v){return'<div class="sett-info-item"><div class="sett-info-lbl">'+l+'</div><div class="sett-info-val">'+v+'</div></div>';}
-function closeSett(){document.getElementById("settOverlay").classList.add("hidden");document.getElementById("settPanel").classList.add("hidden");}
+function infoItem(l,v){
+  return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
+}
 function settSetView(v){
   grid = v === 'grid';
   var ml = document.getElementById('mlist');
@@ -1349,7 +1273,7 @@ document.addEventListener("DOMContentLoaded",function(){
     _apt.addEventListener('change', function(){
       prefs.autoPush = this.checked;
       savePrefs();
-      toast('Auto-push: ' + (this.checked ? 'zapnutý' : 'vypnutý'));
+      toast(`Auto-push: ${this.checked?'zapnutý':'vypnutý'}`);
     });
   }
   // Native player toggle
@@ -1359,7 +1283,7 @@ document.addEventListener("DOMContentLoaded",function(){
     _npt.addEventListener('change', function(){
       useNativePlayer = this.checked;
       localStorage.setItem(NATIVE_PLAYER_KEY, this.checked ? '1' : '0');
-      toast('Prehrávač: ' + (this.checked ? 'natívny' : 'VLC handler'));
+      toast(`Prehrávač: ${this.checked?'natívny':'VLC handler'}`);
     });
   }
 
@@ -1381,8 +1305,12 @@ document.addEventListener("DOMContentLoaded",function(){
       localStorage.setItem(PATH_MODE_KEY, pathMode);
       document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className = 'ttab on';
-      toast('Režim: ' + (pathMode === 'smb' ? 'Sieťový (SMB)' : 'Lokálny (W:)'));
+      toast(`Režim: ${pathMode==='smb'?'Sieťový (SMB)':'Lokálny (W:)'}`);
     });
+  // Set initial active state for pathMode buttons based on localStorage
+  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
+    b.className = (b.dataset.mode === pathMode) ? 'ttab on' : 'ttab';
+  });
   });
   var smbSaveBtn = document.getElementById('smbPathSave');
   if (smbSaveBtn) smbSaveBtn.addEventListener('click', function(){
@@ -1504,6 +1432,15 @@ document.addEventListener("DOMContentLoaded",function(){
   });
   document.getElementById('ghPushBtn').addEventListener('click', ghPush);
   document.getElementById('ghPullBtn').addEventListener('click', ghPull);
+  var _apt = document.getElementById('autoPullTog');
+  if (_apt) {
+    _apt.checked = autoPull;
+    _apt.addEventListener('change', function(){
+      autoPull = this.checked;
+      localStorage.setItem(AUTO_PULL_KEY, this.checked ? '1' : '0');
+      toast(`Auto-načítanie z GitHubu: ${this.checked?'zapnuté':'vypnuté'}`);
+    });
+  }
   var tx=0;
   ["detSc","statSc"].forEach(function(id){
     var el=document.getElementById(id);
@@ -1713,7 +1650,7 @@ function adminAddMovie() {
   // Persist the movie list (strip posters to stay under localStorage limit)
   adminSaveAll();
 
-  toast('✅ "' + m.title + '" pridaný do databázy!');
+  toast(`✅ "${m.title}" pridaný do databázy!`);
   buildFuse();   // rebuild search index
   renderAll();
   closeAdmin();
@@ -1748,6 +1685,8 @@ var GH_KEY    = 'mdb_gh_token';
 var GH_REPO   = 'bucala/Filmy';
 var GH_FILE   = 'data.json';
 var GH_BRANCH = 'main';
+var AUTO_PULL_KEY = 'mdb_auto_pull';
+var autoPull = localStorage.getItem(AUTO_PULL_KEY) === '1';
 var ghToken   = localStorage.getItem('mdb_gh_token') || '';
 
 
@@ -1781,7 +1720,7 @@ function ghPush() {
     toast('Databáza je prázdna');
     return;
   }
-  ghSetStatus('Pripravujem ' + all.length + ' filmov na upload...', 'info');
+  ghSetStatus(`Pripravujem ${all.length} filmov na upload...`, 'info');
 
   var payload = {
     version:   1,
@@ -1795,20 +1734,20 @@ function ghPush() {
   };
 
   var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-  var baseUrl = 'https://api.github.com/repos/' + GH_REPO;
+  const baseUrl = `https://api.github.com/repos/${GH_REPO}`;
   var hdrs    = ghHeaders();
 
   // ── Simple approach: GET current SHA from Contents API, then PUT ──
   // This is more reliable than the Git Data API tree traversal
   function doWrite(sha) {
     var body = {
-      message: 'FilmDB sync ' + new Date().toISOString().slice(0, 10),
+      message: `FilmDB sync ${new Date().toISOString().slice(0,10)}`,
       content: encoded,
       branch:  GH_BRANCH
     };
     if (sha) body.sha = sha;
 
-    return fetch(baseUrl + '/contents/' + GH_FILE, {
+    return fetch(`${baseUrl}/contents/${GH_FILE}`, {
       method: 'PUT', headers: hdrs, body: JSON.stringify(body)
     }).then(function(r) {
       return r.json().then(function(d) { return { status: r.status, ok: r.ok, d: d }; });
@@ -1816,7 +1755,7 @@ function ghPush() {
   }
 
   // Step 1: Get current file SHA (or null if file doesn't exist)
-  fetch(baseUrl + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH, { headers: hdrs })
+  fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}`, { headers: hdrs })
     .then(function(r) {
       if (r.status === 401) {
         ghSetStatus('❌ Token odmietnutý (401). Skontroluj: scope repo, expiráciu, SSO.', 'err');
@@ -1838,12 +1777,12 @@ function ghPush() {
     .then(function(res) {
       if (res.ok) {
         var ts = new Date().toLocaleTimeString('sk');
-        ghSetStatus('✓ Uložené ' + ts + ' · ' + all.length + ' filmov', 'ok');
+        ghSetStatus(`✓ Uložené ${ts} · ${all.length} filmov`, 'ok');
         toast('Databáza uložená na GitHub!');
       } else if (res.status === 409 || res.status === 422) {
         // SHA mismatch (409 Conflict or 422) — re-fetch SHA and retry ONCE
         ghSetStatus('SHA mismatch, opakujem…', 'info');
-        fetch(baseUrl + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH + '&t=' + Date.now(), { headers: hdrs })
+        fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers: hdrs })
           .then(function(r2) {
             if (!r2.ok) throw new Error('Retry GET failed: ' + r2.status);
             return r2.json();
@@ -1851,19 +1790,19 @@ function ghPush() {
           .then(function(d2) { return doWrite(d2.sha); })
           .then(function(res2) {
             if (res2.ok) {
-              ghSetStatus('✓ Uložené (2. pokus) · ' + all.length + ' filmov', 'ok');
+              ghSetStatus(`✓ Uložené (2. pokus) · ${all.length} filmov`, 'ok');
               toast('Databáza uložená na GitHub!');
             } else {
-              ghSetStatus('Chyba retry: ' + (res2.d.message || res2.status), 'err');
+              ghSetStatus(`Chyba retry: ${res2.d.message||res2.status}`, 'err');
             }
           })
-          .catch(function(e2) { ghSetStatus('Retry zlyhalo: ' + e2.message, 'err'); });
+          .catch(e2=>ghSetStatus(`Retry zlyhalo: ${e2.message}`, 'err'));
       } else {
-        ghSetStatus('Chyba: ' + (res.d.message || 'HTTP ' + res.status), 'err');
+        ghSetStatus(`Chyba: ${res.d.message||'HTTP '+res.status}`, 'err');
       }
     })
     .catch(function(e) {
-      if (e.message !== '401') ghSetStatus('Sieťová chyba: ' + e.message, 'err');
+      if(e.message!=='401')ghSetStatus(`Sieťová chyba: ${e.message}`, 'err');
     });
 }
 
@@ -1872,26 +1811,31 @@ function ghPull() {
   ghSetStatus('Načítavam z GitHubu…', 'info');
 
   var ghPullAttempt = function(attempt) {
-  fetch(ghApiFileUrl(), { headers: ghHeaders() })
+  fetch(ghApiFileUrl() + '&t=' + Date.now(), { headers: ghHeaders() })
     .then(function(r) {
       if (r.status === 401) throw new Error('401_UNAUTH');
       if (r.status === 403) {
         var reset = r.headers.get('X-RateLimit-Reset');
         var wait  = reset ? Math.ceil((reset*1000 - Date.now())/60000) : '?';
-        throw new Error('403_RATELIMIT:' + wait);
+        throw new Error(`403_RATELIMIT:${wait}`);
       }
       if (r.status === 429) throw new Error('429_RATELIMIT');
       if (r.status === 404) throw new Error('404');
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if(!r.ok)throw new Error(`HTTP ${r.status}`);
       return r.json();
     })
     .then(function(file) {
+      if (!file || !file.content) {
+        throw new Error('data.json je prázdny alebo neexistuje na GitHub — najprv ulož (Push).');
+      }
       var b64clean = file.content.replace(/\s/g, '');
       var binary   = atob(b64clean);
       var bytes    = new Uint8Array(binary.length);
       for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      var raw      = new TextDecoder('utf-8').decode(bytes);
-      var payload = JSON.parse(raw);
+      var raw = new TextDecoder('utf-8').decode(bytes);
+      var payload;
+      try { payload = JSON.parse(raw); }
+      catch(je) { throw new Error('Neplatný JSON: ' + je.message + ' (veľkosť: ' + raw.length + 'B)'); }
 
       if (!payload.movies || !payload.movies.length) {
         ghSetStatus('Súbor data.json je prázdny — najprv ulož (Push).', 'err');
@@ -1931,7 +1875,7 @@ function ghPull() {
 
       var ts = payload.updated ? new Date(payload.updated).toLocaleString('sk') : '?';
       var ts2=new Date().toLocaleTimeString('sk');
-      ghSetStatus('✓ Načítané '+ts2+' · '+all.length+' filmov', 'ok');
+      ghSetStatus(`✓ Načítané ${ts2} · ${all.length} filmov`, 'ok');
       buildFuse();
       renderAll();
       toast('Databáza načítaná z GitHubu!');
@@ -1943,15 +1887,15 @@ function ghPull() {
         ghSetStatus('⚠ Neplatný GitHub token — skontroluj nastavenia.', 'err');
       } else if (e.message.indexOf('403_RATELIMIT') >= 0) {
         var wait = e.message.split(':')[1] || '?';
-        ghSetStatus('⏳ GitHub rate limit — skús znova o ' + wait + ' min.', 'err');
+        ghSetStatus(`⏳ GitHub rate limit — skús znova o ${wait} min.`, 'err');
       } else if (e.message.indexOf('429_RATELIMIT') >= 0) {
         ghSetStatus('⏳ GitHub rate limit — skús znova o chvíľu.', 'err');
       } else if (attempt < 2) {
-        ghSetStatus('Opakujem pokus ' + (attempt+1) + '/2…', 'info');
+        ghSetStatus(`Opakujem pokus ${attempt+1}/2…`, 'info');
         setTimeout(function() { ghPullAttempt(attempt + 1); }, 3000);
         return;
       } else {
-        ghSetStatus('Chyba: ' + e.message, 'err');
+        ghSetStatus(`Chyba: ${e.message}`, 'err');
       }
     });
   };
@@ -2315,22 +2259,16 @@ function getSimilarFilms(movie, n) {
   return scored.slice(0, n).map(function(x) { return x.m; });
 }
 
-function buildSimilarHtml(movie) {
-  var similar = getSimilarFilms(movie, 6);
-  if (!similar.length) return '';
-
-  var cards = similar.map(function(m) {
-    var poster = m.poster_thumb && m.poster_thumb.length > 10
-      ? '<img class="sim-poster" src="' + m.poster_thumb + '" alt="" loading="lazy">'
-      : '<div class="sim-poster-ph">🎬</div>';
-    return '<div class="sim-card" data-sid="' + m.id + '">' +
-      poster +
-      '<div class="sim-title">' + esc(m.title) + '</div>' +
-    '</div>';
-  }).join('');
-
-  return '<div class="sec">PODOBNÉ FILMY</div>' +
-    '<div class="similar-row" id="simRow">' + cards + '</div>';
+function buildSimilarHtml(movie){
+  const similar=getSimilarFilms(movie,6);
+  if(!similar.length)return "";
+  const cards=similar.map(m=>{
+    const poster=m.poster_thumb&&m.poster_thumb.length>10
+      ?`<img class="sim-poster" src="${m.poster_thumb}" alt="" loading="lazy">`
+      :'<div class="sim-poster-ph">🎬</div>';
+    return `<div class="sim-card" data-sid="${m.id}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
+  }).join("");
+  return `<div class="sec">PODOBNÉ FILMY</div><div class="similar-row" id="simRow">${cards}</div>`;
 }
 
 
@@ -2749,8 +2687,7 @@ function extractPostersFromPdf(pdf, mv){
   
   return chain.then(function(){
     setP(87, "Extrahovaných " + extracted + " plagátov z " + mv.length + " filmov");
-    console.log("Poster extraction: " + extracted + "/" + mv.length);
-  });
+});
 }
 
 
@@ -3089,11 +3026,13 @@ function validateGhToken(token, cb) {
    ══════════════════════════════════════════════════════════════════ */
 function autoCheckGitHub() {
   if (all.length > 0) return;
+  var es = document.getElementById('emptySt');
   if (!ghToken) {
-    var es = document.getElementById('emptySt');
     if (es) es.style.display = 'flex';
     return;
   }
+  // If autoPull is enabled, init() already scheduled a ghPull — don't double-fetch.
+  if (autoPull) return;
   toast('Žiadne lokálne dáta. Načítavam z GitHubu...');
   setTimeout(function() { ghPull(); }, 600);
 }

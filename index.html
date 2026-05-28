@@ -312,6 +312,13 @@
         <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="18" x2="12" y2="6"/></svg></span>
         <span class="sett-btn-label">Načítať z GitHubu</span>
       </button>
+<div class="sett-row" style="margin-top:10px;display:flex;align-items:center;gap:10px">
+  <span class="sett-lbl" style="flex:1;font-size:12px">Automaticky načítať z GitHubu pri štarte</span>
+  <label class="switch">
+    <input type="checkbox" id="autoPullTog">
+    <span class="slider"></span>
+  </label>
+</div>
     </div>
     <div class="sync-status" id="ghSyncStatus"></div>
     </div>
@@ -343,7 +350,7 @@
     <div class="sett-grp-title">Režim ciest k súborom</div>
     <div class="sett-toggle" id="pathModeToggle">
       <button class="ttab" id="pathModeLocal" data-mode="local"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Lokálna cesta (W:\)</button>
-      <button class="ttab on" id="pathModeSmb" data-mode="smb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Sieťová cesta (SMB)</button>
+      <button class="ttab" id="pathModeSmb" data-mode="smb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Sieťová cesta (SMB)</button>
     </div>
     <div class="sett-btn-hint" style="margin-top:8px">
       <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Funguje pri lokálnom otvorení HTML.<br>
