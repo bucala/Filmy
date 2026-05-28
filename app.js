@@ -254,87 +254,68 @@ function buildFuse(){
    MODULE: Filters — genre chips, year, rating, country
    ══════════════════════════════════════════════════════════ */
 function applyFilters(){
-  var raw=document.getElementById("srchInp").value;
-  var q=raw.trim();
-  var badge=document.getElementById("srchModeBadge");
+  const raw=(document.getElementById("srchInp")||{}).value||"";
+  const q=raw.trim();
+  const badge=document.getElementById("srchModeBadge");
   fuseHighlights={};
 
-  var pool=all.filter(function(m){
-    // ── Collection filters ─────────────────────────────────────
+  const pool=all.filter(m=>{
     if(favMode&&!favs.has(m.id))return false;
     if(wlMode&&!wl.has(m.id))return false;
     if(watchedMode&&!watched.has(m.id))return false;
-    // ── Genre: panel multi-select takes priority over fbar single ─
     if(fpState.genres.length>0){
-      var hasMatch=fpState.genres.some(function(g){return(m.genres||[]).indexOf(g)>=0;});
-      if(!hasMatch)return false;
+      if(!fpState.genres.some(g=>(m.genres||[]).includes(g)))return false;
     } else if(genre&&!(m.genres||[]).includes(genre)){
       return false;
     }
-    // ── Advanced panel filters ─────────────────────────────────
     if(fpState.yearFrom>0&&(m.year||0)<fpState.yearFrom)return false;
     if(fpState.yearTo>0&&(m.year||0)>fpState.yearTo)return false;
     if(fpState.minRating>0){
-      var lv=liveCache[m.id];
-      var pct=lv&&lv.pct!=null?lv.pct:null;
+      const lv=liveCache[m.id];
+      const pct=lv&&lv.pct!=null?lv.pct:null;
       if(pct===null||pct<fpState.minRating)return false;
     }
     if(fpState.country){
-      var cStr=(m.country||'').toLowerCase();
-      if(cStr.indexOf(fpState.country.toLowerCase())<0)return false;
+      if(!(m.country||"").toLowerCase().includes(fpState.country.toLowerCase()))return false;
     }
     return true;
   });
 
-  var list;
-
+  let list;
   if(!q){
-    // No query — show everything in pool
     list=pool;
-    badge.className="srch-mode-badge";
-    badge.textContent="";
+    if(badge){badge.className="srch-mode-badge";badge.textContent="";}
   } else {
-    // Exact substring check first (fast path)
-    var ql=q.toLowerCase();
-    var exactMatches=pool.filter(function(m){
-      return (m.title||"").toLowerCase().indexOf(ql)>=0||
-             (m.director||"").toLowerCase().indexOf(ql)>=0||
-             String(m.year||"").indexOf(ql)>=0||
-             (m.genres||[]).join(" ").toLowerCase().indexOf(ql)>=0;
-    });
-
+    const ql=q.toLowerCase();
+    const exactMatches=pool.filter(m=>
+      (m.title||"").toLowerCase().includes(ql)||
+      (m.director||"").toLowerCase().includes(ql)||
+      String(m.year||"").includes(ql)||
+      (m.genres||[]).join(" ").toLowerCase().includes(ql)
+    );
     if(exactMatches.length>0){
-      // Exact match path — highlight exact spans
       list=exactMatches;
-      badge.className="srch-mode-badge exact";
-      badge.textContent="PRESNE";
-      exactMatches.forEach(function(m){
-        fuseHighlights[m.id]=buildExactHighlights(m,ql);
-      });
+      if(badge){badge.className="srch-mode-badge exact";badge.textContent="PRESNE";}
+      exactMatches.forEach(m=>{fuseHighlights[m.id]=buildExactHighlights(m,ql);});
     } else {
-      // Fuzzy path — use Fuse.js on the pre-filtered pool
       if(!fuseInst)buildFuse();
-      // Re-run fuse on the pool subset
-      var poolFuse=new Fuse(pool,fuseInst._options);
-      var results=poolFuse.search(q);
-      list=results.map(function(r){return r.item;});
-      badge.className="srch-mode-badge fuzzy";
-      badge.textContent="FUZZY ~";
-      results.forEach(function(r){
-        fuseHighlights[r.item.id]=parseFuseMatches(r.matches);
-      });
+      const poolFuse=new Fuse(pool,fuseInst._options);
+      const results=poolFuse.search(q);
+      list=results.map(r=>r.item);
+      if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
+      results.forEach(r=>{fuseHighlights[r.item.id]=parseFuseMatches(r.matches);});
     }
   }
 
   sortList(list);
   filt=list;
   renderList(list);
-  var modeActive=q||genre||favMode||wlMode||watchedMode||fpActiveCount()>0;
-  var label=modeActive?list.length+" z "+all.length+" filmov":all.length+" filmov";
-  if(wlMode&&!q&&!genre&&!fpActiveCount())label="Watchlist: "+list.length+" filmov";
-  if(favMode&&!q&&!genre&&!fpActiveCount())label="Oblubene: "+list.length+" filmov";
-  if(watchedMode&&!q&&!genre&&!fpActiveCount())label="Videne: "+list.length+" filmov";
-  document.getElementById("resCnt").textContent=label;
+  const modeActive=q||genre||favMode||wlMode||watchedMode||fpActiveCount()>0;
+  let label=modeActive?`${list.length} z ${all.length} filmov`:`${all.length} filmov`;
+  if(wlMode&&!q&&!genre&&!fpActiveCount())label=`Watchlist: ${list.length} filmov`;
+  if(favMode&&!q&&!genre&&!fpActiveCount())label=`Obľúbené: ${list.length} filmov`;
+  if(watchedMode&&!q&&!genre&&!fpActiveCount())label=`Videné: ${list.length} filmov`;
+  const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
 }
 
 /** Build highlight ranges for exact substring match */
@@ -792,138 +773,89 @@ function sc(icon,label,value,sub){
   return `<div class="scard"><div class="sic">${icon}</div><div><div class="slbl">${label}</div><div class="sval">${value}</div>${sub?`<div class="ssub">${sub}</div>`:""}</div></div>`;
 }
 
-function showStats() {
-  if (!all.length) { toast('Žiadne filmy'); return; }
+function showStats(){
+  if(!all.length){toast('Žiadne filmy');return;}
   destroyCharts();
 
-  // ── Data crunching ─────────────────────────────────────────────
-  var withYear  = all.filter(function(m) { return m.year > 0; });
-  var years     = withYear.map(function(m) { return m.year; });
-  var minYear   = years.length ? Math.min.apply(null, years) : '–';
-  var maxYear   = years.length ? Math.max.apply(null, years) : '–';
+  const withYear=all.filter(m=>m.year>0);
+  const years=withYear.map(m=>m.year);
+  const minYear=years.length?Math.min(...years):"–";
+  const maxYear=years.length?Math.max(...years):"–";
 
   // Genre counts (top 10)
-  var genreCounts = {};
-  all.forEach(function(m) {
-    (m.genres || []).forEach(function(g) { genreCounts[g] = (genreCounts[g] || 0) + 1; });
-  });
-  var topGenres = Object.entries(genreCounts).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  const genreCounts={};
+  all.forEach(m=>(m.genres||[]).forEach(g=>{genreCounts[g]=(genreCounts[g]||0)+1;}));
+  const topGenres=Object.entries(genreCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
   // Decade counts
-  var decadeCounts = {};
-  withYear.forEach(function(m) { var d = Math.floor(m.year / 10) * 10; decadeCounts[d] = (decadeCounts[d] || 0) + 1; });
-  var decades = Object.entries(decadeCounts).sort(function(a, b) { return a[0] - b[0]; });
+  const decadeCounts={};
+  withYear.forEach(m=>{const d=Math.floor(m.year/10)*10;decadeCounts[d]=(decadeCounts[d]||0)+1;});
+  const decades=Object.entries(decadeCounts).sort((a,b)=>a[0]-b[0]);
 
-  // Hours (estimate: average film ~105 min)
-  var totalWithDur = all.filter(function(m) { return m.duration; });
-  var totalMins = totalWithDur.reduce(function(acc, m) {
-    var mins = parseInt((m.duration || '').replace(/\D/g, '')) || 0;
-    return acc + mins;
-  }, 0) + (all.length - totalWithDur.length) * 105;
-  var hours = Math.round(totalMins / 60);
+  // Watch time estimate
+  const totalWithDur=all.filter(m=>m.duration);
+  const totalMins=totalWithDur.reduce((acc,m)=>acc+(parseInt((m.duration||"").replace(/\D/g,""))||0),0)
+    +(all.length-totalWithDur.length)*105;
+  const hours=Math.round(totalMins/60);
 
-  // TMDB data quality
-  var withLive = Object.keys(liveCache).length;
-  var withPoster = all.filter(function(m) { return m.poster_thumb && m.poster_thumb.length > 10; }).length;
+  const withLive=Object.keys(liveCache).length;
+  const withPoster=all.filter(m=>m.poster_thumb&&m.poster_thumb.length>10).length;
 
-  // ── Stat cards ─────────────────────────────────────────────────
-  var statHtml =
-    sc('🎬', 'FILMOV CELKOM', all.length, '') +
-    sc('🕐', 'HODÍN SLEDOVANIA', hours, '(odhad)') +
-    sc('🖼', 'S PLAGÁTOM', withPoster, 'filmov') +
-    sc('📊', 'TMDB DÁTA', withLive, 'filmov s hodnotením') +
-    sc('❤️', 'OBĽÚBENÉ', favs.size, '') +
-    sc('👁', 'WATCHLIST', wl.size, '') +
-    sc('✓', 'VIDENÉ', watched.size, '') +
-    sc('📅', 'ROKY', minYear + '–' + maxYear, '');
+  const statHtml=
+    sc("🎬","FILMOV CELKOM",all.length,"")+
+    sc("🕐","HODÍN SLEDOVANIA",hours,"(odhad)")+
+    sc("🖼","S PLAGÁTOM",withPoster,"filmov")+
+    sc("📊","TMDB DÁTA",withLive,"filmov s hodnotením")+
+    sc("❤️","OBĽÚBENÉ",favs.size,"")+
+    sc("👁","WATCHLIST",wl.size,"")+
+    sc("✓","VIDENÉ",watched.size,"")+
+    sc("📅","ROKY",`${minYear}–${maxYear}`,"");
 
-  // ── Charts HTML ────────────────────────────────────────────────
-  var chartsHtml = '<div class="stat-charts">';
+  let chartsHtml='<div class="stat-charts">';
+  if(topGenres.length)chartsHtml+='<div class="chart-card"><div class="chart-title">TOP ŽÁNRE</div><div class="chart-wrap"><canvas id="chartGenres"></canvas></div></div>';
+  if(decades.length)chartsHtml+='<div class="chart-card"><div class="chart-title">FILMY PODĽA DEKÁDY</div><div class="chart-wrap"><canvas id="chartDecades"></canvas></div></div>';
+  chartsHtml+='</div>';
 
-  if (topGenres.length) {
-    chartsHtml +=
-      '<div class="chart-card">' +
-        '<div class="chart-title">TOP ŽÁNRE</div>' +
-        '<div class="chart-wrap"><canvas id="chartGenres"></canvas></div>' +
-      '</div>';
-  }
-  if (decades.length) {
-    chartsHtml +=
-      '<div class="chart-card">' +
-        '<div class="chart-title">FILMY PODĽA DEKÁDY</div>' +
-        '<div class="chart-wrap"><canvas id="chartDecades"></canvas></div>' +
-      '</div>';
-  }
+  document.getElementById("statBody").innerHTML=statHtml+chartsHtml;
+  document.getElementById("mainSc").classList.add("hidden");
+  document.getElementById("statSc").classList.remove("hidden");
 
-  chartsHtml += '</div>';
+  const PALETTE=["#d4a943","#f0c060","#4a9eff","#22cc88","#cc44aa","#ff6644","#9966ff","#44ccff","#ff4477","#88dd44"];
 
-  document.getElementById('statBody').innerHTML = statHtml + chartsHtml;
-
-  // Show screen
-  document.getElementById('mainSc').classList.add('hidden');
-  document.getElementById('statSc').classList.remove('hidden');
-
-  // ── Render charts after DOM update ────────────────────────────
-  var PALETTE = [
-    '#d4a943','#f0c060','#4a9eff','#22cc88','#cc44aa',
-    '#ff6644','#9966ff','#44ccff','#ff4477','#88dd44'
-  ];
-
-  if (topGenres.length) {
-    buildChart('chartGenres', {
-      type: 'doughnut',
-      data: {
-        labels: topGenres.map(function(e) { return e[0]; }),
-        datasets: [{
-          data: topGenres.map(function(e) { return e[1]; }),
-          backgroundColor: PALETTE,
-          borderColor: '#0a0a0f',
-          borderWidth: 2
-        }]
+  if(topGenres.length){
+    buildChart("chartGenres",{
+      type:"doughnut",
+      data:{
+        labels:topGenres.map(e=>e[0]),
+        datasets:[{data:topGenres.map(e=>e[1]),backgroundColor:PALETTE,borderColor:"#0a0a0f",borderWidth:2}]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'right',
-            labels: { color: '#9090a8', font: { size: 11 }, boxWidth: 12, padding: 8 }
-          },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) {
-                var total = ctx.dataset.data.reduce(function(a, b) { return a + b; }, 0);
-                var pct = Math.round(ctx.parsed / total * 100);
-                return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
-              }
-            }
-          }
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{position:"right",labels:{color:"#9090a8",font:{size:11},boxWidth:12,padding:8}},
+          tooltip:{callbacks:{label(ctx){
+            const total=ctx.dataset.data.reduce((a,b)=>a+b,0);
+            const pct=Math.round(ctx.parsed/total*100);
+            return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+          }}}
         }
       }
     });
   }
 
-  if (decades.length) {
-    buildChart('chartDecades', {
-      type: 'bar',
-      data: {
-        labels: decades.map(function(e) { return e[0] + 's'; }),
-        datasets: [{
-          label: 'Počet filmov',
-          data: decades.map(function(e) { return e[1]; }),
-          backgroundColor: '#d4a943cc',
-          borderColor: '#d4a943',
-          borderWidth: 1,
-          borderRadius: 4
-        }]
+  if(decades.length){
+    buildChart("chartDecades",{
+      type:"bar",
+      data:{
+        labels:decades.map(e=>`${e[0]}s`),
+        datasets:[{label:"Počet filmov",data:decades.map(e=>e[1]),backgroundColor:"#d4a943cc",borderColor:"#d4a943",borderWidth:1,borderRadius:4}]
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#9090a8', font: { size: 11 } }, grid: { color: '#2a2a3a' } },
-          y: { ticks: { color: '#9090a8', font: { size: 11 }, stepSize: 1 }, grid: { color: '#2a2a3a' }, beginAtZero: true }
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:"#9090a8",font:{size:11}},grid:{color:"#2a2a3a"}},
+          y:{ticks:{color:"#9090a8",font:{size:11},stepSize:1},grid:{color:"#2a2a3a"},beginAtZero:true}
         }
       }
     });
@@ -1341,7 +1273,7 @@ document.addEventListener("DOMContentLoaded",function(){
     _apt.addEventListener('change', function(){
       prefs.autoPush = this.checked;
       savePrefs();
-      toast('Auto-push: ' + (this.checked ? 'zapnutý' : 'vypnutý'));
+      toast(`Auto-push: ${this.checked?'zapnutý':'vypnutý'}`);
     });
   }
   // Native player toggle
@@ -1351,7 +1283,7 @@ document.addEventListener("DOMContentLoaded",function(){
     _npt.addEventListener('change', function(){
       useNativePlayer = this.checked;
       localStorage.setItem(NATIVE_PLAYER_KEY, this.checked ? '1' : '0');
-      toast('Prehrávač: ' + (this.checked ? 'natívny' : 'VLC handler'));
+      toast(`Prehrávač: ${this.checked?'natívny':'VLC handler'}`);
     });
   }
 
@@ -1373,7 +1305,7 @@ document.addEventListener("DOMContentLoaded",function(){
       localStorage.setItem(PATH_MODE_KEY, pathMode);
       document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className = 'ttab on';
-      toast('Režim: ' + (pathMode === 'smb' ? 'Sieťový (SMB)' : 'Lokálny (W:)'));
+      toast(`Režim: ${pathMode==='smb'?'Sieťový (SMB)':'Lokálny (W:)'}`);
     });
   // Set initial active state for pathMode buttons based on localStorage
   document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
@@ -1506,7 +1438,7 @@ document.addEventListener("DOMContentLoaded",function(){
     _apt.addEventListener('change', function(){
       autoPull = this.checked;
       localStorage.setItem(AUTO_PULL_KEY, this.checked ? '1' : '0');
-      toast('Auto-načítanie z GitHubu: ' + (this.checked ? 'zapnuté' : 'vypnuté'));
+      toast(`Auto-načítanie z GitHubu: ${this.checked?'zapnuté':'vypnuté'}`);
     });
   }
   var tx=0;
@@ -1718,7 +1650,7 @@ function adminAddMovie() {
   // Persist the movie list (strip posters to stay under localStorage limit)
   adminSaveAll();
 
-  toast('✅ "' + m.title + '" pridaný do databázy!');
+  toast(`✅ "${m.title}" pridaný do databázy!`);
   buildFuse();   // rebuild search index
   renderAll();
   closeAdmin();
@@ -1802,20 +1734,20 @@ function ghPush() {
   };
 
   var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-  var baseUrl = 'https://api.github.com/repos/' + GH_REPO;
+  const baseUrl = `https://api.github.com/repos/${GH_REPO}`;
   var hdrs    = ghHeaders();
 
   // ── Simple approach: GET current SHA from Contents API, then PUT ──
   // This is more reliable than the Git Data API tree traversal
   function doWrite(sha) {
     var body = {
-      message: 'FilmDB sync ' + new Date().toISOString().slice(0, 10),
+      message: `FilmDB sync ${new Date().toISOString().slice(0,10)}`,
       content: encoded,
       branch:  GH_BRANCH
     };
     if (sha) body.sha = sha;
 
-    return fetch(baseUrl + '/contents/' + GH_FILE, {
+    return fetch(`${baseUrl}/contents/${GH_FILE}`, {
       method: 'PUT', headers: hdrs, body: JSON.stringify(body)
     }).then(function(r) {
       return r.json().then(function(d) { return { status: r.status, ok: r.ok, d: d }; });
@@ -1823,7 +1755,7 @@ function ghPush() {
   }
 
   // Step 1: Get current file SHA (or null if file doesn't exist)
-  fetch(baseUrl + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH, { headers: hdrs })
+  fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}`, { headers: hdrs })
     .then(function(r) {
       if (r.status === 401) {
         ghSetStatus('❌ Token odmietnutý (401). Skontroluj: scope repo, expiráciu, SSO.', 'err');
@@ -1850,7 +1782,7 @@ function ghPush() {
       } else if (res.status === 409 || res.status === 422) {
         // SHA mismatch (409 Conflict or 422) — re-fetch SHA and retry ONCE
         ghSetStatus('SHA mismatch, opakujem…', 'info');
-        fetch(baseUrl + '/contents/' + GH_FILE + '?ref=' + GH_BRANCH + '&t=' + Date.now(), { headers: hdrs })
+        fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers: hdrs })
           .then(function(r2) {
             if (!r2.ok) throw new Error('Retry GET failed: ' + r2.status);
             return r2.json();
@@ -1858,19 +1790,19 @@ function ghPush() {
           .then(function(d2) { return doWrite(d2.sha); })
           .then(function(res2) {
             if (res2.ok) {
-              ghSetStatus('✓ Uložené (2. pokus) · ' + all.length + ' filmov', 'ok');
+              ghSetStatus(`✓ Uložené (2. pokus) · ${all.length} filmov`, 'ok');
               toast('Databáza uložená na GitHub!');
             } else {
-              ghSetStatus('Chyba retry: ' + (res2.d.message || res2.status), 'err');
+              ghSetStatus(`Chyba retry: ${res2.d.message||res2.status}`, 'err');
             }
           })
-          .catch(function(e2) { ghSetStatus('Retry zlyhalo: ' + e2.message, 'err'); });
+          .catch(e2=>ghSetStatus(`Retry zlyhalo: ${e2.message}`, 'err'));
       } else {
-        ghSetStatus('Chyba: ' + (res.d.message || 'HTTP ' + res.status), 'err');
+        ghSetStatus(`Chyba: ${res.d.message||'HTTP '+res.status}`, 'err');
       }
     })
     .catch(function(e) {
-      if (e.message !== '401') ghSetStatus('Sieťová chyba: ' + e.message, 'err');
+      if(e.message!=='401')ghSetStatus(`Sieťová chyba: ${e.message}`, 'err');
     });
 }
 
@@ -1885,11 +1817,11 @@ function ghPull() {
       if (r.status === 403) {
         var reset = r.headers.get('X-RateLimit-Reset');
         var wait  = reset ? Math.ceil((reset*1000 - Date.now())/60000) : '?';
-        throw new Error('403_RATELIMIT:' + wait);
+        throw new Error(`403_RATELIMIT:${wait}`);
       }
       if (r.status === 429) throw new Error('429_RATELIMIT');
       if (r.status === 404) throw new Error('404');
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      if(!r.ok)throw new Error(`HTTP ${r.status}`);
       return r.json();
     })
     .then(function(file) {
@@ -1955,15 +1887,15 @@ function ghPull() {
         ghSetStatus('⚠ Neplatný GitHub token — skontroluj nastavenia.', 'err');
       } else if (e.message.indexOf('403_RATELIMIT') >= 0) {
         var wait = e.message.split(':')[1] || '?';
-        ghSetStatus('⏳ GitHub rate limit — skús znova o ' + wait + ' min.', 'err');
+        ghSetStatus(`⏳ GitHub rate limit — skús znova o ${wait} min.`, 'err');
       } else if (e.message.indexOf('429_RATELIMIT') >= 0) {
         ghSetStatus('⏳ GitHub rate limit — skús znova o chvíľu.', 'err');
       } else if (attempt < 2) {
-        ghSetStatus('Opakujem pokus ' + (attempt+1) + '/2…', 'info');
+        ghSetStatus(`Opakujem pokus ${attempt+1}/2…`, 'info');
         setTimeout(function() { ghPullAttempt(attempt + 1); }, 3000);
         return;
       } else {
-        ghSetStatus('Chyba: ' + e.message, 'err');
+        ghSetStatus(`Chyba: ${e.message}`, 'err');
       }
     });
   };
