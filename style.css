@@ -222,6 +222,8 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 
 .sec::after{content:"";flex:1;height:1px;background:var(--border)}
 .det-desc{font-size:15px;line-height:1.7;color:var(--text2)}
+.det-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;margin-bottom:4px}
+.det-path-hint{width:100%;font-size:10px;opacity:.45;margin-top:4px;word-break:break-all;font-family:"JetBrains Mono",monospace}
 .det-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .det-item{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px 11px}
 .det-item-l{font-family:"JetBrains Mono",monospace;font-size:8px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:3px}
