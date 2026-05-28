@@ -17,7 +17,7 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
 var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
 function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
 var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
-var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs",OK="mdb_offline_snap";
+var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
 var prefs={view:"list",sort:"num",sortDir:"desc"};
 
@@ -37,7 +37,7 @@ function init(){
     // Empty array [] is the clearAll sentinel — treat as intentionally empty DB
     if(!saved)saved=null;
     else if(!saved.length){saved=null;localStorage.setItem("mdb_empty","1");}
-  }}catch(e){console.warn('[Init] localStorage parse error, resetting:',e);}
+  }}catch(e){}
   if(saved){
     saved.forEach(function(m){m.year=parseInt(m.year)||0;});
   }
@@ -52,9 +52,9 @@ function init(){
     });
     localStorage.setItem(SK,JSON.stringify(toSave));
   }catch(e){}
-  try{favs=new Set(JSON.parse(localStorage.getItem(FK)||"[]"));}catch(e){console.warn("[Init] favs parse error:",e);}
-  try{wl=new Set(JSON.parse(localStorage.getItem(WK)||"[]"));}catch(e){console.warn("[Init] watchlist parse error:",e);}
-  try{watched=new Set(JSON.parse(localStorage.getItem(VK)||"[]"));}catch(e){console.warn("[Init] watched parse error:",e);}
+  try{favs=new Set(JSON.parse(localStorage.getItem(FK)||"[]"));}catch(e){}
+  try{wl=new Set(JSON.parse(localStorage.getItem(WK)||"[]"));}catch(e){}
+  try{watched=new Set(JSON.parse(localStorage.getItem(VK)||"[]"));}catch(e){}
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
   if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
@@ -83,14 +83,12 @@ function loadPrefs(){
   if(validSorts.indexOf(prefs.sort)<0)prefs.sort="num";
   savePrefs();
   grid=(prefs.view==="grid");
-  if(grid){var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");if(ml)ml.className="mlist grid";if(vt){ vt.innerHTML=grid?'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>':'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>'; vt.setAttribute('data-mode',grid?'grid':'list'); }
-    var tl=document.getElementById('ttabList'),tg=document.getElementById('ttabGrid');
-    if(tl)tl.className='ttab';
-    if(tg)tg.className='ttab on';}
+  if(grid){var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");if(ml)ml.className="mlist grid";if(vt){ vt.innerHTML=grid?'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>':'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>'; vt.setAttribute('data-mode',grid?'grid':'list'); }}
   document.getElementById("sortSel").value=prefs.sort||"num";
-  if(typeof syncSortPill==="function") syncSortPill();
+  updateSortDirBtn(); if(typeof syncSortPill==="function") syncSortPill();
 }
 function savePrefs(){try{localStorage.setItem(PK,JSON.stringify(prefs));}catch(e){}}
+function updateSortDirBtn(){syncSortPill();}
 
 
 
@@ -136,8 +134,8 @@ var fuseHighlights={};
    MODULE: 3-Level Color System
    Level 1 — applyTheme()       : full palette (bg+text+accent) via data-theme
    Level 2a — applyAccentColor(): accent text color (--gold/--gold2/--gold-dim)
-   Level 2b — text warmth palettes (--text/--text2/--text3) via data-text
-   Level 3  — background palettes (--bg/--card/--border) via data-bg
+   Level 2b — applyTextPalette(): text warmth (--text/--text2/--text3) via data-text
+   Level 3  — applyBgPalette()  : background (--bg/--card/--border) via data-bg
    ══════════════════════════════════════════════════════════════════ */
 
 var ACCENT_KEY  = 'mdb_accent';
@@ -317,7 +315,7 @@ function applyFilters(){
   if(wlMode&&!q&&!genre&&!fpActiveCount())label="Watchlist: "+list.length+" filmov";
   if(favMode&&!q&&!genre&&!fpActiveCount())label="Oblubene: "+list.length+" filmov";
   if(watchedMode&&!q&&!genre&&!fpActiveCount())label="Videne: "+list.length+" filmov";
-  var _rc=document.getElementById("resCnt"); if(_rc) _rc.textContent=label;
+  document.getElementById("resCnt").textContent=label;
 }
 
 /** Build highlight ranges for exact substring match */
@@ -440,13 +438,11 @@ function renderList(list){
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
   curPage=0;ml.innerHTML="";appendCards(list,ml);
-  // Infinite scroll on scrnBody (parent with overflow-y:auto)
-  var scrollEl = document.getElementById('scrnBody');
-  if(scrollEl._listScroll) scrollEl.removeEventListener("scroll", scrollEl._listScroll);
-  scrollEl._listScroll = function(){
-    if(scrollEl.scrollTop+scrollEl.clientHeight>=scrollEl.scrollHeight-300){curPage++;appendCards(list,ml);}
-  };
-  scrollEl.addEventListener("scroll", scrollEl._listScroll);
+  ml.onscroll=null;
+  ml.addEventListener("scroll",function(){
+    if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-200){curPage++;appendCards(list,ml);}
+    
+  });
 }
 function appendCards(list,ml){
   var start=curPage*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,list.length);
@@ -580,6 +576,12 @@ function openDet(id){
     '</div>'+
     (genres?'<div class="det-genres">'+genres+'</div>':"")+
     '<div class="sec">Prehrávanie</div>'+
+    '<div class="det-actions" style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">'+
+      '<button id="playMovieBtn" class="sett-btn primary">'+
+        '<span class="sett-btn-icon">▶</span>'+
+        '<span class="sett-btn-label">Prehrať film</span>'+
+      '</button>'+
+    '</div>'+
     '<div class="sec">Trailer & Linky</div>'+
     '<div class="tr-row">'+
       '<button class="btn-play" id="btnPlay" title="'+esc(getMoviePath(m))+'">&#9654; Prehrať film</button>'+
@@ -609,7 +611,10 @@ function openDet(id){
   document.getElementById("btnPlayCopy").addEventListener("click",function(){copyMoviePath(id);});
   document.getElementById("btnTr").addEventListener("click",function(){openTrailer(id);});
   // Wire play button
-  /* playMovieBtn removed — use btnPlay */
+  var playBtn = document.getElementById("playMovieBtn");
+  if (playBtn) {
+    playBtn.onclick = function() { playMovie(m); };
+  }
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -648,7 +653,7 @@ function applyLive(id,data){
 function doTMDBFetch(m,cb){
   if(!tmdbKey){cb(null);return;}
   fetch("https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&year="+(m.year||"")+"&language=sk")
-    .then(function(r){if(r.status===429){throw new Error('429');}return r.json();})
+    .then(function(r){return r.json();})
     .then(function(sd){
       if(!sd.results||!sd.results.length){cb(null);return;}
       var res=sd.results[0],tmdbId=res.id;
@@ -666,7 +671,7 @@ function doTMDBFetch(m,cb){
               tmdbUrl:"https://www.themoviedb.org/movie/"+tmdbId,
               imdbUrl:imdbId?"https://www.imdb.com/title/"+imdbId+"/":null});
         });
-    }).catch(function(e){cb(null,e&&e.message==="429");});
+    }).catch(function(){cb(null);});
 }
 
 function settStartBatch(){
@@ -702,7 +707,7 @@ function settStartBatch(){
       return;
     }
     var m=queue.shift();
-    doTMDBFetch(m,function(data,is429){if(is429){queue.unshift(m);document.getElementById("batchInfo").textContent="Rate limit! Cakam 10s...";setTimeout(next,10000);return;}
+    doTMDBFetch(m,function(data){
       if(data)liveCache[m.id]=data;
       done++;
       document.getElementById("batchFill").style.width=Math.round(done/total*100)+"%";
@@ -1274,7 +1279,6 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
-  // Settings close button
   var _scb = document.getElementById('settCloseBtn');
   if (_scb) _scb.addEventListener('click', closeSett);
 
@@ -1747,9 +1751,7 @@ function ghPush() {
     return fetch(baseUrl + '/contents/' + GH_FILE, {
       method: 'PUT', headers: hdrs, body: JSON.stringify(body)
     }).then(function(r) {
-      return r.json()
-        .then(function(d) { return { status: r.status, ok: r.ok, d: d }; })
-        .catch(function()  { return { status: r.status, ok: r.ok, d: { message: 'HTTP ' + r.status } }; });
+      return r.json().then(function(d) { return { status: r.status, ok: r.ok, d: d }; });
     });
   }
 
@@ -1842,7 +1844,7 @@ function ghPull() {
         buildMovies().forEach(function(m) {
           if (m.poster_thumb && m.poster_thumb.length > 10) bakedMap[m.num] = m.poster_thumb;
         });
-      } catch(e) { console.warn("[ghPull] buildMovies poster restore failed:", e); }
+      } catch(e) {}
       all.forEach(function(m) {
         if (m.poster_thumb && m.poster_thumb.length > 10) bakedMap[m.num] = m.poster_thumb;
       });
@@ -1865,7 +1867,6 @@ function ghPull() {
           return c;
         });
         localStorage.setItem(SK, JSON.stringify(toSave));
-        try { localStorage.setItem(OK, JSON.stringify({ts: Date.now(), count: toSave.length})); } catch(e2) {}
       } catch(e) {}
 
       var ts = payload.updated ? new Date(payload.updated).toLocaleString('sk') : '?';
@@ -1890,17 +1891,7 @@ function ghPull() {
         setTimeout(function() { ghPullAttempt(attempt + 1); }, 3000);
         return;
       } else {
-        var _snap = null;
-        try { _snap = JSON.parse(localStorage.getItem(OK)); } catch(_e) {}
-        if (_snap && localStorage.getItem(SK)) {
-          var _age = Math.round((Date.now() - _snap.ts) / 86400000);
-          var _date = new Date(_snap.ts).toLocaleDateString('sk');
-          ghSetStatus('⚠ GitHub nedostupný — offline záloha z ' + _date + ' (' + _snap.count + ' filmov)', 'err');
-          toast('⚠ Offline — zobrazujem zálohu ' + (_age === 0 ? 'dnes' : _age + 'd starú'));
-          buildFuse(); renderAll();
-        } else {
-          ghSetStatus('Chyba: ' + e.message, 'err');
-        }
+        ghSetStatus('Chyba: ' + e.message, 'err');
       }
     });
   };
@@ -2456,16 +2447,14 @@ function syncSortPill(){
 }
 
 function initSortCycle(){
-  var dirBtn = document.getElementById('sortDir');
-  var sortSel = document.getElementById('sortSel');
-  if(dirBtn) dirBtn.addEventListener('click', function(){
+  window.__toggleSortDir = function(){
     prefs.sortDir = (prefs.sortDir||'desc')==='desc' ? 'asc' : 'desc';
     savePrefs(); syncSortPill(); applyFilters();
-  });
-  if(sortSel) sortSel.addEventListener('change', function(){
-    prefs.sort = this.value;
+  };
+  window.__changeSort = function(e){
+    prefs.sort = e.target.value;
     savePrefs(); syncSortPill(); applyFilters();
-  });
+  };
   syncSortPill();
 }
 
@@ -2849,7 +2838,7 @@ function parseEMDBZip(zipData, progressCb) {
     return zip.file(indexPath).async('string').then(function(indexHtml) {
       progressCb(15, 'Parsovanie zoznamu filmov...');
       
-      // Decode HTML entities: textarea trick is safe here — no user input, only EMDB-generated HTML
+      // Decode HTML entities helper
       var textarea = document.createElement('textarea');
       function decEnt(s) { textarea.innerHTML = s; return textarea.value; }
       
@@ -3060,13 +3049,5 @@ function scheduleAutoPush(reason) {
     if (all && all.length) ghPush();
   }, 5000);
 }
-
-  // ── Safety: flush pending auto-push before tab closes ──────────
-  window.addEventListener('beforeunload', function() {
-    if (ghToken && prefs.autoPush !== false && all && all.length) {
-      if (autoPushTimer) { clearTimeout(autoPushTimer); autoPushTimer = null; }
-      try { localStorage.setItem(SK, JSON.stringify(all.map(function(m){ var c=Object.assign({},m); if(c.poster_thumb&&c.poster_thumb.indexOf('data:')===0)c.poster_thumb=''; return c; }))); } catch(e) {}
-    }
-  });
 
 })();
