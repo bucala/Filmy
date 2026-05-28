@@ -19,6 +19,7 @@ function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n
 var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
+var tmdbAbortCtrl = null; // AbortController for TMDB batch
 var prefs={view:"list",sort:"num",sortDir:"desc"};
 
 
@@ -58,6 +59,7 @@ function init(){
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
   if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
+  buildFuse();
   renderAll();
 }
 
@@ -95,7 +97,11 @@ function updateSortDirBtn(){syncSortPill();}
 /* ══════════════════════════════════════════════════════════
    MODULE: Render Pipeline — list, cards, chips
    ══════════════════════════════════════════════════════════ */
-function renderAll(){buildChips();buildFuse();applyFilters();}
+function renderAll(){
+  buildChips();
+  // Fuse index is rebuilt only when data changes.
+  applyFilters();
+}
 
 function buildChips(){
   var gc={};
@@ -437,13 +443,26 @@ function renderList(list){
     return;
   }
   nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
-  curPage=0;ml.innerHTML="";appendCards(list,ml);
-  
-  // Infinite scroll on scrnBody (parent with overflow-y:auto)
+  curPage=0;ml.innerHTML="";
+  // FIX2b: Event delegation — one listener replaces per-card listeners (1750+ → 1)
+  if(ml._delegated) ml.removeEventListener("click",ml._delegated);
+  ml._delegated=function(e){
+    var fb=e.target.closest(".cfav,.lfav");
+    if(fb){e.stopPropagation();var cid=parseInt(fb.closest("[data-id]").dataset.id,10);togFav(cid,fb);return;}
+    var card=e.target.closest("[data-id]");
+    if(card){openDet(parseInt(card.dataset.id,10));}
+  };
+  ml.addEventListener("click",ml._delegated);
+  appendCards(list,ml);
+
+  // FIX1: Remove previous scroll handler before attaching a new one.
+  // Without this, every renderList() call stacks a new listener — 87+ duplicates after TMDB batch.
   var _sb=document.getElementById("scrnBody")||ml.parentElement;
-  _sb.addEventListener("scroll",function(){
+  if(_sb._scrollHandler) _sb.removeEventListener("scroll",_sb._scrollHandler);
+  _sb._scrollHandler=function(){
     if(_sb.scrollTop+_sb.clientHeight>=_sb.scrollHeight-300){curPage++;appendCards(list,ml);}
-  });
+  };
+  _sb.addEventListener("scroll",_sb._scrollHandler);
 }
 function appendCards(list,ml){
   var start=curPage*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,list.length);
@@ -451,11 +470,7 @@ function appendCards(list,ml){
   var frag=document.createDocumentFragment();
   for(var i=start;i<end;i++){
     var w=document.createElement("div");w.innerHTML=cardHTML(list[i]);
-    var card=w.firstChild;var id=parseInt(card.dataset.id,10);
-    card.addEventListener("click",(function(cid){return function(){openDet(cid);};})(id));
-    var fb=card.querySelector(".cfav")||card.querySelector(".lfav");
-    if(fb)(function(cid,btn){btn.addEventListener("click",function(e){e.stopPropagation();togFav(cid,btn);});})(id,fb);
-    frag.appendChild(card);
+    frag.appendChild(w.firstChild);
   }
   ml.appendChild(frag);
 }
@@ -651,18 +666,18 @@ function applyLive(id,data){
 /* ══════════════════════════════════════════════════════════
    MODULE: TMDB API — batch fetch, live data, admin panel
    ══════════════════════════════════════════════════════════ */
-function doTMDBFetch(m,cb){
+function doTMDBFetch(m,cb,signal){
   if(!tmdbKey){cb(null);return;}
-  fetch("https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&year="+(m.year||"")+"&language=sk")
+  var opts=signal?{signal:signal}:{};
+  fetch("https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&year="+(m.year||"")+"&language=sk",opts)
     .then(function(r){return r.json();})
     .then(function(sd){
       if(!sd.results||!sd.results.length){cb(null);return;}
       var res=sd.results[0],tmdbId=res.id;
       var pct=res.vote_average?Math.round(res.vote_average*10):null;
-      // Poster — always fetch from TMDB (high quality)
       var posterUrl=res.poster_path?"https://image.tmdb.org/t/p/w300"+res.poster_path:null;
       if(posterUrl) m.poster_thumb=posterUrl;
-      return fetch("https://api.themoviedb.org/3/movie/"+tmdbId+"?api_key="+tmdbKey+"&append_to_response=videos,external_ids")
+      return fetch("https://api.themoviedb.org/3/movie/"+tmdbId+"?api_key="+tmdbKey+"&append_to_response=videos,external_ids",opts)
         .then(function(r){return r.json();})
         .then(function(d){
           var imdbId=d.external_ids&&d.external_ids.imdb_id?d.external_ids.imdb_id:null;
@@ -672,21 +687,27 @@ function doTMDBFetch(m,cb){
               tmdbUrl:"https://www.themoviedb.org/movie/"+tmdbId,
               imdbUrl:imdbId?"https://www.imdb.com/title/"+imdbId+"/":null});
         });
-    }).catch(function(){cb(null);});
+    }).catch(function(e){
+      if(e.name==="AbortError") return; // intentional cancel
+      cb(null);
+    });
 }
 
 function settStartBatch(){
   if(!tmdbKey){keyStatus("tmdbKeySt",tmdbKey);return;}
   var queue=all.filter(function(m){return!liveCache[m.id];});
   if(!queue.length){toast("Všetky dáta už načítané!");return;}
+  if(tmdbAbortCtrl) tmdbAbortCtrl.abort();
+  tmdbAbortCtrl=(typeof AbortController!=="undefined")?new AbortController():null;
+  var batchSignal=tmdbAbortCtrl?tmdbAbortCtrl.signal:null;
   closeSett();liveRunning=true;
   var total=queue.length,done=0;
   var bar=document.getElementById("batchBar");
   bar.classList.remove("hidden");
   document.getElementById("batchInfo").textContent="0/"+total;
   document.getElementById("batchFill").style.width="0%";
-  
-  function savePersistent() {
+
+  function savePersistent(){
     saveLiveCache();
     try{
       var toSave=all.map(function(m){
@@ -697,28 +718,40 @@ function settStartBatch(){
       localStorage.setItem(SK,JSON.stringify(toSave));
     }catch(e){}
   }
-  
-  function next(){
+
+  // FIX: Parallel batch — 5 concurrent requests instead of 1 sequential.
+  // TMDB rate limit ~40 req/s; groups of 5 every 300ms = ~16 req/s (safe).
+  var CONCURRENCY=5;
+  function runBatch(){
     if(!liveRunning||!queue.length){
-      liveRunning=false;
-      bar.classList.add("hidden");
-      savePersistent();
-      renderList(filt);
-      toast("Načítané: "+done+"/"+total+" filmov!");
+      if(!queue.length||!liveRunning){
+        liveRunning=false;
+        if(tmdbAbortCtrl){tmdbAbortCtrl.abort();tmdbAbortCtrl=null;}
+        bar.classList.add("hidden");
+        savePersistent();
+        renderList(filt);
+        toast("Načítané: "+done+"/"+total+" filmov!");
+      }
       return;
     }
-    var m=queue.shift();
-    doTMDBFetch(m,function(data){
-      if(data)liveCache[m.id]=data;
-      done++;
-      document.getElementById("batchFill").style.width=Math.round(done/total*100)+"%";
-      document.getElementById("batchInfo").textContent=done+"/"+total;
-      if(done%50===0) savePersistent();
-      if(done%20===0) renderList(filt);
-      setTimeout(next,260);
+    var group=queue.splice(0,CONCURRENCY);
+    var pending=group.length;
+    group.forEach(function(m){
+      doTMDBFetch(m,function(data){
+        if(data) liveCache[m.id]=data;
+        done++;
+        document.getElementById("batchFill").style.width=Math.round(done/total*100)+"%";
+        document.getElementById("batchInfo").textContent=done+"/"+total;
+        if(done%50===0) savePersistent();
+        pending--;
+        if(pending===0){
+          if(done%20<CONCURRENCY) renderList(filt);
+          setTimeout(runBatch,300);
+        }
+      },batchSignal);
     });
   }
-  next();
+  runBatch();
 }
 
 function openTrailer(id){
@@ -1050,6 +1083,7 @@ function handleFile(){
       });
       
       all = mv;
+      buildFuse(); // rebuild Fuse index after GitHub pull
       // Save — strip base64 posters to save space (keep URL posters)
       try{
         var toSave=all.map(function(m){
@@ -1090,7 +1124,9 @@ function handleFile(){
       .then(function(txt){
         setP(52,"Parsovanie...");var mv=parseEMDB(txt);
         if(!mv.length){hideMod();toast("Nenašli sa filmy v PDF.");return;}
-        all=mv;try{localStorage.setItem(SK,JSON.stringify(all));}catch(e){}
+        all=mv;
+        buildFuse(); // rebuild Fuse index after PDF import
+        try{localStorage.setItem(SK,JSON.stringify(all));}catch(e){}
         setP(100,"Hotovo!");setTimeout(function(){hideMod();renderAll();toast("Importovaných "+mv.length+" filmov");if(tmdbKey){toast("Spúšťam TMDB...");setTimeout(settStartBatch,1500);}},500);
       }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   }
@@ -1241,6 +1277,7 @@ function clearAllData(){
   genre='';favMode=false;wlMode=false;watchedMode=false;
   prefs={view:'list',sort:'num',sortDir:'desc'};
   all=[];filt=[];closeSett();
+  fuseInst=null; // reset Fuse index on clear
   var ml=document.getElementById('mlist');if(ml)ml.style.display='none';
   var es=document.getElementById('emptySt');if(es)es.style.display='flex';
   var ls=document.getElementById('loadSt');if(ls)ls.style.display='none';
@@ -1276,6 +1313,26 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
    ══════════════════════════════════════════════════════════ */
 
 
+
+
+/* ══════════════════════════════════════════════════════
+   GLOBAL ERROR BOUNDARY
+   Catches uncaught JS errors and unhandled promise rejections.
+   Shows a non-intrusive toast instead of silent failure.
+   ══════════════════════════════════════════════════════ */
+window.onerror=function(msg,src,line,col,err){
+  // Ignore cross-origin script errors (no useful info available)
+  if(msg==="Script error."||msg==="Script error") return false;
+  console.error("[FilmDB error]",msg,"@",src+":"+line,err);
+  if(typeof toast==="function") toast("⚠ Chyba: "+(err&&err.message?err.message:msg).slice(0,80));
+  return false; // don't suppress default browser logging
+};
+window.addEventListener("unhandledrejection",function(e){
+  var reason=e.reason;
+  if(reason&&reason.name==="AbortError") return; // intentional cancels
+  console.error("[FilmDB unhandled promise]",reason);
+  if(typeof toast==="function") toast("⚠ Async chyba: "+(reason&&reason.message?reason.message:String(reason)).slice(0,80));
+});
 
 
 document.addEventListener("DOMContentLoaded",function(){
