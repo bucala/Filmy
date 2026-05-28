@@ -107,15 +107,21 @@
     <button class="batch-stop" id="btnBatchStop">Stop</button>
   </div>
   <div id="scrnBody" class="scrn-body">
-    <div id="loadSt" class="estate"><div class="estate-ic">&#127902;</div><div class="estate-t">Nacitavam...</div><div class="estate-s">Pripravujem databazu.</div></div>
+    <div id="mainPullStatus" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--c2);border-bottom:2px solid var(--gold);padding:10px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,.5)">
+  <span id="mainPullStatusText">Načítavam z GitHubu…</span>
+  <div style="margin-top:6px;height:3px;background:var(--border2);border-radius:3px;overflow:hidden">
+    <div id="mainPullBar" style="height:100%;background:var(--gold);width:0%;transition:width .4s ease;border-radius:3px"></div>
+  </div>
+</div>
+<div id="loadSt" class="estate"><div class="estate-ic">&#127902;</div><div class="estate-t">Nacitavam...</div><div class="estate-s">Pripravujem databazu.</div></div>
     <div id="emptySt" class="estate" style="display:none">
       <div class="estate-ic">&#127917;</div>
       <div class="estate-t">ŽIADNE FILMY</div>
       <div class="estate-s">Načítaj databázu</div>
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;justify-content:center">
-        <button class="estate-btn primary" id="emptyBtnZip"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Nahrať ZIP/PDF</button>
-        <button class="estate-btn" id="emptyBtnPull"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/></svg>Načítať z GitHubu</button>
+        <button class="estate-btn primary" id="emptyBtnPull"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/></svg>Načítať z GitHubu</button>
       </div>
+      <div id="emptyPullStatus" style="margin-top:12px;font-size:11px;color:var(--accent);min-height:18px;font-family:'JetBrains Mono',monospace"></div>
     </div>
 
     <div id="mlist" class="mlist" style="display:none"></div>
