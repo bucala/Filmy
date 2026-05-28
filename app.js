@@ -1279,9 +1279,6 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
-  var _scb = document.getElementById('settCloseBtn');
-  if (_scb) _scb.addEventListener('click', closeSett);
-
   // Auto-push toggle
   var _apt = document.getElementById('autoPushTog');
   if (_apt) {

@@ -35,3 +35,26 @@ Aplikácia prepísaná z pôvodného single-file (236KB) na modulárnu architekt
 - **--gold-rgb** pridané do všetkých 6 skinov
 - **hdr-icon active/on stav** — vizuálna zmena pri zakliknutí
 - **playMovieBtn orphan** — odstránený
+
+---
+
+## [11.0.0] — 2026-05-28
+
+### ✨ Kompletný rebuild
+- Aplikácia prebudovaná z pôvodného single-file zdroja (Google Drive) do modulárnej štruktúry
+- Zdrojový kód: `index.html` (35 KB) + `style.css` (50 KB) + `app.js` (127 KB)
+- 115 funkcií, 0 duplikátov, 20/20 features ✅
+
+### 🐛 Opravené (kumulatívne zo všetkých predchádzajúcich verzií)
+- `.sett-sec display:flex` — nastavenia sekcie viditeľné (SVG + text v jednom riadku)
+- `.gtag` (žánre pills) — `rgba(var(--gold-rgb),.13)` namiesto hardcoded `#1a1a2e`
+- `--gold-rgb` CSS var — pridaná do všetkých 6 skinov
+- `.cfav` + `.lfav` (hviezda obľúbených) — 38×38px button s bg/border/hover/active
+- `.batch-bar` — `position:fixed;top:0;z-index:8000`
+- `.sett-panel` — `user-select:none`, `background:var(--bg)` (opaque)
+- `.scrn-body` — `background:var(--bg)` (žiadne presvitanie)
+- `skinGrid` wrapper + DARK chip + "Vzhľad / Skin" header obnovené
+- `.switch`/`.slider` CSS pre toggle prepínače
+- `.hdr-icon.active` stav CSS
+- CSS duplikáty vyčistené (23 → 0)
+- `onclick="closeSett()"` nahradený `addEventListener`
