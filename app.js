@@ -571,9 +571,9 @@ function openDet(id){
   const html=
     `<div class="det-frow">
       ${ratingHtml}
-      <button class="btn-fav${fav?" on":""}" id="dfavBtn">${fav?"⭐ Odstrániť":"☆ Obľúbene"}</button>
-      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn">${wl.has(id)?"EYE_ON Odstrán.z WL":"EYE_OFF Watchlist"}</button>
-      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn">${watched.has(id)?"&#10003; Videné":"&#8211; Nevidené"}</button>
+      <button class="btn-fav${fav?" on":""}" id="dfavBtn"></button>
+      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn"></button>
+      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn"></button>
       ${watchedDates[id]?`<span class="watched-date">Videné: ${watchedDates[id]}</span>`:""}
     </div>
     ${genres?`<div class="det-genres">${genres}</div>`:""}
@@ -598,6 +598,9 @@ function openDet(id){
   document.getElementById("detBody").innerHTML=html;
   document.getElementById("dfavBtn").addEventListener("click",()=>{togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);});
   document.getElementById("dwlBtn").addEventListener("click",()=>{togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);});
+  updFavBtn(document.getElementById("dfavBtn"),id);
+  updWlBtn(document.getElementById("dwlBtn"),id);
+  updWatchedBtn(document.getElementById("dwatchedBtn"),id);
   document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
   document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
   const playBtn=document.getElementById("playMovieBtn");
