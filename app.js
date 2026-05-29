@@ -97,11 +97,20 @@ function init(){
 /* ══════════════════════════════════════════════════════════
    MODULE: Storage — localStorage helpers
    ══════════════════════════════════════════════════════════ */
+function validateLiveCache(obj){
+  if(!obj||typeof obj!=="object"||Array.isArray(obj))return{};
+  var clean={};
+  Object.keys(obj).forEach(function(k){
+    var v=obj[k];
+    if(v&&typeof v==="object"&&!Array.isArray(v)&&(v.pct!=null||v.ytKey||v.posterUrl))clean[k]=v;
+  });
+  return clean;
+}
 function loadLiveCache(){
   if(typeof PREBAKED_LIVE!=="undefined"&&Object.keys(PREBAKED_LIVE).length>0){
-    liveCache=PREBAKED_LIVE;try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}return;
+    liveCache=validateLiveCache(PREBAKED_LIVE);try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}return;
   }
-  try{var r=localStorage.getItem(LK);if(r)liveCache=JSON.parse(r);}catch(e){liveCache={};}
+  try{var r=localStorage.getItem(LK);if(r)liveCache=validateLiveCache(JSON.parse(r));}catch(e){liveCache={};}
 }
 function saveLiveCache(){try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}}
 
@@ -1510,6 +1519,8 @@ toast(_modeLabel);
   document.getElementById('btnRnd').addEventListener('click', openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', cycleWatchedMode);
   initGhSync();
+  window.addEventListener('offline',function(){toast('Offline — dáta sú z cache');});
+  window.addEventListener('online',function(){toast('Online');});
 
   document.getElementById('ghTokenSave').addEventListener('click', function() {
     var t = document.getElementById('ghTokenInp').value.trim();
