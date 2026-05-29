@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://api.github.com; frame-src https://www.youtube.com;">
 <meta name="application-name" content="Filmy">
 <meta name="msapplication-TileColor" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -64,13 +65,13 @@
       </div>
       <div class="hdr-row2-div"></div>
       <div class="hdr-row2-right">
-        <select class="sort-sel" id="sortSel" title="Zoradenie" onchange="__changeSort(event)">
+        <select class="sort-sel" id="sortSel" title="Zoradenie">
           <option value="num">Poradie</option>
           <option value="year">Rok</option>
           <option value="title">A–Z</option>
           <option value="pct">%</option>
         </select>
-        <button class="ctrl-btn" id="sortDir" title="Smer radenia" onclick="__toggleSortDir(event)">
+        <button class="ctrl-btn" id="sortDir" title="Smer radenia">
           <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <line x1="8" y1="2" x2="8" y2="14"/>
             <polyline points="4,10 8,14 12,10"/>

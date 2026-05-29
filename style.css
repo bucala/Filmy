@@ -51,7 +51,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 
 .logo{flex-shrink:0;line-height:1;cursor:default}
 .logo-s{font-family:"Bebas Neue",sans-serif;font-size:5px;letter-spacing:2.5px;color:var(--gold);opacity:.8;line-height:1;display:block;text-transform:uppercase}
-.logo-t{font-family:"Bebas Neue",sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--text);line-height:1;white-space:nowrap;display:block}logo-t{font-family:"Bebas Neue",sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--text);line-height:1;white-space:nowrap;display:block}
+.logo-t{font-family:"Bebas Neue",sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--text);line-height:1;white-space:nowrap;display:block}
 
 .hdr-srch{flex:1;min-width:0}
 .srch-box{display:flex;align-items:center;background:var(--card2);
@@ -118,22 +118,6 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 /* ── Overflow drawer ────────────────────────────────────────────── */
 
 /* ── Responsive ─────────────────────────────────────────────────── */
-@media(max-width:700px){
-  /* removed duplicate .hdr-row1 */
-  /* removed duplicate .logo-t */
-  
-}
-@media(max-width:560px){
-  
-  /* removed duplicate .logo-t */
-  
-}
-@media(max-width:420px){
-  /* removed duplicate .logo-s */
-  /* removed duplicate .logo-t */
-  
-  /* inside sort-pill */
-}
 
 /* merged into @media(max-width:520px) below */
 

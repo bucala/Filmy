@@ -313,8 +313,9 @@ function applyFilters(){
       exactMatches.forEach(m=>{fuseHighlights[m.id]=buildExactHighlights(m,ql);});
     } else {
       if(!fuseInst)buildFuse();
-      const poolFuse=new Fuse(pool,fuseInst._options);
-      const results=poolFuse.search(q);
+      var noFilters=!favMode&&!wlMode&&!watchedMode&&fpActiveCount()===0;
+      var searchInst=noFilters?fuseInst:new Fuse(pool,fuseInst._options);
+      const results=searchInst.search(q);
       list=results.map(r=>r.item);
       if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
       results.forEach(r=>{fuseHighlights[r.item.id]=parseFuseMatches(r.matches);});
@@ -640,7 +641,9 @@ function closeDet(){document.getElementById("detSc").classList.add("hidden");doc
 function fetchLiveData(id){
   var m=all.find(function(x){return x.id===id;});if(!m||!tmdbKey)return;
   if(liveCache[id]){applyLive(id,liveCache[id]);return;}
-  doTMDBFetch(m,function(data){if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);});
+  var ac=(typeof AbortController!=="undefined")?new AbortController():null;
+  var timer=setTimeout(function(){if(ac)ac.abort();},10000);
+  doTMDBFetch(m,function(data){clearTimeout(timer);if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);},ac?ac.signal:null);
 }
 function applyLive(id,data){
   // Update rating pill
@@ -1503,7 +1506,6 @@ toast(_modeLabel);
   // GitHub sync
   initFp();
   initSortCycle();
-  initDrawer();
   initKeyboard();
   document.getElementById('btnRnd').addEventListener('click', openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', cycleWatchedMode);
@@ -2364,7 +2366,6 @@ function initKeyboard() {
 
     // Escape → close topmost overlay
     if (e.key === 'Escape') {
-      if (false) { closeDrawer(); return; }
       if (!document.getElementById('trOv').classList.contains('hidden')) {
         document.getElementById('trOv').classList.add('hidden'); return;
       }
@@ -2589,10 +2590,6 @@ function initTheme() {
 
 
 
-/* syncDrawerSort removed — sort always visible in row2 */
-
-function initDrawer(){/* drawer removed */}
-
 /* ══════════════════════════════════════════════════════════════════
    MODULE: Sort Cycle Pill
    sortCycle button cycles: Por.→Rok→A–Z→%→Por.
@@ -2619,14 +2616,14 @@ function syncSortPill(){
 }
 
 function initSortCycle(){
-  window.__toggleSortDir = function(){
+  document.getElementById('sortDir').addEventListener('click',function(){
     prefs.sortDir = (prefs.sortDir||'desc')==='desc' ? 'asc' : 'desc';
     savePrefs(); syncSortPill(); applyFilters();
-  };
-  window.__changeSort = function(e){
+  });
+  document.getElementById('sortSel').addEventListener('change',function(e){
     prefs.sort = e.target.value;
     savePrefs(); syncSortPill(); applyFilters();
-  };
+  });
   syncSortPill();
 }
 
