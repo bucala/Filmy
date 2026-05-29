@@ -23,7 +23,7 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
    ══════════════════════════════════════════════════════════ */
 var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
 function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
-var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
+var tmdbKey=localStorage.getItem("tmdb_key")||"";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
@@ -64,7 +64,7 @@ function init(){
   try{wl=new Set(JSON.parse(localStorage.getItem(WK)||"[]"));}catch(e){}
   try{watched=new Set(JSON.parse(localStorage.getItem(VK)||"[]"));}catch(e){}
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
-  if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
+  if(tmdbKey&&!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
   buildFuse();
   renderAll();
@@ -1190,7 +1190,7 @@ function exportHtml(){
   toast("Generujem HTML...");
   setTimeout(function(){
     var html=document.documentElement.outerHTML;
-    var tag="<scr"+"ipt>var PREBAKED_LIVE="+JSON.stringify(liveCache)+";<"+"/scr"+"ipt>";
+    var tag="<scr"+"ipt>var PREBAKED_LIVE="+JSON.stringify(liveCache).replace(/<\/script/gi,"<\\/script")+";<"+"/scr"+"ipt>";
     html=html.replace("</head>",tag+"</head>");
     var blob=new Blob([html],{type:"text/html;charset=utf-8"});
     var url=URL.createObjectURL(blob);
