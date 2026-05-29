@@ -189,6 +189,22 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .estate-s{color:var(--text3);font-size:14px;line-height:1.6}
 .batch-bar{position:fixed;top:88px;left:0;right:0;z-index:150;padding:6px 14px;background:var(--card);border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:10px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .batch-bar.hidden{display:none}
+
+/* Rozšírené nastavenia – collapsible */
+.sett-adv-summary{
+  display:flex;align-items:center;gap:6px;
+  cursor:pointer;list-style:none;
+  padding:9px 12px;margin:4px 0 0;
+  border-radius:8px;
+  background:var(--card);
+  border:1px solid var(--border2);
+  font-size:11px;font-weight:600;letter-spacing:.06em;
+  color:var(--gold);
+  user-select:none;
+}
+.sett-adv-summary::-webkit-details-marker{display:none}
+#advSettDetails[open] .sett-adv-summary svg{transform:rotate(180deg)}
+.sett-adv-body{padding:4px 0 0;}
 .batch-info{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text2);white-space:nowrap}
 .batch-pbar{height:6px;background:var(--border);border-radius:2px;flex:1;overflow:hidden}
 .batch-pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s;width:0%}
