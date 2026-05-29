@@ -1,8 +1,23 @@
 (function(){
 "use strict";
 var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
-if(typeof pdfjsLib!=="undefined")
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+var _scriptCache={};
+function loadScript(url){
+  if(_scriptCache[url])return _scriptCache[url];
+  _scriptCache[url]=new Promise(function(ok,fail){
+    var s=document.createElement("script");s.src=url;
+    s.onload=ok;s.onerror=function(){delete _scriptCache[url];fail(new Error("Nepodarilo sa načítať: "+url));};
+    document.head.appendChild(s);
+  });
+  return _scriptCache[url];
+}
+function loadPdfJs(){
+  return loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js").then(function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  });
+}
+function loadJSZip(){return loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");}
+function loadChartJs(){return loadScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js");}
 
 /* ── SVG icon constants — avoids duplication across cardHTML, openDet ── */
 var STAR_ON  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
@@ -266,8 +281,6 @@ function applyFilters(){
     if(watchedMode&&!watched.has(m.id))return false;
     if(fpState.genres.length>0){
       if(!fpState.genres.some(g=>(m.genres||[]).includes(g)))return false;
-    } else if(genre&&!(m.genres||[]).includes(genre)){
-      return false;
     }
     if(fpState.yearFrom>0&&(m.year||0)<fpState.yearFrom)return false;
     if(fpState.yearTo>0&&(m.year||0)>fpState.yearTo)return false;
@@ -311,11 +324,12 @@ function applyFilters(){
   sortList(list);
   filt=list;
   renderList(list);
-  const modeActive=q||genre||favMode||wlMode||watchedMode||fpActiveCount()>0;
+  const fpN=fpActiveCount();
+  const modeActive=q||favMode||wlMode||watchedMode||fpN>0;
   let label=modeActive?`${list.length} z ${all.length} filmov`:`${all.length} filmov`;
-  if(wlMode&&!q&&!genre&&!fpActiveCount())label=`Watchlist: ${list.length} filmov`;
-  if(favMode&&!q&&!genre&&!fpActiveCount())label=`Obľúbené: ${list.length} filmov`;
-  if(watchedMode&&!q&&!genre&&!fpActiveCount())label=`Videné: ${list.length} filmov`;
+  if(wlMode&&!q&&!fpN)label=`Watchlist: ${list.length} filmov`;
+  if(favMode&&!q&&!fpN)label=`Obľúbené: ${list.length} filmov`;
+  if(watchedMode&&!q&&!fpN)label=`Videné: ${list.length} filmov`;
   const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
 }
 
@@ -514,7 +528,7 @@ function togFav(id,btn){
   if(favs.has(id))favs.delete(id);else favs.add(id);
   localStorage.setItem(FK,JSON.stringify(Array.from(favs)));
   scheduleAutoPush('togFav');
-  if(btn)btn.innerHTML=favs.has(id)?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  if(btn)btn.innerHTML=favs.has(id)?STAR_ON:STAR_OFF;
   var db=document.getElementById("dfavBtn");if(db&&curId===id)updFavBtn(db,id);
   if(favMode)applyFilters();
 }
@@ -522,11 +536,11 @@ function togWl(id,btn){
   if(wl.has(id))wl.delete(id);else wl.add(id);
   localStorage.setItem(WK,JSON.stringify(Array.from(wl)));
   scheduleAutoPush('togWl');
-  if(btn)btn.innerHTML=wl.has(id)?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  if(btn)btn.innerHTML=wl.has(id)?EYE_ON:EYE_OFF;
   var db=document.getElementById("dwlBtn");if(db&&curId===id)updWlBtn(db,id);
   if(wlMode)applyFilters();
 }
-function updWlBtn(btn,id){var w=wl.has(id);btn.innerHTML=w?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Odstrániť z Watchlist':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Watchlist';btn.className="btn-fav"+(w?" on":"");}
+function updWlBtn(btn,id){var w=wl.has(id);btn.innerHTML=(w?EYE_ON:EYE_OFF)+(w?' Odstrániť z Watchlist':' Watchlist');btn.className="btn-fav"+(w?" on":"");}
 function updFavBtn(btn,id){var f=favs.has(id);btn.innerHTML=f?"&#11088; Odstranit":"&#9734; Oblubene";btn.className="btn-fav"+(f?" on":"");}
 
 /* ── DETAIL ── */
@@ -596,16 +610,15 @@ function openDet(id){
     ${buildSimilarHtml(m)}`;
 
   document.getElementById("detBody").innerHTML=html;
-  document.getElementById("dfavBtn").addEventListener("click",()=>{togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);});
-  document.getElementById("dwlBtn").addEventListener("click",()=>{togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);});
+  document.getElementById("dfavBtn").onclick=function(){togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);};
+  document.getElementById("dwlBtn").onclick=function(){togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);};
   updFavBtn(document.getElementById("dfavBtn"),id);
   updWlBtn(document.getElementById("dwlBtn"),id);
   updWatchedBtn(document.getElementById("dwatchedBtn"),id);
-  document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
-  document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
+  document.getElementById("dwatchedBtn").onclick=function(){togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);};
+  document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    // Aktualizuj label tlačidla podľa aktuálnych nastavení
     var _playMode = useNativePlayer ? (pathMode==='smb' ? 'Sieťová cesta (SMB)' : 'Lokálny prehrávač') : 'VLC Protocol';
     playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť film · ' + _playMode;
     playBtn.onclick=function(){
@@ -615,8 +628,8 @@ function openDet(id){
       openMovieUrl(_url);
     };
   }
-  document.getElementById("btnPlayCopy").addEventListener("click",()=>copyMoviePath(id));
-  document.getElementById("btnTr").addEventListener("click",()=>openTrailer(id));
+  document.getElementById("btnPlayCopy").onclick=function(){copyMoviePath(id);};
+  document.getElementById("btnTr").onclick=function(){openTrailer(id);};
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -835,6 +848,7 @@ function showStats(){
 
   const PALETTE=["#d4a943","#f0c060","#4a9eff","#22cc88","#cc44aa","#ff6644","#9966ff","#44ccff","#ff4477","#88dd44"];
 
+  loadChartJs().then(function(){
   if(topGenres.length){
     buildChart("chartGenres",{
       type:"doughnut",
@@ -873,6 +887,7 @@ function showStats(){
       }
     });
   }
+  }).catch(function(e){toast("Chart.js: "+e.message);});
 }
 
 function closeStat() {
@@ -1004,7 +1019,7 @@ function handleFile(){
   
   if (isZip) {
     // ── ZIP import (EMDB HTML export) ──
-    file.arrayBuffer().then(function(ab) {
+    loadJSZip().then(function(){return file.arrayBuffer();}).then(function(ab) {
       return parseEMDBZip(ab, setP);
     }).then(function(mv) {
       if(!mv||!mv.length){hideMod();toast("Nenašli sa filmy.");return;}
@@ -1055,8 +1070,7 @@ function handleFile(){
     }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   } else {
     // ── Legacy PDF import ──
-    if(typeof pdfjsLib==="undefined"){hideMod();toast("Chyba: PDF.js sa nenačítalo");return;}
-    file.arrayBuffer()
+    loadPdfJs().then(function(){return file.arrayBuffer();})
       .then(function(ab){setP(10,"Načítavam PDF...");return pdfjsLib.getDocument({data:ab}).promise;})
       .then(function(pdf){
         var tot=pdf.numPages,txt="",chain=Promise.resolve();
@@ -1219,7 +1233,8 @@ function clearAllData(){
     localStorage.setItem('mdb_empty','1');
   }catch(e){}
   liveCache={};favs=new Set();wl=new Set();watched=new Set();watchedDates={};
-  genre='';favMode=false;wlMode=false;watchedMode=false;
+  genre='';fpState={yearFrom:0,yearTo:0,minRating:0,country:'',genres:[]};
+  favMode=false;wlMode=false;watchedMode=false;
   prefs={view:'list',sort:'num',sortDir:'desc'};
   all=[];filt=[];closeSett();
   fuseInst=null; // reset Fuse index on clear
@@ -1437,14 +1452,12 @@ toast(_modeLabel);
   var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB kluc ulozeny!":"TMDB kluc vymazany");});
   var _etmdbDe=document.getElementById("tmdbDelKey");if(_etmdbDe)_etmdbDe.addEventListener("click",function(){tmdbKey="";localStorage.removeItem("tmdb_key");document.getElementById("tmdbKeyInp").value="";keyStatus("tmdbKeySt","");});
   document.getElementById("settBtnPdf").addEventListener("click",impPdf);
-  var _esettBt=document.getElementById("settBtnBatch");if(_esettBt)_esettBt.addEventListener("click",settStartBatch);
-  var _esettBt=document.getElementById("settBtnStop");if(_esettBt)_esettBt.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
-  var _esettBt=document.getElementById("settBtnExport");if(_esettBt)_esettBt.addEventListener("click",exportHtml);
-  var _esettBt=document.getElementById("settBtnClearLive");if(_esettBt)_esettBt.addEventListener("click",clearLiveData);
-  var _esettBt=document.getElementById("settBtnClearAll");if(_esettBt)_esettBt.addEventListener("click",clearAllData);
-
-  // Admin panel
-  var _esettBt=document.getElementById("settBtnAdmin");if(_esettBt)_esettBt.addEventListener("click",openAdmin);
+  var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
+  var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
+  var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
+  var _eClearLv=document.getElementById("settBtnClearLive");if(_eClearLv)_eClearLv.addEventListener("click",clearLiveData);
+  var _eClearAll=document.getElementById("settBtnClearAll");if(_eClearAll)_eClearAll.addEventListener("click",clearAllData);
+  var _eAdmin=document.getElementById("settBtnAdmin");if(_eAdmin)_eAdmin.addEventListener("click",openAdmin);
 
   // Uložiť všetky nastavenia
   var _eSaveAll = document.getElementById('settBtnSaveAll');
@@ -2637,11 +2650,10 @@ function handleFileUpdate(){
   var parsePromise;
   
   if (isZip) {
-    parsePromise = file.arrayBuffer().then(function(ab){ return parseEMDBZip(ab, setP); });
+    parsePromise = loadJSZip().then(function(){return file.arrayBuffer();}).then(function(ab){ return parseEMDBZip(ab, setP); });
   } else {
     // Legacy PDF
-    parsePromise = file.arrayBuffer().then(function(ab){
-      if(typeof pdfjsLib==="undefined") throw new Error("PDF.js sa nenačítalo");
+    parsePromise = loadPdfJs().then(function(){return file.arrayBuffer();}).then(function(ab){
       setP(10,"PDF...");return pdfjsLib.getDocument({data:ab}).promise;
     }).then(function(pdf){
       var tot=pdf.numPages,txt="",chain=Promise.resolve();

@@ -15,11 +15,7 @@ const SHELL  = [
   "./app.js",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",
-  "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js",
-  "https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js",
-  "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+  "https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"
 ];
 
 /* ── Install: pre-cache shell ── */
