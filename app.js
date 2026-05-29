@@ -1321,7 +1321,7 @@ document.addEventListener("DOMContentLoaded",function(){
       document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className = 'ttab on';
       // Aktualizuj hint - jasné zobrazenie aktívneho stavu
-var _modeLabel = pathMode === 'smb' ? '🌐 Sieťová cesta (SMB) — aktívna' : 'Lokálna cesta — aktívna';
+var _modeLabel = pathMode === 'smb' ? 'Sieťová cesta (SMB) — aktívna' : 'Lokálna cesta — aktívna';
 toast(_modeLabel);
       // Aktualizuj hint s ukážkou cesty
       var _hint = document.getElementById('pathModeHint');
