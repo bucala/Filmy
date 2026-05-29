@@ -73,7 +73,7 @@ function init(){
       if(c.poster_thumb&&c.poster_thumb.indexOf('data:')===0)c.poster_thumb='';
       return c;
     });
-    localStorage.setItem(SK,JSON.stringify(toSave));
+    safeSave(SK,JSON.stringify(toSave));
   }catch(e){}
   try{favs=new Set(JSON.parse(localStorage.getItem(FK)||"[]"));}catch(e){}
   try{wl=new Set(JSON.parse(localStorage.getItem(WK)||"[]"));}catch(e){}
@@ -113,6 +113,11 @@ function loadLiveCache(){
   try{var r=localStorage.getItem(LK);if(r)liveCache=validateLiveCache(JSON.parse(r));}catch(e){liveCache={};}
 }
 function saveLiveCache(){try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}}
+
+function safeSave(key,val){
+  try{localStorage.setItem(key,val);}
+  catch(e){if(e.name==='QuotaExceededError')toast('Úložisko je plné — niektoré dáta sa neuložili');console.warn('localStorage save failed:',key,e);}
+}
 
 function loadPrefs(){
   try{var p=localStorage.getItem(PK);if(p)prefs=Object.assign(prefs,JSON.parse(p));}catch(e){}
@@ -518,15 +523,15 @@ function cardHTML(m){
   const badge=pctBadge(cached);
   const titleH=hlField(m,"title");
   const dirH=m.director?hlField(m,"director"):"";
-  const favBtn=`<button class="cfav">${fav?STAR_ON:STAR_OFF}</button>`;
+  const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť">▶</a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}">▶</a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
-  const lfavBtn=`<button class="lfav">${fav?STAR_ON:STAR_OFF}</button>`;
+  const lfavBtn=`<button class="lfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
   return `<div class="mcard lcard" data-id="${m.id}"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 }
 
@@ -538,7 +543,7 @@ function cardHTML(m){
    ══════════════════════════════════════════════════════════ */
 function togFav(id,btn){
   if(favs.has(id))favs.delete(id);else favs.add(id);
-  localStorage.setItem(FK,JSON.stringify(Array.from(favs)));
+  safeSave(FK,JSON.stringify(Array.from(favs)));
   scheduleAutoPush('togFav');
   if(btn)btn.innerHTML=favs.has(id)?STAR_ON:STAR_OFF;
   var db=document.getElementById("dfavBtn");if(db&&curId===id)updFavBtn(db,id);
@@ -546,7 +551,7 @@ function togFav(id,btn){
 }
 function togWl(id,btn){
   if(wl.has(id))wl.delete(id);else wl.add(id);
-  localStorage.setItem(WK,JSON.stringify(Array.from(wl)));
+  safeSave(WK,JSON.stringify(Array.from(wl)));
   scheduleAutoPush('togWl');
   if(btn)btn.innerHTML=wl.has(id)?EYE_ON:EYE_OFF;
   var db=document.getElementById("dwlBtn");if(db&&curId===id)updWlBtn(db,id);
@@ -597,9 +602,9 @@ function openDet(id){
   const html=
     `<div class="det-frow">
       ${ratingHtml}
-      <button class="btn-fav${fav?" on":""}" id="dfavBtn"></button>
-      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn"></button>
-      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn"></button>
+      <button class="btn-fav${fav?" on":""}" id="dfavBtn" aria-label="Obľúbené"></button>
+      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn" aria-label="Watchlist"></button>
+      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn" aria-label="Videné"></button>
       ${watchedDates[id]?`<span class="watched-date">Videné: ${watchedDates[id]}</span>`:""}
     </div>
     ${genres?`<div class="det-genres">${genres}</div>`:""}
@@ -729,7 +734,7 @@ function settStartBatch(){
         if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
         return c;
       });
-      localStorage.setItem(SK,JSON.stringify(toSave));
+      safeSave(SK,JSON.stringify(toSave));
     }catch(e){}
   }
 
@@ -1065,7 +1070,7 @@ function handleFile(){
           if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
           return c;
         });
-        localStorage.setItem(SK,JSON.stringify(toSave));
+        safeSave(SK,JSON.stringify(toSave));
       }catch(e){console.warn("Save error:",e);}
       
       setP(100,"Hotovo!");
@@ -1099,7 +1104,7 @@ function handleFile(){
         if(!mv.length){hideMod();toast("Nenašli sa filmy v PDF.");return;}
         all=mv;
         buildFuse(); // rebuild Fuse index after PDF import
-        try{localStorage.setItem(SK,JSON.stringify(all));}catch(e){}
+        safeSave(SK,JSON.stringify(all));
         setP(100,"Hotovo!");setTimeout(function(){hideMod();renderAll();toast("Importovaných "+mv.length+" filmov");if(tmdbKey){toast("Spúšťam TMDB...");setTimeout(settStartBatch,1500);}},500);
       }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   }
@@ -1237,7 +1242,7 @@ function clearLiveData(){
 function clearAllData(){
   if(!confirm('Vymazať VŠETKO?\n\nPOZOR: Ak vymažeš aj cache prehliadača, dáta sa obnovia z HTML súboru. Pre trvalé vymazanie použi GitHub Sync alebo exportuj prázdny HTML.'))return;
   try{
-    localStorage.setItem(SK,JSON.stringify([]));
+    safeSave(SK,JSON.stringify([]));
     localStorage.removeItem(FK);
     localStorage.removeItem(WK);
     localStorage.removeItem(VK);
@@ -1791,7 +1796,7 @@ function adminSaveAll() {
       if (copy.poster_thumb && copy.poster_thumb.indexOf('data:') === 0) copy.poster_thumb = '';
       return copy;
     });
-    localStorage.setItem(SK, JSON.stringify(toSave));
+    safeSave(SK, JSON.stringify(toSave));
   } catch(e) {
     console.warn('[Admin] localStorage save failed:', e);
   }
@@ -2058,7 +2063,7 @@ function ghPull() {
           if (c.poster_thumb && c.poster_thumb.indexOf('data:') === 0) c.poster_thumb = '';
           return c;
         });
-        localStorage.setItem(SK, JSON.stringify(toSave));
+        safeSave(SK, JSON.stringify(toSave));
       } catch(e) {}
 
       ghPullProgress(80);
@@ -2704,7 +2709,7 @@ function handleFileUpdate(){
     });
     all.sort(function(a,b){return(a.num||0)-(b.num||0);});
     filt=all.slice();
-    try{var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});localStorage.setItem(SK,JSON.stringify(toSave));}catch(e){}
+    var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});safeSave(SK,JSON.stringify(toSave));
     applyFilters();setP(100,"Hotovo!");
     setTimeout(function(){hideMod();toast("✓ +"+added+" nových, "+updated+" upravených, "+unchanged+" bez zmeny");},600);
   }).catch(function(err){hideMod();toast("Chyba: "+err.message);console.error(err);});
