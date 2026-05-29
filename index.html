@@ -297,7 +297,12 @@
       <span class="sett-btn-icon">&#11015;</span>
       <span class="sett-btn-label">Stiahnuť HTML so všetkými dátami</span>
     </button>
-    <div class="sett-btn-hint">Uloží hodnotenia a trailery priamo do HTML. Po nahraní na GitHub funguje bez opakovaného načítavania.</div>
+    <div class="sett-btn-hint">Uloží hodnotenia a trailery priamo do HTML.</div>
+    <button class="sett-btn" id="settBtnExportJson" style="margin-top:6px">
+      <span class="sett-btn-icon">&#128190;</span>
+      <span class="sett-btn-label">Exportovať JSON zálohu</span>
+    </button>
+    <div class="sett-btn-hint">Kompletná záloha — filmy, obľúbené, watchlist, videné, TMDB dáta.</div>
 
     </div>
 
@@ -392,6 +397,15 @@
     </div>
     <div class="sett-key-st" id="localPathSt"></div>
     <div class="sett-key-st" id="smbPathSt"></div>
+    </div>
+
+    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Nástroje</div>
+    <div class="sett-grp">
+    <button class="sett-btn" id="settBtnDuplicates">
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="13" height="13" rx="2"/><path d="M4 8H3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-1"/></svg></span>
+      <span class="sett-btn-label">Nájsť duplikáty</span>
+    </button>
+    <div class="sett-btn-hint">Nájde filmy s rovnakým názvom a rokom.</div>
     </div>
 
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Nebezpečná zóna</div>

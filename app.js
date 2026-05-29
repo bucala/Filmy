@@ -846,22 +846,46 @@ function showStats(){
   const withLive=Object.keys(liveCache).length;
   const withPoster=all.filter(m=>m.poster_thumb&&m.poster_thumb.length>10).length;
 
+  // Average TMDB rating
+  const rated=Object.values(liveCache).filter(v=>v&&v.pct!=null);
+  const avgRating=rated.length?Math.round(rated.reduce((a,v)=>a+v.pct,0)/rated.length):null;
+
+  // Top directors (top 8)
+  const dirCounts={};
+  all.forEach(m=>{if(m.director)(m.director).split(/,\s*/).forEach(d=>{d=d.trim();if(d)dirCounts[d]=(dirCounts[d]||0)+1;});});
+  const topDirs=Object.entries(dirCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Monthly watch activity (last 12 months)
+  const monthCounts={};
+  Object.values(watchedDates).forEach(d=>{if(d){var mo=d.slice(0,7);monthCounts[mo]=(monthCounts[mo]||0)+1;}});
+  const months=Object.entries(monthCounts).sort((a,b)=>a[0].localeCompare(b[0])).slice(-12);
+
   const statHtml=
     sc("🎬","FILMOV CELKOM",all.length,"")+
     sc("🕐","HODÍN SLEDOVANIA",hours,"(odhad)")+
     sc("🖼","S PLAGÁTOM",withPoster,"filmov")+
     sc("📊","TMDB DÁTA",withLive,"filmov s hodnotením")+
+    (avgRating!=null?sc("⭐","PRIEMERNÉ HODNOTENIE",avgRating+'%',rated.length+' hodnotených'):"")+
     sc("❤️","OBĽÚBENÉ",favs.size,"")+
     sc("👁","WATCHLIST",wl.size,"")+
     sc("✓","VIDENÉ",watched.size,"")+
     sc("📅","ROKY",`${minYear}–${maxYear}`,"");
 
+  // Top directors HTML
+  let dirsHtml='';
+  if(topDirs.length){
+    dirsHtml='<div class="stat-section"><div class="stat-section-title">TOP REŽISÉRI</div><div class="stat-dir-list">';
+    topDirs.forEach(([name,cnt])=>{dirsHtml+=`<div class="stat-dir-item"><span class="stat-dir-name">${esc(name)}</span><span class="stat-dir-cnt">${cnt}</span></div>`;});
+    dirsHtml+='</div></div>';
+  }
+
   let chartsHtml='<div class="stat-charts">';
   if(topGenres.length)chartsHtml+='<div class="chart-card"><div class="chart-title">TOP ŽÁNRE</div><div class="chart-wrap"><canvas id="chartGenres"></canvas></div></div>';
   if(decades.length)chartsHtml+='<div class="chart-card"><div class="chart-title">FILMY PODĽA DEKÁDY</div><div class="chart-wrap"><canvas id="chartDecades"></canvas></div></div>';
+  if(months.length>1)chartsHtml+='<div class="chart-card"><div class="chart-title">SLEDOVANÉ FILMY PODĽA MESIACA</div><div class="chart-wrap"><canvas id="chartMonthly"></canvas></div></div>';
   chartsHtml+='</div>';
 
-  document.getElementById("statBody").innerHTML=statHtml+chartsHtml;
+  document.getElementById("statBody").innerHTML=statHtml+dirsHtml+chartsHtml;
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("statSc").classList.remove("hidden");
 
@@ -901,6 +925,23 @@ function showStats(){
         plugins:{legend:{display:false}},
         scales:{
           x:{ticks:{color:"#9090a8",font:{size:11}},grid:{color:"#2a2a3a"}},
+          y:{ticks:{color:"#9090a8",font:{size:11},stepSize:1},grid:{color:"#2a2a3a"},beginAtZero:true}
+        }
+      }
+    });
+  }
+  if(months.length>1){
+    buildChart("chartMonthly",{
+      type:"bar",
+      data:{
+        labels:months.map(e=>e[0]),
+        datasets:[{label:"Videné",data:months.map(e=>e[1]),backgroundColor:"#22cc88cc",borderColor:"#22cc88",borderWidth:1,borderRadius:4}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:"#9090a8",font:{size:10},maxRotation:45},grid:{color:"#2a2a3a"}},
           y:{ticks:{color:"#9090a8",font:{size:11},stepSize:1},grid:{color:"#2a2a3a"},beginAtZero:true}
         }
       }
@@ -1271,6 +1312,64 @@ function clearAllData(){
   },500);
 }
 
+function exportJson(){
+  if(!all.length){toast('Žiadne filmy na export');return;}
+  var data={
+    version:APP_VERSION,
+    exported:new Date().toISOString(),
+    movies:all,
+    favourites:Array.from(favs),
+    watchlist:Array.from(wl),
+    watched:Array.from(watched),
+    watchedDates:watchedDates,
+    liveCache:liveCache
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='filmy_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+  toast('JSON záloha stiahnutá!');
+}
+
+function findDuplicates(){
+  var seen={},dupes=[];
+  all.forEach(function(m){
+    var key=(m.title||'').toLowerCase().trim()+'|'+(m.year||0);
+    if(seen[key])dupes.push({original:seen[key],duplicate:m});
+    else seen[key]=m;
+  });
+  if(!dupes.length){toast('Žiadne duplikáty');return;}
+  closeSett();
+  var html='<div class="dup-header">Nájdených '+dupes.length+' duplikátov</div>';
+  dupes.forEach(function(d,i){
+    html+='<div class="dup-pair" data-idx="'+i+'">'
+      +'<div class="dup-item"><span class="dup-num">#'+d.original.num+'</span> '+esc(d.original.title)+' ('+d.original.year+')</div>'
+      +'<div class="dup-vs">vs</div>'
+      +'<div class="dup-item"><span class="dup-num">#'+d.duplicate.num+'</span> '+esc(d.duplicate.title)+' ('+d.duplicate.year+')</div>'
+      +'<button class="dup-rm" data-rmid="'+d.duplicate.id+'">Odstrániť #'+d.duplicate.num+'</button>'
+      +'</div>';
+  });
+  var sb=document.getElementById("statBody");
+  sb.innerHTML=html;
+  document.getElementById("mainSc").classList.add("hidden");
+  document.getElementById("statSc").classList.remove("hidden");
+  sb.addEventListener('click',function handler(e){
+    var btn=e.target.closest('.dup-rm');
+    if(!btn)return;
+    var rmId=parseInt(btn.dataset.rmid,10);
+    all=all.filter(function(m){return m.id!==rmId;});
+    favs.delete(rmId);wl.delete(rmId);watched.delete(rmId);delete watchedDates[rmId];delete liveCache[rmId];
+    btn.closest('.dup-pair').remove();
+    var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});
+    safeSave(SK,JSON.stringify(toSave));safeSave(FK,JSON.stringify(Array.from(favs)));safeSave(WK,JSON.stringify(Array.from(wl)));
+    saveLiveCache();buildFuse();renderAll();
+    toast('Film #'+btn.dataset.rmid+' odstránený');
+    if(!sb.querySelector('.dup-pair')){toast('Všetky duplikáty vyriešené');closeStat();}
+  });
+}
+
 
 
 /* ══════════════════════════════════════════════════════════
@@ -1474,6 +1573,8 @@ toast(_modeLabel);
   var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
   var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
   var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
+  var _eExportJ=document.getElementById("settBtnExportJson");if(_eExportJ)_eExportJ.addEventListener("click",exportJson);
+  var _eDupes=document.getElementById("settBtnDuplicates");if(_eDupes)_eDupes.addEventListener("click",findDuplicates);
   var _eClearLv=document.getElementById("settBtnClearLive");if(_eClearLv)_eClearLv.addEventListener("click",clearLiveData);
   var _eClearAll=document.getElementById("settBtnClearAll");if(_eClearAll)_eClearAll.addEventListener("click",clearAllData);
   var _eAdmin=document.getElementById("settBtnAdmin");if(_eAdmin)_eAdmin.addEventListener("click",openAdmin);
