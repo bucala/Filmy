@@ -1320,12 +1320,15 @@ document.addEventListener("DOMContentLoaded",function(){
       localStorage.setItem(PATH_MODE_KEY, pathMode);
       document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className = 'ttab on';
-      toast('Režim: ' + (pathMode==='smb'?'Sieťový (SMB)':'Lokálny (W:)'));
+      // Aktualizuj hint - jasné zobrazenie aktívneho stavu
+var _modeLabel = pathMode === 'smb' ? '🌐 Sieťová cesta (SMB) — aktívna' : '💻 Lokálna cesta — aktívna';
+toast(_modeLabel);
       // Aktualizuj hint s ukážkou cesty
       var _hint = document.getElementById('pathModeHint');
       if (_hint) {
-        var _sample = all.length ? getMoviePath(all[0]) : (pathMode==='smb' ? (smbBase+'Film.mkv') : 'W:/Movies/Film.mkv');
-        _hint.textContent = '▶ ' + _sample;
+        var _sample = all.length ? getMoviePath(all[0]) : (pathMode==='smb' ? (smbBase||'smb://NAS/Movies/')+'Film.mkv' : 'W:/Movies/Film.mkv');
+        var _ms = pathMode === 'smb' ? '🌐 Sieťová (SMB) — aktívna' : '💻 Lokálna cesta — aktívna';
+        _hint.innerHTML = '<b style="color:var(--gold)">' + _ms + '</b><br><span style="opacity:.65;font-size:10px">' + _sample + '</span>';
       }
       // Aktualizuj detail panel ak je otvorený
       var _dpth = document.querySelector('.det-path-hint');
@@ -2974,15 +2977,14 @@ function playLocalMovie(id) {
 }
 
 function copyMoviePath(id) {
+  
   var m = all.find(function(x) { return x.id === id; });
   if (!m) return;
-  var base = smbBase;
-  if (base && base[base.length - 1] !== '/') base += '/';
-  var path = base + buildMovieFilename(m);
+  var path = getMoviePath(m);
   
   if (navigator.clipboard) {
     navigator.clipboard.writeText(path).then(function() {
-      toast('Cesta skopírovaná: ' + path);
+      toast('Cesta skopírovaná (' + (pathMode==='smb'?'Sieťová':'Lokálna') + '): ' + path);
     });
   } else {
     // Fallback
