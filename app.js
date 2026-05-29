@@ -1326,13 +1326,7 @@ toast(_modeLabel);
       // Aktualizuj hint s ukážkou cesty
       var _hint = document.getElementById('pathModeHint');
       if (_hint) {
-        var _sample = all.length ? getMoviePath(all[0]) : (pathMode==='smb' ? (smbBase||'smb://NAS/Movies/')+'Film.mkv' : 'W:/Movies/Film.mkv');
-        var _smbSvg  = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
-        var _locSvg  = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="3"/></svg>';
-        var _ms = pathMode === 'smb'
-          ? (_smbSvg + '<b style="color:var(--gold)">Sieťová (SMB) — aktívna</b>')
-          : (_locSvg + '<b style="color:var(--gold)">Lokálna cesta — aktívna</b>');
-        _hint.innerHTML = _ms + '<br><span style="opacity:.6;font-size:10px">' + _sample + '</span>';
+        _hint.textContent = pathMode === 'smb' ? 'Sieťová (SMB) — aktívna' : 'Lokálna cesta — aktívna';
       }
       // Aktualizuj detail panel ak je otvorený
       var _dpth = document.querySelector('.det-path-hint');
