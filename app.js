@@ -471,6 +471,8 @@ function renderList(list){
   // FIX2b: Event delegation — one listener replaces per-card listeners (1750+ → 1)
   if(ml._delegated) ml.removeEventListener("click",ml._delegated);
   ml._delegated=function(e){
+    var pb=e.target.closest(".cpost-play");
+    if(pb){e.preventDefault();e.stopPropagation();var pid=parseInt(pb.closest("[data-id]").dataset.id,10);playMovie(pid);return;}
     var fb=e.target.closest(".cfav,.lfav");
     if(fb){e.stopPropagation();var cid=parseInt(fb.closest("[data-id]").dataset.id,10);togFav(cid,fb);return;}
     var card=e.target.closest("[data-id]");
@@ -520,7 +522,7 @@ function cardHTML(m){
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();playMovie(${m.id});">▶</a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť">▶</a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
