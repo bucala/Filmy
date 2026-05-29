@@ -27,7 +27,7 @@ var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f"
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
-var prefs={view:"list",sort:"num",sortDir:"desc"};
+var prefs={view:"grid",sort:"num",sortDir:"desc"};
 
 
 
@@ -455,14 +455,12 @@ function renderList(list){
   ml.addEventListener("click",ml._delegated);
   appendCards(list,ml);
 
-  // FIX1: Remove previous scroll handler before attaching a new one.
-  // Without this, every renderList() call stacks a new listener — 87+ duplicates after TMDB batch.
-  var _sb=document.getElementById("scrnBody")||ml.parentElement;
-  if(_sb._scrollHandler) _sb.removeEventListener("scroll",_sb._scrollHandler);
-  _sb._scrollHandler=function(){
-    if(_sb.scrollTop+_sb.clientHeight>=_sb.scrollHeight-300){curPage++;appendCards(list,ml);}
+  // Scroll listener na mlist (overflow-y:auto) nie na scrnBody (overflow:hidden)
+  if(ml._scrollHandler) ml.removeEventListener("scroll",ml._scrollHandler);
+  ml._scrollHandler=function(){
+    if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-300){curPage++;appendCards(list,ml);}
   };
-  _sb.addEventListener("scroll",_sb._scrollHandler);
+  ml.addEventListener("scroll",ml._scrollHandler);
 }
 function appendCards(list,ml){
   var start=curPage*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,list.length);
@@ -583,7 +581,6 @@ function openDet(id){
     <div class="det-actions">
       <button id="playMovieBtn" class="sett-btn primary"><span class="sett-btn-icon">▶</span><span class="sett-btn-label">Prehráť film</span></button>
       <button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru">📋 Kopírovať cestu</button>
-      <div class="det-path-hint">${esc(getMoviePath(m))}</div>
     </div>
     <div class="sec">Trailer &amp; Linky</div>
     <div class="tr-row">
@@ -604,7 +601,17 @@ function openDet(id){
   document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
   document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
   const playBtn=document.getElementById("playMovieBtn");
-  if(playBtn)playBtn.onclick=function(){openMovieUrl(buildVlcUrl(all.find(function(x){return x.id===id;})||m));};
+  if(playBtn){
+    // Aktualizuj label tlačidla podľa aktuálnych nastavení
+    var _playMode = useNativePlayer ? (pathMode==='smb' ? 'Sieťová cesta (SMB)' : 'Lokálny prehrávač') : 'VLC Protocol';
+    playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť film · ' + _playMode;
+    playBtn.onclick=function(){
+      var _m=all.find(function(x){return x.id===id;})||m;
+      var _url=buildVlcUrl(_m);
+      if(!_url||_url==='vlc:///'){toast('Cesta k súboru nie je nastavená.');return;}
+      openMovieUrl(_url);
+    };
+  }
   document.getElementById("btnPlayCopy").addEventListener("click",()=>copyMoviePath(id));
   document.getElementById("btnTr").addEventListener("click",()=>openTrailer(id));
   document.getElementById("mainSc").classList.add("hidden");
@@ -1322,7 +1329,19 @@ document.addEventListener("DOMContentLoaded",function(){
       }
       // Aktualizuj detail panel ak je otvorený
       var _dpth = document.querySelector('.det-path-hint');
-      if (_dpth && curId) { var _cm = all.find(function(x){return x.id===curId;}); if(_cm) _dpth.textContent = getMoviePath(_cm); }
+      // Aktualizuj play button label ak je detail otvorený
+      if (curId) {
+        var _pb = document.getElementById('playMovieBtn');
+        if (_pb) {
+          var _lbl = _pb.querySelector('.sett-btn-label');
+          if (_lbl) {
+            var _pm = useNativePlayer ? (pathMode==='smb' ? 'Sieťová cesta (SMB)' : 'Lokálny prehrávač') : 'VLC Protocol';
+            _lbl.textContent = 'Prehráť film · ' + _pm;
+          }
+          var _mc = all.find(function(x){return x.id===curId;});
+          if (_mc) _pb.onclick = function(){ var u=buildVlcUrl(_mc); if(!u||u==='vlc:///'){toast('Cesta k súboru nie je nastavená.');return;} openMovieUrl(u); };
+        }
+      }
     });
   // Set initial active state for pathMode buttons based on localStorage
   document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
