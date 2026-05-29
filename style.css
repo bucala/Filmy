@@ -192,15 +192,14 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 
 /* Rozšírené nastavenia – collapsible */
 .sett-adv-summary{
-  display:flex;align-items:center;gap:6px;
+  display:flex;align-items:center;gap:8px;
   cursor:pointer;list-style:none;
-  padding:9px 12px;margin:4px 0 0;
-  border-radius:8px;
-  background:var(--card);
-  border:1px solid var(--border2);
-  font-size:11px;font-weight:600;letter-spacing:.06em;
-  color:var(--gold);
-  user-select:none;
+  padding:0 4px 6px;margin:18px 0 8px;
+  border-bottom:1px solid var(--border2);
+  background:none;border-radius:0;border:none;border-bottom:1px solid var(--border2);
+  font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:1.5px;
+  color:var(--gold);text-transform:uppercase;
+  user-select:none;white-space:nowrap;
 }
 .sett-adv-summary::-webkit-details-marker{display:none}
 #advSettDetails[open] .sett-adv-summary svg{transform:rotate(180deg)}
@@ -302,7 +301,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-key-inp:focus{border-color:var(--gold)}
 .sett-key-inp::placeholder{color:var(--text3)}
 .sett-key-st{font-family:"JetBrains Mono",monospace;font-size:10px;min-height:14px;margin-bottom:6px;padding:0 2px}
-.sett-key-st.ok{color:#22cc88}.sett-key-st.err{color:#e05555}
+.sett-key-st.ok{display:none}.sett-key-st.err{color:#e05555}
 
 /* ── Unified icon button (eye, delete) ─────────────────────────── */
 .sett-icon-btn{background:var(--card2);border:1px solid var(--border2);border-radius:10px;
