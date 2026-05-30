@@ -636,6 +636,7 @@ function openDet(id){
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
       ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
                '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
+      <button class="btn-match" id="btnMatch" title="Ručné TMDB párovanie">&#x2699; Párovanie</button>
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
     <div class="sec">Detaily</div>
@@ -662,6 +663,7 @@ function openDet(id){
   }
   document.getElementById("btnPlayCopy").onclick=function(){copyMoviePath(id);};
   document.getElementById("btnTr").onclick=function(){openTrailer(id);};
+  document.getElementById("btnMatch").onclick=function(){openMatchPanel(id);};
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -1836,6 +1838,13 @@ toast(_modeLabel);
   document.getElementById("adminAddBtn").addEventListener("click",adminAddMovie);
   document.getElementById("adminCancelBtn").addEventListener("click",adminClearPreview);
 
+  document.getElementById("matchClose").addEventListener("click",closeMatchPanel);
+  document.getElementById("matchSearchBtn").addEventListener("click",matchSearch);
+  document.getElementById("matchSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")matchSearch();});
+  document.getElementById("matchApplyBtn").addEventListener("click",matchApply);
+  document.getElementById("matchCancelBtn").addEventListener("click",function(){document.getElementById('matchPreview').classList.remove('show');matchPendingData=null;});
+  document.getElementById("matchOv").addEventListener("click",function(e){if(e.target===this)closeMatchPanel();});
+
   // GitHub sync
   initFp();
   initSortCycle();
@@ -2119,6 +2128,140 @@ function adminSaveAll() {
   }
 }
 
+/* ══════════════════════════════════════════════════════════
+   MODULE: Manual TMDB Match — pair existing movie with TMDB
+   ══════════════════════════════════════════════════════════ */
+var matchMovieId=null;
+var matchPendingData=null;
+
+function openMatchPanel(id){
+  var m=all.find(function(x){return x.id===id;});if(!m)return;
+  matchMovieId=id;
+  matchPendingData=null;
+  var info=document.getElementById('matchMovieInfo');
+  var poster=m.poster_thumb&&m.poster_thumb.length>10?'<img src="'+esc(m.poster_thumb)+'" alt="">':'';
+  info.innerHTML=poster+'<div><div class="mmi-text"><b>#'+m.num+'</b> '+esc(m.title)+'</div><div class="mmi-sub">'+(m.year||'?')+' · '+(m.director||'–')+'</div></div>';
+  document.getElementById('matchSearchInp').value=m.title;
+  document.getElementById('matchStatus').textContent='';
+  document.getElementById('matchResults').innerHTML='';
+  document.getElementById('matchPreview').classList.remove('show');
+  var ov=document.getElementById('matchOv');
+  ov.classList.remove('hidden');
+  ov.style.display='flex';
+  document.getElementById('matchSearchInp').focus();
+}
+
+function closeMatchPanel(){
+  var ov=document.getElementById('matchOv');
+  ov.classList.add('hidden');
+  ov.style.display='';
+  matchMovieId=null;matchPendingData=null;
+}
+
+function matchSearch(){
+  var q=document.getElementById('matchSearchInp').value.trim();
+  if(!q)return;
+  if(!tmdbKey){document.getElementById('matchStatus').textContent='Chýba TMDB API kľúč';return;}
+  document.getElementById('matchStatus').textContent='Hľadám...';
+  document.getElementById('matchResults').innerHTML='';
+  document.getElementById('matchPreview').classList.remove('show');
+  var btn=document.getElementById('matchSearchBtn');
+  btn.disabled=true;
+  var isId=/^\d+$/.test(q);
+  var url=isId
+    ?'https://api.themoviedb.org/3/movie/'+q+'?api_key='+tmdbKey+'&language=sk&append_to_response=videos,external_ids,credits'
+    :'https://api.themoviedb.org/3/search/movie?api_key='+tmdbKey+'&query='+encodeURIComponent(q)+'&language=sk&page=1';
+  fetch(url).then(function(r){return r.json();}).then(function(data){
+    btn.disabled=false;
+    if(isId){
+      if(data.success===false){document.getElementById('matchStatus').textContent='TMDB ID nenájdené.';return;}
+      matchShowResults([data]);
+    } else {
+      if(!data.results||!data.results.length){document.getElementById('matchStatus').textContent='Nič sa nenašlo.';return;}
+      matchShowResults(data.results.slice(0,8));
+    }
+  }).catch(function(){btn.disabled=false;document.getElementById('matchStatus').textContent='Chyba siete.';});
+}
+
+function matchShowResults(results){
+  document.getElementById('matchStatus').textContent=results.length+' výsledk'+(results.length===1?'':results.length<5?'y':'ov');
+  var container=document.getElementById('matchResults');
+  container.innerHTML=results.map(function(r,idx){
+    var poster=r.poster_path?'<img class="admin-poster" src="https://image.tmdb.org/t/p/w92'+r.poster_path+'" alt="">':'<div class="admin-poster-ph">🎬</div>';
+    var year=(r.release_date||'').slice(0,4)||'?';
+    var rating=r.vote_average?Math.round(r.vote_average*10)+'%':'–';
+    return '<div class="admin-result-item" data-idx="'+idx+'">'+poster+'<div><div class="admin-ri-title">'+esc(r.title||r.name)+'</div><div class="admin-ri-meta">'+year+' · ⭐ '+rating+(r.original_title&&r.original_title!==r.title?'<br>'+esc(r.original_title):'')+'</div></div></div>';
+  }).join('');
+  container._results=results;
+  container.querySelectorAll('.admin-result-item').forEach(function(el){
+    el.addEventListener('click',function(){
+      container.querySelectorAll('.admin-result-item').forEach(function(x){x.classList.remove('selected');});
+      el.classList.add('selected');
+      matchFetchFull(container._results[parseInt(el.dataset.idx)].id);
+    });
+  });
+}
+
+function matchFetchFull(tmdbId){
+  document.getElementById('matchStatus').textContent='Načítavam detaily...';
+  fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'?api_key='+tmdbKey+'&language=sk&append_to_response=videos,external_ids,credits')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      document.getElementById('matchStatus').textContent='';
+      var posterUrl=d.poster_path?'https://image.tmdb.org/t/p/w342'+d.poster_path:'';
+      var thumbUrl=d.poster_path?'https://image.tmdb.org/t/p/w185'+d.poster_path:'';
+      var year=(d.release_date||'').slice(0,4)||'?';
+      var dur=d.runtime?d.runtime+' min':'';
+      var pct=d.vote_average?Math.round(d.vote_average*10):null;
+      var genres=(d.genres||[]).map(function(g){return g.name;});
+      var videos=(d.videos&&d.videos.results)||[];
+      var trailer=videos.find(function(v){return v.type==='Trailer'&&v.site==='YouTube';})||videos.find(function(v){return v.site==='YouTube';});
+      var imdbId=d.external_ids&&d.external_ids.imdb_id?d.external_ids.imdb_id:null;
+      var cast=(d.credits&&d.credits.cast||[]).slice(0,10).map(function(a){return a.name;}).join(', ');
+      var director='';
+      if(d.credits&&d.credits.crew){var dir=d.credits.crew.find(function(c){return c.job==='Director';});if(dir)director=dir.name;}
+      var countries=(d.production_countries||[]).map(function(c){return c.iso_3166_1;}).join(', ');
+
+      var pvPoster=document.getElementById('matchPvPoster');
+      pvPoster.src=posterUrl||'';pvPoster.style.display=posterUrl?'block':'none';
+      document.getElementById('matchPvTitle').textContent=d.title||d.original_title;
+      document.getElementById('matchPvMeta').innerHTML=[year,dur,countries,pct!=null?'⭐ '+pct+'%':''].filter(Boolean).join(' · ')+(director?'<br>🎬 '+esc(director):'');
+      document.getElementById('matchPvGenres').innerHTML=genres.map(function(g){return '<span class="admin-pv-tag">'+esc(g)+'</span>';}).join('');
+      document.getElementById('matchPreview').classList.add('show');
+
+      matchPendingData={
+        posterUrl:thumbUrl,description:(d.overview||'').substring(0,500),
+        director:director,cast:cast,genres:genres,country:countries,
+        duration:dur,tmdbId:d.id,
+        liveData:{pct:pct,ytKey:trailer?trailer.key:null,
+          tmdbUrl:'https://www.themoviedb.org/movie/'+d.id,
+          imdbUrl:imdbId?'https://www.imdb.com/title/'+imdbId+'/':null,
+          posterUrl:thumbUrl}
+      };
+    }).catch(function(){document.getElementById('matchStatus').textContent='Chyba načítavania.';});
+}
+
+function matchApply(){
+  if(!matchPendingData||!matchMovieId)return;
+  var m=all.find(function(x){return x.id===matchMovieId;});if(!m)return;
+  var d=matchPendingData;
+  if(d.posterUrl)m.poster_thumb=d.posterUrl;
+  if(d.description)m.description=d.description;
+  if(d.director)m.director=d.director;
+  if(d.cast)m.cast=d.cast;
+  if(d.genres&&d.genres.length)m.genres=d.genres;
+  if(d.country)m.country=d.country;
+  if(d.duration)m.duration=d.duration;
+  if(d.tmdbId)m.tmdbId=d.tmdbId;
+  liveCache[m.id]=d.liveData;
+  saveLiveCache();
+  adminSaveAll();
+  toast('✓ Film "'+m.title+'" spárovaný s TMDB #'+d.tmdbId);
+  closeMatchPanel();
+  openDet(m.id);
+  renderAll();
+  scheduleAutoPush('match');
+}
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: GitHub Online Sync
@@ -2708,6 +2851,9 @@ function initKeyboard() {
 
     // Escape → close topmost overlay
     if (e.key === 'Escape') {
+      if (!document.getElementById('matchOv').classList.contains('hidden')) {
+        closeMatchPanel(); return;
+      }
       if (!document.getElementById('trOv').classList.contains('hidden')) {
         closeTr(); return;
       }
