@@ -5,7 +5,7 @@
    - CDN libs   → Cache-First (immutable versioned URLs)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260530-1039";
+const CACHE = "filmy-20260530-1200";
 
 const SHELL  = [
   "./",
@@ -15,6 +15,7 @@ const SHELL  = [
   "./app.js",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",
+  "./favicon.svg",
   "https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"
 ];
 
