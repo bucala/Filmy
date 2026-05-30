@@ -43,6 +43,14 @@ var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",L
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
 var prefs={view:"grid",sort:"num",sortDir:"desc"};
+var ratingSource=localStorage.getItem('mdb_ratingsrc')||'tmdb';
+
+function getMoviePct(m){
+  if(ratingSource==='imdb'){return m._pctImdb!=null?m._pctImdb:null;}
+  if(ratingSource==='csfd'){return m._pctCsfd!=null?m._pctCsfd:null;}
+  var c=liveCache[m.id];return c&&c.pct!=null?c.pct:null;
+}
+var RATING_LABELS={tmdb:'TMDB',imdb:'IMDB',csfd:'ČSFD'};
 
 
 
@@ -305,8 +313,7 @@ function applyFilters(){
     if(fpState.yearFrom>0&&(m.year||0)<fpState.yearFrom)return false;
     if(fpState.yearTo>0&&(m.year||0)>fpState.yearTo)return false;
     if(fpState.minRating>0){
-      const lv=liveCache[m.id];
-      const pct=lv&&lv.pct!=null?lv.pct:null;
+      const pct=getMoviePct(m);
       if(pct===null||pct<fpState.minRating)return false;
     }
     if(fpState.country){
@@ -417,19 +424,17 @@ function sortList(list){
   var asc=(prefs.sortDir||"desc")==="asc";
 
   if(s==="pct"){
-    // Two-pass: stable sort by separating rated/unrated, then sorting rated
     var rated=[],unrated=[];
     list.forEach(function(m){
-      var c=liveCache[m.id];
-      if(c&&c.pct!=null)rated.push(m);
+      var p=getMoviePct(m);
+      if(p!=null)rated.push(m);
       else unrated.push(m);
     });
-    // Sort rated strictly by pct, then by num as stable tiebreak
     rated.sort(function(a,b){
-      var pa=liveCache[a.id].pct;
-      var pb=liveCache[b.id].pct;
+      var pa=getMoviePct(a);
+      var pb=getMoviePct(b);
       if(pa!==pb)return asc?pa-pb:pb-pa;
-      return a.num-b.num; // stable tiebreak
+      return a.num-b.num;
     });
     // Unrated keep original order (sort by num)
     unrated.sort(function(a,b){return a.num-b.num;});
@@ -515,18 +520,19 @@ function appendCards(list,ml){
 /* ══════════════════════════════════════════════════════════
    MODULE: Cards — HTML builders for grid and list modes
    ══════════════════════════════════════════════════════════ */
-function pctBadge(cached){
-  if(!cached||cached.pct==null)return "";
-  var p=cached.pct;
+function pctBadge(cached,m){
+  var p=m?getMoviePct(m):(cached&&cached.pct!=null?cached.pct:null);
+  if(p==null)return "";
   var cls=p>=70?"pct-g":p>=50?"pct-a":"pct-b";
-  return '<div class="pct-badge '+cls+'"><div class="pct-badge-lbl">TMDB</div><div class="pct-badge-val">'+p+'%</div></div>';
+  var lbl=RATING_LABELS[ratingSource]||'TMDB';
+  return '<div class="pct-badge '+cls+'"><div class="pct-badge-lbl">'+lbl+'</div><div class="pct-badge-val">'+p+'%</div></div>';
 }
 
 function cardHTML(m){
   const fav=favs.has(m.id), cached=liveCache[m.id];
   const genres=(m.genres||[]).slice(0,2).map(g=>`<span class="gtag">${esc(g)}</span>`).join("");
   const ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
-  const badge=pctBadge(cached);
+  const badge=pctBadge(cached,m);
   const titleH=hlField(m,"title");
   const dirH=m.director?hlField(m,"director"):"";
   const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
@@ -597,13 +603,15 @@ function openDet(id){
 
   // Rating pill
   let ratingHtml;
-  if(!cached){
+  var detPct=getMoviePct(m);
+  var detLbl=RATING_LABELS[ratingSource]||'TMDB';
+  if(!cached&&ratingSource==='tmdb'){
     ratingHtml=`<div class="rating-pill-na" id="ratingBox">${tmdbKey?"Načítavam…":"–"}</div>`;
-  } else if(cached.pct!=null){
-    const col=cached.pct>=70?"#00c853":cached.pct>=50?"#ffd600":"#e53935";
-    ratingHtml=`<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:${col}">${cached.pct}%</div></div>`;
+  } else if(detPct!=null){
+    const col=detPct>=70?"#00c853":detPct>=50?"#ffd600":"#e53935";
+    ratingHtml=`<div class="rating-pill"><div class="rating-pill-lbl">${detLbl}</div><div class="rating-pill-val" style="color:${col}">${detPct}%</div></div>`;
   } else {
-    ratingHtml='<div class="rating-pill-na">N/A</div>';
+    ratingHtml='<div class="rating-pill-na" id="ratingBox">N/A</div>';
   }
 
   const html=
@@ -671,11 +679,14 @@ function fetchLiveData(id){
 function applyLive(id,data){
   var rbox=document.getElementById("ratingBox");
   if(rbox){
-    if(data&&data.pct!=null){
-      var col=data.pct>=70?"#00c853":data.pct>=50?"#ffd600":"#e53935";
-      rbox.outerHTML='<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:'+col+'">'+data.pct+'%</div></div>';
+    var mv=all.find(function(x){return x.id===id;});
+    var p=mv?getMoviePct(mv):(data&&data.pct!=null?data.pct:null);
+    var lbl=RATING_LABELS[ratingSource]||'TMDB';
+    if(p!=null){
+      var col=p>=70?"#00c853":p>=50?"#ffd600":"#e53935";
+      rbox.outerHTML='<div class="rating-pill"><div class="rating-pill-lbl">'+lbl+'</div><div class="rating-pill-val" style="color:'+col+'">'+p+'%</div></div>';
     } else {
-      rbox.outerHTML='<div class="rating-pill-na">N/A</div>';
+      rbox.outerHTML='<div class="rating-pill-na" id="ratingBox">N/A</div>';
     }
   }
   if(!data)return;
@@ -881,9 +892,10 @@ function showStats(){
   const withLive=Object.keys(liveCache).length;
   const withPoster=all.filter(m=>m.poster_thumb&&m.poster_thumb.length>10).length;
 
-  // Average TMDB rating
-  const rated=Object.values(liveCache).filter(v=>v&&v.pct!=null);
-  const avgRating=rated.length?Math.round(rated.reduce((a,v)=>a+v.pct,0)/rated.length):null;
+  // Average rating (uses selected source)
+  const ratedMovies=all.filter(function(m){return getMoviePct(m)!=null;});
+  const avgRating=ratedMovies.length?Math.round(ratedMovies.reduce(function(a,m){return a+getMoviePct(m);},0)/ratedMovies.length):null;
+  const rated=ratedMovies;
 
   // Top directors (top 8)
   const dirCounts={};
@@ -1066,6 +1078,10 @@ function openSett(){
   // Sync autoPullTog
   const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
   const _npt=document.getElementById("nativePlayerTog"); if(_npt)_npt.checked=useNativePlayer;
+  // Sync rating source toggle
+  document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){
+    b.className=(b.dataset.src===ratingSource)?'ttab on':'ttab';
+  });
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
@@ -1482,6 +1498,28 @@ document.addEventListener("DOMContentLoaded",function(){
     b.className = (b.dataset.proto === playerProto) ? 'ttab on' : 'ttab';
   });
 
+  function syncSortPctLabel(){
+    var o=document.getElementById('sortPctOpt');
+    if(o) o.textContent='Podľa % '+RATING_LABELS[ratingSource];
+  }
+  syncSortPctLabel();
+  document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      ratingSource=this.dataset.src;
+      localStorage.setItem('mdb_ratingsrc',ratingSource);
+      document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){b.className='ttab';});
+      this.className='ttab on';
+      var stEl=document.getElementById('ratingSrcSt');
+      if(stEl){stEl.textContent='✓ '+RATING_LABELS[ratingSource]+' — uložené';stEl.className='sett-key-st ok';}
+      syncSortPctLabel();
+      applyFilters();
+      toast('Hodnotenia: '+RATING_LABELS[ratingSource]);
+    });
+  });
+  document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){
+    b.className=(b.dataset.src===ratingSource)?'ttab on':'ttab';
+  });
+
   var _su=document.getElementById("settBtnPdfUpdate");if(_su)_su.addEventListener("click",impPdfUpdate);
   var _fu=document.getElementById("fileInpUpdate");if(_fu)_fu.addEventListener("change",handleFileUpdate);
   var ebZip = document.getElementById('emptyBtnZip');
@@ -1744,26 +1782,37 @@ toast(_modeLabel);
     reader.onload=function(e){
       var text=e.target.result.replace(/^﻿/,'');
       var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
-      var matched=0,skipped=0;
+      var matched=0,skipped=0,ratings=0;
       lines.forEach(function(line){
         var cols=line.split(',');
-        if(cols.length<6) return;
+        if(cols.length<2) return;
         var num=cols[0].trim();
-        var csfdLink=cols[cols.length-1].trim();
-        if(!csfdLink||csfdLink.indexOf('csfd.')< 0){skipped++;return;}
         var movie=all.find(function(m){return String(m.num)===num;});
-        if(movie){
-          movie._csfdUrl=csfdLink;
-          matched++;
-        } else {skipped++;}
+        if(!movie){skipped++;return;}
+        var found=false;
+        for(var i=5;i<cols.length;i++){
+          var val=cols[i].trim();
+          if(val.indexOf('csfd.')>=0){movie._csfdUrl=val;found=true;}
+          else if(val.indexOf('imdb.com')>=0){movie._imdbUrl=val;}
+          else {
+            var n=parseFloat(val);
+            if(!isNaN(n)&&n>=0&&n<=100){
+              if(movie._csfdUrl||found){movie._pctCsfd=Math.round(n);ratings++;}
+              else {movie._pctImdb=Math.round(n);ratings++;}
+            }
+          }
+        }
+        if(found) matched++;
+        else skipped++;
       });
-      if(matched>0) savePersistent();
+      if(matched>0||ratings>0) savePersistent();
       var stEl=document.getElementById('csfdImportSt');
       if(stEl){
-        stEl.textContent='Priradených: '+matched+', preskočených: '+skipped;
-        stEl.className='sett-key-st'+(matched>0?' ok':'');
+        stEl.textContent='Linky: '+matched+', hodnotenia: '+ratings+', preskočených: '+skipped;
+        stEl.className='sett-key-st'+((matched>0||ratings>0)?' ok':'');
       }
-      toast('ČSFD import: '+matched+' filmov aktualizovaných');
+      toast('Import: '+matched+' linkov, '+ratings+' hodnotení');
+      if(matched>0||ratings>0) applyFilters();
     };
     reader.readAsText(file,'UTF-8');
     this.value='';
@@ -2950,7 +2999,7 @@ function handleFileUpdate(){
     var existMap={};
     all.forEach(function(m){existMap[m.num]=m;});
     var added=0,updated=0,unchanged=0;
-    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","_csfdUrl","tmdbId"];
+    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","_csfdUrl","_pctImdb","_pctCsfd","tmdbId"];
     newMovies.forEach(function(nm){
       var existing=existMap[nm.num];
       if(!existing){

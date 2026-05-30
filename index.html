@@ -173,7 +173,7 @@
       <option value="num">Pôvodné poradie</option>
       <option value="title">Podľa názvu</option>
       <option value="year">Podľa roku</option>
-      <option value="pct">Podľa % TMDB</option>
+      <option value="pct" id="sortPctOpt">Podľa %</option>
     </select>
   </div>
 
@@ -315,7 +315,18 @@
     </button>
     </div>
 
-    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="3"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/></svg>TMDB Metadáta</div>
+    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="3"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/></svg>Databáza metadáta</div>
+    <div class="sett-grp">
+    <div class="sett-grp-title">Zobrazované hodnotenie</div>
+    <div class="sett-btn-hint">Vyber databázu, z ktorej sa zobrazujú percentá hodnotení.</div>
+    <div class="sett-toggle" id="ratingSrcToggle" style="margin-bottom:8px">
+      <button class="ttab" data-src="tmdb">TMDB</button>
+      <button class="ttab" data-src="imdb">IMDB</button>
+      <button class="ttab" data-src="csfd">ČSFD</button>
+    </div>
+    <div class="sett-key-st" id="ratingSrcSt" style="margin-top:2px"></div>
+    </div>
+
     <div class="sett-grp">
     <div class="sett-grp-title">API kľúč</div>
     <div class="sett-key-row">
@@ -411,13 +422,13 @@
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></span>
       <span class="sett-btn-label">Exportovať do Excelu (CSV)</span>
     </button>
-    <div class="sett-btn-hint">Stiahne CSV s komplexným zoznamom filmov (poradie, TMDB ID, rok, názov, link).</div>
+    <div class="sett-btn-hint">Stiahne CSV: poradie, TMDB ID, rok, názov, TMDB link, ČSFD link.</div>
     <div style="height:8px"></div>
     <button class="sett-btn secondary" id="settBtnImportCsfd">
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
       <span class="sett-btn-label">Importovať ČSFD linky (CSV)</span>
     </button>
-    <div class="sett-btn-hint">Načíta CSV s ČSFD linkami a priradí ich k filmom. Formát: <code>num,tmdbId,rok,názov,tmdb,čsfd</code></div>
+    <div class="sett-btn-hint">Načíta CSV s ČSFD linkami a hodnoteniami. Formát: <code>num,...,čsfdLink,čsfd%</code></div>
     <div class="sett-key-st" id="csfdImportSt" style="margin-top:4px"></div>
     <div style="height:8px"></div>
     <button class="sett-btn secondary" id="settBtnRepair">
