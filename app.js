@@ -593,6 +593,7 @@ function openDet(id){
   items.push(["Rok",m.year||"–"],["Dĺžka",m.duration||"–"],["Krajina",m.country||"–"],["#",m.num]);
   const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
   const imdbUrl=(cached&&cached.imdbUrl)||null;
+  const csfdUrl=m._csfdUrl||null;
 
   // Rating pill
   let ratingHtml;
@@ -625,6 +626,8 @@ function openDet(id){
       <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
       ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
+      ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
+               '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
     <div class="sec">Detaily</div>
@@ -666,7 +669,6 @@ function fetchLiveData(id){
   doTMDBFetch(m,function(data){clearTimeout(timer);if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);},ac?ac.signal:null);
 }
 function applyLive(id,data){
-  // Update rating pill
   var rbox=document.getElementById("ratingBox");
   if(rbox){
     if(data&&data.pct!=null){
@@ -677,10 +679,24 @@ function applyLive(id,data){
     }
   }
   if(!data)return;
+  if(data.posterUrl){
+    var mv=all.find(function(x){return x.id===id;});
+    if(mv) mv.poster_thumb=data.posterUrl;
+    ["detBlur","detCover"].forEach(function(eid){
+      var el=document.getElementById(eid);
+      if(el){el.src=data.posterUrl;el.style.display='block';}
+    });
+    var insetEl=document.getElementById("detInsetImg");
+    if(insetEl) insetEl.src=data.posterUrl;
+    var insetWrap=document.getElementById("detInset");
+    if(insetWrap) insetWrap.style.display='block';
+    var bgEl=document.getElementById("detBg");
+    if(bgEl) bgEl.style.display='none';
+  }
   if(data.ytKey){var b=document.getElementById("btnTr");if(b)b.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="6,3 20,12 6,21"/></svg>Prehrať Trailer';}
   if(data.tmdbUrl){var tb=document.getElementById("btnTmdb");if(tb)tb.href=data.tmdbUrl;}
   if(data.imdbUrl){var ib=document.getElementById("btnImdb");if(ib){ib.href=data.imdbUrl;ib.style.display="inline-flex";}}
-  var mv=all.find(function(x){return x.id===id;});if(mv&&data.ytKey)mv._yt=data.ytKey;
+  var mv2=all.find(function(x){return x.id===id;});if(mv2&&data.ytKey)mv2._yt=data.ytKey;
 }
 
 
@@ -780,11 +796,26 @@ function settStartBatch(){
 
 function openTrailer(id){
   var m=all.find(function(x){return x.id===id;});if(!m)return;
-  var cached=liveCache[id],ytKey=m._yt||(cached&&cached.ytKey)||null;
-  if(ytKey){document.getElementById("trFrame").src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";document.getElementById("trOv").classList.remove("hidden");}
-  else window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+  var cached=liveCache[id];
+  var ytKey=m._yt||(cached&&cached.ytKey)||null;
+  if(!ytKey&&cached&&cached.ytKey) ytKey=cached.ytKey;
+  if(ytKey){
+    var ov=document.getElementById("trOv");
+    var fr=document.getElementById("trFrame");
+    fr.src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";
+    ov.classList.remove("hidden");
+    ov.style.display="flex";
+  } else {
+    window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+  }
 }
-function closeTr(){document.getElementById("trFrame").src="";document.getElementById("trOv").classList.add("hidden");}
+function closeTr(){
+  var fr=document.getElementById("trFrame");
+  var ov=document.getElementById("trOv");
+  fr.src="";
+  ov.classList.add("hidden");
+  ov.style.display="";
+}
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: Statistics with Chart.js
@@ -1444,6 +1475,7 @@ document.addEventListener("DOMContentLoaded",function(){
       toast('Prehrávač: ' + playerProto.toUpperCase());
       var _pb2=document.getElementById('playMovieBtn');
       if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+playerProto.toUpperCase();}
+      updatePathPreview();
     });
   });
   document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){
@@ -1473,6 +1505,7 @@ toast(_modeLabel);
       if (_hint) {
         _hint.textContent = pathMode === 'smb' ? 'Sieťová (SMB) — aktívna' : 'Lokálna cesta — aktívna';
       }
+      updatePathPreview();
       // Aktualizuj detail panel ak je otvorený
       var _dpth = document.querySelector('.det-path-hint');
       // Aktualizuj play button label ak je detail otvorený
@@ -1513,6 +1546,7 @@ toast(_modeLabel);
     }
     var st = document.getElementById('smbPathSt');
     if (st) { st.textContent = '✓ SMB: ' + (val||smbBase); st.className = 'sett-key-st ok'; }
+    updatePathPreview();
     toast('SMB základ uložený');
   });
 
@@ -1531,15 +1565,36 @@ toast(_modeLabel);
     if (stL) { stL.textContent = '✓ Lokálna cesta: ' + localVal; stL.className = 'sett-key-st ok'; }
     var stS = document.getElementById('smbPathSt');
     if (stS && smbBase) { stS.textContent = '✓ SMB mapovanie: ' + localVal + '→ ' + smbBase; stS.className = 'sett-key-st ok'; }
+    updatePathPreview();
     toast('Lokálny základ uložený');
   });
 
-  
+  var _thBtn=document.getElementById('testHandlerBtn');
+  if(_thBtn) _thBtn.addEventListener('click',function(){
+    var proto=playerProto||'mpc';
+    var testUrl;
+    var stEl=document.getElementById('testHandlerSt');
+    if(pathMode==='smb'){
+      var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
+      if(base[base.length-1]!=='/')base+='/';
+      var server=base.replace(/^smb:\/\//,'')+'test-handler.mkv';
+      testUrl=proto+'://'+encodeURI(server);
+    } else {
+      testUrl=proto+'://W/Movies/test-handler.mkv';
+    }
+    if(stEl){stEl.textContent='Posielam: '+testUrl;stEl.className='sett-key-st ok';}
+    console.log('[FilmDB] Test handler URL:',testUrl);
+    window.location.href=testUrl;
+    setTimeout(function(){
+      if(stEl){stEl.innerHTML='Odoslané: <code>'+testUrl+'</code><br>Ak sa prehrávač neotvoril, handler nie je správne zaregistrovaný.';stEl.className='sett-key-st';}
+    },2000);
+  });
 
   adjustScrnBody();
   setTimeout(adjustScrnBody,100);
   initTheme();
   initColorPicker();
+  updatePathPreview();
   
   document.getElementById("srchInp").addEventListener("input",function(){document.getElementById("srchClr").style.display=this.value?"block":"none";applyFilters();});
   document.getElementById("srchClr").addEventListener("click",function(){document.getElementById("srchInp").value="";this.style.display="none";applyFilters();});
@@ -1621,6 +1676,99 @@ toast(_modeLabel);
     if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
     toast('Nastavenia uložené ✓');
   });
+  var _eExcel=document.getElementById('settBtnExcel');
+  if(_eExcel) _eExcel.addEventListener('click',function(){
+    var bom='﻿';
+    var rows=all.map(function(m){
+      var tmdbId=m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbUrl?liveCache[m.id].tmdbUrl.match(/\/(\d+)/):null);
+      if(tmdbId&&Array.isArray(tmdbId)) tmdbId=tmdbId[1];
+      tmdbId=tmdbId||'';
+      var link=m._tmdbUrl||(liveCache[m.id]&&liveCache[m.id].tmdbUrl)||'';
+      if(!link&&tmdbId){
+        var slug=(m.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        link='https://www.themoviedb.org/movie/'+tmdbId+'-'+slug;
+      }
+      var title=(m.title||'').replace(/,/g,' ');
+      var csfd=m._csfdUrl||'';
+      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link+','+csfd;
+    });
+    var csv=bom+rows.join('\n')+'\n';
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='filmy_export_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('CSV exportované ('+all.length+' filmov)');
+  });
+
+  var _eRepair=document.getElementById('settBtnRepair');
+  if(_eRepair) _eRepair.addEventListener('click',function(){
+    if(!tmdbKey){toast('Najprv nastav TMDB API kľúč');return;}
+    var broken=all.filter(function(m){
+      return !m.poster_thumb||m.poster_thumb.length<10||!m.description;
+    });
+    var stEl=document.getElementById('repairSt');
+    if(!broken.length){
+      if(stEl){stEl.textContent='Všetky filmy majú plagát aj popis.';stEl.className='sett-key-st ok';}
+      toast('Žiadne poškodené filmy!');return;
+    }
+    if(stEl){stEl.textContent='Opravujem '+broken.length+' filmov...';stEl.className='sett-key-st';}
+    var done=0,fixed=0;
+    function repairNext(){
+      if(done>=broken.length){
+        savePersistent();renderList(filt);
+        if(stEl){stEl.textContent='Hotovo! Opravených: '+fixed+' z '+broken.length;stEl.className='sett-key-st ok';}
+        toast('Oprava dokončená: '+fixed+'/'+broken.length);
+        return;
+      }
+      var m=broken[done];
+      delete liveCache[m.id];
+      doTMDBFetch(m,function(data){
+        if(data){liveCache[m.id]=data;fixed++;}
+        done++;
+        if(stEl) stEl.textContent='Opravujem... '+done+'/'+broken.length;
+        setTimeout(repairNext,350);
+      },null);
+    }
+    repairNext();
+  });
+
+  var _eCsfdImp=document.getElementById('settBtnImportCsfd');
+  if(_eCsfdImp) _eCsfdImp.addEventListener('click',function(){
+    document.getElementById('fileInpCsfd').click();
+  });
+  document.getElementById('fileInpCsfd').addEventListener('change',function(ev){
+    var file=ev.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var text=e.target.result.replace(/^﻿/,'');
+      var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+      var matched=0,skipped=0;
+      lines.forEach(function(line){
+        var cols=line.split(',');
+        if(cols.length<6) return;
+        var num=cols[0].trim();
+        var csfdLink=cols[cols.length-1].trim();
+        if(!csfdLink||csfdLink.indexOf('csfd.')< 0){skipped++;return;}
+        var movie=all.find(function(m){return String(m.num)===num;});
+        if(movie){
+          movie._csfdUrl=csfdLink;
+          matched++;
+        } else {skipped++;}
+      });
+      if(matched>0) savePersistent();
+      var stEl=document.getElementById('csfdImportSt');
+      if(stEl){
+        stEl.textContent='Priradených: '+matched+', preskočených: '+skipped;
+        stEl.className='sett-key-st'+(matched>0?' ok':'');
+      }
+      toast('ČSFD import: '+matched+' filmov aktualizovaných');
+    };
+    reader.readAsText(file,'UTF-8');
+    this.value='';
+  });
+
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
   document.getElementById("adminSearchBtn").addEventListener("click",adminSearch);
   document.getElementById("adminSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")adminSearch();});
@@ -2240,6 +2388,7 @@ function initGhSync() {
    MODULE: Advanced Filter Panel
    ══════════════════════════════════════════════════════════ */
 function openFp() {
+  closeSett();
   var panel   = document.getElementById('fpPanel');
   var overlay = document.getElementById('fpOverlay');
 
@@ -2347,7 +2496,7 @@ function updateFpBadge() {
   var btn   = document.getElementById('fpBtn');
   badge.textContent = cnt;
   badge.className   = 'fp-badge' + (cnt ? ' show' : '');
-  btn.className     = 'fp-btn'   + (cnt ? ' active' : '');
+  btn.className     = 'ctrl-btn fp-btn' + (cnt ? ' active' : '');
 }
 
 /* Render dismissible pills showing active filters */
@@ -2499,7 +2648,7 @@ function initKeyboard() {
     // Escape → close topmost overlay
     if (e.key === 'Escape') {
       if (!document.getElementById('trOv').classList.contains('hidden')) {
-        document.getElementById('trOv').classList.add('hidden'); return;
+        closeTr(); return;
       }
       if (document.getElementById('fpPanel').classList.contains('open')) {
         closeFp(); return;
@@ -2801,7 +2950,7 @@ function handleFileUpdate(){
     var existMap={};
     all.forEach(function(m){existMap[m.num]=m;});
     var added=0,updated=0,unchanged=0;
-    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","tmdbId"];
+    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","_csfdUrl","tmdbId"];
     newMovies.forEach(function(nm){
       var existing=existMap[nm.num];
       if(!existing){
@@ -3072,6 +3221,36 @@ var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
 
+function updatePathPreview(){
+  var el=document.getElementById('playPathPreview');
+  if(!el)return;
+  var sample='2026 - Tom Clancys Jack Ryan.mkv';
+  var proto=playerProto||'mpc';
+  if(pathMode==='smb'){
+    var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
+    if(base[base.length-1]!=='/')base+='/';
+    var smbPath=base+sample;
+    var server=smbPath.replace(/^smb:\/\//,'');
+    var protoUrl=proto+'://'+encodeURI(server);
+    var uncPath='\\\\'+server.replace(/\//g,'\\');
+    el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+smbPath.replace(/</g,'&lt;')+'<br>'+
+      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Handler otvorí:</b> '+uncPath.replace(/</g,'&lt;');
+  } else {
+    var localBase='W:\\Movies\\';
+    for(var k in smbMap){localBase=k;break;}
+    localBase=localBase.replace(/\//g,'\\');
+    if(localBase[localBase.length-1]!=='\\') localBase+='\\';
+    var localPath=localBase+sample;
+    var fwdPath=localPath.replace(/\\/g,'/');
+    var driveStripped=fwdPath.replace(/^([A-Za-z]):/,'$1');
+    var protoUrl=proto+'://'+encodeURI(driveStripped);
+    el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+localPath.replace(/</g,'&lt;')+'<br>'+
+      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Handler otvorí:</b> '+localPath.replace(/</g,'&lt;');
+  }
+}
+
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
@@ -3092,10 +3271,9 @@ function playMovie(id){
   }
   copyToClip(clipPath);
 
-  // Protocol URL: forward slashes, URL-encoded (bat handler decodes and opens player)
   var protoPath=path.replace(/\\/g,'/');
   if(pathMode==='smb'){
-    if(protoPath.indexOf('smb://')==0) protoPath='\\\\'+protoPath.substring(6).replace(/\//g,'\\');
+    if(protoPath.indexOf('smb://')==0) protoPath=protoPath.substring(6);
   }
   var proto=playerProto||'mpc';
   window.location.href=proto+'://'+encodeURI(protoPath);
