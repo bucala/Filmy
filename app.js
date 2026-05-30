@@ -3059,62 +3059,67 @@ var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
 
-function openMovieUrl(url) {
-  if(_isAndroid&&url.indexOf('intent://')===0){
-    window.location.href=url;
-    return;
-  }
-  window.location.href=url;
-  if(url.indexOf('vlc://')===0){
-    setTimeout(function(){
-      toast('Ak sa nič neotvorilo, nainštaluj VLC a povol vlc:// protokol');
-    },2000);
-  }
-}
-
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
-  var url=buildPlayUrl(m);
-  if(!url){
-    copyMoviePath(id);
-    toast('Cesta skopírovaná — vlož ju do prehrávača');
+  var path=getMoviePath(m);
+  if(!path){toast('Cesta k súboru nie je nastavená.');return;}
+
+  if(_isAndroid){
+    var scheme=pathMode==='smb'?'smb':'file';
+    var target=pathMode==='smb'?path.replace(/^smb:\/\//,''):path;
+    window.location.href='intent://'+target+'#Intent;scheme='+scheme+';type=video/*;end';
     return;
   }
-  openMovieUrl(url);
+
+  // PC — copy path to clipboard, then try to open
+  var fullPath=path;
+  if(pathMode==='smb'){
+    if(fullPath.indexOf('smb://')==0) fullPath='\\\\'+fullPath.substring(6).replace(/\//g,'\\');
+  }
+  copyToClip(fullPath);
+
+  // Try protocol handlers in order
+  var localFp=path.replace(/\\/g,'/');
+  if(pathMode!=='smb'){
+    if(localFp.charAt(1)===':') localFp=localFp.charAt(0)+':'+localFp.substring(2);
+  }
+
+  var tried=false;
+  if(!useNativePlayer){
+    // VLC mode: try vlc:// with file URI inside
+    var vlcUri;
+    if(pathMode==='smb'){
+      var smb=path;if(smb.indexOf('smb://')!==0)smb='smb://'+smb.replace(/^[\/]+/,'');
+      vlcUri='vlc://'+encodeURI(smb);
+    } else {
+      vlcUri='vlc://file:///'+encodeURI(localFp);
+    }
+    window.location.href=vlcUri;
+    tried=true;
+  }
+
+  setTimeout(function(){
+    if(tried){
+      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, vlož cestu manuálne (Ctrl+V).');
+    } else {
+      toast('Cesta skopírovaná — otvor prehrávač a vlož Ctrl+V');
+    }
+  },800);
 }
 
-function buildPlayUrl(m) {
-  var path = getMoviePath(m);
-  if(!path)return null;
-
-  if (pathMode === 'smb') {
-    var smbPath = path;
-    if (smbPath.indexOf('smb://') !== 0) smbPath = 'smb://' + smbPath.replace(/^[\/]+/, '');
-
-    if (_isAndroid) {
-      return 'intent://'+smbPath.replace('smb://','')+'#Intent;scheme=smb;type=video/*;end';
-    }
-    if (useNativePlayer) return smbPath;
-    return 'vlc://'+smbPath;
+function copyToClip(text){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).catch(function(){});
+  } else {
+    var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
   }
-
-  // Local path
-  var fp = path.replace(/\\/g, '/');
-
-  if (_isAndroid) {
-    return 'intent://'+encodeURIComponent(fp)+'#Intent;scheme=file;type=video/*;end';
-  }
-
-  // PC: file:// is blocked from web origins — use VLC protocol
-  if (useNativePlayer) {
-    return null;
-  }
-  return 'vlc:///'+fp;
 }
 
 // Legacy compat
-function buildVlcUrl(m) { return buildPlayUrl(m); }
+function buildPlayUrl(m){return null;}
+function buildVlcUrl(m){return null;}
 
 function copyMoviePath(id) {
   

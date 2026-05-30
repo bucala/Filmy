@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://api.github.com https://raw.githubusercontent.com; frame-src https://www.youtube.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://api.github.com https://raw.githubusercontent.com; frame-src https://www.youtube.com;">
 <meta name="application-name" content="Filmy">
 <meta name="msapplication-TileColor" content="#0a0a0f">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <title>Marcelova Filmova Databaza</title>
@@ -285,7 +285,7 @@
     <div class="sett-pbar-wrap"><div class="sett-pfill" id="settPfill"></div></div>
     <div class="sett-batch-st" id="settBatchSt"></div>
     <button class="sett-btn danger hidden" id="settBtnStop">
-      <span class="sett-btn-icon">&#x2716;</span>
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
       <span class="sett-btn-label">Zastaviť načítanie</span>
     </button>
     </div>
@@ -294,12 +294,12 @@
     <div class="sett-grp">
     <div class="sett-grp-title">Lokálna záloha</div>
     <button class="sett-btn success" id="settBtnExport">
-      <span class="sett-btn-icon">&#11015;</span>
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
       <span class="sett-btn-label">Stiahnuť HTML so všetkými dátami</span>
     </button>
     <div class="sett-btn-hint">Uloží hodnotenia a trailery priamo do HTML.</div>
     <button class="sett-btn" id="settBtnExportJson" style="margin-top:6px">
-      <span class="sett-btn-icon">&#128190;</span>
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg></span>
       <span class="sett-btn-label">Exportovať JSON zálohu</span>
     </button>
     <div class="sett-btn-hint">Kompletná záloha — filmy, obľúbené, watchlist, videné, TMDB dáta.</div>
