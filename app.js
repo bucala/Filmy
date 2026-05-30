@@ -1676,17 +1676,19 @@ toast(_modeLabel);
   var _eExcel=document.getElementById('settBtnExcel');
   if(_eExcel) _eExcel.addEventListener('click',function(){
     var bom='﻿';
-    var header='"Poradie";"TMDB ID";"Rok";"Nazov";"Link"\n';
     var rows=all.map(function(m){
       var tmdbId=m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbUrl?liveCache[m.id].tmdbUrl.match(/\/(\d+)/):null);
       if(tmdbId&&Array.isArray(tmdbId)) tmdbId=tmdbId[1];
       tmdbId=tmdbId||'';
       var link=m._tmdbUrl||(liveCache[m.id]&&liveCache[m.id].tmdbUrl)||'';
-      if(!link&&tmdbId) link='https://www.themoviedb.org/movie/'+tmdbId;
-      var title=(m.title||'').replace(/"/g,'""');
-      return '"'+(m.num||'')+'";"'+tmdbId+'";"'+(m.year||'')+'";"'+title+'";"'+link+'"';
+      if(!link&&tmdbId){
+        var slug=(m.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        link='https://www.themoviedb.org/movie/'+tmdbId+'-'+slug;
+      }
+      var title=(m.title||'').replace(/,/g,' ');
+      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link;
     });
-    var csv=bom+header+rows.join('\n');
+    var csv=bom+rows.join('\n')+'\n';
     var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
