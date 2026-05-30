@@ -1,8 +1,23 @@
 (function(){
 "use strict";
 var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
-if(typeof pdfjsLib!=="undefined")
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+var _scriptCache={};
+function loadScript(url){
+  if(_scriptCache[url])return _scriptCache[url];
+  _scriptCache[url]=new Promise(function(ok,fail){
+    var s=document.createElement("script");s.src=url;
+    s.onload=ok;s.onerror=function(){delete _scriptCache[url];fail(new Error("Nepodarilo sa načítať: "+url));};
+    document.head.appendChild(s);
+  });
+  return _scriptCache[url];
+}
+function loadPdfJs(){
+  return loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js").then(function(){
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  });
+}
+function loadJSZip(){return loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");}
+function loadChartJs(){return loadScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js");}
 
 /* ── SVG icon constants — avoids duplication across cardHTML, openDet ── */
 var STAR_ON  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
@@ -23,7 +38,7 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
    ══════════════════════════════════════════════════════════ */
 var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
 function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
-var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
+var tmdbKey=localStorage.getItem("tmdb_key")||"";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
@@ -58,13 +73,13 @@ function init(){
       if(c.poster_thumb&&c.poster_thumb.indexOf('data:')===0)c.poster_thumb='';
       return c;
     });
-    localStorage.setItem(SK,JSON.stringify(toSave));
+    safeSave(SK,JSON.stringify(toSave));
   }catch(e){}
   try{favs=new Set(JSON.parse(localStorage.getItem(FK)||"[]"));}catch(e){}
   try{wl=new Set(JSON.parse(localStorage.getItem(WK)||"[]"));}catch(e){}
   try{watched=new Set(JSON.parse(localStorage.getItem(VK)||"[]"));}catch(e){}
   try{watchedDates=JSON.parse(localStorage.getItem(VDK)||"{}");}catch(e){}
-  if(!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
+  if(tmdbKey&&!localStorage.getItem("tmdb_key"))localStorage.setItem("tmdb_key",tmdbKey);
   document.getElementById("loadSt").style.display="none";
   buildFuse();
   renderAll();
@@ -82,13 +97,27 @@ function init(){
 /* ══════════════════════════════════════════════════════════
    MODULE: Storage — localStorage helpers
    ══════════════════════════════════════════════════════════ */
+function validateLiveCache(obj){
+  if(!obj||typeof obj!=="object"||Array.isArray(obj))return{};
+  var clean={};
+  Object.keys(obj).forEach(function(k){
+    var v=obj[k];
+    if(v&&typeof v==="object"&&!Array.isArray(v)&&(v.pct!=null||v.ytKey||v.posterUrl))clean[k]=v;
+  });
+  return clean;
+}
 function loadLiveCache(){
   if(typeof PREBAKED_LIVE!=="undefined"&&Object.keys(PREBAKED_LIVE).length>0){
-    liveCache=PREBAKED_LIVE;try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}return;
+    liveCache=validateLiveCache(PREBAKED_LIVE);try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}return;
   }
-  try{var r=localStorage.getItem(LK);if(r)liveCache=JSON.parse(r);}catch(e){liveCache={};}
+  try{var r=localStorage.getItem(LK);if(r)liveCache=validateLiveCache(JSON.parse(r));}catch(e){liveCache={};}
 }
 function saveLiveCache(){try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}}
+
+function safeSave(key,val){
+  try{localStorage.setItem(key,val);}
+  catch(e){if(e.name==='QuotaExceededError')toast('Úložisko je plné — niektoré dáta sa neuložili');console.warn('localStorage save failed:',key,e);}
+}
 
 function loadPrefs(){
   try{var p=localStorage.getItem(PK);if(p)prefs=Object.assign(prefs,JSON.parse(p));}catch(e){}
@@ -266,8 +295,6 @@ function applyFilters(){
     if(watchedMode&&!watched.has(m.id))return false;
     if(fpState.genres.length>0){
       if(!fpState.genres.some(g=>(m.genres||[]).includes(g)))return false;
-    } else if(genre&&!(m.genres||[]).includes(genre)){
-      return false;
     }
     if(fpState.yearFrom>0&&(m.year||0)<fpState.yearFrom)return false;
     if(fpState.yearTo>0&&(m.year||0)>fpState.yearTo)return false;
@@ -300,8 +327,9 @@ function applyFilters(){
       exactMatches.forEach(m=>{fuseHighlights[m.id]=buildExactHighlights(m,ql);});
     } else {
       if(!fuseInst)buildFuse();
-      const poolFuse=new Fuse(pool,fuseInst._options);
-      const results=poolFuse.search(q);
+      var noFilters=!favMode&&!wlMode&&!watchedMode&&fpActiveCount()===0;
+      var searchInst=noFilters?fuseInst:new Fuse(pool,fuseInst._options);
+      const results=searchInst.search(q);
       list=results.map(r=>r.item);
       if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
       results.forEach(r=>{fuseHighlights[r.item.id]=parseFuseMatches(r.matches);});
@@ -311,11 +339,12 @@ function applyFilters(){
   sortList(list);
   filt=list;
   renderList(list);
-  const modeActive=q||genre||favMode||wlMode||watchedMode||fpActiveCount()>0;
+  const fpN=fpActiveCount();
+  const modeActive=q||favMode||wlMode||watchedMode||fpN>0;
   let label=modeActive?`${list.length} z ${all.length} filmov`:`${all.length} filmov`;
-  if(wlMode&&!q&&!genre&&!fpActiveCount())label=`Watchlist: ${list.length} filmov`;
-  if(favMode&&!q&&!genre&&!fpActiveCount())label=`Obľúbené: ${list.length} filmov`;
-  if(watchedMode&&!q&&!genre&&!fpActiveCount())label=`Videné: ${list.length} filmov`;
+  if(wlMode&&!q&&!fpN)label=`Watchlist: ${list.length} filmov`;
+  if(favMode&&!q&&!fpN)label=`Obľúbené: ${list.length} filmov`;
+  if(watchedMode&&!q&&!fpN)label=`Videné: ${list.length} filmov`;
   const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
 }
 
@@ -447,6 +476,8 @@ function renderList(list){
   // FIX2b: Event delegation — one listener replaces per-card listeners (1750+ → 1)
   if(ml._delegated) ml.removeEventListener("click",ml._delegated);
   ml._delegated=function(e){
+    var pb=e.target.closest(".cpost-play");
+    if(pb){e.preventDefault();e.stopPropagation();var pid=parseInt(pb.closest("[data-id]").dataset.id,10);playMovie(pid);return;}
     var fb=e.target.closest(".cfav,.lfav");
     if(fb){e.stopPropagation();var cid=parseInt(fb.closest("[data-id]").dataset.id,10);togFav(cid,fb);return;}
     var card=e.target.closest("[data-id]");
@@ -492,15 +523,15 @@ function cardHTML(m){
   const badge=pctBadge(cached);
   const titleH=hlField(m,"title");
   const dirH=m.director?hlField(m,"director"):"";
-  const favBtn=`<button class="cfav">${fav?STAR_ON:STAR_OFF}</button>`;
+  const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" onclick="event.preventDefault();event.stopPropagation();playMovie(${m.id});">▶</a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}">▶</a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
-  const lfavBtn=`<button class="lfav">${fav?STAR_ON:STAR_OFF}</button>`;
+  const lfavBtn=`<button class="lfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
   return `<div class="mcard lcard" data-id="${m.id}"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 }
 
@@ -512,21 +543,21 @@ function cardHTML(m){
    ══════════════════════════════════════════════════════════ */
 function togFav(id,btn){
   if(favs.has(id))favs.delete(id);else favs.add(id);
-  localStorage.setItem(FK,JSON.stringify(Array.from(favs)));
+  safeSave(FK,JSON.stringify(Array.from(favs)));
   scheduleAutoPush('togFav');
-  if(btn)btn.innerHTML=favs.has(id)?'<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  if(btn)btn.innerHTML=favs.has(id)?STAR_ON:STAR_OFF;
   var db=document.getElementById("dfavBtn");if(db&&curId===id)updFavBtn(db,id);
   if(favMode)applyFilters();
 }
 function togWl(id,btn){
   if(wl.has(id))wl.delete(id);else wl.add(id);
-  localStorage.setItem(WK,JSON.stringify(Array.from(wl)));
+  safeSave(WK,JSON.stringify(Array.from(wl)));
   scheduleAutoPush('togWl');
-  if(btn)btn.innerHTML=wl.has(id)?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  if(btn)btn.innerHTML=wl.has(id)?EYE_ON:EYE_OFF;
   var db=document.getElementById("dwlBtn");if(db&&curId===id)updWlBtn(db,id);
   if(wlMode)applyFilters();
 }
-function updWlBtn(btn,id){var w=wl.has(id);btn.innerHTML=w?'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Odstrániť z Watchlist':'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Watchlist';btn.className="btn-fav"+(w?" on":"");}
+function updWlBtn(btn,id){var w=wl.has(id);btn.innerHTML=(w?EYE_ON:EYE_OFF)+(w?' Odstrániť z Watchlist':' Watchlist');btn.className="btn-fav"+(w?" on":"");}
 function updFavBtn(btn,id){var f=favs.has(id);btn.innerHTML=f?"&#11088; Odstranit":"&#9734; Oblubene";btn.className="btn-fav"+(f?" on":"");}
 
 /* ── DETAIL ── */
@@ -571,9 +602,9 @@ function openDet(id){
   const html=
     `<div class="det-frow">
       ${ratingHtml}
-      <button class="btn-fav${fav?" on":""}" id="dfavBtn"></button>
-      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn"></button>
-      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn"></button>
+      <button class="btn-fav${fav?" on":""}" id="dfavBtn" aria-label="Obľúbené"></button>
+      <button class="btn-wl${wl.has(id)?" on":""}" id="dwlBtn" aria-label="Watchlist"></button>
+      <button class="btn-watched${watched.has(id)?" on":""}" id="dwatchedBtn" aria-label="Videné"></button>
       ${watchedDates[id]?`<span class="watched-date">Videné: ${watchedDates[id]}</span>`:""}
     </div>
     ${genres?`<div class="det-genres">${genres}</div>`:""}
@@ -596,27 +627,25 @@ function openDet(id){
     ${buildSimilarHtml(m)}`;
 
   document.getElementById("detBody").innerHTML=html;
-  document.getElementById("dfavBtn").addEventListener("click",()=>{togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);});
-  document.getElementById("dwlBtn").addEventListener("click",()=>{togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);});
+  document.getElementById("dfavBtn").onclick=function(){togFav(id,null);updFavBtn(document.getElementById("dfavBtn"),id);};
+  document.getElementById("dwlBtn").onclick=function(){togWl(id,null);updWlBtn(document.getElementById("dwlBtn"),id);};
   updFavBtn(document.getElementById("dfavBtn"),id);
   updWlBtn(document.getElementById("dwlBtn"),id);
   updWatchedBtn(document.getElementById("dwatchedBtn"),id);
-  document.getElementById("dwatchedBtn").addEventListener("click",()=>{togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);});
-  document.querySelectorAll(".sim-card").forEach(c=>c.addEventListener("click",()=>openDet(parseInt(c.dataset.sid))));
+  document.getElementById("dwatchedBtn").onclick=function(){togWatched(id,null);updWatchedBtn(document.getElementById("dwatchedBtn"),id);};
+  document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    // Aktualizuj label tlačidla podľa aktuálnych nastavení
-    var _playMode = useNativePlayer ? (pathMode==='smb' ? 'Sieťová cesta (SMB)' : 'Lokálny prehrávač') : 'VLC Protocol';
-    playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť film · ' + _playMode;
+    var _playMode = pathMode==='smb' ? 'SMB' : (useNativePlayer ? 'Natívny' : 'VLC');
+    if(_isMobile) _playMode = pathMode==='smb' ? 'SMB' : 'Lokálne';
+    playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + _playMode;
     playBtn.onclick=function(){
       var _m=all.find(function(x){return x.id===id;})||m;
-      var _url=buildVlcUrl(_m);
-      if(!_url||_url==='vlc:///'){toast('Cesta k súboru nie je nastavená.');return;}
-      openMovieUrl(_url);
+      playMovie(_m.id);
     };
   }
-  document.getElementById("btnPlayCopy").addEventListener("click",()=>copyMoviePath(id));
-  document.getElementById("btnTr").addEventListener("click",()=>openTrailer(id));
+  document.getElementById("btnPlayCopy").onclick=function(){copyMoviePath(id);};
+  document.getElementById("btnTr").onclick=function(){openTrailer(id);};
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
@@ -627,7 +656,9 @@ function closeDet(){document.getElementById("detSc").classList.add("hidden");doc
 function fetchLiveData(id){
   var m=all.find(function(x){return x.id===id;});if(!m||!tmdbKey)return;
   if(liveCache[id]){applyLive(id,liveCache[id]);return;}
-  doTMDBFetch(m,function(data){if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);});
+  var ac=(typeof AbortController!=="undefined")?new AbortController():null;
+  var timer=setTimeout(function(){if(ac)ac.abort();},10000);
+  doTMDBFetch(m,function(data){clearTimeout(timer);if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);},ac?ac.signal:null);
 }
 function applyLive(id,data){
   // Update rating pill
@@ -702,7 +733,7 @@ function settStartBatch(){
         if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
         return c;
       });
-      localStorage.setItem(SK,JSON.stringify(toSave));
+      safeSave(SK,JSON.stringify(toSave));
     }catch(e){}
   }
 
@@ -814,27 +845,52 @@ function showStats(){
   const withLive=Object.keys(liveCache).length;
   const withPoster=all.filter(m=>m.poster_thumb&&m.poster_thumb.length>10).length;
 
+  // Average TMDB rating
+  const rated=Object.values(liveCache).filter(v=>v&&v.pct!=null);
+  const avgRating=rated.length?Math.round(rated.reduce((a,v)=>a+v.pct,0)/rated.length):null;
+
+  // Top directors (top 8)
+  const dirCounts={};
+  all.forEach(m=>{if(m.director)(m.director).split(/,\s*/).forEach(d=>{d=d.trim();if(d)dirCounts[d]=(dirCounts[d]||0)+1;});});
+  const topDirs=Object.entries(dirCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  // Monthly watch activity (last 12 months)
+  const monthCounts={};
+  Object.values(watchedDates).forEach(d=>{if(d){var mo=d.slice(0,7);monthCounts[mo]=(monthCounts[mo]||0)+1;}});
+  const months=Object.entries(monthCounts).sort((a,b)=>a[0].localeCompare(b[0])).slice(-12);
+
   const statHtml=
     sc("🎬","FILMOV CELKOM",all.length,"")+
     sc("🕐","HODÍN SLEDOVANIA",hours,"(odhad)")+
     sc("🖼","S PLAGÁTOM",withPoster,"filmov")+
     sc("📊","TMDB DÁTA",withLive,"filmov s hodnotením")+
+    (avgRating!=null?sc("⭐","PRIEMERNÉ HODNOTENIE",avgRating+'%',rated.length+' hodnotených'):"")+
     sc("❤️","OBĽÚBENÉ",favs.size,"")+
     sc("👁","WATCHLIST",wl.size,"")+
     sc("✓","VIDENÉ",watched.size,"")+
     sc("📅","ROKY",`${minYear}–${maxYear}`,"");
 
+  // Top directors HTML
+  let dirsHtml='';
+  if(topDirs.length){
+    dirsHtml='<div class="stat-section"><div class="stat-section-title">TOP REŽISÉRI</div><div class="stat-dir-list">';
+    topDirs.forEach(([name,cnt])=>{dirsHtml+=`<div class="stat-dir-item"><span class="stat-dir-name">${esc(name)}</span><span class="stat-dir-cnt">${cnt}</span></div>`;});
+    dirsHtml+='</div></div>';
+  }
+
   let chartsHtml='<div class="stat-charts">';
   if(topGenres.length)chartsHtml+='<div class="chart-card"><div class="chart-title">TOP ŽÁNRE</div><div class="chart-wrap"><canvas id="chartGenres"></canvas></div></div>';
   if(decades.length)chartsHtml+='<div class="chart-card"><div class="chart-title">FILMY PODĽA DEKÁDY</div><div class="chart-wrap"><canvas id="chartDecades"></canvas></div></div>';
+  if(months.length>1)chartsHtml+='<div class="chart-card"><div class="chart-title">SLEDOVANÉ FILMY PODĽA MESIACA</div><div class="chart-wrap"><canvas id="chartMonthly"></canvas></div></div>';
   chartsHtml+='</div>';
 
-  document.getElementById("statBody").innerHTML=statHtml+chartsHtml;
+  document.getElementById("statBody").innerHTML=statHtml+dirsHtml+chartsHtml;
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("statSc").classList.remove("hidden");
 
   const PALETTE=["#d4a943","#f0c060","#4a9eff","#22cc88","#cc44aa","#ff6644","#9966ff","#44ccff","#ff4477","#88dd44"];
 
+  loadChartJs().then(function(){
   if(topGenres.length){
     buildChart("chartGenres",{
       type:"doughnut",
@@ -873,6 +929,24 @@ function showStats(){
       }
     });
   }
+  if(months.length>1){
+    buildChart("chartMonthly",{
+      type:"bar",
+      data:{
+        labels:months.map(e=>e[0]),
+        datasets:[{label:"Videné",data:months.map(e=>e[1]),backgroundColor:"#22cc88cc",borderColor:"#22cc88",borderWidth:1,borderRadius:4}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{color:"#9090a8",font:{size:10},maxRotation:45},grid:{color:"#2a2a3a"}},
+          y:{ticks:{color:"#9090a8",font:{size:11},stepSize:1},grid:{color:"#2a2a3a"},beginAtZero:true}
+        }
+      }
+    });
+  }
+  }).catch(function(e){toast("Chart.js: "+e.message);});
 }
 
 function closeStat() {
@@ -1004,7 +1078,7 @@ function handleFile(){
   
   if (isZip) {
     // ── ZIP import (EMDB HTML export) ──
-    file.arrayBuffer().then(function(ab) {
+    loadJSZip().then(function(){return file.arrayBuffer();}).then(function(ab) {
       return parseEMDBZip(ab, setP);
     }).then(function(mv) {
       if(!mv||!mv.length){hideMod();toast("Nenašli sa filmy.");return;}
@@ -1036,7 +1110,7 @@ function handleFile(){
           if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
           return c;
         });
-        localStorage.setItem(SK,JSON.stringify(toSave));
+        safeSave(SK,JSON.stringify(toSave));
       }catch(e){console.warn("Save error:",e);}
       
       setP(100,"Hotovo!");
@@ -1055,8 +1129,7 @@ function handleFile(){
     }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   } else {
     // ── Legacy PDF import ──
-    if(typeof pdfjsLib==="undefined"){hideMod();toast("Chyba: PDF.js sa nenačítalo");return;}
-    file.arrayBuffer()
+    loadPdfJs().then(function(){return file.arrayBuffer();})
       .then(function(ab){setP(10,"Načítavam PDF...");return pdfjsLib.getDocument({data:ab}).promise;})
       .then(function(pdf){
         var tot=pdf.numPages,txt="",chain=Promise.resolve();
@@ -1071,7 +1144,7 @@ function handleFile(){
         if(!mv.length){hideMod();toast("Nenašli sa filmy v PDF.");return;}
         all=mv;
         buildFuse(); // rebuild Fuse index after PDF import
-        try{localStorage.setItem(SK,JSON.stringify(all));}catch(e){}
+        safeSave(SK,JSON.stringify(all));
         setP(100,"Hotovo!");setTimeout(function(){hideMod();renderAll();toast("Importovaných "+mv.length+" filmov");if(tmdbKey){toast("Spúšťam TMDB...");setTimeout(settStartBatch,1500);}},500);
       }).catch(function(e){hideMod();toast("Chyba: "+e.message);console.error(e);});
   }
@@ -1190,7 +1263,7 @@ function exportHtml(){
   toast("Generujem HTML...");
   setTimeout(function(){
     var html=document.documentElement.outerHTML;
-    var tag="<scr"+"ipt>var PREBAKED_LIVE="+JSON.stringify(liveCache)+";<"+"/scr"+"ipt>";
+    var tag="<scr"+"ipt>var PREBAKED_LIVE="+JSON.stringify(liveCache).replace(/<\/script/gi,"<\\/script")+";<"+"/scr"+"ipt>";
     html=html.replace("</head>",tag+"</head>");
     var blob=new Blob([html],{type:"text/html;charset=utf-8"});
     var url=URL.createObjectURL(blob);
@@ -1209,7 +1282,7 @@ function clearLiveData(){
 function clearAllData(){
   if(!confirm('Vymazať VŠETKO?\n\nPOZOR: Ak vymažeš aj cache prehliadača, dáta sa obnovia z HTML súboru. Pre trvalé vymazanie použi GitHub Sync alebo exportuj prázdny HTML.'))return;
   try{
-    localStorage.setItem(SK,JSON.stringify([]));
+    safeSave(SK,JSON.stringify([]));
     localStorage.removeItem(FK);
     localStorage.removeItem(WK);
     localStorage.removeItem(VK);
@@ -1219,7 +1292,8 @@ function clearAllData(){
     localStorage.setItem('mdb_empty','1');
   }catch(e){}
   liveCache={};favs=new Set();wl=new Set();watched=new Set();watchedDates={};
-  genre='';favMode=false;wlMode=false;watchedMode=false;
+  genre='';fpState={yearFrom:0,yearTo:0,minRating:0,country:'',genres:[]};
+  favMode=false;wlMode=false;watchedMode=false;
   prefs={view:'list',sort:'num',sortDir:'desc'};
   all=[];filt=[];closeSett();
   fuseInst=null; // reset Fuse index on clear
@@ -1235,6 +1309,64 @@ function clearAllData(){
       :'Pre trvalé vymazanie exportuj prázdny HTML a nahraj ho na server. Exportovať teraz?';
     if(confirm(msg)){ghToken?ghPush():exportHtml();}
   },500);
+}
+
+function exportJson(){
+  if(!all.length){toast('Žiadne filmy na export');return;}
+  var data={
+    version:APP_VERSION,
+    exported:new Date().toISOString(),
+    movies:all,
+    favourites:Array.from(favs),
+    watchlist:Array.from(wl),
+    watched:Array.from(watched),
+    watchedDates:watchedDates,
+    liveCache:liveCache
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='filmy_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);a.remove();},1000);
+  toast('JSON záloha stiahnutá!');
+}
+
+function findDuplicates(){
+  var seen={},dupes=[];
+  all.forEach(function(m){
+    var key=(m.title||'').toLowerCase().trim()+'|'+(m.year||0);
+    if(seen[key])dupes.push({original:seen[key],duplicate:m});
+    else seen[key]=m;
+  });
+  if(!dupes.length){toast('Žiadne duplikáty');return;}
+  closeSett();
+  var html='<div class="dup-header">Nájdených '+dupes.length+' duplikátov</div>';
+  dupes.forEach(function(d,i){
+    html+='<div class="dup-pair" data-idx="'+i+'">'
+      +'<div class="dup-item"><span class="dup-num">#'+d.original.num+'</span> '+esc(d.original.title)+' ('+d.original.year+')</div>'
+      +'<div class="dup-vs">vs</div>'
+      +'<div class="dup-item"><span class="dup-num">#'+d.duplicate.num+'</span> '+esc(d.duplicate.title)+' ('+d.duplicate.year+')</div>'
+      +'<button class="dup-rm" data-rmid="'+d.duplicate.id+'">Odstrániť #'+d.duplicate.num+'</button>'
+      +'</div>';
+  });
+  var sb=document.getElementById("statBody");
+  sb.innerHTML=html;
+  document.getElementById("mainSc").classList.add("hidden");
+  document.getElementById("statSc").classList.remove("hidden");
+  sb.addEventListener('click',function handler(e){
+    var btn=e.target.closest('.dup-rm');
+    if(!btn)return;
+    var rmId=parseInt(btn.dataset.rmid,10);
+    all=all.filter(function(m){return m.id!==rmId;});
+    favs.delete(rmId);wl.delete(rmId);watched.delete(rmId);delete watchedDates[rmId];delete liveCache[rmId];
+    btn.closest('.dup-pair').remove();
+    var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});
+    safeSave(SK,JSON.stringify(toSave));safeSave(FK,JSON.stringify(Array.from(favs)));safeSave(WK,JSON.stringify(Array.from(wl)));
+    saveLiveCache();buildFuse();renderAll();
+    toast('Film #'+btn.dataset.rmid+' odstránený');
+    if(!sb.querySelector('.dup-pair')){toast('Všetky duplikáty vyriešené');closeStat();}
+  });
 }
 
 
@@ -1339,11 +1471,12 @@ toast(_modeLabel);
         if (_pb) {
           var _lbl = _pb.querySelector('.sett-btn-label');
           if (_lbl) {
-            var _pm = useNativePlayer ? (pathMode==='smb' ? 'Sieťová cesta (SMB)' : 'Lokálny prehrávač') : 'VLC Protocol';
-            _lbl.textContent = 'Prehráť film · ' + _pm;
+            var _pm = pathMode==='smb' ? 'SMB' : (useNativePlayer ? 'Natívny' : 'VLC');
+            if(_isMobile) _pm = pathMode==='smb' ? 'SMB' : 'Lokálne';
+            _lbl.textContent = 'Prehráť · ' + _pm;
           }
           var _mc = all.find(function(x){return x.id===curId;});
-          if (_mc) _pb.onclick = function(){ var u=buildVlcUrl(_mc); if(!u||u==='vlc:///'){toast('Cesta k súboru nie je nastavená.');return;} openMovieUrl(u); };
+          if (_mc) _pb.onclick = function(){ playMovie(_mc.id); };
         }
       }
     });
@@ -1437,14 +1570,14 @@ toast(_modeLabel);
   var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB kluc ulozeny!":"TMDB kluc vymazany");});
   var _etmdbDe=document.getElementById("tmdbDelKey");if(_etmdbDe)_etmdbDe.addEventListener("click",function(){tmdbKey="";localStorage.removeItem("tmdb_key");document.getElementById("tmdbKeyInp").value="";keyStatus("tmdbKeySt","");});
   document.getElementById("settBtnPdf").addEventListener("click",impPdf);
-  var _esettBt=document.getElementById("settBtnBatch");if(_esettBt)_esettBt.addEventListener("click",settStartBatch);
-  var _esettBt=document.getElementById("settBtnStop");if(_esettBt)_esettBt.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
-  var _esettBt=document.getElementById("settBtnExport");if(_esettBt)_esettBt.addEventListener("click",exportHtml);
-  var _esettBt=document.getElementById("settBtnClearLive");if(_esettBt)_esettBt.addEventListener("click",clearLiveData);
-  var _esettBt=document.getElementById("settBtnClearAll");if(_esettBt)_esettBt.addEventListener("click",clearAllData);
-
-  // Admin panel
-  var _esettBt=document.getElementById("settBtnAdmin");if(_esettBt)_esettBt.addEventListener("click",openAdmin);
+  var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
+  var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
+  var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
+  var _eExportJ=document.getElementById("settBtnExportJson");if(_eExportJ)_eExportJ.addEventListener("click",exportJson);
+  var _eDupes=document.getElementById("settBtnDuplicates");if(_eDupes)_eDupes.addEventListener("click",findDuplicates);
+  var _eClearLv=document.getElementById("settBtnClearLive");if(_eClearLv)_eClearLv.addEventListener("click",clearLiveData);
+  var _eClearAll=document.getElementById("settBtnClearAll");if(_eClearAll)_eClearAll.addEventListener("click",clearAllData);
+  var _eAdmin=document.getElementById("settBtnAdmin");if(_eAdmin)_eAdmin.addEventListener("click",openAdmin);
 
   // Uložiť všetky nastavenia
   var _eSaveAll = document.getElementById('settBtnSaveAll');
@@ -1490,11 +1623,12 @@ toast(_modeLabel);
   // GitHub sync
   initFp();
   initSortCycle();
-  initDrawer();
   initKeyboard();
   document.getElementById('btnRnd').addEventListener('click', openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', cycleWatchedMode);
   initGhSync();
+  window.addEventListener('offline',function(){toast('Offline — dáta sú z cache');});
+  window.addEventListener('online',function(){toast('Online');});
 
   document.getElementById('ghTokenSave').addEventListener('click', function() {
     var t = document.getElementById('ghTokenInp').value.trim();
@@ -1763,7 +1897,7 @@ function adminSaveAll() {
       if (copy.poster_thumb && copy.poster_thumb.indexOf('data:') === 0) copy.poster_thumb = '';
       return copy;
     });
-    localStorage.setItem(SK, JSON.stringify(toSave));
+    safeSave(SK, JSON.stringify(toSave));
   } catch(e) {
     console.warn('[Admin] localStorage save failed:', e);
   }
@@ -2030,7 +2164,7 @@ function ghPull() {
           if (c.poster_thumb && c.poster_thumb.indexOf('data:') === 0) c.poster_thumb = '';
           return c;
         });
-        localStorage.setItem(SK, JSON.stringify(toSave));
+        safeSave(SK, JSON.stringify(toSave));
       } catch(e) {}
 
       ghPullProgress(80);
@@ -2351,7 +2485,6 @@ function initKeyboard() {
 
     // Escape → close topmost overlay
     if (e.key === 'Escape') {
-      if (false) { closeDrawer(); return; }
       if (!document.getElementById('trOv').classList.contains('hidden')) {
         document.getElementById('trOv').classList.add('hidden'); return;
       }
@@ -2576,10 +2709,6 @@ function initTheme() {
 
 
 
-/* syncDrawerSort removed — sort always visible in row2 */
-
-function initDrawer(){/* drawer removed */}
-
 /* ══════════════════════════════════════════════════════════════════
    MODULE: Sort Cycle Pill
    sortCycle button cycles: Por.→Rok→A–Z→%→Por.
@@ -2606,14 +2735,14 @@ function syncSortPill(){
 }
 
 function initSortCycle(){
-  window.__toggleSortDir = function(){
+  document.getElementById('sortDir').addEventListener('click',function(){
     prefs.sortDir = (prefs.sortDir||'desc')==='desc' ? 'asc' : 'desc';
     savePrefs(); syncSortPill(); applyFilters();
-  };
-  window.__changeSort = function(e){
+  });
+  document.getElementById('sortSel').addEventListener('change',function(e){
     prefs.sort = e.target.value;
     savePrefs(); syncSortPill(); applyFilters();
-  };
+  });
   syncSortPill();
 }
 
@@ -2637,11 +2766,10 @@ function handleFileUpdate(){
   var parsePromise;
   
   if (isZip) {
-    parsePromise = file.arrayBuffer().then(function(ab){ return parseEMDBZip(ab, setP); });
+    parsePromise = loadJSZip().then(function(){return file.arrayBuffer();}).then(function(ab){ return parseEMDBZip(ab, setP); });
   } else {
     // Legacy PDF
-    parsePromise = file.arrayBuffer().then(function(ab){
-      if(typeof pdfjsLib==="undefined") throw new Error("PDF.js sa nenačítalo");
+    parsePromise = loadPdfJs().then(function(){return file.arrayBuffer();}).then(function(ab){
       setP(10,"PDF...");return pdfjsLib.getDocument({data:ab}).promise;
     }).then(function(pdf){
       var tot=pdf.numPages,txt="",chain=Promise.resolve();
@@ -2682,7 +2810,7 @@ function handleFileUpdate(){
     });
     all.sort(function(a,b){return(a.num||0)-(b.num||0);});
     filt=all.slice();
-    try{var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});localStorage.setItem(SK,JSON.stringify(toSave));}catch(e){}
+    var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});safeSave(SK,JSON.stringify(toSave));
     applyFilters();setP(100,"Hotovo!");
     setTimeout(function(){hideMod();toast("✓ +"+added+" nových, "+updated+" upravených, "+unchanged+" bez zmeny");},600);
   }).catch(function(err){hideMod();toast("Chyba: "+err.message);console.error(err);});
@@ -2927,57 +3055,66 @@ function getMoviePath(m) {
   return rawPath;
 }
 
+var _isAndroid=/android/i.test(navigator.userAgent);
+var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+var _isMobile=_isAndroid||_isiOS;
+
 function openMovieUrl(url) {
-  // window.open works for custom protocols (vlc://, file://, smb://)
-  // window.location.href is blocked by browsers for file:// when on https://
-  var a = document.createElement('a');
-  a.href = url;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function(){ document.body.removeChild(a); }, 500);
+  if(_isAndroid&&url.indexOf('intent://')===0){
+    window.location.href=url;
+    return;
+  }
+  window.location.href=url;
+  if(url.indexOf('vlc://')===0){
+    setTimeout(function(){
+      toast('Ak sa nič neotvorilo, nainštaluj VLC a povol vlc:// protokol');
+    },2000);
+  }
 }
 
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
-  openMovieUrl(buildVlcUrl(m));
+  var url=buildPlayUrl(m);
+  if(!url){
+    copyMoviePath(id);
+    toast('Cesta skopírovaná — vlož ju do prehrávača');
+    return;
+  }
+  openMovieUrl(url);
 }
 
-function buildVlcUrl(m) {
+function buildPlayUrl(m) {
   var path = getMoviePath(m);
-  if (useNativePlayer) {
-    if (pathMode === 'smb') {
-      // SMB cesta: smb:// prefix ak chýba
-      if (path.indexOf('smb://') === 0) return path;
-      return 'smb://' + path.replace(/^[\/]+/, '');
-    }
-    // Lokálna cesta: file:///W:/Movies/...
-    var fp = path.replace(/\\/g, '/');
-    if (fp.indexOf('/') === 0) fp = fp.substring(1); // remove leading /
-    return 'file:///' + fp;
-  }
-  // VLC Protocol Handler
+  if(!path)return null;
+
   if (pathMode === 'smb') {
-    var sp = path;
-    if (sp.indexOf('smb://') === 0) sp = sp.substring(6);
-    return 'vlc://' + sp;
+    var smbPath = path;
+    if (smbPath.indexOf('smb://') !== 0) smbPath = 'smb://' + smbPath.replace(/^[\/]+/, '');
+
+    if (_isAndroid) {
+      return 'intent://'+smbPath.replace('smb://','')+'#Intent;scheme=smb;type=video/*;end';
+    }
+    if (useNativePlayer) return smbPath;
+    return 'vlc://'+smbPath;
   }
-  return 'vlc:///' + path.replace(/\\/g, '/');
+
+  // Local path
+  var fp = path.replace(/\\/g, '/');
+
+  if (_isAndroid) {
+    return 'intent://'+encodeURIComponent(fp)+'#Intent;scheme=file;type=video/*;end';
+  }
+
+  // PC: file:// is blocked from web origins — use VLC protocol
+  if (useNativePlayer) {
+    return null;
+  }
+  return 'vlc:///'+fp;
 }
 
-function buildVideoSrc(m) {
-  // For HTML5 <video> element: use raw local path or SMB path
-  return getMoviePath(m);
-}
-
-function playLocalMovie(id) {
-  var m = all.find(function(x) { return x.id === id; });
-  if (!m) return;
-  var url = m._localPath ? ('vlc://' + m._localPath) : buildVlcUrl(m);
-  // Use location.href — most reliable for custom protocols
-  window.location.href = url;
-}
+// Legacy compat
+function buildVlcUrl(m) { return buildPlayUrl(m); }
 
 function copyMoviePath(id) {
   
