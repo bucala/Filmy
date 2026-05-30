@@ -718,10 +718,17 @@ function applyLive(id,data){
 function doTMDBFetch(m,cb,signal){
   if(!tmdbKey){cb(null);return;}
   var opts=signal?{signal:signal}:{};
-  fetch("https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&year="+(m.year||"")+"&language=sk",opts)
+  var baseUrl="https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&language=sk";
+  fetch(baseUrl+"&year="+(m.year||""),opts)
     .then(function(r){return r.json();})
     .then(function(sd){
-      if(!sd.results||!sd.results.length){cb(null);return;}
+      if(!sd.results||!sd.results.length){
+        return fetch(baseUrl,opts).then(function(r2){return r2.json();});
+      }
+      return sd;
+    })
+    .then(function(sd){
+      if(!sd||!sd.results||!sd.results.length){cb(null);return;}
       var res=sd.results[0],tmdbId=res.id;
       var pct=res.vote_average?Math.round(res.vote_average*10):null;
       var posterUrl=res.poster_path?"https://image.tmdb.org/t/p/w300"+res.poster_path:null;
@@ -1753,17 +1760,22 @@ toast(_modeLabel);
     }
     if(stEl){stEl.textContent='Opravujem '+broken.length+' filmov...';stEl.className='sett-key-st';}
     var done=0,fixed=0;
+    var failed=[];
     function repairNext(){
       if(done>=broken.length){
         savePersistent();renderList(filt);
-        if(stEl){stEl.textContent='Hotovo! Opravených: '+fixed+' z '+broken.length;stEl.className='sett-key-st ok';}
+        var msg='Hotovo! Opravených: '+fixed+' z '+broken.length;
+        if(failed.length) msg+=' (nenájdené: '+failed.length+')';
+        if(stEl){stEl.textContent=msg;stEl.className='sett-key-st'+(fixed>0?' ok':'');}
         toast('Oprava dokončená: '+fixed+'/'+broken.length);
+        scheduleAutoPush('repair');
         return;
       }
       var m=broken[done];
       delete liveCache[m.id];
       doTMDBFetch(m,function(data){
         if(data){liveCache[m.id]=data;fixed++;}
+        else {failed.push(m.title+' ('+m.year+')');}
         done++;
         if(stEl) stEl.textContent='Opravujem... '+done+'/'+broken.length;
         setTimeout(repairNext,350);
