@@ -251,6 +251,47 @@
     <details id="advSettDetails" style="margin-bottom:0">
     <summary class="sett-adv-summary"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9z"/></svg>Rozšírené nastavenia<svg style="margin-left:auto;transition:transform .2s" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 6 8 10 12 6"/></svg></summary>
     <div class="sett-adv-body">
+
+    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Prehrávanie filmov</div>
+    <div class="sett-grp">
+    <div class="sett-grp-title">Prehrávač na PC</div>
+    <div class="sett-toggle" id="playerProtoToggle" style="margin-bottom:8px">
+      <button class="ttab" data-proto="mpc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><polygon points="5 3 19 12 5 21 5 3"/></svg>MPC-HC</button>
+      <button class="ttab" data-proto="vlc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><polygon points="5 3 19 12 5 21 5 3"/></svg>VLC</button>
+    </div>
+    <div class="sett-btn-hint" style="margin-bottom:10px;font-size:10px">
+      <b>PC:</b> Otvorí film cez vybraný prehrávač (mpc:// alebo vlc://) + skopíruje cestu do schránky<br>
+      <b>Android:</b> Priamo spustí prehrávač cez Intent<br>
+      <b style="color:var(--gold)">Tip:</b> Spusti <code>register-mpc.reg</code> alebo <code>register-vlc.reg</code> z <code>W:\</code> pre registráciu handlera
+    </div>
+    <div class="sett-grp-title">Režim ciest k súborom</div>
+    <div class="sett-toggle" id="pathModeToggle">
+      <button class="ttab" id="pathModeLocal" data-mode="local"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Lokálna cesta (W:\)</button>
+      <button class="ttab" id="pathModeSmb" data-mode="smb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Sieťová cesta (SMB)</button>
+    </div>
+    <div id="pathModeHint" style="margin-top:5px;font-size:11px;color:var(--gold);min-height:14px;font-weight:600;letter-spacing:.04em"></div>
+    <div class="sett-btn-hint" style="margin-top:8px">
+      <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>).<br>
+      <b>Sieťová:</b> Prevedie na SMB cestu. Na mobile spustí prehrávač priamo.
+    </div>
+    <div class="sett-sub-row" style="margin-top:10px">
+      <label class="sett-lbl" style="font-size:10px">SMB základ:</label>
+      <div class="sett-key-row">
+        <input class="sett-key-inp" id="smbPathInp" type="text" placeholder="smb://DESKTOP-EGOG348/Movies/" autocomplete="off">
+        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="smbPathSave">OK</button>
+      </div>
+    </div>
+    <div class="sett-sub-row" style="margin-top:6px">
+      <label class="sett-lbl" style="font-size:10px">Lokálny základ (mapovanie):</label>
+      <div class="sett-key-row">
+        <input class="sett-key-inp" id="localPathInp" type="text" placeholder="W:\Movies\" autocomplete="off">
+        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="localPathSave">OK</button>
+      </div>
+    </div>
+    <div class="sett-key-st" id="localPathSt"></div>
+    <div class="sett-key-st" id="smbPathSt"></div>
+    </div>
+
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Databáza filmov</div>
     <div class="sett-grp">
     <div class="sett-grp-title">PDF Import — Marcelova_databaza.pdf</div>
@@ -356,42 +397,6 @@
     </button>
     <div class="sett-key-st" id="saveAllSt" style="margin-top:4px"></div>
 
-    </div>
-
-    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Prehrávanie filmov</div>
-    <div class="sett-grp">
-    <div class="sett-grp-title">Spôsob prehrávania</div>
-    <div class="sett-btn-hint" style="margin-bottom:10px;font-size:10px">
-      <b>PC:</b> Otvorí film cez VLC Protocol Handler (vlc://) + skopíruje cestu do schránky<br>
-      <b>Android:</b> Priamo spustí prehrávač cez Intent<br>
-      <b style="color:var(--gold)">Tip:</b> Pre PC prehrávanie je potrebný <b>VLC Protocol Handler</b> — spusti <code>W:\VLCProtocol-Handler-main\</code>
-    </div>
-    <div class="sett-grp-title">Režim ciest k súborom</div>
-    <div class="sett-toggle" id="pathModeToggle">
-      <button class="ttab" id="pathModeLocal" data-mode="local"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Lokálna cesta (W:\)</button>
-      <button class="ttab" id="pathModeSmb" data-mode="smb"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Sieťová cesta (SMB)</button>
-    </div>
-    <div id="pathModeHint" style="margin-top:5px;font-size:11px;color:var(--gold);min-height:14px;font-weight:600;letter-spacing:.04em"></div>
-    <div class="sett-btn-hint" style="margin-top:8px">
-      <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Na PC cez vlc:// handler.<br>
-      <b>Sieťová:</b> Prevedie na SMB cestu (napr. <code>smb://server/Movies/...</code>). Na mobile spustí prehrávač priamo.
-    </div>
-    <div class="sett-sub-row" style="margin-top:10px">
-      <label class="sett-lbl" style="font-size:10px">SMB základ:</label>
-      <div class="sett-key-row">
-        <input class="sett-key-inp" id="smbPathInp" type="text" placeholder="smb://DESKTOP-EGOG348/Movies/" autocomplete="off">
-        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="smbPathSave">OK</button>
-      </div>
-    </div>
-    <div class="sett-sub-row" style="margin-top:6px">
-      <label class="sett-lbl" style="font-size:10px">Lokálny základ (mapovanie):</label>
-      <div class="sett-key-row">
-        <input class="sett-key-inp" id="localPathInp" type="text" placeholder="W:\Movies\" autocomplete="off">
-        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="localPathSave">OK</button>
-      </div>
-    </div>
-    <div class="sett-key-st" id="localPathSt"></div>
-    <div class="sett-key-st" id="smbPathSt"></div>
     </div>
 
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Nástroje</div>
