@@ -7,5 +7,6 @@ powershell -NoProfile -WindowStyle Hidden -Command ^
   "$path = [uri]::UnescapeDataString($path);" ^
   "if ($path -match '^([A-Za-z])/') { $path = $path -replace '^([A-Za-z])/', '$1:/' };" ^
   "if ($path -match '^([A-Za-z])\\\\') { $path = $path -replace '^([A-Za-z])\\\\', '$1:\\' };" ^
+  "if ($path -match '^[A-Za-z]{2,}') { $path = '\\\\' + ($path -replace '/', '\\') };" ^
   "Start-Process 'C:\Program Files\VideoLAN\VLC\vlc.exe' -ArgumentList \"`\"$path`\"\"" ^
   "%~1"
