@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-29T12:14:02.652Z",
+  "updated": "2026-05-30T15:12:28.015Z",
   "movies": [
     {
       "id": 1,
@@ -43001,6 +43001,29 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - APEX.mkv",
       "_rtScore": 66
+    },
+    {
+      "id": 1747,
+      "num": 1747,
+      "title": "Tom Clancy's Jack Ryan: Válka duchů",
+      "year": 2026,
+      "director": "Andrew Bernstein",
+      "genres": [
+        "Akčný",
+        "Thriller"
+      ],
+      "country": "United States",
+      "duration": "106 min",
+      "cast": "John Krasinski, Wendell Pierce, Sienna Miller, Michael Kelly, Max Beesley",
+      "description": "Tajná mezinárodní mise odhalí existenci smrtícího spiknutí a Jack Ryan se v závodě s časem přidá ke spojencům ze CIA Mikeu Novemberovi a Jamesi Greerovi a nekompromisní agentce MI6 Emmě Marloweové, aby svedli hluboce osobní a nemilosrdný boj proti členům jednotky pověřené ilegální operací, kteří vzali věc do vlastních rukou.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg",
+      "rating": 0,
+      "tmdbId": 1380291,
+      "moods": [],
+      "_yt": "MNeoJI82BHI",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1380291",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - Tom Clancys Jack Ryan - Valka duchu.mkv"
     }
   ],
   "liveCache": {
@@ -55176,6 +55199,13 @@
       "posterUrl": "https://image.tmdb.org/t/p/w300/eTp7gSPkSF3Aw79mNx1NkBP1PZT.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/1318447",
       "imdbUrl": "https://www.imdb.com/title/tt16431404/"
+    },
+    "1747": {
+      "pct": 72,
+      "ytKey": "-4ZVFspRn3M",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1380291",
+      "imdbUrl": "https://www.imdb.com/title/tt34378301/"
     }
   }
 }

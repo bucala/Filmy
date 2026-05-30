@@ -642,7 +642,7 @@ function openDet(id){
   document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    var _playMode = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : 'VLC');
+    var _playMode = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : playerProto.toUpperCase());
     playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + _playMode;
     playBtn.onclick=function(){
       var _m=all.find(function(x){return x.id===id;})||m;
@@ -1434,16 +1434,21 @@ document.addEventListener("DOMContentLoaded",function(){
       toast(`Auto-push: ${this.checked?'zapnutý':'vypnutý'}`);
     });
   }
-  // Native player toggle
-  var _npt = document.getElementById('nativePlayerTog');
-  if (_npt) {
-    _npt.checked = useNativePlayer;
-    _npt.addEventListener('change', function(){
-      useNativePlayer = this.checked;
-      localStorage.setItem(NATIVE_PLAYER_KEY, this.checked ? '1' : '0');
-      toast(`Prehrávač: ${this.checked?'natívny':'VLC handler'}`);
+  // Player protocol toggle (MPC / VLC)
+  document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      playerProto = this.dataset.proto;
+      localStorage.setItem(PLAYER_PROTO_KEY, playerProto);
+      document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){b.className='ttab';});
+      this.className='ttab on';
+      toast('Prehrávač: ' + playerProto.toUpperCase());
+      var _pb2=document.getElementById('playMovieBtn');
+      if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+playerProto.toUpperCase();}
     });
-  }
+  });
+  document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){
+    b.className = (b.dataset.proto === playerProto) ? 'ttab on' : 'ttab';
+  });
 
   var _su=document.getElementById("settBtnPdfUpdate");if(_su)_su.addEventListener("click",impPdfUpdate);
   var _fu=document.getElementById("fileInpUpdate");if(_fu)_fu.addEventListener("change",handleFileUpdate);
@@ -1476,7 +1481,7 @@ toast(_modeLabel);
         if (_pb) {
           var _lbl = _pb.querySelector('.sett-btn-label');
           if (_lbl) {
-            var _pm = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : 'VLC');
+            var _pm = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : playerProto.toUpperCase());
             _lbl.textContent = 'Prehráť · ' + _pm;
           }
           var _mc = all.find(function(x){return x.id===curId;});
@@ -1607,9 +1612,7 @@ toast(_modeLabel);
       var nm = {}; nm[lv] = smbBase; smbMap = nm;
       localStorage.setItem(SMB_MAP_KEY, JSON.stringify(nm));
     }
-    // Native player toggle
-    var natTog = document.getElementById('nativePlayerTog');
-    if (natTog) { useNativePlayer = natTog.checked; localStorage.setItem(NATIVE_PLAYER_KEY, natTog.checked ? '1' : '0'); }
+    // Player proto is saved on click, no extra save needed here
     // Auto pull toggle
     var apTog = document.getElementById('autoPullTog');
     if (apTog) { localStorage.setItem(AUTO_PULL_KEY, apTog.checked ? '1' : '0'); }
@@ -2996,13 +2999,13 @@ function extractPostersFromPdf(pdf, mv){
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: VLC Local Playback via SMB
-   Builds vlc:// URLs from movie metadata to play local .mkv files
+   Builds mpc:// URLs from movie metadata to play local .mkv files
    File naming convention: "YYYY - Title (no diacritics).mkv"
    SMB share path configurable in settings
    ══════════════════════════════════════════════════════════════════ */
 var SMB_KEY     = 'mdb_smb_base';
-var NATIVE_PLAYER_KEY = 'mdb_native_player';
-var useNativePlayer = localStorage.getItem('mdb_native_player') === '1';
+var PLAYER_PROTO_KEY = 'mdb_player_proto';
+var playerProto = localStorage.getItem(PLAYER_PROTO_KEY) || 'mpc';
 
 var PATH_MODE_KEY = 'mdb_path_mode';
 var smbBase    = localStorage.getItem(SMB_KEY) || 'smb://DESKTOP-EGOG348/Movies/';
@@ -3082,32 +3085,25 @@ function playMovie(id){
     return;
   }
 
-  // PC — build path for clipboard
-  var clipPath=path;
-  if(pathMode==='smb'){
-    if(clipPath.indexOf('smb://')==0) clipPath='\\\\'+clipPath.substring(6).replace(/\//g,'\\');
-  } else {
-    clipPath=clipPath.replace(/\//g,'\\');
+  // PC — clipboard gets Windows backslash path, protocol gets forward-slash path
+  var clipPath=path.replace(/\//g,'\\');
+  if(pathMode==='smb'&&clipPath.indexOf('smb:\\\\')==0){
+    clipPath='\\\\'+clipPath.substring(6);
   }
   copyToClip(clipPath);
 
+  // Protocol URL: forward slashes, URL-encoded (bat handler decodes and opens player)
+  var protoPath=path.replace(/\\/g,'/');
   if(pathMode==='smb'){
-    // Sieťové: try vlc:// with smb URI
-    var smb=path;
-    if(smb.indexOf('smb://')!==0) smb='smb://'+smb.replace(/^[\/\\]+/,'');
-    window.location.href='vlc://'+encodeURI(smb);
-    setTimeout(function(){
-      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, vlož cestu manuálne (Ctrl+V).');
-    },800);
-  } else {
-    // Lokálne: try vlc:// with file URI
-    var localFp=path.replace(/\\/g,'/');
-    if(localFp.charAt(1)===':') localFp=localFp.charAt(0)+':'+localFp.substring(2);
-    window.location.href='vlc://file:///'+encodeURI(localFp);
-    setTimeout(function(){
-      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, potrebuješ zaregistrovať VLC Protocol Handler.');
-    },800);
+    if(protoPath.indexOf('smb://')==0) protoPath='\\\\'+protoPath.substring(6).replace(/\//g,'\\');
   }
+  var proto=playerProto||'mpc';
+  window.location.href=proto+'://'+encodeURI(protoPath);
+
+  var label=proto.toUpperCase();
+  setTimeout(function(){
+    toast('Cesta skopírovaná. Ak sa '+label+' neotvoril, skontroluj registráciu '+proto+':// handlera.');
+  },800);
 }
 
 function copyToClip(text){
