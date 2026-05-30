@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-30T17:23:19.393Z",
+  "updated": "2026-05-30T17:24:10.120Z",
   "movies": [
     {
       "id": 1,
@@ -42805,25 +42805,25 @@
     {
       "id": 1739,
       "num": 1739,
-      "title": "Mimo kontrolu",
-      "year": 2025,
-      "director": "Anne Le Ny",
+      "title": "Lee Cronin: Mumie",
+      "year": 2026,
+      "director": "Lee Cronin",
       "genres": [
-        "Dráma",
-        "Thriller"
+        "Horor",
+        "Mysteriózny"
       ],
-      "country": "France",
-      "duration": "106 min",
-      "cast": "Omar Sy, Élodie Bouchez, Vanessa Paradis, José Garcia, Marie Ayissi",
-      "description": "Po patnácti letech zdánlivě pevného manželství se do Julienova života vrací  jeho dětská láska Anaëlle. Jeho manželka Marie propadá nejistotě, pochybuje o  jeho oddanosti i o vlastní hodnotě. Uprostřed této citové bouře ji okouzlí  charismatický Thomas…",
+      "country": "Ireland",
+      "duration": "135 min",
+      "cast": "Jack Reynor, Laia Costa, May Calamawy, Natalie Grace, Shylo Molina",
+      "description": "Malá dívka Katie beze stopy zmizela v poušti poté, co byla prokleta záhadnou ženou. Rodiče jsou ztrátou milované dcery zarmouceni a vzniklé trauma negativně ovlivní jejich vztah. O osm let později dochází k havárii letadla přepravujícího starověký sarkofág – v tom překvapení vyšetřovatelé nalézají živou a nyní již dospělou Katie, která se tak opět může shledat s rodinou. Počáteční radost a nadšení rodičů však záhy opadne – ti si totiž uvědomí, že spolu s dcerou vpustili do domu také něco pradávn",
       "poster_thumb": "https://image.tmdb.org/t/p/w300/7KM3XEP62AzQqM506SBkZmNSOt.jpg",
       "rating": 0,
-      "tmdbId": 1193115,
+      "tmdbId": 1304313,
       "moods": [],
       "_yt": null,
-      "_tmdbUrl": "https://www.themoviedb.org/movie/1193115",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1304313",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2024 - Mimo kontrolu.mkv"
+      "_localPath": "W:\\Movies\\2026 - Mumie.mkv"
     },
     {
       "id": 1740,
