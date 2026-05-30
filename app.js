@@ -636,7 +636,7 @@ function openDet(id){
   document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    var _playMode = pathMode==='smb' ? 'Sieť' : 'Lokálne';
+    var _playMode = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : 'VLC');
     playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + _playMode;
     playBtn.onclick=function(){
       var _m=all.find(function(x){return x.id===id;})||m;
@@ -1470,7 +1470,7 @@ toast(_modeLabel);
         if (_pb) {
           var _lbl = _pb.querySelector('.sett-btn-label');
           if (_lbl) {
-            var _pm = pathMode==='smb' ? 'Sieť' : 'Lokálne';
+            var _pm = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : 'VLC');
             _lbl.textContent = 'Prehráť · ' + _pm;
           }
           var _mc = all.find(function(x){return x.id===curId;});
@@ -3057,22 +3057,6 @@ var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
 
-function downloadM3U(m, filePath) {
-  var name = m.title || 'movie';
-  var year = m.year || '';
-  var label = year ? name + ' (' + year + ')' : name;
-  var content = '#EXTM3U\n#EXTINF:-1,' + label + '\n' + filePath + '\n';
-  var blob = new Blob([content], {type: 'audio/x-mpegurl'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = label.replace(/[<>:"/\\|?*]/g, '_') + '.m3u';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
-}
-
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
@@ -3086,16 +3070,32 @@ function playMovie(id){
     return;
   }
 
-  // PC — download .m3u playlist file; OS opens it with the default media player
-  var winPath = path;
+  // PC — build path for clipboard
+  var clipPath=path;
   if(pathMode==='smb'){
-    if(winPath.indexOf('smb://')==0) winPath='\\\\'+winPath.substring(6).replace(/\//g,'\\');
+    if(clipPath.indexOf('smb://')==0) clipPath='\\\\'+clipPath.substring(6).replace(/\//g,'\\');
   } else {
-    winPath = winPath.replace(/\//g, '\\');
+    clipPath=clipPath.replace(/\//g,'\\');
   }
-  copyToClip(winPath);
-  downloadM3U(m, winPath);
-  toast('Playlist stiahnutý — otvor súbor pre prehranie filmu. Cesta tiež skopírovaná do schránky.');
+  copyToClip(clipPath);
+
+  if(pathMode==='smb'){
+    // Sieťové: try vlc:// with smb URI
+    var smb=path;
+    if(smb.indexOf('smb://')!==0) smb='smb://'+smb.replace(/^[\/\\]+/,'');
+    window.location.href='vlc://'+encodeURI(smb);
+    setTimeout(function(){
+      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, vlož cestu manuálne (Ctrl+V).');
+    },800);
+  } else {
+    // Lokálne: try vlc:// with file URI
+    var localFp=path.replace(/\\/g,'/');
+    if(localFp.charAt(1)===':') localFp=localFp.charAt(0)+':'+localFp.substring(2);
+    window.location.href='vlc://file:///'+encodeURI(localFp);
+    setTimeout(function(){
+      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, potrebuješ zaregistrovať VLC Protocol Handler.');
+    },800);
+  }
 }
 
 function copyToClip(text){
