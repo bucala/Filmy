@@ -66,6 +66,12 @@ function init(){
   }
   var empty=localStorage.getItem("mdb_empty")==="1";
   all=empty?[]:(saved||[]);
+  // Restore poster URLs from liveCache for movies that lost base64 posters
+  all.forEach(function(m){
+    if((!m.poster_thumb||m.poster_thumb.length<10)&&liveCache[m.id]&&liveCache[m.id].posterUrl){
+      m.poster_thumb=liveCache[m.id].posterUrl;
+    }
+  });
   if(!saved&&!empty&&all.length>0)try{
     // First-time save: strip base64 posters, keep URL posters
     var toSave=all.map(function(m){
@@ -2157,6 +2163,12 @@ function ghPull() {
         Object.assign(liveCache, payload.liveCache);
         saveLiveCache();
       }
+      // Restore poster URLs from liveCache for movies without poster
+      all.forEach(function(m){
+        if((!m.poster_thumb||m.poster_thumb.length<10)&&liveCache[m.id]&&liveCache[m.id].posterUrl){
+          m.poster_thumb=liveCache[m.id].posterUrl;
+        }
+      });
 
       try {
         var toSave = all.map(function(m) {
