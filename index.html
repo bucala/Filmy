@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0a0a0f">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://api.github.com https://raw.githubusercontent.com; frame-src https://www.youtube.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://api.github.com https://raw.githubusercontent.com; frame-src https://www.youtube.com;">
 <meta name="application-name" content="Filmy">
 <meta name="msapplication-TileColor" content="#0a0a0f">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <title>Marcelova Filmova Databaza</title>
@@ -112,7 +112,7 @@
     <button class="batch-stop" id="btnBatchStop">Stop</button>
   </div>
   <div id="mainPullStatus" class="batch-bar hidden">
-  <span style="color:var(--gold);margin-right:4px">⬇</span>
+  <span style="color:var(--gold);margin-right:4px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></span>
   <div class="batch-info" id="mainPullStatusText">Načítavam z GitHubu…</div>
   <div class="batch-pbar"><div class="batch-pfill" id="mainPullBar"></div></div>
 </div>
@@ -285,7 +285,7 @@
     <div class="sett-pbar-wrap"><div class="sett-pfill" id="settPfill"></div></div>
     <div class="sett-batch-st" id="settBatchSt"></div>
     <button class="sett-btn danger hidden" id="settBtnStop">
-      <span class="sett-btn-icon">&#x2716;</span>
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>
       <span class="sett-btn-label">Zastaviť načítanie</span>
     </button>
     </div>
@@ -294,12 +294,12 @@
     <div class="sett-grp">
     <div class="sett-grp-title">Lokálna záloha</div>
     <button class="sett-btn success" id="settBtnExport">
-      <span class="sett-btn-icon">&#11015;</span>
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
       <span class="sett-btn-label">Stiahnuť HTML so všetkými dátami</span>
     </button>
     <div class="sett-btn-hint">Uloží hodnotenia a trailery priamo do HTML.</div>
     <button class="sett-btn" id="settBtnExportJson" style="margin-top:6px">
-      <span class="sett-btn-icon">&#128190;</span>
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg></span>
       <span class="sett-btn-label">Exportovať JSON zálohu</span>
     </button>
     <div class="sett-btn-hint">Kompletná záloha — filmy, obľúbené, watchlist, videné, TMDB dáta.</div>
@@ -360,16 +360,9 @@
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Prehrávanie filmov</div>
     <div class="sett-grp">
     <div class="sett-grp-title">Spôsob prehrávania</div>
-    <div class="sett-row" style="margin-bottom:10px;display:flex;align-items:center;gap:10px">
-      <span class="sett-lbl" style="flex:1;font-size:12px">Použiť natívny prehrávač (file://)</span>
-      <label class="switch">
-        <input type="checkbox" id="nativePlayerTog">
-        <span class="slider"></span>
-      </label>
-    </div>
     <div class="sett-btn-hint" style="margin-bottom:10px;font-size:10px">
-      <b>Vypnuté:</b> VLC Protocol Handler (vlc://...)<br>
-      <b>Zapnuté:</b> Systémový prehrávač (file:// alebo smb://)
+      <b>PC:</b> Stiahne .m3u playlist — otvorí sa v predvolenom prehrávači (VLC, MPC, WMP...)<br>
+      <b>Android:</b> Priamo spustí prehrávač cez Intent
     </div>
     <div class="sett-grp-title">Režim ciest k súborom</div>
     <div class="sett-toggle" id="pathModeToggle">
@@ -378,8 +371,8 @@
     </div>
     <div id="pathModeHint" style="margin-top:5px;font-size:11px;color:var(--gold);min-height:14px;font-weight:600;letter-spacing:.04em"></div>
     <div class="sett-btn-hint" style="margin-top:8px">
-      <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Funguje pri lokálnom otvorení HTML.<br>
-      <b>Sieťová:</b> Prevedie na SMB cestu pre prehrávanie cez sieť. Vyžaduje <a href="https://github.com/Morgyn/VLCProtocol-Handler/releases" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">VLC Protocol Handler</a>.
+      <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Stiahne .m3u pre predvolený prehrávač.<br>
+      <b>Sieťová:</b> Prevedie na SMB/UNC cestu (napr. <code>\\server\Movies\...</code>). Na mobile spustí prehrávač priamo.
     </div>
     <div class="sett-sub-row" style="margin-top:10px">
       <label class="sett-lbl" style="font-size:10px">SMB základ:</label>
@@ -452,7 +445,7 @@
   <div class="sett-sec" style="margin-bottom:10px">HĽADAJ FILM NA TMDB</div>
   <div class="admin-search-row">
     <input class="admin-inp" id="adminSearchInp" placeholder="Názov alebo TMDB ID (napr. 157336)" autocomplete="off">
-    <button class="admin-btn" id="adminSearchBtn">🔍 Hľadaj</button>
+    <button class="admin-btn" id="adminSearchBtn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Hľadaj</button>
   </div>
   <div class="admin-status" id="adminStatus"></div>
   <div class="admin-results" id="adminResults"></div>
