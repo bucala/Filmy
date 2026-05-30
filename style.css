@@ -555,12 +555,13 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   font-family:"JetBrains Mono",monospace;font-size:11px;
   display:flex;align-items:center;gap:5px}
 .btn-trailer:hover{background:rgba(220,50,50,.2)}
-.btn-tmdb,.btn-imdb{background:none;border:1px solid var(--border2);border-radius:18px;
+.btn-tmdb,.btn-imdb,.btn-csfd{background:none;border:1px solid var(--border2);border-radius:18px;
   padding:5px 12px;color:var(--text3);cursor:pointer;transition:all .15s;
   font-family:"JetBrains Mono",monospace;font-size:11px;
   display:flex;align-items:center;gap:5px;text-decoration:none}
 .btn-tmdb:hover{border-color:var(--gold);color:var(--gold)}
 .btn-imdb:hover{border-color:#f5c518;color:#f5c518}
+.btn-csfd:hover{border-color:#ba0305;color:#ba0305}
 
 /* Skin-aware icon base colors (inherits from --text3 by default) */
 

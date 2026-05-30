@@ -593,6 +593,7 @@ function openDet(id){
   items.push(["Rok",m.year||"–"],["Dĺžka",m.duration||"–"],["Krajina",m.country||"–"],["#",m.num]);
   const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
   const imdbUrl=(cached&&cached.imdbUrl)||null;
+  const csfdUrl=m._csfdUrl||null;
 
   // Rating pill
   let ratingHtml;
@@ -625,6 +626,8 @@ function openDet(id){
       <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
       ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
+      ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
+               '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
     <div class="sec">Detaily</div>
@@ -1686,7 +1689,8 @@ toast(_modeLabel);
         link='https://www.themoviedb.org/movie/'+tmdbId+'-'+slug;
       }
       var title=(m.title||'').replace(/,/g,' ');
-      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link;
+      var csfd=m._csfdUrl||'';
+      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link+','+csfd;
     });
     var csv=bom+rows.join('\n')+'\n';
     var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
@@ -1728,6 +1732,41 @@ toast(_modeLabel);
       },null);
     }
     repairNext();
+  });
+
+  var _eCsfdImp=document.getElementById('settBtnImportCsfd');
+  if(_eCsfdImp) _eCsfdImp.addEventListener('click',function(){
+    document.getElementById('fileInpCsfd').click();
+  });
+  document.getElementById('fileInpCsfd').addEventListener('change',function(ev){
+    var file=ev.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var text=e.target.result.replace(/^﻿/,'');
+      var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+      var matched=0,skipped=0;
+      lines.forEach(function(line){
+        var cols=line.split(',');
+        if(cols.length<6) return;
+        var num=cols[0].trim();
+        var csfdLink=cols[cols.length-1].trim();
+        if(!csfdLink||csfdLink.indexOf('csfd.')< 0){skipped++;return;}
+        var movie=all.find(function(m){return String(m.num)===num;});
+        if(movie){
+          movie._csfdUrl=csfdLink;
+          matched++;
+        } else {skipped++;}
+      });
+      if(matched>0) savePersistent();
+      var stEl=document.getElementById('csfdImportSt');
+      if(stEl){
+        stEl.textContent='Priradených: '+matched+', preskočených: '+skipped;
+        stEl.className='sett-key-st'+(matched>0?' ok':'');
+      }
+      toast('ČSFD import: '+matched+' filmov aktualizovaných');
+    };
+    reader.readAsText(file,'UTF-8');
+    this.value='';
   });
 
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
@@ -2609,7 +2648,7 @@ function initKeyboard() {
     // Escape → close topmost overlay
     if (e.key === 'Escape') {
       if (!document.getElementById('trOv').classList.contains('hidden')) {
-        document.getElementById('trOv').classList.add('hidden'); return;
+        closeTr(); return;
       }
       if (document.getElementById('fpPanel').classList.contains('open')) {
         closeFp(); return;
@@ -2911,7 +2950,7 @@ function handleFileUpdate(){
     var existMap={};
     all.forEach(function(m){existMap[m.num]=m;});
     var added=0,updated=0,unchanged=0;
-    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","tmdbId"];
+    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","_csfdUrl","tmdbId"];
     newMovies.forEach(function(nm){
       var existing=existMap[nm.num];
       if(!existing){
