@@ -527,7 +527,7 @@ function cardHTML(m){
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}">▶</a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
@@ -610,12 +610,12 @@ function openDet(id){
     ${genres?`<div class="det-genres">${genres}</div>`:""}
     <div class="sec">Prehrávanie</div>
     <div class="det-actions">
-      <button id="playMovieBtn" class="sett-btn primary"><span class="sett-btn-icon">▶</span><span class="sett-btn-label">Prehráť film</span></button>
-      <button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru">📋 Kopírovať cestu</button>
+      <button id="playMovieBtn" class="sett-btn primary"><span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></span><span class="sett-btn-label">Prehráť film</span></button>
+      <button class="btn-play-copy" id="btnPlayCopy" title="Kopírovať cestu k súboru"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Kopírovať cestu</button>
     </div>
     <div class="sec">Trailer &amp; Linky</div>
     <div class="tr-row">
-      <button class="btn-trailer" id="btnTr">▶ YouTube Trailer</button>
+      <button class="btn-trailer" id="btnTr"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="6,3 20,12 6,21"/></svg>YouTube Trailer</button>
       <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
       ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
@@ -636,8 +636,7 @@ function openDet(id){
   document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    var _playMode = pathMode==='smb' ? 'SMB' : (useNativePlayer ? 'Natívny' : 'VLC');
-    if(_isMobile) _playMode = pathMode==='smb' ? 'SMB' : 'Lokálne';
+    var _playMode = pathMode==='smb' ? 'Sieť' : 'Lokálne';
     playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + _playMode;
     playBtn.onclick=function(){
       var _m=all.find(function(x){return x.id===id;})||m;
@@ -672,7 +671,7 @@ function applyLive(id,data){
     }
   }
   if(!data)return;
-  if(data.ytKey){var b=document.getElementById("btnTr");if(b)b.innerHTML="&#9654; Prehrat Trailer";}
+  if(data.ytKey){var b=document.getElementById("btnTr");if(b)b.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="6,3 20,12 6,21"/></svg>Prehrať Trailer';}
   if(data.tmdbUrl){var tb=document.getElementById("btnTmdb");if(tb)tb.href=data.tmdbUrl;}
   if(data.imdbUrl){var ib=document.getElementById("btnImdb");if(ib){ib.href=data.imdbUrl;ib.style.display="inline-flex";}}
   var mv=all.find(function(x){return x.id===id;});if(mv&&data.ytKey)mv._yt=data.ytKey;
@@ -1471,8 +1470,7 @@ toast(_modeLabel);
         if (_pb) {
           var _lbl = _pb.querySelector('.sett-btn-label');
           if (_lbl) {
-            var _pm = pathMode==='smb' ? 'SMB' : (useNativePlayer ? 'Natívny' : 'VLC');
-            if(_isMobile) _pm = pathMode==='smb' ? 'SMB' : 'Lokálne';
+            var _pm = pathMode==='smb' ? 'Sieť' : 'Lokálne';
             _lbl.textContent = 'Prehráť · ' + _pm;
           }
           var _mc = all.find(function(x){return x.id===curId;});
@@ -3059,6 +3057,22 @@ var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
 
+function downloadM3U(m, filePath) {
+  var name = m.title || 'movie';
+  var year = m.year || '';
+  var label = year ? name + ' (' + year + ')' : name;
+  var content = '#EXTM3U\n#EXTINF:-1,' + label + '\n' + filePath + '\n';
+  var blob = new Blob([content], {type: 'audio/x-mpegurl'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = label.replace(/[<>:"/\\|?*]/g, '_') + '.m3u';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+}
+
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
@@ -3072,40 +3086,16 @@ function playMovie(id){
     return;
   }
 
-  // PC — copy path to clipboard, then try to open
-  var fullPath=path;
+  // PC — download .m3u playlist file; OS opens it with the default media player
+  var winPath = path;
   if(pathMode==='smb'){
-    if(fullPath.indexOf('smb://')==0) fullPath='\\\\'+fullPath.substring(6).replace(/\//g,'\\');
+    if(winPath.indexOf('smb://')==0) winPath='\\\\'+winPath.substring(6).replace(/\//g,'\\');
+  } else {
+    winPath = winPath.replace(/\//g, '\\');
   }
-  copyToClip(fullPath);
-
-  // Try protocol handlers in order
-  var localFp=path.replace(/\\/g,'/');
-  if(pathMode!=='smb'){
-    if(localFp.charAt(1)===':') localFp=localFp.charAt(0)+':'+localFp.substring(2);
-  }
-
-  var tried=false;
-  if(!useNativePlayer){
-    // VLC mode: try vlc:// with file URI inside
-    var vlcUri;
-    if(pathMode==='smb'){
-      var smb=path;if(smb.indexOf('smb://')!==0)smb='smb://'+smb.replace(/^[\/]+/,'');
-      vlcUri='vlc://'+encodeURI(smb);
-    } else {
-      vlcUri='vlc://file:///'+encodeURI(localFp);
-    }
-    window.location.href=vlcUri;
-    tried=true;
-  }
-
-  setTimeout(function(){
-    if(tried){
-      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, vlož cestu manuálne (Ctrl+V).');
-    } else {
-      toast('Cesta skopírovaná — otvor prehrávač a vlož Ctrl+V');
-    }
-  },800);
+  copyToClip(winPath);
+  downloadM3U(m, winPath);
+  toast('Playlist stiahnutý — otvor súbor pre prehranie filmu. Cesta tiež skopírovaná do schránky.');
 }
 
 function copyToClip(text){
