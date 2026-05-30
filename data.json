@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-30T21:30:39.852Z",
+  "updated": "2026-05-30T22:34:12.917Z",
   "movies": [
     {
       "id": 1,
@@ -4289,7 +4289,7 @@
       "duration": "81 min",
       "cast": "Norm Macdonald, Artie Lange, Jack Warden, Traylor Howard, Christopher McDonald",
       "description": "Unemployed and recently dumped, Mitch and his buddy Sam start a revenge-for-hire business to raise the $50,000 that Sam's father needs to get a heart transplant.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/7DFzW7SrGYX8Unbtl4K5QqJW9hy.jpg",
       "rating": 0,
       "tmdbId": 14577,
       "moods": [],
@@ -6052,7 +6052,7 @@
       "duration": "125 min",
       "cast": "Paul Bettany, Willem Dafoe, Tom Hardy, Brian Cox, Simon McBurney",
       "description": "Píše se rok 1380 a Anglií zmítají mocenské boje mezi církví a světskou vrchností. Mladý kněz Niccolas de Valans je nucen uprchnout poté, co se dopustil cizoložství. Na své cestě narazí na potulnou hereckou společnost, v čele s Martinem (WILLEM DAFOE), a protože je schopný, přidá se k nim. Putují do města Daremu, kde mají hrát místnímu lennímu pánovi k narozeninám. Stržený most přes řeku je však donutí, aby prošli panstvím lorda de Guse a zastavili se u jeho hradu. Přicházejí zrovna ve chvíli, kd",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/krjsXCnhcfDkBxY1quS67J3piHE.jpg",
       "rating": 0,
       "tmdbId": 25935,
       "moods": [],
@@ -6105,7 +6105,7 @@
       "duration": "170 min",
       "cast": "Jeremy Sisto, Richard Harris, Christopher Walken, Chris Noth, Valeria Golino",
       "description": "Twenty year-old Julius Caesar flees Rome for his life during the reign of Sulla but through skill and ambition rises four decades later to become Rome's supreme dictator.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/2nzpmJ9MIdd5TKXJd53KgKdZ6eT.jpg",
       "rating": 0,
       "tmdbId": 34469,
       "moods": [],
@@ -45936,6 +45936,13 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/2666",
       "imdbUrl": "https://www.imdb.com/title/tt0118929/"
     },
+    "168": {
+      "pct": 62,
+      "ytKey": "AKMpdq04Q84",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/7DFzW7SrGYX8Unbtl4K5QqJW9hy.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/689700",
+      "imdbUrl": "https://www.imdb.com/title/tt10023022/"
+    },
     "169": {
       "pct": 66,
       "ytKey": "Da-Mizk86AE",
@@ -46398,12 +46405,26 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/175",
       "imdbUrl": "https://www.imdb.com/title/tt0095250/"
     },
+    "236": {
+      "pct": 64,
+      "ytKey": "Wt6-3Sim6Gs",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/krjsXCnhcfDkBxY1quS67J3piHE.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/13333",
+      "imdbUrl": "https://www.imdb.com/title/tt0077594/"
+    },
     "237": {
       "pct": 75,
       "ytKey": "_USDk5jaGek",
       "posterUrl": "https://image.tmdb.org/t/p/w300/9BCKxc0CNnAODHe3Lnde9hCC6Ig.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/79",
       "imdbUrl": "https://www.imdb.com/title/tt0299977/"
+    },
+    "238": {
+      "pct": 71,
+      "ytKey": "DcGenSlgwAM",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/2nzpmJ9MIdd5TKXJd53KgKdZ6eT.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/18019",
+      "imdbUrl": "https://www.imdb.com/title/tt0045943/"
     },
     "239": {
       "pct": 63,
