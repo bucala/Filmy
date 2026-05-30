@@ -1538,7 +1538,26 @@ toast(_modeLabel);
     toast('Lokálny základ uložený');
   });
 
-  
+  var _thBtn=document.getElementById('testHandlerBtn');
+  if(_thBtn) _thBtn.addEventListener('click',function(){
+    var proto=playerProto||'mpc';
+    var testUrl;
+    var stEl=document.getElementById('testHandlerSt');
+    if(pathMode==='smb'){
+      var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
+      if(base[base.length-1]!=='/')base+='/';
+      var server=base.replace(/^smb:\/\//,'')+'test-handler.mkv';
+      testUrl=proto+'://'+encodeURI(server);
+    } else {
+      testUrl=proto+'://W/Movies/test-handler.mkv';
+    }
+    if(stEl){stEl.textContent='Posielam: '+testUrl;stEl.className='sett-key-st ok';}
+    console.log('[FilmDB] Test handler URL:',testUrl);
+    window.location.href=testUrl;
+    setTimeout(function(){
+      if(stEl){stEl.innerHTML='Odoslané: <code>'+testUrl+'</code><br>Ak sa prehrávač neotvoril, handler nie je správne zaregistrovaný.';stEl.className='sett-key-st';}
+    },2000);
+  });
 
   adjustScrnBody();
   setTimeout(adjustScrnBody,100);
