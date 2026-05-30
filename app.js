@@ -1444,6 +1444,7 @@ document.addEventListener("DOMContentLoaded",function(){
       toast('Prehrávač: ' + playerProto.toUpperCase());
       var _pb2=document.getElementById('playMovieBtn');
       if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+playerProto.toUpperCase();}
+      updatePathPreview();
     });
   });
   document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){
@@ -1473,6 +1474,7 @@ toast(_modeLabel);
       if (_hint) {
         _hint.textContent = pathMode === 'smb' ? 'Sieťová (SMB) — aktívna' : 'Lokálna cesta — aktívna';
       }
+      updatePathPreview();
       // Aktualizuj detail panel ak je otvorený
       var _dpth = document.querySelector('.det-path-hint');
       // Aktualizuj play button label ak je detail otvorený
@@ -1513,6 +1515,7 @@ toast(_modeLabel);
     }
     var st = document.getElementById('smbPathSt');
     if (st) { st.textContent = '✓ SMB: ' + (val||smbBase); st.className = 'sett-key-st ok'; }
+    updatePathPreview();
     toast('SMB základ uložený');
   });
 
@@ -1531,6 +1534,7 @@ toast(_modeLabel);
     if (stL) { stL.textContent = '✓ Lokálna cesta: ' + localVal; stL.className = 'sett-key-st ok'; }
     var stS = document.getElementById('smbPathSt');
     if (stS && smbBase) { stS.textContent = '✓ SMB mapovanie: ' + localVal + '→ ' + smbBase; stS.className = 'sett-key-st ok'; }
+    updatePathPreview();
     toast('Lokálny základ uložený');
   });
 
@@ -1540,6 +1544,7 @@ toast(_modeLabel);
   setTimeout(adjustScrnBody,100);
   initTheme();
   initColorPicker();
+  updatePathPreview();
   
   document.getElementById("srchInp").addEventListener("input",function(){document.getElementById("srchClr").style.display=this.value?"block":"none";applyFilters();});
   document.getElementById("srchClr").addEventListener("click",function(){document.getElementById("srchInp").value="";this.style.display="none";applyFilters();});
@@ -3072,6 +3077,36 @@ var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
 
+function updatePathPreview(){
+  var el=document.getElementById('playPathPreview');
+  if(!el)return;
+  var sample='2026 - Tom Clancys Jack Ryan.mkv';
+  var proto=playerProto||'mpc';
+  if(pathMode==='smb'){
+    var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
+    if(base[base.length-1]!=='/')base+='/';
+    var smbPath=base+sample;
+    var server=smbPath.replace(/^smb:\/\//,'');
+    var protoUrl=proto+'://'+encodeURI(server);
+    var uncPath='\\\\'+server.replace(/\//g,'\\');
+    el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+smbPath.replace(/</g,'&lt;')+'<br>'+
+      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Handler otvorí:</b> '+uncPath.replace(/</g,'&lt;');
+  } else {
+    var localBase='W:\\Movies\\';
+    for(var k in smbMap){localBase=k;break;}
+    localBase=localBase.replace(/\//g,'\\');
+    if(localBase[localBase.length-1]!=='\\') localBase+='\\';
+    var localPath=localBase+sample;
+    var fwdPath=localPath.replace(/\\/g,'/');
+    var driveStripped=fwdPath.replace(/^([A-Za-z]):/,'$1');
+    var protoUrl=proto+'://'+encodeURI(driveStripped);
+    el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+localPath.replace(/</g,'&lt;')+'<br>'+
+      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Handler otvorí:</b> '+localPath.replace(/</g,'&lt;');
+  }
+}
+
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
@@ -3092,10 +3127,9 @@ function playMovie(id){
   }
   copyToClip(clipPath);
 
-  // Protocol URL: forward slashes, URL-encoded (bat handler decodes and opens player)
   var protoPath=path.replace(/\\/g,'/');
   if(pathMode==='smb'){
-    if(protoPath.indexOf('smb://')==0) protoPath='\\\\'+protoPath.substring(6).replace(/\//g,'\\');
+    if(protoPath.indexOf('smb://')==0) protoPath=protoPath.substring(6);
   }
   var proto=playerProto||'mpc';
   window.location.href=proto+'://'+encodeURI(protoPath);
