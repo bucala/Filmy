@@ -666,7 +666,6 @@ function fetchLiveData(id){
   doTMDBFetch(m,function(data){clearTimeout(timer);if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);},ac?ac.signal:null);
 }
 function applyLive(id,data){
-  // Update rating pill
   var rbox=document.getElementById("ratingBox");
   if(rbox){
     if(data&&data.pct!=null){
@@ -677,10 +676,24 @@ function applyLive(id,data){
     }
   }
   if(!data)return;
+  if(data.posterUrl){
+    var mv=all.find(function(x){return x.id===id;});
+    if(mv) mv.poster_thumb=data.posterUrl;
+    ["detBlur","detCover"].forEach(function(eid){
+      var el=document.getElementById(eid);
+      if(el){el.src=data.posterUrl;el.style.display='block';}
+    });
+    var insetEl=document.getElementById("detInsetImg");
+    if(insetEl) insetEl.src=data.posterUrl;
+    var insetWrap=document.getElementById("detInset");
+    if(insetWrap) insetWrap.style.display='block';
+    var bgEl=document.getElementById("detBg");
+    if(bgEl) bgEl.style.display='none';
+  }
   if(data.ytKey){var b=document.getElementById("btnTr");if(b)b.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="6,3 20,12 6,21"/></svg>Prehrať Trailer';}
   if(data.tmdbUrl){var tb=document.getElementById("btnTmdb");if(tb)tb.href=data.tmdbUrl;}
   if(data.imdbUrl){var ib=document.getElementById("btnImdb");if(ib){ib.href=data.imdbUrl;ib.style.display="inline-flex";}}
-  var mv=all.find(function(x){return x.id===id;});if(mv&&data.ytKey)mv._yt=data.ytKey;
+  var mv2=all.find(function(x){return x.id===id;});if(mv2&&data.ytKey)mv2._yt=data.ytKey;
 }
 
 
@@ -780,11 +793,26 @@ function settStartBatch(){
 
 function openTrailer(id){
   var m=all.find(function(x){return x.id===id;});if(!m)return;
-  var cached=liveCache[id],ytKey=m._yt||(cached&&cached.ytKey)||null;
-  if(ytKey){document.getElementById("trFrame").src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";document.getElementById("trOv").classList.remove("hidden");}
-  else window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+  var cached=liveCache[id];
+  var ytKey=m._yt||(cached&&cached.ytKey)||null;
+  if(!ytKey&&cached&&cached.ytKey) ytKey=cached.ytKey;
+  if(ytKey){
+    var ov=document.getElementById("trOv");
+    var fr=document.getElementById("trFrame");
+    fr.src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";
+    ov.classList.remove("hidden");
+    ov.style.display="flex";
+  } else {
+    window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+  }
 }
-function closeTr(){document.getElementById("trFrame").src="";document.getElementById("trOv").classList.add("hidden");}
+function closeTr(){
+  var fr=document.getElementById("trFrame");
+  var ov=document.getElementById("trOv");
+  fr.src="";
+  ov.classList.add("hidden");
+  ov.style.display="";
+}
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: Statistics with Chart.js
@@ -1645,6 +1673,63 @@ toast(_modeLabel);
     if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
     toast('Nastavenia uložené ✓');
   });
+  var _eExcel=document.getElementById('settBtnExcel');
+  if(_eExcel) _eExcel.addEventListener('click',function(){
+    var bom='﻿';
+    var rows=all.map(function(m){
+      var tmdbId=m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbUrl?liveCache[m.id].tmdbUrl.match(/\/(\d+)/):null);
+      if(tmdbId&&Array.isArray(tmdbId)) tmdbId=tmdbId[1];
+      tmdbId=tmdbId||'';
+      var link=m._tmdbUrl||(liveCache[m.id]&&liveCache[m.id].tmdbUrl)||'';
+      if(!link&&tmdbId){
+        var slug=(m.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        link='https://www.themoviedb.org/movie/'+tmdbId+'-'+slug;
+      }
+      var title=(m.title||'').replace(/,/g,' ');
+      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link;
+    });
+    var csv=bom+rows.join('\n')+'\n';
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='filmy_export_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('CSV exportované ('+all.length+' filmov)');
+  });
+
+  var _eRepair=document.getElementById('settBtnRepair');
+  if(_eRepair) _eRepair.addEventListener('click',function(){
+    if(!tmdbKey){toast('Najprv nastav TMDB API kľúč');return;}
+    var broken=all.filter(function(m){
+      return !m.poster_thumb||m.poster_thumb.length<10||!m.description;
+    });
+    var stEl=document.getElementById('repairSt');
+    if(!broken.length){
+      if(stEl){stEl.textContent='Všetky filmy majú plagát aj popis.';stEl.className='sett-key-st ok';}
+      toast('Žiadne poškodené filmy!');return;
+    }
+    if(stEl){stEl.textContent='Opravujem '+broken.length+' filmov...';stEl.className='sett-key-st';}
+    var done=0,fixed=0;
+    function repairNext(){
+      if(done>=broken.length){
+        savePersistent();renderList(filt);
+        if(stEl){stEl.textContent='Hotovo! Opravených: '+fixed+' z '+broken.length;stEl.className='sett-key-st ok';}
+        toast('Oprava dokončená: '+fixed+'/'+broken.length);
+        return;
+      }
+      var m=broken[done];
+      delete liveCache[m.id];
+      doTMDBFetch(m,function(data){
+        if(data){liveCache[m.id]=data;fixed++;}
+        done++;
+        if(stEl) stEl.textContent='Opravujem... '+done+'/'+broken.length;
+        setTimeout(repairNext,350);
+      },null);
+    }
+    repairNext();
+  });
+
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
   document.getElementById("adminSearchBtn").addEventListener("click",adminSearch);
   document.getElementById("adminSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")adminSearch();});
@@ -2264,6 +2349,7 @@ function initGhSync() {
    MODULE: Advanced Filter Panel
    ══════════════════════════════════════════════════════════ */
 function openFp() {
+  closeSett();
   var panel   = document.getElementById('fpPanel');
   var overlay = document.getElementById('fpOverlay');
 
@@ -2371,7 +2457,7 @@ function updateFpBadge() {
   var btn   = document.getElementById('fpBtn');
   badge.textContent = cnt;
   badge.className   = 'fp-badge' + (cnt ? ' show' : '');
-  btn.className     = 'fp-btn'   + (cnt ? ' active' : '');
+  btn.className     = 'ctrl-btn fp-btn' + (cnt ? ' active' : '');
 }
 
 /* Render dismissible pills showing active filters */
