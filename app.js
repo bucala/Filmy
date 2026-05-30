@@ -1,6 +1,5 @@
 (function(){
 "use strict";
-<<<<<<< HEAD
 var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
 var _scriptCache={};
 function loadScript(url){
@@ -19,11 +18,6 @@ function loadPdfJs(){
 }
 function loadJSZip(){return loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");}
 function loadChartJs(){return loadScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js");}
-=======
-var APP_VERSION = "6.1.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
-if(typeof pdfjsLib!=="undefined")
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
->>>>>>> 3bb19b6595388ed8f5f470c600fa14ab55cadcbe
 
 /* ── SVG icon constants — avoids duplication across cardHTML, openDet ── */
 var STAR_ON  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
