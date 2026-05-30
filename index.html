@@ -360,11 +360,15 @@
 
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Prehrávanie filmov</div>
     <div class="sett-grp">
-    <div class="sett-grp-title">Spôsob prehrávania</div>
+    <div class="sett-grp-title">Prehrávač na PC</div>
+    <div class="sett-toggle" id="playerProtoToggle" style="margin-bottom:8px">
+      <button class="ttab" data-proto="mpc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><polygon points="5 3 19 12 5 21 5 3"/></svg>MPC-HC</button>
+      <button class="ttab" data-proto="vlc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><polygon points="5 3 19 12 5 21 5 3"/></svg>VLC</button>
+    </div>
     <div class="sett-btn-hint" style="margin-bottom:10px;font-size:10px">
-      <b>PC:</b> Otvorí film cez MPC Protocol Handler (mpc://) + skopíruje cestu do schránky<br>
+      <b>PC:</b> Otvorí film cez vybraný prehrávač (mpc:// alebo vlc://) + skopíruje cestu do schránky<br>
       <b>Android:</b> Priamo spustí prehrávač cez Intent<br>
-      <b style="color:var(--gold)">Tip:</b> Pre PC prehrávanie zaregistruj <code>mpc://</code> handler — pozri <code>C:\MPC-Handler\</code>
+      <b style="color:var(--gold)">Tip:</b> Spusti <code>register-mpc.reg</code> alebo <code>register-vlc.reg</code> z <code>W:\</code> pre registráciu handlera
     </div>
     <div class="sett-grp-title">Režim ciest k súborom</div>
     <div class="sett-toggle" id="pathModeToggle">
@@ -373,7 +377,7 @@
     </div>
     <div id="pathModeHint" style="margin-top:5px;font-size:11px;color:var(--gold);min-height:14px;font-weight:600;letter-spacing:.04em"></div>
     <div class="sett-btn-hint" style="margin-top:8px">
-      <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Na PC cez mpc:// handler.<br>
+      <b>Lokálna:</b> Použije pôvodnú cestu z EMDB (napr. <code>W:\Movies\...</code>). Na PC cez vybraný handler.<br>
       <b>Sieťová:</b> Prevedie na SMB cestu (napr. <code>smb://server/Movies/...</code>). Na mobile spustí prehrávač priamo.
     </div>
     <div class="sett-sub-row" style="margin-top:10px">
