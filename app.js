@@ -128,6 +128,17 @@ function loadLiveCache(){
   try{var r=localStorage.getItem(LK);if(r)liveCache=validateLiveCache(JSON.parse(r));}catch(e){liveCache={};}
 }
 function saveLiveCache(){try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}}
+function saveAllData(){
+  saveLiveCache();
+  try{
+    var toSave=all.map(function(m){
+      var c=Object.assign({},m);
+      if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
+      return c;
+    });
+    safeSave(SK,JSON.stringify(toSave));
+  }catch(e){}
+}
 
 function safeSave(key,val){
   try{localStorage.setItem(key,val);}
@@ -767,20 +778,6 @@ function settStartBatch(){
   document.getElementById("batchInfo").textContent="0/"+total;
   document.getElementById("batchFill").style.width="0%";
 
-  function savePersistent(){
-    saveLiveCache();
-    try{
-      var toSave=all.map(function(m){
-        var c=Object.assign({},m);
-        if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
-        return c;
-      });
-      safeSave(SK,JSON.stringify(toSave));
-    }catch(e){}
-  }
-
-  // FIX: Parallel batch — 5 concurrent requests instead of 1 sequential.
-  // TMDB rate limit ~40 req/s; groups of 5 every 300ms = ~16 req/s (safe).
   var CONCURRENCY=5;
   function runBatch(){
     if(!liveRunning||!queue.length){
@@ -789,9 +786,10 @@ function settStartBatch(){
         if(tmdbAbortCtrl){tmdbAbortCtrl.abort();tmdbAbortCtrl=null;}
         bar.classList.add("hidden");
         _shiftScrnBody(false);
-        savePersistent();
+        saveAllData();
         renderList(filt);
         toast("Načítané: "+done+"/"+total+" filmov!");
+        scheduleAutoPush('tmdb-batch');
       }
       return;
     }
@@ -803,7 +801,7 @@ function settStartBatch(){
         done++;
         document.getElementById("batchFill").style.width=Math.round(done/total*100)+"%";
         document.getElementById("batchInfo").textContent=done+"/"+total;
-        if(done%50===0) savePersistent();
+        if(done%50===0) saveAllData();
         pending--;
         if(pending===0){
           if(done%20<CONCURRENCY) renderList(filt);
@@ -837,22 +835,10 @@ function startImdbBatch(){
   fill.style.width='0%';
   stEl.textContent='0 / '+total;
 
-  function save(){
-    saveLiveCache();
-    try{
-      var toSave=all.map(function(m){
-        var c=Object.assign({},m);
-        if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
-        return c;
-      });
-      safeSave(SK,JSON.stringify(toSave));
-    }catch(e){}
-  }
-
   var idx=0;
   function next(){
     if(idx>=queue.length){
-      save();
+      saveAllData();
       fill.style.width='100%';
       stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
       renderList(filt);
@@ -860,8 +846,13 @@ function startImdbBatch(){
       return;
     }
     var item=queue[idx++];
-    fetch('https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey)
-      .then(function(r){return r.json();})
+    var omdbUrl='http://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey;
+    var proxy='https://api.allorigins.win/raw?url='+encodeURIComponent(omdbUrl);
+    fetch(proxy)
+      .then(function(r){
+        if(!r.ok) throw new Error(r.status);
+        return r.json();
+      })
       .then(function(d){
         if(d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
           var pct=Math.round(parseFloat(d.imdbRating)*10);
@@ -873,8 +864,8 @@ function startImdbBatch(){
         done++;
         fill.style.width=Math.round(done/total*100)+'%';
         stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
-        if(done%50===0) save();
-        setTimeout(next,350);
+        if(done%50===0) saveAllData();
+        setTimeout(next,400);
       });
   }
   next();
@@ -895,22 +886,10 @@ function startCsfdBatch(){
   fill.style.width='0%';
   stEl.textContent='0 / '+total;
 
-  function save(){
-    saveLiveCache();
-    try{
-      var toSave=all.map(function(m){
-        var c=Object.assign({},m);
-        if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
-        return c;
-      });
-      safeSave(SK,JSON.stringify(toSave));
-    }catch(e){}
-  }
-
   var idx=0;
   function next(){
     if(idx>=queue.length){
-      save();
+      saveAllData();
       fill.style.width='100%';
       stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
       renderList(filt);
@@ -936,7 +915,7 @@ function startCsfdBatch(){
         done++;
         fill.style.width=Math.round(done/total*100)+'%';
         stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
-        if(done%50===0) save();
+        if(done%50===0) saveAllData();
         setTimeout(next,500);
       });
   }
@@ -1185,7 +1164,6 @@ function openSett(){
   });
   document.getElementById("tmdbKeyInp").value=tmdbKey;
   document.getElementById("tmdbKeyInp").type="password";
-  document.getElementById("tmdbEye").textContent="\uD83D\uDC41";
   keyStatus("tmdbKeySt",tmdbKey);
   var omdbInp=document.getElementById('omdbKeyInp');
   if(omdbInp){omdbInp.value=omdbKey;omdbInp.type='password';}
@@ -1816,9 +1794,7 @@ toast(_modeLabel);
   var _ettabLi=document.getElementById("ttabList");if(_ettabLi)_ettabLi.addEventListener("click",function(){settSetView("list");});
   var _ettabGr=document.getElementById("ttabGrid");if(_ettabGr)_ettabGr.addEventListener("click",function(){settSetView("grid");});
   document.getElementById("settSortSel").addEventListener("change",function(){settSetSort(this.value);});
-  var _etmdbEy=document.getElementById("tmdbEye");if(_etmdbEy)_etmdbEy.addEventListener("click",function(){var inp=document.getElementById("tmdbKeyInp");inp.type=inp.type==="password"?"text":"password";this.textContent=inp.type==="password"?"\uD83D\uDC41":"\uD83D\uDE48";});
-  var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB kluc ulozeny!":"TMDB kluc vymazany");});
-  var _etmdbDe=document.getElementById("tmdbDelKey");if(_etmdbDe)_etmdbDe.addEventListener("click",function(){tmdbKey="";localStorage.removeItem("tmdb_key");document.getElementById("tmdbKeyInp").value="";keyStatus("tmdbKeySt","");});
+  var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB k\u013E\u00FA\u010D ulo\u017Een\u00FD":"TMDB k\u013E\u00FA\u010D vymazan\u00FD");});
   document.getElementById("settBtnPdf").addEventListener("click",impPdf);
   var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
   var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
@@ -1913,7 +1889,7 @@ toast(_modeLabel);
     var failed=[];
     function repairNext(){
       if(done>=broken.length){
-        savePersistent();renderList(filt);
+        saveAllData();renderList(filt);
         var msg='Hotovo! Opravených: '+fixed+' z '+broken.length;
         if(failed.length) msg+=' (nenájdené: '+failed.length+')';
         if(stEl){stEl.textContent=msg;stEl.className='sett-key-st'+(fixed>0?' ok':'');}
@@ -1967,14 +1943,14 @@ toast(_modeLabel);
         if(found) matched++;
         else skipped++;
       });
-      if(matched>0||ratings>0) savePersistent();
+      if(matched>0||ratings>0) saveAllData();
       var stEl=document.getElementById('csfdImportSt');
       if(stEl){
         stEl.textContent='Linky: '+matched+', hodnotenia: '+ratings+', preskočených: '+skipped;
         stEl.className='sett-key-st'+((matched>0||ratings>0)?' ok':'');
       }
       toast('Import: '+matched+' linkov, '+ratings+' hodnotení');
-      if(matched>0||ratings>0) applyFilters();
+      if(matched>0||ratings>0){applyFilters();scheduleAutoPush('csfd-import');}
     };
     reader.readAsText(file,'UTF-8');
     this.value='';
