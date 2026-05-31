@@ -39,7 +39,7 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
 var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
 function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
 var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
-var omdbKey=localStorage.getItem("omdb_key")||"";
+var omdbKey=localStorage.getItem("omdb_key")||"9ff40e48";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
@@ -880,6 +880,69 @@ function startImdbBatch(){
   next();
 }
 
+function startCsfdBatch(){
+  var queue=[];
+  all.forEach(function(m){
+    if(m._pctCsfd!=null) return;
+    var url=m._csfdUrl;
+    if(!url) return;
+    queue.push({movie:m, url:url});
+  });
+  if(!queue.length){toast('Žiadne filmy s ČSFD linkom na načítanie');return;}
+  var fill=document.getElementById('csfdPfill');
+  var stEl=document.getElementById('csfdBatchSt');
+  var total=queue.length,done=0,updated=0,failed=0;
+  fill.style.width='0%';
+  stEl.textContent='0 / '+total;
+
+  function save(){
+    saveLiveCache();
+    try{
+      var toSave=all.map(function(m){
+        var c=Object.assign({},m);
+        if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
+        return c;
+      });
+      safeSave(SK,JSON.stringify(toSave));
+    }catch(e){}
+  }
+
+  var idx=0;
+  function next(){
+    if(idx>=queue.length){
+      save();
+      fill.style.width='100%';
+      stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
+      renderList(filt);
+      scheduleAutoPush('csfd-batch');
+      return;
+    }
+    var item=queue[idx++];
+    var proxy='https://api.allorigins.win/raw?url='+encodeURIComponent(item.url);
+    fetch(proxy)
+      .then(function(r){
+        if(!r.ok) throw new Error(r.status);
+        return r.text();
+      })
+      .then(function(html){
+        var match=html.match(/film-rating-average[^>]*>\s*(\d+)\s*%/);
+        if(match){
+          var pct=parseInt(match[1],10);
+          if(!isNaN(pct)&&pct>=0&&pct<=100){item.movie._pctCsfd=pct;updated++;}
+        }
+      })
+      .catch(function(){failed++;})
+      .then(function(){
+        done++;
+        fill.style.width=Math.round(done/total*100)+'%';
+        stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
+        if(done%50===0) save();
+        setTimeout(next,500);
+      });
+  }
+  next();
+}
+
 function openTrailer(id){
   var m=all.find(function(x){return x.id===id;});if(!m)return;
   var cached=liveCache[id];
@@ -1131,6 +1194,9 @@ function openSett(){
   var imdbCount=all.filter(function(m){return m._pctImdb!=null;}).length;
   var imdbSt=document.getElementById('imdbBatchSt');
   if(imdbSt&&imdbCount)imdbSt.textContent=imdbCount+' filmov s IMDB hodnotením';
+  var csfdCount=all.filter(function(m){return m._pctCsfd!=null;}).length;
+  var csfdSt=document.getElementById('csfdBatchSt');
+  if(csfdSt&&csfdCount)csfdSt.textContent=csfdCount+' filmov s ČSFD hodnotením';
   document.getElementById("ttabList").className="ttab"+(grid?"":" on");
   document.getElementById("ttabGrid").className="ttab"+(grid?" on":"");
   document.getElementById("settSortSel").value=prefs.sort||"num";
@@ -1764,6 +1830,7 @@ toast(_modeLabel);
     toast(k?'OMDB kľúč uložený':'OMDB kľúč vymazaný');
   });
   document.getElementById('settBtnImdb').addEventListener('click',startImdbBatch);
+  var _eCsfdBatch=document.getElementById('settBtnCsfd');if(_eCsfdBatch)_eCsfdBatch.addEventListener('click',startCsfdBatch);
   var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
   var _eExportJ=document.getElementById("settBtnExportJson");if(_eExportJ)_eExportJ.addEventListener("click",exportJson);
   var _eDupes=document.getElementById("settBtnDuplicates");if(_eDupes)_eDupes.addEventListener("click",findDuplicates);
