@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-31T19:26:30.871Z",
+  "updated": "2026-05-31T19:27:07.682Z",
   "movies": [
     {
       "id": 1,
@@ -26,7 +26,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1080p\\2002 - Minority Report 1080p.mkv",
       "_rtScore": 89,
-      "_csfdUrl": "https://www.csfd.cz/film/8647-minority-report/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/8647-minority-report/recenze/",
+      "_pctCsfd": 82
     },
     {
       "id": 2,
@@ -77,7 +78,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1080p\\2023 - Oppenheimer 1080p.mkv",
       "_rtScore": 93,
-      "_csfdUrl": "https://www.csfd.cz/film/1091993-oppenheimer/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/1091993-oppenheimer/recenze/",
+      "_pctCsfd": 83
     },
     {
       "id": 4,
@@ -6504,7 +6506,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2002 - Mesto bohu.m3u",
       "_rtScore": 91,
-      "_csfdUrl": "https://www.csfd.cz/film/88625-mesto-bohu/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/88625-mesto-bohu/recenze/",
+      "_pctCsfd": 89
     },
     {
       "id": 245,
@@ -7115,7 +7118,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2003 - Pan prstenu - Navrat krale.mkv",
       "_rtScore": 94,
-      "_csfdUrl": "https://www.csfd.cz/film/4712-pan-prstenu-navrat-krale/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/4712-pan-prstenu-navrat-krale/recenze/",
+      "_pctCsfd": 91
     },
     {
       "id": 268,
@@ -13013,7 +13017,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2014 - Na hrane zitrka.mkv",
       "_rtScore": 54,
-      "_csfdUrl": "https://www.csfd.cz/film/244957-na-hrane-temnoty/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/244957-na-hrane-temnoty/recenze/",
+      "_pctCsfd": 64
     },
     {
       "id": 488,
@@ -14499,7 +14504,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2011 - Zrozeni Planety opic.mkv",
       "_rtScore": 82,
-      "_csfdUrl": "https://www.csfd.cz/film/281606-zrozeni-planety-opic/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/281606-zrozeni-planety-opic/recenze/",
+      "_pctCsfd": 82
     },
     {
       "id": 543,
@@ -14659,7 +14665,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2012 - Atlas mraku.mkv",
       "_rtScore": 66,
-      "_csfdUrl": "https://www.csfd.cz/film/290326-atlas-mraku/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/290326-atlas-mraku/recenze/",
+      "_pctCsfd": 78
     },
     {
       "id": 549,
@@ -15727,7 +15734,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2012 - Muz na hrane.mkv",
       "_rtScore": 8,
-      "_csfdUrl": "https://www.csfd.cz/film/317124-hra-na-hrane/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/317124-hra-na-hrane/recenze/",
+      "_pctCsfd": 58
     },
     {
       "id": 589,
@@ -18468,7 +18476,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2015 - Hardcore Henry.mkv",
       "_rtScore": 51,
-      "_csfdUrl": "https://www.csfd.cz/film/386999-hardcore-henry/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/386999-hardcore-henry/recenze/",
+      "_pctCsfd": 72
     },
     {
       "id": 692,
@@ -19371,7 +19380,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2015 - Sileny Max - Zbesila cesta.mkv",
       "_rtScore": 97,
-      "_csfdUrl": "https://www.csfd.cz/film/267974-sileny-max-zbesila-cesta/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/267974-sileny-max-zbesila-cesta/recenze/",
+      "_pctCsfd": 81
     },
     {
       "id": 726,
@@ -21588,7 +21598,8 @@
       "_tmdbUrl": null,
       "_imdbUrl": null,
       "_localPath": "",
-      "_csfdUrl": "https://www.csfd.cz/film/702726-free-guy-hra-na-hrdinu/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/702726-free-guy-hra-na-hrdinu/recenze/",
+      "_pctCsfd": 74
     },
     {
       "id": 809,
@@ -23388,7 +23399,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2018 - 12 hrdinov.mkv",
       "_rtScore": 50,
-      "_csfdUrl": "https://www.csfd.cz/film/490379-12-hrdinu/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/490379-12-hrdinu/recenze/",
+      "_pctCsfd": 64
     },
     {
       "id": 877,
@@ -24452,7 +24464,8 @@
       "_tmdbUrl": null,
       "_imdbUrl": null,
       "_localPath": "",
-      "_csfdUrl": "https://www.csfd.cz/film/702726-free-guy-hra-na-hrdinu/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/702726-free-guy-hra-na-hrdinu/recenze/",
+      "_pctCsfd": 74
     },
     {
       "id": 917,
@@ -26848,7 +26861,8 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/609164",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2006 - Budiz svetlo.mkv",
-      "_csfdUrl": "https://www.csfd.cz/film/669956-budiz-svetlo/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/669956-budiz-svetlo/recenze/",
+      "_pctCsfd": 74
     },
     {
       "id": 1007,
@@ -31128,7 +31142,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2021 - Krotitele duchu.mkv",
       "_rtScore": 42,
-      "_csfdUrl": "https://www.csfd.cz/film/1218155-krotitele-duchu-rise-ledu/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/1218155-krotitele-duchu-rise-ledu/recenze/",
+      "_pctCsfd": 57
     },
     {
       "id": 1170,
@@ -37674,7 +37689,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2024 - Duna - Cast druha.mkv",
       "_rtScore": 92,
-      "_csfdUrl": "https://www.csfd.cz/film/1098951-duna-cast-druha/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/1098951-duna-cast-druha/recenze/",
+      "_pctCsfd": 87
     },
     {
       "id": 1416,
@@ -37968,7 +37984,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2024 - Kocici odysea.mkv",
       "_rtScore": 97,
-      "_csfdUrl": "https://www.csfd.cz/film/1517793-kocici-odysea/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/1517793-kocici-odysea/recenze/",
+      "_pctCsfd": 80
     },
     {
       "id": 1427,
@@ -42131,7 +42148,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2002 - Mesto bohu.m3u",
       "_rtScore": 91,
-      "_csfdUrl": "https://www.csfd.cz/film/88625-mesto-bohu/recenze/"
+      "_csfdUrl": "https://www.csfd.cz/film/88625-mesto-bohu/recenze/",
+      "_pctCsfd": 89
     },
     {
       "id": 1583,
