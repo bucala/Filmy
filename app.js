@@ -846,30 +846,36 @@ function startImdbBatch(){
       return;
     }
     var item=queue[idx++];
-    var directUrl='https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey;
-    fetch(directUrl)
-      .then(function(r){
-        if(!r.ok) throw new Error(r.status);
-        return r.json();
-      })
-      .catch(function(){
-        var proxy='https://api.allorigins.win/raw?url='+encodeURIComponent('http://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey);
-        return fetch(proxy).then(function(r){return r.json();});
-      })
-      .then(function(d){
-        if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
-          var pct=Math.round(parseFloat(d.imdbRating)*10);
-          if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
-        }
-      })
-      .catch(function(){failed++;})
-      .then(function(){
-        done++;
-        fill.style.width=Math.round(done/total*100)+'%';
-        stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
-        if(done%50===0) saveAllData();
-        setTimeout(next,400);
-      });
+    var cbName='_omdbCb'+Date.now()+'_'+idx;
+    var timer=setTimeout(function(){
+      cleanup();failed++;advance();
+    },8000);
+    function cleanup(){
+      clearTimeout(timer);
+      try{delete window[cbName];}catch(e){}
+      var s=document.getElementById(cbName);
+      if(s)s.parentNode.removeChild(s);
+    }
+    function advance(){
+      done++;
+      fill.style.width=Math.round(done/total*100)+'%';
+      stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
+      if(done%50===0) saveAllData();
+      setTimeout(next,350);
+    }
+    window[cbName]=function(d){
+      cleanup();
+      if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
+        var pct=Math.round(parseFloat(d.imdbRating)*10);
+        if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
+      }
+      advance();
+    };
+    var sc=document.createElement('script');
+    sc.id=cbName;
+    sc.src='https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey+'&callback='+cbName;
+    sc.onerror=function(){cleanup();failed++;advance();};
+    document.head.appendChild(sc);
   }
   next();
 }
@@ -887,9 +893,45 @@ function startCsfdBatch(){
   var stEl=document.getElementById('csfdBatchSt');
   var total=queue.length,done=0,updated=0,failed=0;
   fill.style.width='0%';
-  stEl.textContent='0 / '+total;
+  stEl.textContent='Testujem pripojenie...';
 
-  var idx=0;
+  var proxies=[
+    function(u){return 'https://api.allorigins.win/raw?url='+encodeURIComponent(u);},
+    function(u){return 'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u);},
+    function(u){return 'https://corsproxy.io/?url='+encodeURIComponent(u);}
+  ];
+  var proxyIdx=0;
+
+  function tryProxy(url,pi){
+    if(pi>=proxies.length) return Promise.reject(new Error('all proxies failed'));
+    return fetch(proxies[pi](url))
+      .then(function(r){if(!r.ok) throw new Error(r.status);return r.text();})
+      .then(function(html){
+        if(html.indexOf('film-rating-average')<0) throw new Error('no rating found');
+        return html;
+      })
+      .catch(function(){return tryProxy(url,pi+1);});
+  }
+
+  var testUrl=queue[0].url;
+  tryProxy(testUrl,0).then(function(html){
+    var m=html.match(/film-rating-average[^>]*>\s*(\d+)\s*%/);
+    if(m){
+      var pct=parseInt(m[1],10);
+      if(!isNaN(pct)&&pct>=0&&pct<=100){queue[0].movie._pctCsfd=pct;updated++;}
+    }
+    done++;idx=1;
+    stEl.textContent='1 / '+total+(updated?' ('+updated+' OK)':'');
+    fill.style.width=Math.round(done/total*100)+'%';
+    setTimeout(next,500);
+  }).catch(function(){
+    fill.style.width='100%';
+    stEl.textContent='ČSFD blokuje automatické načítanie. Použite "Importovať ČSFD linky (CSV)" s hodnoteniami.';
+    stEl.style.color='#e05555';
+    return;
+  });
+
+  var idx=1;
   function next(){
     if(idx>=queue.length){
       saveAllData();
@@ -900,15 +942,7 @@ function startCsfdBatch(){
       return;
     }
     var item=queue[idx++];
-    function tryFetchCsfd(url){
-      return fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url))
-        .then(function(r){if(!r.ok) throw new Error(r.status);return r.text();})
-        .catch(function(){
-          return fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url))
-            .then(function(r){if(!r.ok) throw new Error(r.status);return r.text();});
-        });
-    }
-    tryFetchCsfd(item.url)
+    tryProxy(item.url,0)
       .then(function(html){
         var match=html.match(/film-rating-average[^>]*>\s*(\d+)\s*%/);
         if(match){
@@ -925,7 +959,6 @@ function startCsfdBatch(){
         setTimeout(next,500);
       });
   }
-  next();
 }
 
 function openTrailer(id){
