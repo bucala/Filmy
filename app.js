@@ -846,15 +846,18 @@ function startImdbBatch(){
       return;
     }
     var item=queue[idx++];
-    var omdbUrl='http://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey;
-    var proxy='https://api.allorigins.win/raw?url='+encodeURIComponent(omdbUrl);
-    fetch(proxy)
+    var directUrl='https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey;
+    fetch(directUrl)
       .then(function(r){
         if(!r.ok) throw new Error(r.status);
         return r.json();
       })
+      .catch(function(){
+        var proxy='https://api.allorigins.win/raw?url='+encodeURIComponent('http://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey);
+        return fetch(proxy).then(function(r){return r.json();});
+      })
       .then(function(d){
-        if(d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
+        if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
           var pct=Math.round(parseFloat(d.imdbRating)*10);
           if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
         }
@@ -897,12 +900,15 @@ function startCsfdBatch(){
       return;
     }
     var item=queue[idx++];
-    var proxy='https://api.allorigins.win/raw?url='+encodeURIComponent(item.url);
-    fetch(proxy)
-      .then(function(r){
-        if(!r.ok) throw new Error(r.status);
-        return r.text();
-      })
+    function tryFetchCsfd(url){
+      return fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url))
+        .then(function(r){if(!r.ok) throw new Error(r.status);return r.text();})
+        .catch(function(){
+          return fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(url))
+            .then(function(r){if(!r.ok) throw new Error(r.status);return r.text();});
+        });
+    }
+    tryFetchCsfd(item.url)
       .then(function(html){
         var match=html.match(/film-rating-average[^>]*>\s*(\d+)\s*%/);
         if(match){

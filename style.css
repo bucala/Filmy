@@ -85,7 +85,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 
 /* ── Row 2 ──────────────────────────────────────────────────────── */
 .hdr-row2{display:flex;align-items:stretch;
-  border-top:1px solid var(--border);min-height:40px}
+  border-top:1px solid var(--border);min-height:46px}
 
 /* Action tabs — left side */
 
@@ -220,6 +220,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .dg-tag{font-family:"JetBrains Mono",monospace;font-size:10px;background:#141428;color:#80a0d0;border-radius:5px;padding:3px 9px;border:1px solid #2a2a4a}
 
 .sec::after{content:"";flex:1;height:1px;background:var(--border)}
+.sec{display:flex;align-items:center;gap:10px;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--text3);margin-top:14px;margin-bottom:8px}
 .det-desc{font-size:15px;line-height:1.7;color:var(--text2)}
 .det-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;margin-bottom:4px}
 .det-path-hint{width:100%;font-size:10px;opacity:.45;margin-top:4px;word-break:break-all;font-family:"JetBrains Mono",monospace}
@@ -285,7 +286,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-key-inp:focus{border-color:var(--gold)}
 .sett-key-inp::placeholder{color:var(--text3)}
 .sett-key-st{font-family:"JetBrains Mono",monospace;font-size:10px;min-height:14px;margin-bottom:6px;padding:0 2px}
-.sett-key-st.ok{display:none}.sett-key-st.err{color:#e05555}
+.sett-key-st.ok{color:#22cc88}.sett-key-st.err{color:#e05555}
 
 /* ── Unified icon button (eye, delete) ─────────────────────────── */
 .sett-icon-btn{background:var(--card2);border:1px solid var(--border2);border-radius:10px;
@@ -311,7 +312,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-btn-icon{font-size:14px;flex-shrink:0;opacity:.85}
 .sett-btn-label{flex:1}
 .sett-btn-hint{font-size:9px;color:var(--text3);margin-top:1px;font-family:"JetBrains Mono",monospace;
-  line-height:1.4;padding:0 2px;margin-bottom:4px}
+  line-height:1.4;padding:0 2px;margin-bottom:8px}
 
 /* ── Progress bar ───────────────────────────────────────────────── */
 .sett-pbar-wrap{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin:6px 0 4px}
@@ -616,7 +617,7 @@ cons ─────────────────────────
    ═══════════════════════════════════════════════════ */
 .hdr-row2-left{
   display:flex;align-items:center;gap:7px;
-  padding:4px 8px;flex:1;
+  padding:5px 8px;flex:1;
   overflow-x:auto;overflow-y:hidden;
   scrollbar-width:none;-ms-overflow-style:none}
 .hdr-row2-left::-webkit-scrollbar{display:none}
