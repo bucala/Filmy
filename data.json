@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-31T20:06:42.213Z",
+  "updated": "2026-05-31T20:06:58.234Z",
   "movies": [
     {
       "id": 1,
@@ -46282,14 +46282,14 @@
       "year": 2026,
       "director": "Lee Cronin",
       "genres": [
-        "Horor",
+        "Horror",
         "Mysteriózny"
       ],
-      "country": "Ireland",
-      "duration": "135 min",
-      "cast": "Jack Reynor, Laia Costa, May Calamawy, Natalie Grace, Shylo Molina",
-      "description": "Malá dívka Katie beze stopy zmizela v poušti poté, co byla prokleta záhadnou ženou. Rodiče jsou ztrátou milované dcery zarmouceni a vzniklé trauma negativně ovlivní jejich vztah. O osm let později dochází k havárii letadla přepravujícího starověký sarkofág – v tom překvapení vyšetřovatelé nalézají živou a nyní již dospělou Katie, která se tak opět může shledat s rodinou. Počáteční radost a nadšení rodičů však záhy opadne – ti si totiž uvědomí, že spolu s dcerou vpustili do domu také něco pradávn",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/7KM3XEP62AzQqM506SBkZmNSOt.jpg",
+      "country": "US, IE",
+      "duration": "133 min",
+      "cast": "Jack Reynor, Laia Costa, May Calamawy, Natalie Grace, Shylo Molina, Billie Roy, Veronica Falcón, Hayat Kamille, مي الغيطي, Emily Mitchell",
+      "description": "Keď malá Katie bez stopy zmizne v púšti, jej rodina je zdrvená. Po ôsmich rokoch sa rovnako záhadne objaví, no jej príchod nie je požehnaním, ale prekliatím. Spolu s ňou sa totiž prebudí aj nemŕtve mumifikované zlo a radostné rodinné znovuzvítanie sa rýchlo zmení na desivú nočnú moru.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/yAb3gjefG9xQsr88YyhUyMvSZZe.jpg",
       "rating": 0,
       "tmdbId": 1304313,
       "moods": [],
@@ -58657,11 +58657,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt32897959/"
     },
     "1739": {
-      "pct": 58,
-      "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/7KM3XEP62AzQqM506SBkZmNSOt.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/1193115",
-      "imdbUrl": "https://www.imdb.com/title/tt30826062/"
+      "pct": 81,
+      "ytKey": "_mxB7ViF_Hc",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1304313",
+      "imdbUrl": "https://www.imdb.com/title/tt32612507/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/yAb3gjefG9xQsr88YyhUyMvSZZe.jpg"
     },
     "1740": {
       "pct": 81,
