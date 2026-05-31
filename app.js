@@ -1850,7 +1850,8 @@ toast(_modeLabel);
       }
       var title=(m.title||'').replace(/,/g,' ');
       var csfd=m._csfdUrl||'';
-      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link+','+csfd;
+      var csfdPct=m._pctCsfd!=null?m._pctCsfd+'%':'';
+      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link+','+csfd+','+csfdPct;
     });
     var csv=bom+rows.join('\n')+'\n';
     var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
@@ -1909,12 +1910,19 @@ toast(_modeLabel);
     reader.onload=function(e){
       var text=e.target.result.replace(/^﻿/,'');
       var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+      var tmdbIndex={};
+      all.forEach(function(m){
+        var tid=String(m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbId)||'');
+        if(tid) tmdbIndex[tid]=m;
+      });
       var matched=0,skipped=0,ratings=0;
-      lines.forEach(function(line){
+      lines.forEach(function(line,li){
         var cols=line.split(',');
-        if(cols.length<2) return;
-        var num=cols[0].trim();
-        var movie=all.find(function(m){return String(m.num)===num;});
+        if(cols.length<6) return;
+        var seqNum=cols[0].trim();
+        if(seqNum==='#'||li===0&&isNaN(parseInt(seqNum))) return;
+        var tmdbId=cols[1].trim();
+        var movie=tmdbIndex[tmdbId]||all.find(function(m){return String(m.num)===seqNum;});
         if(!movie){skipped++;return;}
         var found=false;
         for(var i=5;i<cols.length;i++){
