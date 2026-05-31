@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-31T19:59:19.803Z",
+  "updated": "2026-05-31T20:06:42.213Z",
   "movies": [
     {
       "id": 1,
@@ -46501,11 +46501,11 @@
         "Akčný",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "106 min",
-      "cast": "John Krasinski, Wendell Pierce, Sienna Miller, Michael Kelly, Max Beesley",
-      "description": "Tajná mezinárodní mise odhalí existenci smrtícího spiknutí a Jack Ryan se v závodě s časem přidá ke spojencům ze CIA Mikeu Novemberovi a Jamesi Greerovi a nekompromisní agentce MI6 Emmě Marloweové, aby svedli hluboce osobní a nemilosrdný boj proti členům jednotky pověřené ilegální operací, kteří vzali věc do vlastních rukou.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg",
+      "country": "US",
+      "duration": "107 min",
+      "cast": "John Krasinski, Wendell Pierce, Sienna Miller, Michael Kelly, Max Beesley, Betty Gabriel, JJ Feild, Douglas Hodge, Dominic Mafham, Alex Brockdorff",
+      "description": "Jack Ryan je neochotne vtiahnutý späť do špionáže, keď medzinárodná tajná misia odhalí smrteľné sprisahanie. V pretekoch s časom sa pripája k spojencom CIA Mikovi Novemberovi a Jamesovi Greerovi a prefíkanej dôstojníčke MI6 Emme Marloweovej, aby v napínavom a hlboko osobnom boji bojovali proti tajnej jednotke.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg",
       "rating": 0,
       "tmdbId": 1380291,
       "moods": [],
@@ -58714,10 +58714,10 @@
     },
     "1747": {
       "pct": 72,
-      "ytKey": "-4ZVFspRn3M",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg",
+      "ytKey": null,
       "tmdbUrl": "https://www.themoviedb.org/movie/1380291",
-      "imdbUrl": "https://www.imdb.com/title/tt34378301/"
+      "imdbUrl": "https://www.imdb.com/title/tt34378301/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg"
     }
   }
 }
