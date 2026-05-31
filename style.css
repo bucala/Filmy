@@ -617,8 +617,7 @@ cons ─────────────────────────
    ═══════════════════════════════════════════════════ */
 .hdr-row2-left{
   display:flex;align-items:center;gap:7px;
-  padding:5px 8px;flex:1;
-  overflow-x:auto;overflow-y:hidden;
+  padding:6px 8px;flex:1;min-width:0;
   scrollbar-width:none;-ms-overflow-style:none}
 .hdr-row2-left::-webkit-scrollbar{display:none}
 .hdr-row2-right{
