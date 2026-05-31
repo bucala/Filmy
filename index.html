@@ -353,6 +353,22 @@
     </button>
     </div>
 
+    <div class="sett-grp">
+    <div class="sett-grp-title">IMDB hodnotenia (OMDB API)</div>
+    <div class="sett-btn-hint">Bezplatný kľúč z <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener" style="color:var(--gold)">omdbapi.com</a> (1 000 req/deň). Načíta IMDB % pre všetky filmy.</div>
+    <div class="sett-key-row" style="margin-top:6px">
+      <input class="sett-key-inp" id="omdbKeyInp" type="password" placeholder="OMDB API kľúč" autocomplete="off">
+      <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="omdbSaveKey">OK</button>
+    </div>
+    <div class="sett-key-st" id="omdbKeySt"></div>
+    <button class="sett-btn secondary" id="settBtnImdb" style="margin-top:8px">
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+      <span class="sett-btn-label">Načítať IMDB hodnotenia</span>
+    </button>
+    <div class="sett-pbar-wrap"><div class="sett-pfill" id="imdbPfill"></div></div>
+    <div class="sett-batch-st" id="imdbBatchSt"></div>
+    </div>
+
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>Záloha a synchronizácia</div>
     <div class="sett-grp">
     <div class="sett-grp-title">Lokálna záloha</div>

@@ -39,6 +39,7 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
 var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
 function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
 var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
+var omdbKey=localStorage.getItem("omdb_key")||"";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
@@ -814,6 +815,71 @@ function settStartBatch(){
   runBatch();
 }
 
+function startImdbBatch(){
+  if(!omdbKey){
+    var st=document.getElementById('omdbKeySt');
+    if(st){st.textContent='Najprv zadajte OMDB API kľúč';st.className='sett-key-st';}
+    return;
+  }
+  var queue=[];
+  all.forEach(function(m){
+    if(m._pctImdb!=null) return;
+    var c=liveCache[m.id];
+    var url=(c&&c.imdbUrl)||m._imdbUrl||null;
+    if(!url) return;
+    var match=url.match(/tt\d+/);
+    if(match) queue.push({movie:m, imdbId:match[0]});
+  });
+  if(!queue.length){toast('Žiadne filmy na načítanie IMDB hodnotení');return;}
+  var fill=document.getElementById('imdbPfill');
+  var stEl=document.getElementById('imdbBatchSt');
+  var total=queue.length,done=0,updated=0,failed=0;
+  fill.style.width='0%';
+  stEl.textContent='0 / '+total;
+
+  function save(){
+    saveLiveCache();
+    try{
+      var toSave=all.map(function(m){
+        var c=Object.assign({},m);
+        if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
+        return c;
+      });
+      safeSave(SK,JSON.stringify(toSave));
+    }catch(e){}
+  }
+
+  var idx=0;
+  function next(){
+    if(idx>=queue.length){
+      save();
+      fill.style.width='100%';
+      stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
+      renderList(filt);
+      scheduleAutoPush('imdb-batch');
+      return;
+    }
+    var item=queue[idx++];
+    fetch('https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey)
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
+          var pct=Math.round(parseFloat(d.imdbRating)*10);
+          if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
+        }
+      })
+      .catch(function(){failed++;})
+      .then(function(){
+        done++;
+        fill.style.width=Math.round(done/total*100)+'%';
+        stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
+        if(done%50===0) save();
+        setTimeout(next,350);
+      });
+  }
+  next();
+}
+
 function openTrailer(id){
   var m=all.find(function(x){return x.id===id;});if(!m)return;
   var cached=liveCache[id];
@@ -1058,6 +1124,13 @@ function openSett(){
   document.getElementById("tmdbKeyInp").type="password";
   document.getElementById("tmdbEye").textContent="\uD83D\uDC41";
   keyStatus("tmdbKeySt",tmdbKey);
+  var omdbInp=document.getElementById('omdbKeyInp');
+  if(omdbInp){omdbInp.value=omdbKey;omdbInp.type='password';}
+  var omdbSt=document.getElementById('omdbKeySt');
+  if(omdbSt){omdbSt.textContent=omdbKey?'✓ OMDB kľúč uložený':'';omdbSt.className=omdbKey?'sett-key-st ok':'sett-key-st';}
+  var imdbCount=all.filter(function(m){return m._pctImdb!=null;}).length;
+  var imdbSt=document.getElementById('imdbBatchSt');
+  if(imdbSt&&imdbCount)imdbSt.textContent=imdbCount+' filmov s IMDB hodnotením';
   document.getElementById("ttabList").className="ttab"+(grid?"":" on");
   document.getElementById("ttabGrid").className="ttab"+(grid?" on":"");
   document.getElementById("settSortSel").value=prefs.sort||"num";
@@ -1683,6 +1756,14 @@ toast(_modeLabel);
   document.getElementById("settBtnPdf").addEventListener("click",impPdf);
   var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
   var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
+  document.getElementById('omdbSaveKey').addEventListener('click',function(){
+    var k=document.getElementById('omdbKeyInp').value.trim();
+    omdbKey=k;localStorage.setItem('omdb_key',k);
+    var st=document.getElementById('omdbKeySt');
+    if(st){st.textContent=k?'✓ OMDB kľúč uložený':'Kľúč vymazaný';st.className='sett-key-st'+(k?' ok':'');}
+    toast(k?'OMDB kľúč uložený':'OMDB kľúč vymazaný');
+  });
+  document.getElementById('settBtnImdb').addEventListener('click',startImdbBatch);
   var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
   var _eExportJ=document.getElementById("settBtnExportJson");if(_eExportJ)_eExportJ.addEventListener("click",exportJson);
   var _eDupes=document.getElementById("settBtnDuplicates");if(_eDupes)_eDupes.addEventListener("click",findDuplicates);
