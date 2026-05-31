@@ -819,51 +819,92 @@ function startImdbBatch(){
     if(st){st.textContent='Najprv zadajte OMDB API kľúč';st.className='sett-key-st';}
     return;
   }
-  var queue=[];
+  var ready=[],needTmdb=[];
   all.forEach(function(m){
     if(m._pctImdb!=null) return;
     var c=liveCache[m.id];
     var url=(c&&c.imdbUrl)||m._imdbUrl||null;
-    if(!url) return;
-    var match=url.match(/tt\d+/);
-    if(match) queue.push({movie:m, imdbId:match[0]});
+    if(url){
+      var match=url.match(/tt\d+/);
+      if(match){ready.push({movie:m, imdbId:match[0]});return;}
+    }
+    var tid=m.tmdbId||(c&&c.tmdbId)||null;
+    if(tid) needTmdb.push({movie:m, tmdbId:tid});
   });
-  if(!queue.length){toast('Žiadne filmy na načítanie IMDB hodnotení');return;}
+  if(!ready.length&&!needTmdb.length){toast('Žiadne filmy na načítanie IMDB hodnotení');return;}
   var fill=document.getElementById('imdbPfill');
   var stEl=document.getElementById('imdbBatchSt');
-  var total=queue.length,done=0,updated=0,failed=0;
-  fill.style.width='0%';
-  stEl.textContent='0 / '+total;
 
-  var idx=0;
-  function next(){
-    if(idx>=queue.length){
-      saveAllData();
+  if(needTmdb.length&&tmdbKey){
+    stEl.textContent='Hľadám IMDB ID cez TMDb ('+needTmdb.length+' filmov)...';
+    fill.style.width='0%';
+    var ti=0,resolved=0;
+    function nextTmdb(){
+      if(ti>=needTmdb.length){
+        stEl.textContent='Nájdených '+resolved+' IMDB ID. Sťahujem hodnotenia...';
+        runOmdbBatch(ready);
+        return;
+      }
+      var it=needTmdb[ti++];
+      fetch('https://api.themoviedb.org/3/movie/'+it.tmdbId+'/external_ids?api_key='+tmdbKey)
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.imdb_id){
+            it.movie._imdbUrl='https://www.imdb.com/title/'+d.imdb_id+'/';
+            ready.push({movie:it.movie, imdbId:d.imdb_id});
+            resolved++;
+          }
+        })
+        .catch(function(){})
+        .then(function(){
+          fill.style.width=Math.round(ti/needTmdb.length*30)+'%';
+          setTimeout(nextTmdb,120);
+        });
+    }
+    nextTmdb();
+  } else {
+    runOmdbBatch(ready);
+  }
+
+  function runOmdbBatch(queue){
+    if(!queue.length){
+      stEl.textContent='Žiadne IMDB ID nájdené';
       fill.style.width='100%';
-      stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
-      renderList(filt);
-      scheduleAutoPush('imdb-batch');
       return;
     }
-    var item=queue[idx++];
-    fetch('/api/omdb?i='+item.imdbId+'&apikey='+omdbKey)
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
-          var pct=Math.round(parseFloat(d.imdbRating)*10);
-          if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
-        }
-      })
-      .catch(function(){failed++;})
-      .then(function(){
-        done++;
-        fill.style.width=Math.round(done/total*100)+'%';
-        stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
-        if(done%50===0) saveAllData();
-        setTimeout(next,200);
-      });
+    var total=queue.length,done=0,updated=0,failed=0;
+    fill.style.width='30%';
+    stEl.textContent='0 / '+total;
+    var idx=0;
+    function next(){
+      if(idx>=queue.length){
+        saveAllData();
+        fill.style.width='100%';
+        stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
+        renderList(filt);
+        scheduleAutoPush('imdb-batch');
+        return;
+      }
+      var item=queue[idx++];
+      fetch('/api/omdb?i='+item.imdbId+'&apikey='+omdbKey)
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
+            var pct=Math.round(parseFloat(d.imdbRating)*10);
+            if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
+          }
+        })
+        .catch(function(){failed++;})
+        .then(function(){
+          done++;
+          fill.style.width=Math.round(30+done/total*70)+'%';
+          stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
+          if(done%50===0) saveAllData();
+          setTimeout(next,200);
+        });
+    }
+    next();
   }
-  next();
 }
 
 function startCsfdBatch(){
@@ -1924,6 +1965,7 @@ toast(_modeLabel);
         var tmdbId=cols[1].trim();
         var movie=tmdbIndex[tmdbId]||all.find(function(m){return String(m.num)===seqNum;});
         if(!movie){skipped++;return;}
+        if(tmdbId&&!movie.tmdbId) movie.tmdbId=parseInt(tmdbId)||null;
         var found=false;
         for(var i=5;i<cols.length;i++){
           var val=cols[i].trim();
@@ -2461,7 +2503,10 @@ function ghApiFileUrl() {
 
 function ghPush() {
   if (!ghToken) { ghSetStatus('Nastav GitHub token.', 'err'); return; }
+  if (ghPushInProgress) { scheduleAutoPush('busy'); return; }
+  ghPushInProgress = true;
   if (!all || !all.length) {
+    ghPushInProgress = false;
     ghSetStatus('Žiadne dáta na uloženie. Najprv importuj alebo načítaj.', 'err');
     toast('Databáza je prázdna');
     return;
@@ -2529,32 +2574,48 @@ function ghPush() {
     })
     .then(function(res) {
       if (res.ok) {
+        ghPushInProgress = false;
         var ts = new Date().toLocaleTimeString('sk');
         ghSetStatus(`✓ Uložené ${ts} · ${all.length} filmov`, 'ok');
         toast('Databáza uložená na GitHub!');
       } else if (res.status === 409 || res.status === 422) {
-        // SHA mismatch (409 Conflict or 422) — re-fetch SHA and retry ONCE
         ghSetStatus('SHA mismatch, opakujem…', 'info');
-        fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers: hdrs })
-          .then(function(r2) {
-            if (!r2.ok) throw new Error('Retry GET failed: ' + r2.status);
-            return r2.json();
-          })
-          .then(function(d2) { return doWrite(d2.sha); })
-          .then(function(res2) {
-            if (res2.ok) {
-              ghSetStatus(`✓ Uložené (2. pokus) · ${all.length} filmov`, 'ok');
-              toast('Databáza uložená na GitHub!');
-            } else {
-              ghSetStatus(`Chyba retry: ${res2.d.message||res2.status}`, 'err');
-            }
-          })
-          .catch(e2=>ghSetStatus(`Retry zlyhalo: ${e2.message}`, 'err'));
+        setTimeout(function(){
+          fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers: hdrs, cache: 'no-store' })
+            .then(function(r2) {
+              if (!r2.ok) throw new Error('Retry GET failed: ' + r2.status);
+              return r2.json();
+            })
+            .then(function(d2) {
+              if (!d2.sha) {
+                return fetch(`${baseUrl}/git/trees/${GH_BRANCH}`, { headers: hdrs, cache: 'no-store' })
+                  .then(function(tr){return tr.json();})
+                  .then(function(tree){
+                    var f=(tree.tree||[]).find(function(x){return x.path===GH_FILE;});
+                    return f?f.sha:null;
+                  });
+              }
+              return d2.sha;
+            })
+            .then(function(sha2){ return doWrite(sha2); })
+            .then(function(res2) {
+              ghPushInProgress = false;
+              if (res2.ok) {
+                ghSetStatus(`✓ Uložené (2. pokus) · ${all.length} filmov`, 'ok');
+                toast('Databáza uložená na GitHub!');
+              } else {
+                ghSetStatus(`Chyba retry: ${(res2.d&&res2.d.message)||res2.status}`, 'err');
+              }
+            })
+            .catch(function(e2){ghPushInProgress=false;ghSetStatus(`Retry zlyhalo: ${e2.message}`, 'err');});
+        }, 1500);
       } else {
-        ghSetStatus(`Chyba: ${res.d.message||'HTTP '+res.status}`, 'err');
+        ghPushInProgress = false;
+        ghSetStatus(`Chyba: ${(res.d&&res.d.message)||'HTTP '+res.status}`, 'err');
       }
     })
     .catch(function(e) {
+      ghPushInProgress = false;
       if(e.message!=='401')ghSetStatus(`Sieťová chyba: ${e.message}`, 'err');
     });
 }
@@ -3876,11 +3937,13 @@ function autoCheckGitHub() {
 
 /* ── Auto-push to GitHub (5s debounce) ──────────────────────────── */
 var autoPushTimer = null;
+var ghPushInProgress = false;
 function scheduleAutoPush(reason) {
   if (!ghToken || prefs.autoPush === false) return;
   if (autoPushTimer) clearTimeout(autoPushTimer);
   autoPushTimer = setTimeout(function() {
     autoPushTimer = null;
+    if (ghPushInProgress) { scheduleAutoPush('deferred'); return; }
     if (all && all.length) ghPush();
   }, 5000);
 }
