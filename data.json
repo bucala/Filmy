@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-01T06:28:48.676Z",
+  "updated": "2026-06-01T06:30:12.574Z",
   "movies": [
     {
       "id": 1,
@@ -23672,13 +23672,15 @@
       "director": "Tomas Alfredson",
       "genres": [
         "Kriminálny",
-        "Thriller"
+        "Thriller",
+        "Mysteriózny",
+        "Horror"
       ],
-      "country": "United Kingdom",
-      "duration": "119 min",
-      "cast": "Michael Fassbender, Rebecca Ferguson, Charlotte Gainsbourg, Jonas Karlsson, Michael Yates",
-      "description": "Harry Hole je enfant terrible týmu, vyšetřujícího zločiny v norské metropoli. Na jedné straně je to výjimečně dobrý detektiv, jehož netradiční metody skoro vždy vedou k úspěchu, na straně druhé se však jedná o nezodpovědného alkoholika s tolika prohřešky, že je už dál nechtějí přehlížet nejen jeho nadřízení, ale ani jeho přítelkyně Rachel, s níž se právě rozešel. Jediné, co stojí mezi ním a pitím, je případ, který by ho přivedl na jiné myšlenky. Ke smůle jedné ženy, která zmizela uprostřed noci ",
-      "poster_thumb": "",
+      "country": "SE, GB, US",
+      "duration": "120 min",
+      "cast": "Michael Fassbender, Rebecca Ferguson, Charlotte Gainsbourg, Jonas Karlsson, Michael Yates, Ronan Vibert, J.K. Simmons, Val Kilmer, David Dencik, Toby Jones",
+      "description": "Harry Hole je enfant terrible tímu, vyšetrujúceho zločiny v nórskej metropole. Na jednej strane je to výnimočne dobrý detektív, ktorého netradičné metódy skoro vždy vedú k úspechu, na strane druhej sa však jedná o nezodpovedného alkoholika ktorého prehrešky nechcú už ďalej prehliadať nielen jeho nadriadení, ale ani jeho priateľka Rach, s ktorou sa práve rozišiel. Jediné, čo stojí medzi ním a pitím, je prípad, ktorý by ho priviedol k iným myšlienkam. A vyzerá to tak, že sa dočkal. Uprostred noci ",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/iF6UTLYZzuILK3Dq2ycs3V7WvtC.jpg",
       "rating": 0,
       "tmdbId": 372343,
       "moods": [],
@@ -53489,11 +53491,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt7312940/"
     },
     "855": {
-      "pct": 100,
-      "ytKey": null,
-      "posterUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/780693",
-      "imdbUrl": "https://www.imdb.com/title/tt6150164/"
+      "pct": 52,
+      "ytKey": "YCxa2raftTE",
+      "tmdbUrl": "https://www.themoviedb.org/movie/372343",
+      "imdbUrl": "https://www.imdb.com/title/tt1758810/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/iF6UTLYZzuILK3Dq2ycs3V7WvtC.jpg"
     },
     "856": {
       "pct": 73,
