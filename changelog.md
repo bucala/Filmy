@@ -67,3 +67,15 @@ Aplikácia prepísaná z pôvodného single-file (236KB) na modulárnu architekt
 - **Settings X button nefungoval** — `closeSett()` je vnútri IIFE, `onclick` z HTML ju nedosiahol; pridaný `addEventListener` v DCL bloku + overlay click
 - **Scroll zobrazoval iba 40 filmov** — infinite scroll bol napojený na `mlist` (display:grid, žiadny overflow), nie na `scrnBody` (position:fixed, overflow-y:auto); prepojený na `scrnBody` s 300px triggerom
 - **hdr-row2-right (filter/sort/view)** — nebolo `position:sticky` → ikony zmizli pri horizontálnom scroll ikon; pridané `sticky;right:0` s pozadím
+
+---
+
+## [11.2.0] — 2026-06-01
+
+### 🐛 Opravené
+- **Statusbar načítania orezával hlavičku** — `batchBar` a `mainPullStatus` boli `position:fixed;top:88px` čo kolidovalo s hlavičkou; presunuté DOVNÚTRA `#scrnBody` ako `position:sticky;top:0` — statusbar je teraz súčasťou scrollovateľného obsahu a neprepisuje hlavičku
+- **_shiftScrnBody hack** — odstránený, už nie je potrebný keď sú bary v scrollovacom toku
+
+### 🔄 Zmenené
+- **Admin panel mobile** — `@media (max-width:480px)` pridané: search row vertikálna, full-width tlačidlá, poster centrovanie
+- **Admin close button** — `position:sticky;top:0` s vylepšeným fontom (Bebas Neue) pre lepšiu čitateľnosť na mobile

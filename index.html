@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="sk" data-skin="dark">
+<html lang="sk" data
+
+-skin="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -107,17 +109,22 @@
   <!-- fbar hidden via CSS (.fbar{display:none}) but required by buildChips() -->
   <div class="fbar" id="fbar"></div>
   <div class="fp-pills" id="fpPills"></div>
-  <div class="batch-bar hidden" id="batchBar">
+  
+  
+<div id="scrnBody" class="scrn-body">
+<div class="batch-bar hidden" id="batchBar">
     <div class="batch-info" id="batchInfo">Nacitavam...</div>
     <div class="batch-pbar"><div class="batch-pfill" id="batchFill"></div></div>
     <button class="batch-stop" id="btnBatchStop">Stop</button>
   </div>
-  <div id="mainPullStatus" class="batch-bar hidden">
+
+
+<div id="mainPullStatus" class="batch-bar hidden">
   <span style="color:var(--gold);margin-right:4px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 13 12 18 17 13"/><line x1="12" y1="6" x2="12" y2="18"/></svg></span>
   <div class="batch-info" id="mainPullStatusText">Načítavam z GitHubu…</div>
   <div class="batch-pbar"><div class="batch-pfill" id="mainPullBar"></div></div>
 </div>
-<div id="scrnBody" class="scrn-body">
+
 <div id="loadSt" class="skel-grid"><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div></div>
     <div id="emptySt" class="estate" style="display:none">
       <div class="estate-ic">&#127917;</div>
@@ -461,7 +468,6 @@
 
     </div>
 
-
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px;flex-shrink:0"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Nástroje</div>
     <div class="sett-grp">
     <button class="sett-btn secondary" id="settBtnDuplicates">
@@ -575,7 +581,6 @@
 </div>
 </div>
 
-
 <!-- ══════════════════════════════════════════════════════════════
      ADVANCED FILTER PANEL
      ══════════════════════════════════════════════════════════════ -->
@@ -620,7 +625,6 @@
 <input type="file" id="fileInpCsfd" accept=".csv,.txt" style="display:none">
 
 <!-- Film database — baked-in movie data with base64 poster thumbnails -->
-
 
 <!-- Application logic -->
 

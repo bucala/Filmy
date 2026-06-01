@@ -774,7 +774,7 @@ function settStartBatch(){
   var total=queue.length,done=0;
   var bar=document.getElementById("batchBar");
   bar.classList.remove("hidden");
-  _shiftScrnBody(true);
+  /* bar is in flow now */
   document.getElementById("batchInfo").textContent="0/"+total;
   document.getElementById("batchFill").style.width="0%";
 
@@ -785,7 +785,7 @@ function settStartBatch(){
         liveRunning=false;
         if(tmdbAbortCtrl){tmdbAbortCtrl.abort();tmdbAbortCtrl=null;}
         bar.classList.add("hidden");
-        _shiftScrnBody(false);
+        /* bar is in flow now */
         saveAllData();
         renderList(filt);
         toast("Načítané: "+done+"/"+total+" filmov!");
@@ -1817,7 +1817,7 @@ toast(_modeLabel);
   document.getElementById("btnBack").addEventListener("click",closeDet);
   document.getElementById("btnStatCls").addEventListener("click",closeStat);
   document.getElementById("trClose").addEventListener("click",closeTr);
-  document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");_shiftScrnBody(false);saveLiveCache();renderList(filt);toast("Prerusene.");});
+  document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");/* bar is in flow now */saveLiveCache();renderList(filt);toast("Prerusene.");});
   document.getElementById("fileInp").addEventListener("change",handleFile);
   /* old emptyPdfBtn removed */
   document.getElementById("settOverlay").addEventListener("click",closeSett);
@@ -2465,21 +2465,21 @@ function ghSetStatus(msg, type) {
       setTimeout(function(){
         mb.classList.add('hidden');
         if (bar) bar.style.width = '0%';
-        _shiftScrnBody(false);
+        /* bar is in flow now */
       }, 1400);
     } else if (type === 'err') {
       mb.classList.remove('hidden');
       mb.style.borderBottomColor = '#e05555';
-      _shiftScrnBody(true);
+      /* bar is in flow now */
       setTimeout(function(){
         mb.classList.add('hidden');
         mb.style.borderBottomColor = '';
-        _shiftScrnBody(false);
+        /* bar is in flow now */
       }, 3500);
     } else {
       mb.classList.remove('hidden');
       mb.style.borderBottomColor = '';
-      _shiftScrnBody(true);
+      /* bar is in flow now */
     }
   }
 }
