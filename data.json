@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:44:46.871Z",
+  "updated": "2026-06-02T06:45:49.879Z",
   "movies": [
     {
       "id": 1,
@@ -3788,14 +3788,14 @@
       "genres": [
         "Dobrodružný",
         "Akčný",
-        "Horor",
-        "Scifi"
+        "Horror",
+        "Science Fiction"
       ],
-      "country": "United States",
+      "country": "CA, US",
       "duration": "106 min",
-      "cast": "Treat Williams, Famke Janssen, Anthony Heald, Kevin J. O'Connor, Wes Studi",
-      "description": "Na palubě luxusní zaoceánské lodi si nejbohatší z bohatých připíjejí na svůj úspěšný život, ale po zuby ozbrojená banda novodobých pirátů připravuje plán na zločin století. Jedno nebezpečí se k lodi blíží ze vzduchu, pod mořskou hladinou však číhají tajemní tvorové, kteří mají zcela jiné plány.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/Adlv1HqJ7dQ72FwQjar8yc62NtS.jpg",
+      "cast": "Treat Williams, Famke Janssen, Anthony Heald, Kevin J. O'Connor, Wes Studi, Derrick O'Connor, Jason Flemyng, Cliff Curtis, Clifton Powell, Trevor Goddard",
+      "description": "Dobrodruha a majiteľa nákladného člnu Johna Finnegana a jeho priateľa Joeya Pantucciho si najme gangster Hanover na cestu do Juhočínskeho mora. Do rovnakých miest sa plaví ja luxusná loď Argonautica. Na jej palube nie je len majiteľ Simon Canton, ale aj zlodejka Trillian, ktorá sa pokúsi vylúpiť lodný trezor, ale prichytia ju a uväznia do skladu potravín. Joey zistí, že v debnách, ktoré dal gangster naložiť sú torpéda. V tom istom čase Hanoverov komplic na Argonautike vyradí navigačné a komunika",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/3J8juJydW6HrFTxpGGvMhOcjum.jpg",
       "rating": 0,
       "tmdbId": 9457,
       "moods": [],
@@ -49178,11 +49178,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0118843/"
     },
     "138": {
-      "pct": 66,
+      "pct": 62,
       "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/Adlv1HqJ7dQ72FwQjar8yc62NtS.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/62012",
-      "imdbUrl": "https://www.imdb.com/title/tt0162555/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/9457",
+      "imdbUrl": "https://www.imdb.com/title/tt0118956/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/3J8juJydW6HrFTxpGGvMhOcjum.jpg"
     },
     "139": {
       "pct": 73,
