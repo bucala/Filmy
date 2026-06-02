@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:46:19.533Z",
+  "updated": "2026-06-02T06:47:09.855Z",
   "movies": [
     {
       "id": 1,
@@ -1197,15 +1197,14 @@
       "year": 1995,
       "director": "John Carpenter",
       "genres": [
-        "Horor",
-        "Mysteriózny",
-        "Rozprávka"
+        "Horror",
+        "Mysteriózny"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "95 min",
-      "cast": "Sam Neill, Julie Carmen, Jürgen Prochnow, David Warner, John Glover",
+      "cast": "Sam Neill, Julie Carmen, Jürgen Prochnow, David Warner, John Glover, Bernie Casey, Peter Jason, Charlton Heston, Frances Bay, Norbert Grupe",
       "description": "Pojišťovací vyšetřovatel John Trent je pověřen prozkoumáním náhlého zmizení fenomenálního hororového spisovatele Suttera Cane. Ten má těsně před uzávěrkou své doposud nejlepší knihy, ale stále nedoručil poslední kapitolu. Trentovi se podaří lokalizovat zapomenuté městečko v němž spisovatel pravděpoodbně žije i čerpá inspiraci pro své zneklidňující příběhy. Spolu s Caneovou editorkou Lindou Styles se vydávají po spisovatelových stopách. Začínají se kolem nich však dít podivné věci, občané městečk",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/1dTSY023ZyBbgVSKDRuA6JLGSnZ.jpg",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/msh4tEUzbnEqlHcFOUH4O0Zti8r.jpg",
       "rating": 0,
       "tmdbId": 2654,
       "moods": [],
@@ -48526,11 +48525,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0109402/"
     },
     "44": {
-      "pct": 68,
-      "ytKey": "0pdNMKZXJ28",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/1dTSY023ZyBbgVSKDRuA6JLGSnZ.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/11318",
-      "imdbUrl": "https://www.imdb.com/title/tt0110428/"
+      "pct": 72,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/2654",
+      "imdbUrl": "https://www.imdb.com/title/tt0113409/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/msh4tEUzbnEqlHcFOUH4O0Zti8r.jpg"
     },
     "45": {
       "pct": 59,
