@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:27:59.770Z",
+  "updated": "2026-06-02T05:31:05.383Z",
   "movies": [
     {
       "id": 1,
@@ -10097,15 +10097,15 @@
       "year": 2006,
       "director": "Neil LaBute",
       "genres": [
-        "Horor",
+        "Horror",
         "Mysteriózny",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "97 min",
-      "cast": "Nicolas Cage, Ellen Burstyn, Kate Beahan, Frances Conroy, Molly Parker",
-      "description": "Detektiv Edward Malus dostává druhou šanci poté, co se mu před lety nepodařilo při automobilové nehodě zachránit matku s dítětem. Jeho expřítelkyně Willow ho požádá o pomoc najít svou ztracenou dceru Rowan. Detektiv se vydává na malý ostrov v Pacifiku, kde Willow s Rowan žily v malé komunitě. Ta se řídí starými pohanskými zvyky a její členové popírají, že by zde Rowan někdy žila a pokud ano, tak je určitě mrtvá. Edward se zaplétá do sítě starodávných tradic a tajemství a čím víc se blíží k nalez",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/zCZLsqgavm1bdCMNwYswnXacpQF.jpg",
+      "country": "US, DE",
+      "duration": "98 min",
+      "cast": "Nicolas Cage, Ellen Burstyn, Kate Beahan, Frances Conroy, Molly Parker, Leelee Sobieski, Diane Delano, Michael Wiseman, Erika-Shaye Gair, Christa Campbell",
+      "description": "Šerif Edward Malus pred niekoľkými rokmi prežil šok, keď sa mu po tragickej autonehode nepodarilo zachrániť matku s dieťaťom. Muž trpí výčitkami svedomia až do chvíle, kým sa mu nenaskytne možnosť svoje zlyhanie napraviť. Edwarda osloví jeho bývalá snúbenica Willow Woodwardová a požiada ho, aby jej pomohol nájsť stratenú dcéru Rowan. Policajt prijme výzvu ako svoju druhú životnú šancu a vydáva sa pátrať po nezvestnom dievčatku na malý ostrov v Pacifiku, kde Willow s Rowan žili v malej komunite. ",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/oZyZ1WM5MPaBKF5BhbDjpuoc0fY.jpg",
       "rating": 0,
       "tmdbId": 9708,
       "moods": [],
@@ -50061,11 +50061,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0465670/"
     },
     "365": {
-      "pct": 47,
-      "ytKey": "IdRtbfYGOh4",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/zCZLsqgavm1bdCMNwYswnXacpQF.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/41235",
-      "imdbUrl": "https://www.imdb.com/title/tt0250698/"
+      "pct": 44,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/9708",
+      "imdbUrl": "https://www.imdb.com/title/tt0450345/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/oZyZ1WM5MPaBKF5BhbDjpuoc0fY.jpg"
     },
     "366": {
       "pct": 65,
