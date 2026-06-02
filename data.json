@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:40:35.262Z",
+  "updated": "2026-06-02T06:44:42.594Z",
   "movies": [
     {
       "id": 1,
@@ -1214,8 +1214,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1994 - Silenstvi.mkv",
       "_rtScore": 59,
-      "_csfdUrl": "https://www.csfd.cz/film/1113858-silenstvi/",
-      "_pctCsfd": 61,
+      "_csfdUrl": "https://www.csfd.cz/film/1323-silenstvi/prehled/",
+      "_pctCsfd": 73,
       "_pctImdb": 72
     },
     {
@@ -3280,8 +3280,8 @@
       "_imdbUrl": "https://www.imdb.com/title/tt0119874/",
       "_localPath": "W:\\Movies\\1997 - Mírotvorce.mkv",
       "_rtScore": 46,
-      "_csfdUrl": "https://www.csfd.cz/film/47859-mirotvorce/recenze/",
-      "_pctCsfd": 55,
+      "_csfdUrl": "https://www.csfd.sk/film/5720-mierotvorca/prehlad/",
+      "_pctCsfd": 62,
       "_pctImdb": 60
     },
     {
