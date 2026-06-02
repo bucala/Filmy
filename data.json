@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:31:05.383Z",
+  "updated": "2026-06-02T05:32:22.251Z",
   "movies": [
     {
       "id": 1,
@@ -9678,13 +9678,13 @@
       "genres": [
         "Akčný",
         "Thriller",
-        "Scifi"
+        "Science Fiction"
       ],
-      "country": "United Kingdom",
+      "country": "US, GB",
       "duration": "126 min",
-      "cast": "Denzel Washington, Paula Patton, Val Kilmer, Jim Caviezel, Adam Goldberg",
-      "description": "Akční thriller se točí okolo tajemného pocitu déjà vu, který provází agenta vládní agentury ATF Douga Carlina. Carlin vyšetřuje rozsáhlý bombový útok, po výbuchu nálože na trajektu v New Orleans je přivolán k zajištění důkazů. Odhalí přitom, že záhadný úkaz, který většina lidí považuje pouze za hříčku vlastní mysli, je ve skutečnosti něčím mnohem mocnějším. V tom okamžiku začíná jeho závod s časem o životy stovek nevinných lidí.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/21Y5ltuEhb9Qx32m9eiDkyC8zeQ.jpg",
+      "cast": "Denzel Washington, Paula Patton, Val Kilmer, Jim Caviezel, Adam Goldberg, Elden Henson, Erika Alexander, Bruce Greenwood, Matt Craven, Enrique Castillo",
+      "description": "Každý asi zažil ten znepokojujúci pocit. Miesto, ktoré ste nikdy nevideli, vám pripadá známe. Osoba, ktorú ste nikdy nestretli, vám pripadá povedomá. Je to fenomén nazývaný deja vu. Mnohí veria, že je to len výplod mysle. Ale čo ak sú to varovania, vyslané z minulosti, alebo stopy k udalostiam, ktoré sa len stanú? Agent Doug Carlin je prizvaný k vyšetrovaniu bombového atentátu na trajekt, ktorý si vyžiada vyše 500 mŕtvych. Agenti z inej vládnej agentúry ho zasvätia do najprísnejšie stráženého vl",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/eTX6hklzFOiEVqVukNCEedZKhix.jpg",
       "rating": 0,
       "tmdbId": 7551,
       "moods": [],
@@ -49956,11 +49956,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0441761/"
     },
     "350": {
-      "pct": 49,
+      "pct": 69,
       "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/21Y5ltuEhb9Qx32m9eiDkyC8zeQ.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/30116",
-      "imdbUrl": "https://www.imdb.com/title/tt0392690/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/7551",
+      "imdbUrl": "https://www.imdb.com/title/tt0453467/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/eTX6hklzFOiEVqVukNCEedZKhix.jpg"
     },
     "351": {
       "pct": 82,
