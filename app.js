@@ -2341,7 +2341,7 @@ function matchSearch(){
       matchShowResults([data]);
     } else {
       if(!data.results||!data.results.length){document.getElementById('matchStatus').textContent='Nič sa nenašlo.';return;}
-      matchShowResults(data.results.slice(0,8));
+      matchShowResults(data.results.slice(0,30));
     }
   }).catch(function(){btn.disabled=false;document.getElementById('matchStatus').textContent='Chyba siete.';});
 }
