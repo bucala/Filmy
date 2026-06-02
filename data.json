@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:34:34.418Z",
+  "updated": "2026-06-02T05:36:18.820Z",
   "movies": [
     {
       "id": 1,
@@ -21118,15 +21118,15 @@
       "year": 2016,
       "director": "Jason Zada",
       "genres": [
-        "Horor",
+        "Horror",
         "Thriller",
         "Mysteriózny"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "93 min",
-      "cast": "Natalie Dormer, Eoin Macken, Stephanie Vogt, Osamu Tanpopo, Yasuo Tobishima",
+      "cast": "Natalie Dormer, Eoin Macken, Stephanie Vogt, Osamu Tanpopo, Yasuo Tobishima, Ibuki Kaneda, 岩瀬晶子, Kikuo Ichikawa, Noriko Sakura, Jozef Aoki",
       "description": "Legendární skutečný les Aokigahara, který se s děsivou majestátností tyčí na úpatí hory Fuji v Japonsku, je dějištěm napínavého nadpřirozeného thrilleru Les sebevrahů. Američanka Sára (Natalie Dormer) se do lesa vydává v rámci pátrání po svém dvojčeti – po sestře Jess (taktéž ztvárnila N. Dormer), která záhadně zmizela. Sářin manžel Rob (Eoin Macken), kterého chování Jess dlouhodobě frustruje, není své manželce skoro 10 tisíc kilometrů dlouhou cestu vymluvit. Po návštěvě školy, ve které Jess učí",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/SSr17CBHhh0gmno7rThPaDrcsN.jpg",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/1TohqCqMbaiuRLJPrPW0vnQP3lE.jpg",
       "rating": 0,
       "tmdbId": 329440,
       "moods": [],
@@ -52839,11 +52839,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt3783958/"
     },
     "762": {
-      "pct": 45,
-      "ytKey": "NJxdvF0S1bQ",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/SSr17CBHhh0gmno7rThPaDrcsN.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/229839",
-      "imdbUrl": "https://www.imdb.com/title/tt2805748/"
+      "pct": 52,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/329440",
+      "imdbUrl": "https://www.imdb.com/title/tt3387542/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/1TohqCqMbaiuRLJPrPW0vnQP3lE.jpg"
     },
     "763": {
       "pct": 83,
