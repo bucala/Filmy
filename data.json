@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:54:24.018Z",
+  "updated": "2026-06-02T05:55:16.947Z",
   "movies": [
     {
       "id": 1,
@@ -1892,7 +1892,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Sedm.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/2671-sedm/",
-      "_pctCsfd": 92
+      "_pctCsfd": 92,
+      "_pctImdb": 86
     },
     {
       "id": 70,
