@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:32:22.251Z",
+  "updated": "2026-06-02T05:33:23.605Z",
   "movies": [
     {
       "id": 1,
@@ -18451,14 +18451,14 @@
       "year": 2014,
       "director": "John Erick Dowdle",
       "genres": [
-        "Horor",
+        "Horror",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "93 min",
-      "cast": "Perdita Weeks, Ben Feldman, Edwin Hodge, François Civil, Marion Lambert",
-      "description": "Vydali se do míst, kam živí nepatří. V pařížských katakombách se ukrývá zcela neznámý prostor lákající mnoho průzkumníků a badatelů ze všech koutů světa. Vstoupit lze zdarma, ale nakonec můžete zaplatit i cenu nejvyšší. Scarlett Marlowe studuje na univerzitě obor městská archeologie a Paříž je pro ni z tohoto pohledu pravý ráj. V podzemí se tu vinou stovky kilometrů chodeb, v nichž je vepsaná historie města. Při studiu starých map narazí na záznamy o tajemné podzemní místnosti, kterou se rozhodn",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/EiQ8WjBtW5VvHPHevrvnFCE0sB.jpg",
+      "country": "US",
+      "duration": "89 min",
+      "cast": "Perdita Weeks, Ben Feldman, Edwin Hodge, François Civil, Marion Lambert, Ali Marhyar, Cosme Castro, Hamid Djavadan, Théo Cholbi, Emy Lévy",
+      "description": "Scarlett Marlowová študuje na univerzite odbor Mestskej archeológie a Paríž je z tohto pohľadu pre ňu skutočný raj. V podzemí sa tu vinú stovky kilometrov chodieb, v ktorých je vpísaná história mesta. Pri štúdiu starých máp narazí na záznamy o tajomnej podzemnej miestnosti, ktorú sa rozhodne nájsť a preskúmať. Svoje nadšenie a odhodlanie nakoniec prenesie aj na partiu speleológov a dobrodruhov. Prehovorí ich, aby ju doviedli do „dolného“ Paríža. Hneď na začiatku cesty prechádzajú okolo nápisu s ",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/e0K4TZ1xJf6FPA1eketVncqCGP9.jpg",
       "rating": 0,
       "tmdbId": 256274,
       "moods": [],
@@ -52168,11 +52168,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt2397535/"
     },
     "666": {
-      "pct": 49,
-      "ytKey": "zH_vLzxaUBw",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/EiQ8WjBtW5VvHPHevrvnFCE0sB.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/44265",
-      "imdbUrl": "https://www.imdb.com/title/tt0110410/"
+      "pct": 67,
+      "ytKey": "2AArf-Pnvxc",
+      "tmdbUrl": "https://www.themoviedb.org/movie/256274",
+      "imdbUrl": "https://www.imdb.com/title/tt2870612/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/e0K4TZ1xJf6FPA1eketVncqCGP9.jpg"
     },
     "667": {
       "pct": 68,
