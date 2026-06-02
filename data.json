@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:18:49.373Z",
+  "updated": "2026-06-02T06:23:23.045Z",
   "movies": [
     {
       "id": 1,
@@ -20693,8 +20693,8 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/401132",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2016 - Den nezavislosti.mkv",
-      "_csfdUrl": "https://www.csfd.cz/film/440610-den-nezavislosti/",
-      "_pctCsfd": 13,
+      "_csfdUrl": "https://www.csfd.cz/film/2572-den-nezavislosti/prehled/",
+      "_pctCsfd": 75,
       "_pctImdb": 35
     },
     {
