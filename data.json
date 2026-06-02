@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:11:42.920Z",
+  "updated": "2026-06-02T05:14:31.334Z",
   "movies": [
     {
       "id": 1,
@@ -18346,11 +18346,11 @@
         "Dráma",
         "Dobrodružný"
       ],
-      "country": "United States",
-      "duration": "137 min",
-      "cast": "Russell Crowe, Jennifer Connelly, Ray Winstone, Anthony Hopkins, Emma Watson",
-      "description": "Zneklidňující vidina smrtící záplavy pronásleduje Noema ve snách čím dál častěji. Tu i další podivná znamení mu pomůže rozluštit moudrý Metuzalém. Země se ocitla na kraji propasti, kam ji zavlekla lidská rasa. Nejvyšší se rozhodl pro kompletní restart v podobě gigantické potopy a pro obnovu člověčího druhu si vybral právě Noema a jeho početnou rodinu. A protože Noe ví, že zkáza přijde s vodou, začne stavět archu, obří loď, na níž by se on i jeho rodina zachránili. Během stavby se musí potýkat ne",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/cO6x9pTZHIBXbPLcmFSCXAI6Ky3.jpg",
+      "country": "US",
+      "duration": "138 min",
+      "cast": "Russell Crowe, Jennifer Connelly, Ray Winstone, Anthony Hopkins, Emma Watson, Logan Lerman, Douglas Booth, Nick Nolte, Mark Margolis, Kevin Durand",
+      "description": "Znepokojivá vízia smrtiacej zápaly prenasleduje Noema v snoch stále častejšie. Všetky podivné znamenia mu pomôže rozlúštiť múdry Matuzalem. Zem sa ocitla na okraji priepasti, kam ju zaviedla ľudská rasa. Najvyšší sa rozhodol pre úplne nový začiatok v podobe gigantickej potopy a pre obnovu ľudského druhu si vybral práve Noema a jeho početnú rodinu. A pretože Noe vie, že skaza príde s vodou, začne stavať archu. Obriu loď, na ktorej by sa on aj jeho rodina zachránili. V priebehu stavby musí čeliť n",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/8Nm4UrfZBtEWz1XH8ksuvmI1fLW.jpg",
       "rating": 0,
       "tmdbId": 86834,
       "moods": [],
@@ -52139,11 +52139,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt2692250/"
     },
     "662": {
-      "pct": 40,
-      "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/cO6x9pTZHIBXbPLcmFSCXAI6Ky3.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/303420",
-      "imdbUrl": "https://www.imdb.com/title/tt4095650/"
+      "pct": 57,
+      "ytKey": "1DAnWzlZj5o",
+      "tmdbUrl": "https://www.themoviedb.org/movie/86834",
+      "imdbUrl": "https://www.imdb.com/title/tt1959490/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/8Nm4UrfZBtEWz1XH8ksuvmI1fLW.jpg"
     },
     "663": {
       "pct": 68,
