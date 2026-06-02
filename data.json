@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:10:50.888Z",
+  "updated": "2026-06-02T05:11:42.920Z",
   "movies": [
     {
       "id": 1,
@@ -1687,15 +1687,15 @@
       "year": 1995,
       "director": "Roger Donaldson",
       "genres": [
-        "Scifi",
-        "Horor",
+        "Science Fiction",
+        "Horror",
         "Akčný"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "108 min",
-      "cast": "Natasha Henstridge, Ben Kingsley, Michael Madsen, Marg Helgenberger, Alfred Molina",
-      "description": "Když v roce 1974 poslal největší světový radioteleskop do vesmíru zprávu o existenci života na Zemi, nikdo netušil že zpráva nezůstala bez odpovědi. Pouze vláda. Výsledkem dlouholetých výzkumů s kódem mimozemské DNA se stalo dítě, které velmi rychle dospělo v ženu, jen zdánlivě neškodnou. Po jejím útěku z přísně tajného laboratoře je najat tým, který ji má najít...",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/wdWit3RNCo90HrwiNAGlHo0W5h6.jpg",
+      "cast": "Natasha Henstridge, Ben Kingsley, Michael Madsen, Marg Helgenberger, Alfred Molina, Forest Whitaker, Michelle Williams, Jordan Lund, Herta Ware, William Utay",
+      "description": "Skupinke vedcov sa podaril nevšedný objav. Skombinovaním ľudskej a mimozemskej DNA  vytvorili bytosť zvanú Sil. Tá síce vyzerá ako neškodná dievčina, ale zdanie klame. Potom, čo ujde z tajného výskumného centra, je najatý špeciálny tím, ktorý ju má nájsť a zneškodniť a to skôr ako nájde vhodného adepta na rozmnožovanie...",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/cT5wdyo8kT7dycqjrolJ2sHWkFx.jpg",
       "rating": 0,
       "tmdbId": 9348,
       "moods": [],
@@ -47953,11 +47953,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0113855/"
     },
     "62": {
-      "pct": 40,
+      "pct": 60,
       "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/wdWit3RNCo90HrwiNAGlHo0W5h6.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/114540",
-      "imdbUrl": "https://www.imdb.com/title/tt0113881/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/9348",
+      "imdbUrl": "https://www.imdb.com/title/tt0114508/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/cT5wdyo8kT7dycqjrolJ2sHWkFx.jpg"
     },
     "63": {
       "pct": 60,
