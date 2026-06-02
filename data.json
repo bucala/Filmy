@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:45:49.879Z",
+  "updated": "2026-06-02T06:46:19.533Z",
   "movies": [
     {
       "id": 1,
@@ -3264,16 +3264,15 @@
       "director": "Mimi Leder",
       "genres": [
         "Akčný",
-        "Dráma",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "123 min",
-      "cast": "George Clooney, Nicole Kidman, Marcel Iures, Aleksandr Baluev, Randall Batinkoff",
-      "description": "V Bosně je zavražděn významný politik a nedaleko Uralu právě explodovala jaderná hlavice. Dvě zdánlivě nesouvisející tragické události. První záhadné okolnosti vyplouvají na povrch a krizový štáb Bílého domu začíná okamžitě pracovat na nejvyšší obrátky. Šéfka oddělení nukleárního dozoru Julia Kelly dostává k ruce svérázného pomocníka, drsného vojenského specialistu Toma Devoa. Tahle dvojice spolu nudu rozhodně nezažije.",
-      "poster_thumb": "",
+      "country": "US",
+      "duration": "124 min",
+      "cast": "George Clooney, Nicole Kidman, Marcel Iureș, Александр Балуев, Rene Medvešek, Armin Mueller-Stahl, Goran Višnjić, Tamara Tunie, Gary Werntz, Randall Batinkoff",
+      "description": "V Bosne je zavraždený významný politik a neďaleko Uralu práve explodovala jadrová hlavica. Dve nesúvisiace tragické udalosti však majú spoločného viac, akoby sa na prvý pohľad zdalo. Krízový štáb Bieleho domu začína okamžite pracovať na plné obrátky. K šéfke oddelenia nukleárneho dozoru Julii Kellyovej je pridelený svojrázny pomocník, drsný vojenský špecialista Tom Devo. Táto dvojica spolu nudu určite nezažije.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/jx7qqA6KtJguF5veQ5gyGQeuXEZ.jpg",
       "rating": 0,
-      "tmdbId": null,
+      "tmdbId": 6623,
       "moods": [],
       "_yt": null,
       "_tmdbUrl": null,
@@ -49050,6 +49049,13 @@
       "posterUrl": "https://image.tmdb.org/t/p/w300/v967NjzPxmQJf7uAo8zL9mDeVCY.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/607",
       "imdbUrl": "https://www.imdb.com/title/tt0119654/"
+    },
+    "119": {
+      "pct": 61,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/6623",
+      "imdbUrl": "https://www.imdb.com/title/tt0119874/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/jx7qqA6KtJguF5veQ5gyGQeuXEZ.jpg"
     },
     "120": {
       "pct": 76,
