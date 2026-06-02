@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:37:47.180Z",
+  "updated": "2026-06-02T06:39:22.154Z",
   "movies": [
     {
       "id": 1,
@@ -4449,16 +4449,16 @@
       "num": 162,
       "title": "Ring",
       "year": 1998,
-      "director": "Hideo Nakata",
+      "director": "中田秀夫",
       "genres": [
-        "Horor",
+        "Horror",
         "Thriller"
       ],
-      "country": "Japan",
-      "duration": "95 min",
-      "cast": "Nanako Matsushima, Hiroyuki Sanada, Rikiya Ôtaka, Miki Nakatani, Yuko Takeuchi",
+      "country": "JP",
+      "duration": "96 min",
+      "cast": "松嶋菜々子, Hiroyuki Sanada, 大高力也, 中谷美紀, 竹内結子, 佐藤仁美, Yutaka Matsushige, 沼田曜一, 村松克己, 雅子",
       "description": "Během týdne zemře za zvláštních okolností skupina teenagerů, která sledovala tajemné video. Jejich těla byla nalezena podivně zkroucená a jejich oči vypovídaly o tom, že viděli něco hrůzostrašného. Video se ve městě stane mýtem. Pozvolna ale neviditelná síla začne svým smrtícím prstem ukazovat na několik lidí, kteří nejsou schopni odolat své zvědavosti. Jednou z nich je cynická novinářka Reiko, která se brzy proti své vůli octne ve spirále nočních můr plných strachu z nespatřené všudypřítomné hr",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/agTwEiViWdkPCVVpJAaytHctcrP.jpg",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/6KWX8jRZHtfXLGGViKAcUW41ZXs.jpg",
       "rating": 0,
       "tmdbId": 2671,
       "moods": [],
@@ -49346,11 +49346,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0120794/"
     },
     "162": {
-      "pct": null,
+      "pct": 71,
       "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/agTwEiViWdkPCVVpJAaytHctcrP.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/781025",
-      "imdbUrl": "https://www.imdb.com/title/tt0842528/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/2671",
+      "imdbUrl": "https://www.imdb.com/title/tt0178868/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/6KWX8jRZHtfXLGGViKAcUW41ZXs.jpg"
     },
     "163": {
       "pct": 70,
