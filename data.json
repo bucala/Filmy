@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:44:28.051Z",
+  "updated": "2026-06-02T05:46:16.047Z",
   "movies": [
     {
       "id": 1,
@@ -10240,11 +10240,11 @@
         "Dráma",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "128 min",
-      "cast": "Denzel Washington, Clive Owen, Jodie Foster, Christopher Plummer, Willem Dafoe",
-      "description": "Newyorský detektiv Keith Miller je typický drsný polda otřískaný životními zkušenostmi posbíranými na ulicích, jemuž plánovaný kariérní vzestup komplikují obvinění z nezákonného jednání, která se s ním táhnou od jeho posledního případu. Na pořadu dne je ale nová akce – v přepadené bance drží lupiči desítky rukojmí. Tahle krizová situace bude ovšem velmi nestandardní. Detektiv Miller se totiž musí utkat s asi nejchytřejším zločincem, kterého za svou bohatou kariéru potkal, a pokusit se překazit z",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/oRtLzttDOZUD84JECxCYVMhNloU.jpg",
+      "country": "US",
+      "duration": "129 min",
+      "cast": "Denzel Washington, Clive Owen, Jodie Fosterová, Christopher Plummer, Willem Dafoe, Chiwetel Ejiofor, Carlos Andrés Gómez, Kim Director, James Ransone, Bernie Rachelle",
+      "description": "Newyorský detektív Keith Frazier je typický drsný policajt s neoceniteľnými životnými skúsenosťami nazbieranými za dlhé roky strávené v uliciach Veľkého jablka. Plánovaný kariérny vzostup mu ale komplikujú obvinenia z nezákonného konania, ktoré sa s ním tiahnu od jeho posledného prípadu... Momentálne má však úplne iné starosti - v centre totiž práve došlo k prepadu jednej z najväčších bánk a lupiči v nej zadržiavajú desiatky rukojemníkov! Táto krízová situácia bude ale veľmi neštandardná. Protiv",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/duAzsWEmogaWdCkvNWAz0CDkjZU.jpg",
       "rating": 0,
       "tmdbId": 388,
       "moods": [],
@@ -50095,11 +50095,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0407887/"
     },
     "370": {
-      "pct": 53,
-      "ytKey": "j4Ndkbp7WVI",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/oRtLzttDOZUD84JECxCYVMhNloU.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/23200",
-      "imdbUrl": "https://www.imdb.com/title/tt0457475/"
+      "pct": 74,
+      "ytKey": "de14A1wPDik",
+      "tmdbUrl": "https://www.themoviedb.org/movie/388",
+      "imdbUrl": "https://www.imdb.com/title/tt0454848/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/duAzsWEmogaWdCkvNWAz0CDkjZU.jpg"
     },
     "371": {
       "pct": 70,
