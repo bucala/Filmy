@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:27:46.254Z",
+  "updated": "2026-06-02T06:29:55.701Z",
   "movies": [
     {
       "id": 1,
@@ -1908,11 +1908,11 @@
         "Thriller",
         "Akčný"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "114 min",
-      "cast": "Sandra Bullock, Jeremy Northam, Dennis Miller, Wendy Gazelle, Diane Baker",
-      "description": "Angela Bennettová je půvabná mladá žena. V Los Angeles, kde už pár let bydlí, ji však vůbec nikdo nezná: její vášnivou posedlostí je totiž počítač, před jehož obrazovkou tráví všechen svůj čas. Jeho prostřednictvím si objednává pizzu i teplo domácího krbu, v počítačové síti si našla zábavu i přátele. Ale i špičkové computerové odbornice si jednou za čas chtějí udělat prázdniny. Výlet do Mexika a vášnivá plážová romance se sympatickým Jackem Devlinem se však rychle změní ve strašnou noční můru. A",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/w8H2KpRtpzwlxz5KrvINCVihok1.jpg",
+      "cast": "Sandra Bullock, Jeremy Northam, Dennis Miller, Wendy Gazelle, Diane Baker, Ken Howard, Ray McKinnon, Daniel Schorr, L. Scott Caldwell, Robert Gossett",
+      "description": "Pre samotárku Angelu Bennettovú tvorí počítač celý svet. Živí sa ako špecialistka na počítačové víry, so svetom komunikuje iba s pomocou počítača a jediných priateľov má na internete. Pre odletom na dovolenku do Mexika dostane od programátora Dalea disketu s nezvyčajným programom. S jeho pomocou je možné dostať sa k akýmkoľvek tajným záznamom. A od tejto chvíle sa Angelin život mení na nočnú moru.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/yu5Q8DpppRk0i7eAvdplFWQxCli.jpg",
       "rating": 0,
       "tmdbId": 1642,
       "moods": [],
@@ -48709,11 +48709,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0114369/"
     },
     "70": {
-      "pct": 64,
-      "ytKey": "vsjK7AVmsL8",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/w8H2KpRtpzwlxz5KrvINCVihok1.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/10428",
-      "imdbUrl": "https://www.imdb.com/title/tt0113243/"
+      "pct": 60,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/1642",
+      "imdbUrl": "https://www.imdb.com/title/tt0113957/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/yu5Q8DpppRk0i7eAvdplFWQxCli.jpg"
     },
     "71": {
       "pct": 72,
