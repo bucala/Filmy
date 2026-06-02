@@ -806,6 +806,19 @@ input,textarea,.tmdb-inp,select{
   min-width:280px;max-width:420px;width:90%;
   text-align:center;
   box-shadow:0 12px 40px rgba(0,0,0,.5)}
+/* Match panel modal — flex scroll layout */
+#matchOv .modal{
+  text-align:left;
+  max-width:540px;
+  max-height:90svh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  padding:20px 20px 16px}
+#matchResults{
+  flex:1;overflow-y:auto;min-height:0;
+  margin:8px 0;
+  padding-right:2px}
+#matchPreview{flex-shrink:0}
 .m-ttl{
   font-family:"Bebas Neue",sans-serif;
   font-size:22px;letter-spacing:1.5px;
@@ -923,6 +936,12 @@ input,textarea,.tmdb-inp,select{
   .admin-btn{width:100%;height:40px}
   .admin-pv-row{flex-direction:column}
   .admin-pv-poster{width:100%;height:auto;max-width:200px;margin:0 auto}
+  /* Match panel mobile */
+  #matchOv .modal{padding:14px 12px 12px;max-height:95svh;border-radius:12px}
+  #matchResults .admin-result-item{gap:8px}
+  #matchResults .admin-poster{width:36px;height:54px}
+  #matchPreview .admin-pv-row{flex-direction:row}
+  #matchPreview .admin-pv-poster{width:54px;height:80px}
 }
 
 .admin-add-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
