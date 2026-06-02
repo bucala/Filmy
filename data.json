@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:23:45.017Z",
+  "updated": "2026-06-02T05:25:47.646Z",
   "movies": [
     {
       "id": 1,
@@ -13828,11 +13828,11 @@
         "Akčný",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "97 min",
-      "cast": "Dwayne Johnson, Billy Bob Thornton, Oliver Jackson-Cohen, Maggie Grace, Carla Gugino",
-      "description": "Po deseti letech ve vězení má Řidič jediný cíl – pomstít smrt svého bratra během nezdařené bankovní loupeže, která měla za následek i jeho uvěznění. Teď je z něj svobodný člověk se seznamem \"úkolů\" v ruce, konečně se vydává za svým cílem... ale na stopě mu jsou další dva muži – policejní veterán, kterému zbývá jen několik dní do důchodu, a mladý egocentrický zabiják, který se v umění zabíjení vyžívá a našel konečně důstojného protivníka. Lovec je současně i kořistí. Jde o závod s časem na život ",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/quhTXuLZWla1OnXEuM8aR76HzRu.jpg",
+      "country": "US",
+      "duration": "95 min",
+      "cast": "Dwayne Johnson, Billy Bob Thornton, Oliver Jackson-Cohen, Maggie Grace, Carla Gugino, Tom Berenger, Matt Gerald, Jeff Daniel Phillips, Aaron Behr, Jan Hoag",
+      "description": "Po desiatich rokoch vo väzení má Dwayne Johnson jediný cieľ – pomstiť smrť svojho brata, ktorá mala za následok jeho uväznenie. Teraz je z neho slobodný človek a so zoznamom v ruke sa konečne vydáva za svojim cieľom. V pätách sú mu policajný veterán, ktorému zostáva len niekoľko dní do dôchodku a mladý egocentrický zabijak, ktorý našiel konečne dôstojného protivníka. Záhady okolo smrti brata sa odhaľujú a zrejme zoznam smrti nebude kompletný.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/dPr6WmccRARblG7E1w5HGhZamww.jpg",
       "rating": 0,
       "tmdbId": 41283,
       "moods": [],
@@ -50998,11 +50998,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt1053424/"
     },
     "499": {
-      "pct": 45,
-      "ytKey": "v9tII11QWZM",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/quhTXuLZWla1OnXEuM8aR76HzRu.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/35026",
-      "imdbUrl": "https://www.imdb.com/title/tt1235536/"
+      "pct": 64,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/41283",
+      "imdbUrl": "https://www.imdb.com/title/tt1433108/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/dPr6WmccRARblG7E1w5HGhZamww.jpg"
     },
     "500": {
       "pct": 64,
