@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:36:18.820Z",
+  "updated": "2026-06-02T05:44:28.051Z",
   "movies": [
     {
       "id": 1,
@@ -25469,11 +25469,11 @@
         "Kriminálny",
         "Dráma"
       ],
-      "country": "United States",
+      "country": "CA, US",
       "duration": "116 min",
-      "cast": "Clint Eastwood, Bradley Cooper, Laurence Fishburne, Michael Peña, Dianne Wiest",
-      "description": "Earl Stone je ve svých osmdesáti letech zlomený, opuštěný a navíc čelí propadnutí majetku své firmy kvůli neplacení hypotéky. V této situaci je mu nabídnuta příležitost k výdělku – místo řidiče. Brnkačka. Jenže Earl neví, že se právě upsal jako kurýr drogovému Mexickému kartelu. Počíná si dobře — popravdě tak dobře, že zboží, které přepravuje, roste exponenciálně na objemu až vše dospěje do okamžiku, kdy Earl dostává celý kšeft na starosti. Earlovy potíže s nedostatkem peněz jsou tytam, jeho min",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/y6wFIItV8NYSKGEh5XdVHFOJm1.jpg",
+      "cast": "Clint Eastwood, Bradley Cooper, Laurence Fishburne, Michael Peña, Dianne Wiest, Andy Garcia, Ignacio Serricchio, Taissa Farmiga, Alison Eastwood, Richard Herd",
+      "description": "Eastwood stvárňuje Earla Stona, osamelého 80-ročného muža na mizine s krachujúcim biznisom, ktorý dostane ponuku robiť obyčajného šoféra. Znie to jednoducho, no Earl nevedomky podpísal zmluvu na drogového kuriéra pre mexický kartel. Darí sa mu a dokonca tak dobre, že náklad sa mu prudko zväčšuje, až mu pridelia dozor. Nie je jediným, kto na Earla dohliada. Záhadný nový drogový pašerák sa dostal do hľadáčika húževnatého agenta úradu pre kontrolu obchodu s drogami, Colina Batesa. Hoci problémy s p",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/1NUN2qpINhGaBWMUEfuzprXxspH.jpg",
       "rating": 0,
       "tmdbId": 504172,
       "moods": [],
@@ -53945,11 +53945,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt5639898/"
     },
     "920": {
-      "pct": 53,
-      "ytKey": "Sj2hbF5-vic",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/y6wFIItV8NYSKGEh5XdVHFOJm1.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/458123",
-      "imdbUrl": "https://www.imdb.com/title/tt6761474/"
+      "pct": 69,
+      "ytKey": "Xz-XlChrUHc",
+      "tmdbUrl": "https://www.themoviedb.org/movie/504172",
+      "imdbUrl": "https://www.imdb.com/title/tt7959026/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/1NUN2qpINhGaBWMUEfuzprXxspH.jpg"
     },
     "921": {
       "pct": 76,
