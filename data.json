@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T04:40:23.100Z",
+  "updated": "2026-06-02T04:41:59.671Z",
   "movies": [
     {
       "id": 1,
@@ -14887,13 +14887,13 @@
       "genres": [
         "Thriller",
         "Mysteriózny",
-        "Scifi"
+        "Science Fiction"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "105 min",
-      "cast": "Bradley Cooper, Robert De Niro, Abbie Cornish, Andrew Howard, Anna Friel",
-      "description": "Eddie Morra je zlenivělý spisovatel, kterému se začíná hroutit svět. Chtějí ho vyhodit z práce a rozchod s přítelkyní Lindy ho jen utvrdí v přesvědčení, že jeho život je v troskách. To se ale změní ve chvíli, kdy ho navštíví jeho starý přítel, Vernon. Nabídne mu NZT, utajovanou drogu, která umožňuje využívat mozek na 100% a dodává člověku extrémní sebevědomí. Eddie se nechává zlákat neodolatelnými účinky NZT a naprosto droze propadne. Najednou je schopen využívat informace s ohromnou efektivitou",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/tU61BDSUdYIG33BO65vbCCqZYr7.jpg",
+      "cast": "Bradley Cooper, Robert De Niro, Abbie Cornish, Andrew Howard, Anna Friel, Johnny Whitworth, Tomas Arana, Robert John Burke, Darren Goldstein, Ned Eisenberg",
+      "description": "Eddie Morra je lenivý spisovateľ, ktorému sa začína rúcať svet. To sa ale zmení vo chvíli, keď Eddieho navštívi jeho starý priateľ z detstva, Vernon. Ponúkne mu tabletky NZT- utajovanú drogu, ktorá umožňuje využívať mozog na sto precent a dodáva človeku extrémne sebavedomie. Eddie sa dá zlákať neodolateľnými účinkami drogy a celkom jej prepadne. Zrazu je schopný využívať informácie s ohromnou efektivitou. Všetko, čo kedy videl, počul a prečítal, zvládne spracovať a zužitkovať. Neustála stimuláci",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/oezX15LHqjG2DJrxD6Dm43gj1yC.jpg",
       "rating": 0,
       "tmdbId": 51876,
       "moods": [],
@@ -51264,11 +51264,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0905372/"
     },
     "537": {
-      "pct": 29,
-      "ytKey": "WfUb_yUZiUw",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/tU61BDSUdYIG33BO65vbCCqZYr7.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/63736",
-      "imdbUrl": "https://www.imdb.com/title/tt1792794/"
+      "pct": 72,
+      "ytKey": "zy-238and4s",
+      "tmdbUrl": "https://www.themoviedb.org/movie/51876",
+      "imdbUrl": "https://www.imdb.com/title/tt1219289/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/oezX15LHqjG2DJrxD6Dm43gj1yC.jpg"
     },
     "538": {
       "pct": 70,
