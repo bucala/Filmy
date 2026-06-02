@@ -422,7 +422,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .admin-btn.sec{background:var(--card2);color:var(--text);border:1px solid var(--border2)}
 .admin-btn.sec:hover{border-color:var(--gold);color:var(--gold)}
 .admin-results{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
-.admin-result-item{display:flex;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;transition:border-color .15s}
+.admin-result-item{display:flex;gap:12px;background:var(--card);border:1px solid var(--border);user-select:none;-webkit-user-select:none;border-radius:12px;padding:10px;cursor:pointer;transition:border-color .15s}
 .admin-result-item:hover,.admin-result-item.selected{border-color:var(--gold)}
 .admin-result-item.selected{background:var(--card2)}
 .admin-poster{width:44px;height:66px;border-radius:6px;object-fit:cover;background:var(--card2);flex-shrink:0}
@@ -813,7 +813,8 @@ input,textarea,.tmdb-inp,select{
   max-height:90svh;
   display:flex;flex-direction:column;
   overflow:hidden;
-  padding:20px 20px 16px}
+  padding:20px 20px 16px;
+  user-select:none;-webkit-user-select:none}
 #matchResults{
   flex:1;overflow-y:auto;min-height:0;
   margin:8px 0;
