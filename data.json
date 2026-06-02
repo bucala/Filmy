@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:19:43.885Z",
+  "updated": "2026-06-02T05:23:45.017Z",
   "movies": [
     {
       "id": 1,
@@ -27241,14 +27241,14 @@
       "year": 2019,
       "director": "Alexandre Aja",
       "genres": [
-        "Horor",
+        "Horror",
         "Thriller"
       ],
-      "country": "Canada",
-      "duration": "87 min",
-      "cast": "Kaya Scodelario, Barry Pepper, Morfydd Clark, Ross Anderson, Jose Palma",
-      "description": "Když na malé floridské městečko udeří hurikán, rozhodne se Haley ignorovat nařízení úřadů o evakuaci, protože chce najít ztraceného otce. Nalezne ho těžce zraněného ve sklepě jejich domu. Než ho stačí zachránit, ocitne se i ona v nesnázích, když záplavová vlna dorazí rychleji, než se čekalo. Stoupající voda však brzy přestane být jejich největším problémem, když připlavou hladoví nezvaní návštěvníci.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/4z4FkIIcTkGytzDX6PTTSCgt98q.jpg",
+      "country": "RS, US",
+      "duration": "88 min",
+      "cast": "Kaya Scodelario, Barry Pepper, Morfydd Clark, Ross Anderson, Jose Palma, George Somner, Anson Boon, Ami Metcalf, Tina Pribićević, Srna Vasiljević",
+      "description": "Nádejná plavkyňa Haley Kellerová nie je žiaden samovrah. Do uzatvorenej zóny na Floride, ktorá sa pripravuje na jeden z najväčších hurikánov za posledných pár desiatok rokov, sa vypravila len kvôli svojmu otcovi. Ten sa snažil na poslednú chvíľu zabezpečiť svoj dom. Z oblasti už mal byť dávno evakuovaný, napriek tomu sa neozýva. Haley ho nájde v už čiastočne zaplavenej pivnici, v bezvedomí a ťažko zraneného. Než ho stačí odtiahnuť do relatívneho bezpečia, pripomenú sa nepozvaní hostia, ktorí jej",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/yydtdMpnOCUtcntt18eDwXlyyRp.jpg",
       "rating": 0,
       "tmdbId": 511987,
       "moods": [],
@@ -54393,11 +54393,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt4729430/"
     },
     "984": {
-      "pct": 41,
-      "ytKey": "0XhFWOCskh4",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/4z4FkIIcTkGytzDX6PTTSCgt98q.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/230645",
-      "imdbUrl": "https://www.imdb.com/title/tt2385047/"
+      "pct": 63,
+      "ytKey": "SxrZDi5lLxo",
+      "tmdbUrl": "https://www.themoviedb.org/movie/511987",
+      "imdbUrl": "https://www.imdb.com/title/tt8364368/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/yydtdMpnOCUtcntt18eDwXlyyRp.jpg"
     },
     "985": {
       "pct": 66,
