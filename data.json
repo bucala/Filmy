@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:08:11.373Z",
+  "updated": "2026-06-02T05:10:50.888Z",
   "movies": [
     {
       "id": 1,
@@ -11208,13 +11208,13 @@
       "genres": [
         "Akčný",
         "Thriller",
-        "Scifi"
+        "Science Fiction"
       ],
-      "country": "United States",
-      "duration": "84 min",
-      "cast": "Lizzy Caplan, Jessica Lucas, T.J. Miller, Michael Stahl-David, Mike Vogel",
-      "description": "V útulném newyorském klubu probíhá párty na rozloučenou. Jejím aktérem je Rob, který se rozhodl dát sbohem městu přezdívanému Big Apple a odjet pracovat do Japonska. Zábava je v plném proudu, digitální kamera snímá rozjařené tváře Robových přátel, jenže pak vše razancí blesku přeruší výpadek proudu a zlověstný neidentifikovatelný zvuk, který se rozléhá nad městem. Dodávka elektřiny se sice po chvíli obnoví, ale úleva je jen dočasná…",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/dhZMd89Fa0DWIWOnXLsgkh3fN5W.jpg",
+      "country": "US",
+      "duration": "85 min",
+      "cast": "Lizzy Caplan, Jessica Lucas, T.J. Miller, Michael Stahl-David, Mike Vogel, Odette Annable, Anjul Nigam, Margot Farley, Theo Rossi, Brian Klugman",
+      "description": "V útulnom newyorskom klube prebieha rozlúčková párty. Jej aktérom je Rob, ktorý sa rozhodol dať zbohom mestu prezývanému Big Apple a odísť pracovať do Japonska. Zábava je v plnom prúde, digitálna kamera sníma rozjarené tváre Robových priateľov, lenže potom všetko razanciou blesku preruší výpadok prúdu a zlovestný neidentifikovateľný zvuk, ktorý sa rozlieha nad mestom. Dodávka elektriny sa síce po chvíli obnoví, ale úľava je len dočasná…",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/qm9Ub2BCL2QakAqDPXrt8XmoMMK.jpg",
       "rating": 0,
       "tmdbId": 7191,
       "moods": [],
@@ -50340,11 +50340,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0469640/"
     },
     "405": {
-      "pct": 32,
-      "ytKey": "dHkCu3OQuBw",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/dhZMd89Fa0DWIWOnXLsgkh3fN5W.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/16309",
-      "imdbUrl": "https://www.imdb.com/title/tt1148277/"
+      "pct": 67,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/7191",
+      "imdbUrl": "https://www.imdb.com/title/tt1060277/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/qm9Ub2BCL2QakAqDPXrt8XmoMMK.jpg"
     },
     "406": {
       "pct": 57,
