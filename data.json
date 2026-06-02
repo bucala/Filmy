@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T04:37:41.248Z",
+  "updated": "2026-06-02T04:40:23.100Z",
   "movies": [
     {
       "id": 1,
@@ -24196,16 +24196,15 @@
       "year": 2017,
       "director": "Daniel Espinosa",
       "genres": [
-        "Horor",
-        "Scifi",
-        "Mysteriózny",
-        "Thriller"
+        "Horror",
+        "Science Fiction",
+        "Mysteriózny"
       ],
-      "country": "United States",
-      "duration": "103 min",
-      "cast": "Jake Gyllenhaal, Ryan Reynolds, Rebecca Ferguson, Hiroyuki Sanada, Olga Dihovichnaya",
-      "description": "Příběh šestičlenné posádky Mezinárodní vesmírné stanice, která se ocitá na samotném pokraji jednoho z nejdůležitějších objevů lidských dějin: prvního důkazu o existenci mimozemského života na Marsu. Jak členové posádky pokračují ve svém výzkumu, mají jimi uplatňované metody nezamýšlené následky, a forma života, kterou zkoumají, se ukazuje být mnohem inteligentnější, než kdokoliv očekával.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/q4uvta9UnMbvbniknoSrKrLx1AZ.jpg",
+      "country": "US",
+      "duration": "96 min",
+      "cast": "Jake Gyllenhaal, Ryan Reynolds, Rebecca Ferguson, Hiroyuki Sanada, Ольга Дыховичная, Ariyon Bakare, Naoko Mori, Haruka Kuroda, Camiel Warren-Taylor, Alexandre Nguyen",
+      "description": "Film rozpráva príbeh šiestich členov posádky vesmírnej stanice, ktorí sú svedkami zlomovej udalosti v dejinách ľudstva: objavenia mimozemského života. Keď sa však nevinná biologická vzorka začne správať inteligentnejšie, než by ktokoľvek čakal, životy členov posádky aj ľudí na Zemi sú v ohrození...",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/rl6LHIwq6Tr8Njl3BnPxV1JM5WE.jpg",
       "rating": 0,
       "tmdbId": 395992,
       "moods": [],
@@ -53624,11 +53623,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt1959563/"
     },
     "874": {
-      "pct": 27,
-      "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/q4uvta9UnMbvbniknoSrKrLx1AZ.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/634099",
-      "imdbUrl": "https://www.imdb.com/title/tt7154976/"
+      "pct": 65,
+      "ytKey": "zCbEPhBt2As",
+      "tmdbUrl": "https://www.themoviedb.org/movie/395992",
+      "imdbUrl": "https://www.imdb.com/title/tt5442430/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/rl6LHIwq6Tr8Njl3BnPxV1JM5WE.jpg"
     },
     "875": {
       "pct": 54,
