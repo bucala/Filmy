@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T04:41:59.671Z",
+  "updated": "2026-06-02T05:00:13.812Z",
   "movies": [
     {
       "id": 1,
@@ -10349,14 +10349,14 @@
       "year": 2006,
       "director": "J.S. Cardone",
       "genres": [
-        "Rozprávka",
-        "Horor"
+        "Fantasy",
+        "Horror"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "94 min",
-      "cast": "Lori Heuring, Scout Taylor-Compton, Chloë Grace Moretz, Geoffrey Lewis, Ben Cross",
-      "description": "Carlton, Pensylvánie 1903 – děti pracující v hlubinném dole jsou při závalu zaživa pohřbeny. Ovdovělá Karen spolu se svými dcerami se přestěhují do téhož města a brzy se dozvídají jeho tragickou historii. Ale zločiny minulosti se znovu vracejí v podobě dětí (zombies) a jejich ďábelsky krvavé pomsty – pronásledují, zabíjí a požírají své oběti. Karen a její dcery musí s pomocí souseda přežít, aby byl utišen hlad zombies po vlastní spáse.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/nFx9aQAQAX5qBiWvdH6LzqtacAN.jpg",
+      "cast": "Lori Heuring, Scout Taylor-Compton, Chloë Grace Moretz, Geoffrey Lewis, Ben Cross, Julie Rogers, Michael McCoy, Velizar Binev, Martin McDougall, Chris Jamba",
+      "description": "Carlton, Pensylvánia 1903 – deti pracujúce v hlbinnej bani sú pri závale zaživa pochované. Ovdovelá Karen spolu so svojimi dcérami sa presťahujú do toho istého mesta a čoskoro sa dozvedajú jeho tragickú históriu. Ale zločiny minulosti sa znova vracajú v podobe detí (zombies) a ich diabolskej krvavej pomsty – prenasledujú, zabíjajú a požierajú svoje obete. Karen a jej dcéry musia s pomocou suseda prežiť, aby bol utíšený hlad zombies po vlastnej spáse.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/63xRREk0se8cnYd3PMD8PS5OpQS.jpg",
       "rating": 0,
       "tmdbId": 10854,
       "moods": [],
@@ -50123,11 +50123,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0327084/"
     },
     "374": {
-      "pct": 15,
+      "pct": 58,
       "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/nFx9aQAQAX5qBiWvdH6LzqtacAN.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/309554",
-      "imdbUrl": "https://www.imdb.com/title/tt0965477/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/10854",
+      "imdbUrl": "https://www.imdb.com/title/tt0470000/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/63xRREk0se8cnYd3PMD8PS5OpQS.jpg"
     },
     "375": {
       "pct": 66,
