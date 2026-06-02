@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:33:23.605Z",
+  "updated": "2026-06-02T05:34:34.418Z",
   "movies": [
     {
       "id": 1,
@@ -27791,18 +27791,17 @@
       "num": 1004,
       "title": "Narušitel",
       "year": 2019,
-      "director": "David Balda",
+      "director": "Deon Taylor",
       "genres": [
-        "Dráma",
-        "Historický"
+        "Thriller"
       ],
-      "country": "Czech Republic",
+      "country": "US",
       "duration": "102 min",
-      "cast": "Pavel Neškudla, Jiří Dvořák, Petr Kostka, Stanislav Zindulka, Veronika Arichteva",
-      "description": "Silný a napínavý příběh českého leteckého esa, jeho kamarádů a bezbřehé lásce k létání. Čtveřice kamarádů a jejich letecký mentor spolu létají a slouží v armádě dvacet let. Pak se ale po dlouhé době začne rozmotávat smrt bývalého pilota RAF při pokusu o přelet na západ a hlavní hrdina nemá jiné východisko, než se ho pokusit napodobit. „Jste narušitel, následujte mě,“ jsou slova, která sám často hlásí do vysílačky, když nutí k přistání ty, kdo se na západ za svobodou vydávají vzduchem v letadlech",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/xCuwTxrLsBYqWA1PWabo2Ns64mj.jpg",
+      "cast": "Michael Ealy, Joseph Sikora, Meagan Good, Alvina August, Dennis Quaid, Erica Cerra, Kurt Evans, Carolyn Anderson, Lili Sepe, Raylene Harewood",
+      "description": "Mladí manželia Scott a Annie si kúpia vysnívaný dom v Napa Valley v domnení, že našli dokonalý domov na založenie rodiny. Keď sa k nim však muž, od ktorého nehnuteľnosť kúpili, výstredný vdovec Charlie, začne potajomky vkrádať a narúšať im život, pojmú podozrenie, že sa za rýchlym predajom skrývajú temné úmysly...",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/enmfqPIp4N7eiy1bVpeA50iAFgw.jpg",
       "rating": 0,
-      "tmdbId": 575878,
+      "tmdbId": 524247,
       "moods": [],
       "_yt": "rtimnF9QZQk",
       "_tmdbUrl": "https://www.themoviedb.org/movie/575878",
@@ -54534,11 +54533,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt8946378/"
     },
     "1004": {
-      "pct": 28,
-      "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/xCuwTxrLsBYqWA1PWabo2Ns64mj.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/575878",
-      "imdbUrl": "https://www.imdb.com/title/tt9384038/"
+      "pct": 61,
+      "ytKey": "WistJ0nJM5k",
+      "tmdbUrl": "https://www.themoviedb.org/movie/524247",
+      "imdbUrl": "https://www.imdb.com/title/tt6722030/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/enmfqPIp4N7eiy1bVpeA50iAFgw.jpg"
     },
     "1005": {
       "pct": 55,
