@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:23:35.046Z",
+  "updated": "2026-06-02T06:25:22.082Z",
   "movies": [
     {
       "id": 1,
@@ -20676,18 +20676,19 @@
       "num": 746,
       "title": "Den nezávislosti",
       "year": 2016,
-      "director": "Laura Beth Love",
+      "director": "Roland Emmerich",
       "genres": [
         "Akčný",
-        "Scifi"
+        "Dobrodružný",
+        "Science Fiction"
       ],
-      "country": "United States",
-      "duration": "91 min",
-      "cast": "Fay Gauthier, Sal Landi, William Castrogiovanni, Jacquelin Arroyo, Brian Tyler Cohen",
-      "description": "V oblasti Colorado Springs havaruje armádní letoun. Byl sestřelen vesmírnou lodí, která míří přímo k Bílému domu. Rasa útočníků si říká Orioni. V následujících dvou hodinách se chystají zničit všechny vojenské základny.  Prezidentka USA dostane 120 hodin k evakuaci Země. Boby, syn prezidentky Raneyové má vzácnou pohybovou chorobu. Orioni chtějí demonstrovat svoji sílu a nadřazenost. Na důkaz toho dají potravu hladovějícím lidem a uzdraví Bobyho. Raneyová nechce povolit nástupy obyvatel na evakua",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/6jor0EqECPgHqu89GrQIy9Wetkf.jpg",
+      "country": "US",
+      "duration": "120 min",
+      "cast": "Liam Hemsworth, Jeff Goldblum, Jessie T. Usher, Bill Pullman, Maika Monroe, Travis Tope, 杨颖, Charlotte Gainsbourg, Judd Hirsch, William Fichtner",
+      "description": "Vedeli sme, že sa raz vrátia. Využili sme preto na obranu všetky možnosti a zdroje Zeme. Študovali sme ukoristené mimozemské technológie, plány a spôsob myslenia votrelcov. Poučili sme sa z predchádzajúceho boja o prežitie i z cesty k nášmu víťazstvu. Ale bude to stačiť? Sme pripravení na to, čo sa teraz z hĺbky vesmíru blíži k našej Zemi? Alebo nás pred zánikom zachráni hlavne naša vynaliezavosť a dôvtip? Ako je vôbec možné čeliť vesmírnej lodi, ktorá na zaparkovanie potrebuje celý Atlantický o",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/sIoSqqNUj3LdSU4hWf0PDxh20Dt.jpg",
       "rating": 0,
-      "tmdbId": 401132,
+      "tmdbId": 47933,
       "moods": [],
       "_yt": "uxAQovDxMK8",
       "_tmdbUrl": "https://www.themoviedb.org/movie/401132",
@@ -53426,11 +53427,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt2364897/"
     },
     "746": {
-      "pct": 44,
-      "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/6jor0EqECPgHqu89GrQIy9Wetkf.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/205126",
-      "imdbUrl": "https://www.imdb.com/title/tt2645670/"
+      "pct": 54,
+      "ytKey": "u2hGHgGqXc8",
+      "tmdbUrl": "https://www.themoviedb.org/movie/47933",
+      "imdbUrl": "https://www.imdb.com/title/tt1628841/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/sIoSqqNUj3LdSU4hWf0PDxh20Dt.jpg"
     },
     "747": {
       "pct": 74,
