@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:25:47.646Z",
+  "updated": "2026-06-02T05:27:59.770Z",
   "movies": [
     {
       "id": 1,
@@ -32263,18 +32263,19 @@
       "num": 1174,
       "title": "Lockdown",
       "year": 2021,
-      "director": "Micah Lyons",
+      "director": "Doug Liman",
       "genres": [
-        "Thriller",
-        "Akčný"
+        "Komédia",
+        "Kriminálny",
+        "Romantický"
       ],
-      "country": "United States",
-      "duration": "117 min",
-      "cast": "Kevin Nash, David D. Ford, Brooke Lyons, Jason C Campbell, Swayde McCoy",
-      "description": "Rex and his men aim to kill the homeless people living in a local deserted school hoping it'll slow an ultra-deadly strand of COVID. Now, outnumbered 100 to 1, Hap must save his little sister.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/nHa58uS38qTBxD1AY3YIBReElzr.jpg",
+      "country": "GB, US",
+      "duration": "118 min",
+      "cast": "Anne Hathawayová, Chiwetel Ejiofor, Stephen Merchant, Dulé Hill, Jazmyn Simon, Ben Kingsley, Ben Stiller, Mindy Kaling, Lucy Boynton, Mark Gatiss",
+      "description": "Linda a Paxton, ktorí sa práve rozišli, sa ocitli v nepríjemnej situácii. Povinná karanténa v čase londýnskej epidémie koronavírusu ich núti aj naďalej žiť pod jednou strechou. Linda, úspešná marketingová riaditeľka, je kvôli novým pracovným povinnostiam rozčarovaná z korporátneho sveta, a kreatívec Paxton, ktorý má za sebou kriminálnu minulosť, zostáva bez práce. Kým sa obaja spolubývajúci snažia o pokojné spolunažívanie, vďaka poézii a hektolitrov vína v sebe znovu prebudia dávno vyhasnutú túž",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/clSoIA0BVogiM3YpN6XG3Twbk7s.jpg",
       "rating": 0,
-      "tmdbId": 770315,
+      "tmdbId": 741228,
       "moods": [],
       "_yt": "BgxFD1pl6NM",
       "_tmdbUrl": "https://www.themoviedb.org/movie/770315",
@@ -55723,11 +55724,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0974015/"
     },
     "1174": {
-      "pct": 45,
-      "ytKey": "XlOHDd3sTrc",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/nHa58uS38qTBxD1AY3YIBReElzr.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/819018",
-      "imdbUrl": "https://www.imdb.com/title/tt15113504/"
+      "pct": 52,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/741228",
+      "imdbUrl": "https://www.imdb.com/title/tt13061914/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/clSoIA0BVogiM3YpN6XG3Twbk7s.jpg"
     },
     "1175": {
       "pct": 78,
