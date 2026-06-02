@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:08:02.892Z",
+  "updated": "2026-06-02T06:12:31.815Z",
   "movies": [
     {
       "id": 1,
@@ -14106,11 +14106,11 @@
       "genres": [
         "Komédia"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "87 min",
-      "cast": "Will Sasso, Kristanna Loken, Sophie Monk, Khary Payton, Ian Ziering",
+      "cast": "Will Sasso, Kristanna Loken, Sophie Monk, Khary Payton, Ian Ziering, Gary Lundy, Rip Torn, Tony Cox, Tiffany Claus, Deon Richmond",
       "description": "Awesomest Maximus dostane od svého tchána, trojského krále, úkol, který by neměl pokazit, pokud si chce ještě vůbec někdy vrznou se svojí krásnou ženou Hottessou. Stačí se vydat do vzdáleného Řecka, a přivézt zpět králova syna Orlanda, dřív než něco provede. Jenže to se mu nepovede neboť s Orlandem do Trojy odjede také krásná Ellen. To si ale řecký král Erotic nemůže nechat líbit, a vyrazí na válečnou výpravu, jakou lidstvo ještě nezažilo...",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/6IsqWxYEmF4BWTQyIj1nCOgpTvR.jpg",
       "rating": 0,
       "tmdbId": 51261,
       "moods": [],
@@ -51767,11 +51767,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0947810/"
     },
     "509": {
-      "pct": null,
+      "pct": 39,
       "ytKey": null,
-      "posterUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/389255",
-      "imdbUrl": "https://www.imdb.com/title/tt1686637/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/51261",
+      "imdbUrl": "https://www.imdb.com/title/tt1059887/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/6IsqWxYEmF4BWTQyIj1nCOgpTvR.jpg"
     },
     "510": {
       "pct": 53,
