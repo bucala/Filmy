@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:39:22.154Z",
+  "updated": "2026-06-02T06:40:35.262Z",
   "movies": [
     {
       "id": 1,
@@ -6683,14 +6683,14 @@
       "year": 2002,
       "director": "Gore Verbinski",
       "genres": [
-        "Horor",
+        "Horror",
         "Mysteriózny"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "115 min",
-      "cast": "Naomi Watts, Martin Henderson, David Dorfman, Brian Cox, Jane Alexander",
-      "description": "Zní to jako další z neuvěřitelných příběhů. Existuje videopáska plná obrazů jako vystřižených z těch nejtíživějších snů. Tam, kde byla přehrána, zazní záhy telefon s varováním, že ten, kdo ji zhlédl, zemře přesně za sedm dnů. Rachel Kellerová, reportérka renomovaného deníku, přirozeně odmítá uvěřit takové fantaskní informaci, jenomže když dojde k záhadné a nevysvětlitelné smrti čtyř teenagerů, rozhodne se přijít celé věci na kloub, protože jednou z \"obětí\" byla její neteř. Není to vůbec jednoduc",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/6KWX8jRZHtfXLGGViKAcUW41ZXs.jpg",
+      "cast": "Naomi Watts, Martin Henderson, David Dorfman, Brian Cox, Jane Alexander, Lindsay Frost, Amber Tamblyn, Rachael Bella, Daveigh Chase, Shannon Cochran",
+      "description": "Znie to ako ďalší z neuveriteľných príbehov. Existuje videopáska plná obrazov ako vystrihnutých z tých najpálčivejších snov. Tam, kde bola prehraná, vzápätí zazvoní telefón s varovaním, že ten, kto si ju pozrel, zomrie presne za sedem dní. Rachel Kellerová, reportérka renomovaného denníka, prirodzene odmieta uveriť takejto fantazijnej informácii. Lenže keď dôjde k záhadnej a nevysvetliteľnej smrti štyroch teenagerov, rozhodne sa prísť celej veci na kĺb, pretože jednou z obetí bola aj jej neter. ",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/cZI4lHR9D4jnNEmB4HaMVcDT7iq.jpg",
       "rating": 0,
       "tmdbId": 565,
       "moods": [],
@@ -49899,11 +49899,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0277296/"
     },
     "242": {
-      "pct": 71,
-      "ytKey": "yAmO3vanfDQ",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/6KWX8jRZHtfXLGGViKAcUW41ZXs.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/2671",
-      "imdbUrl": "https://www.imdb.com/title/tt0178868/"
+      "pct": 67,
+      "ytKey": null,
+      "tmdbUrl": "https://www.themoviedb.org/movie/565",
+      "imdbUrl": "https://www.imdb.com/title/tt0298130/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/cZI4lHR9D4jnNEmB4HaMVcDT7iq.jpg"
     },
     "243": {
       "pct": 68,
