@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T06:29:55.701Z",
+  "updated": "2026-06-02T06:37:47.180Z",
   "movies": [
     {
       "id": 1,
@@ -12091,16 +12091,16 @@
       "year": 2009,
       "director": "John Hillcoat",
       "genres": [
-        "Dráma",
-        "Thriller"
+        "Dobrodružný",
+        "Dráma"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "111 min",
-      "cast": "Viggo Mortensen, Kodi Smit-McPhee, Robert Duvall, Guy Pearce, Molly Parker",
-      "description": "In a dangerous post-apocalyptic world, an ailing father defends his son as they slowly travel to the sea.",
-      "poster_thumb": "",
+      "cast": "Viggo Mortensen, Kodi Smit-McPhee, Charlize Theron, Robert Duvall, Guy Pearce, Molly Parker, Michael Kenneth Williams, Garret Dillahunt, Bob Jennings, Buddy Sosthand",
+      "description": "Svet bol zničený pred približne desiatimi rokmi. Nikto nevie, čo sa vlastne stalo. Muž a chlapec putujú temnou krajinou, vzdorujú hladu a zime, občas sa musia skryť pred ľuďmi alebo sa brániť pri napadnutí. Jediným zdrojom radosti sú pre nich občasné nálezy potravy. Okrem rodinného puta ich spája vedomie, že existencia jedného je dôvodom pre život toho druhého. Otec cíti zodpovednosť za dieťa, ktoré sa narodilo krátko po katastrofe a ktoré nepozná zaniknutú civilizáciu. Predstiera optimizmus pre",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/k9EyCq0B7oSyJN7Ic192KIKr7xM.jpg",
       "rating": 0,
-      "tmdbId": 272544,
+      "tmdbId": 20766,
       "moods": [],
       "_yt": null,
       "_tmdbUrl": null,
@@ -51264,11 +51264,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt0381940/"
     },
     "437": {
-      "pct": null,
+      "pct": 70,
       "ytKey": null,
-      "posterUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/272544",
-      "imdbUrl": "https://www.imdb.com/title/tt1894548/"
+      "tmdbUrl": "https://www.themoviedb.org/movie/20766",
+      "imdbUrl": "https://www.imdb.com/title/tt0898367/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/k9EyCq0B7oSyJN7Ic192KIKr7xM.jpg"
     },
     "438": {
       "pct": 74,
