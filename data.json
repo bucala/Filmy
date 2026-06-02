@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T05:00:13.812Z",
+  "updated": "2026-06-02T05:08:11.373Z",
   "movies": [
     {
       "id": 1,
@@ -24283,11 +24283,11 @@
         "Dobrodružný",
         "Dráma"
       ],
-      "country": "United States",
+      "country": "CA, US, CN",
       "duration": "97 min",
-      "cast": "Kodi Smit-McPhee, Jóhannes Haukur Jóhannesson, Marcin Kowalczyk, Jens Hultén, Natassia Malthe",
-      "description": "Velkolepé dobrodružství, odehrávající se během poslední doby ledové v Evropě před 20 tisíci lety. Mladý lovec, který se vypravil na svůj první lov se skupinou nejlepších lovců kmene, utrpí zranění a je ostatními zanechán napospas osudu. Když se probere, zjišťuje, že je zraněn a sám - je nucen naučit se přežít v drsné a nemilosrdné divočině. S jistými komplikacemi se mu podaří ochočit si osamělého vlka, kterého opustila jeho smečka, a postupně se učí spoléhat se jeden na druhého. Stanou se z nich",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/6D3TKts3ZLhl9xcax9Crt9KEMbW.jpg",
+      "cast": "Kodi Smit-McPhee, Jóhannes Haukur Jóhannesson, Marcin Kowalczyk, Jens Hultén, Natassia Malthe, Spencer Bogaert, Mercedes de la Zerda, Leonor Varela, Priya Rajaratnam, Nashon Douglas",
+      "description": "Epické dobrodružstvo sa odohráva počas poslednej doby ľadovej pred 20 000 rokmi. Po nevydarenom love ostáva mladý bojovník zranený, opustený vlastným kmeňom a ponechaný napospas divočine. Cestu mu skríži vlk, taktiež opustený svojou svorkou. Z odvekých nepriateľov sa zrazu musia stať spojenci. Iba tak totiž dokážu v krutej a drsnej divočine prežiť a nájsť cestu domov pred príchodom neľútostnej zimy.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/ayDFYYSCKw8U2j2Uk5DYMyOShwE.jpg",
       "rating": 0,
       "tmdbId": 399360,
       "moods": [],
@@ -53644,11 +53644,11 @@
       "imdbUrl": "https://www.imdb.com/title/tt1413492/"
     },
     "877": {
-      "pct": 30,
-      "ytKey": null,
-      "posterUrl": "https://image.tmdb.org/t/p/w300/6D3TKts3ZLhl9xcax9Crt9KEMbW.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/897560",
-      "imdbUrl": "https://www.imdb.com/title/tt7534372/"
+      "pct": 65,
+      "ytKey": "M0I_vmFLcDM",
+      "tmdbUrl": "https://www.themoviedb.org/movie/399360",
+      "imdbUrl": "https://www.imdb.com/title/tt4244998/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/ayDFYYSCKw8U2j2Uk5DYMyOShwE.jpg"
     },
     "878": {
       "pct": 39,
