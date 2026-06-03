@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-02T18:33:50.574Z",
+  "updated": "2026-06-03T22:44:38.257Z",
   "movies": [
     {
       "id": 1,
@@ -46515,6 +46515,25 @@
       "_localPath": "W:\\Movies\\2026 - Tom Clancys Jack Ryan - Valka duchu.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1719818-tom-clancy-s-jack-ryan-valka-duchu/",
       "_pctCsfd": 51
+    },
+    {
+      "id": 1748,
+      "num": 1748,
+      "title": "Zabijú ťa!",
+      "year": 2026,
+      "director": "Кирилл Соколов",
+      "cast": "Zazie Beetz, Myha'la, Patricia Arquette, Paterson Joseph, Heather Graham, Tom Felton, Willie Ludik, David Viviers, Gabe Gabriel, Виктория Короткова",
+      "genres": [
+        "Akčný",
+        "Komédia",
+        "Horror"
+      ],
+      "country": "US, ZA",
+      "duration": "94 min",
+      "description": "Krvavá a adrenalínom nabitá hororová akčná komédia, v ktorej sa mladá hrdinka ocitá v pasci tajomnej luxusnej rezidencie priamo v srdci New Yorku. Aby sa vyhla rituálnemu obetovaniu zvráteným kultom zbohatlíkov, musí prežiť noc v ich sadistickom sídle, ktoré je dejiskom epických masakrov a nekompromisne temného humoru.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/pDBjI9KhvtC0cD5LtHNqi5GDd7X.jpg",
+      "rating": 0,
+      "tmdbId": 1292695
     }
   ],
   "liveCache": {
@@ -58718,6 +58737,12 @@
       "posterUrl": "https://image.tmdb.org/t/p/w300/8ehYxUh5MWE41AeE9gkHE8DKzvB.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/1380291",
       "imdbUrl": "https://www.imdb.com/title/tt34378301/"
+    },
+    "1748": {
+      "pct": 70,
+      "ytKey": "VmuC2CTKRb8",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1292695",
+      "imdbUrl": "https://www.imdb.com/title/tt31728330/"
     }
   }
 }
