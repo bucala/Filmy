@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-03T22:44:59.066Z",
+  "updated": "2026-06-03T22:45:52.800Z",
   "movies": [
     {
       "id": 1,
@@ -27,7 +27,8 @@
       "_localPath": "W:\\Movies\\1080p\\2002 - Minority Report 1080p.mkv",
       "_rtScore": 89,
       "_csfdUrl": "https://www.csfd.cz/film/8647-minority-report/recenze/",
-      "_pctCsfd": 82
+      "_pctCsfd": 82,
+      "_pctImdb": 76
     },
     {
       "id": 2,
@@ -53,7 +54,8 @@
       "_localPath": "W:\\Movies\\1080p\\2004 - Ja robot 1080p.mkv",
       "_rtScore": 57,
       "_csfdUrl": "https://www.csfd.cz/film/91975-ja-robot/",
-      "_pctCsfd": 82
+      "_pctCsfd": 82,
+      "_pctImdb": 71
     },
     {
       "id": 3,
@@ -79,7 +81,8 @@
       "_localPath": "W:\\Movies\\1080p\\2023 - Oppenheimer 1080p.mkv",
       "_rtScore": 93,
       "_csfdUrl": "https://www.csfd.cz/film/1091993-oppenheimer/recenze/",
-      "_pctCsfd": 83
+      "_pctCsfd": 83,
+      "_pctImdb": 82
     },
     {
       "id": 4,
@@ -106,7 +109,8 @@
       "_localPath": "W:\\Movies\\1978 - Superman.mkv",
       "_rtScore": 93,
       "_csfdUrl": "https://www.csfd.cz/film/2452-superman/",
-      "_pctCsfd": 75
+      "_pctCsfd": 75,
+      "_pctImdb": 74
     },
     {
       "id": 5,
@@ -133,7 +137,8 @@
       "_localPath": "W:\\Movies\\1980 - Superman 2.mkv",
       "_rtScore": 83,
       "_csfdUrl": "https://www.csfd.cz/film/5938-superman-ii/",
-      "_pctCsfd": 67
+      "_pctCsfd": 67,
+      "_pctImdb": 68
     },
     {
       "id": 6,
@@ -160,7 +165,8 @@
       "_localPath": "W:\\Movies\\1982 - Vec.mkv",
       "_rtScore": 85,
       "_csfdUrl": "https://www.csfd.cz/film/1329-vec/",
-      "_pctCsfd": 86
+      "_pctCsfd": 86,
+      "_pctImdb": 67
     },
     {
       "id": 7,
@@ -188,7 +194,8 @@
       "_localPath": "W:\\Movies\\1983 - Superman 3.mkv",
       "_rtScore": 29,
       "_csfdUrl": "https://www.csfd.cz/film/5939-superman-3/",
-      "_pctCsfd": 48
+      "_pctCsfd": 48,
+      "_pctImdb": 50
     },
     {
       "id": 8,
@@ -215,7 +222,8 @@
       "_localPath": "W:\\Movies\\1984 - Duna.mkv",
       "_rtScore": 36,
       "_csfdUrl": "https://www.csfd.cz/film/6250-duna/",
-      "_pctCsfd": 68
+      "_pctCsfd": 68,
+      "_pctImdb": 63
     },
     {
       "id": 9,
@@ -241,7 +249,8 @@
       "_localPath": "W:\\Movies\\1984 - Krotitele duchu.mkv",
       "_rtScore": 95,
       "_csfdUrl": "https://www.csfd.cz/film/10360-krotitele-duchu/",
-      "_pctCsfd": 83
+      "_pctCsfd": 83,
+      "_pctImdb": 78
     },
     {
       "id": 10,
@@ -269,7 +278,8 @@
       "_localPath": "W:\\Movies\\1984 - Nekonecny pribeh.mkv",
       "_rtScore": 84,
       "_csfdUrl": "https://www.csfd.cz/film/7244-nekonecny-pribeh/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 73
     },
     {
       "id": 11,
@@ -296,7 +306,8 @@
       "_localPath": "W:\\Movies\\1987 - Superman 4.mkv",
       "_rtScore": 10,
       "_csfdUrl": "https://www.csfd.cz/film/15599-superman-4/",
-      "_pctCsfd": 34
+      "_pctCsfd": 34,
+      "_pctImdb": 38
     },
     {
       "id": 12,
@@ -321,7 +332,8 @@
       "_imdbUrl": "https://www.imdb.com/title/tt0095705/",
       "_localPath": "W:\\Movies\\1988 - Blazniva strela.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/10197-blazniva-strela/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 76
     },
     {
       "id": 13,
@@ -348,7 +360,8 @@
       "_localPath": "W:\\Movies\\1988 - Muj soused Totoro.mkv",
       "_rtScore": 94,
       "_csfdUrl": "https://www.csfd.cz/film/42137-muj-soused-totoro/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 81
     },
     {
       "id": 14,
@@ -375,7 +388,8 @@
       "_localPath": "W:\\Movies\\1989 - Batman.mkv",
       "_rtScore": 77,
       "_csfdUrl": "https://www.csfd.cz/film/1069-batman/",
-      "_pctCsfd": 81
+      "_pctCsfd": 81,
+      "_pctImdb": 75
     },
     {
       "id": 15,
@@ -401,7 +415,8 @@
       "_localPath": "W:\\Movies\\1989 - Krotitele duchu 2.mkv",
       "_rtScore": 55,
       "_csfdUrl": "https://www.csfd.cz/film/10393-krotitele-duchu-ii/",
-      "_pctCsfd": 72
+      "_pctCsfd": 72,
+      "_pctImdb": 66
     },
     {
       "id": 16,
@@ -428,7 +443,8 @@
       "_localPath": "W:\\Movies\\1990 - Hon na ponorku.mkv",
       "_rtScore": 88,
       "_csfdUrl": "https://www.csfd.cz/film/6644-hon-na-ponorku/",
-      "_pctCsfd": 81
+      "_pctCsfd": 81,
+      "_pctImdb": 75
     },
     {
       "id": 17,
@@ -455,7 +471,8 @@
       "_localPath": "W:\\Movies\\1990 - Total Recall.mkv",
       "_rtScore": 82,
       "_csfdUrl": "https://www.csfd.cz/film/9303-total-recall/",
-      "_pctCsfd": 82
+      "_pctCsfd": 82,
+      "_pctImdb": 75
     },
     {
       "id": 18,
@@ -480,7 +497,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1991 - Blazniva strela 2 - Vune strachu.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/10196-blazniva-strela-2-a-1-2-vune-strachu/",
-      "_pctCsfd": 83
+      "_pctCsfd": 83,
+      "_pctImdb": 69
     },
     {
       "id": 19,
@@ -507,7 +525,8 @@
       "_localPath": "W:\\Movies\\1991 - Mlceni jehnatek.mkv",
       "_rtScore": 95,
       "_csfdUrl": "https://www.csfd.cz/film/2356-mlceni-jehnatek/",
-      "_pctCsfd": 91
+      "_pctCsfd": 91,
+      "_pctImdb": 86
     },
     {
       "id": 20,
@@ -533,7 +552,8 @@
       "_localPath": "W:\\Movies\\1991 - Posledni skaut.mkv",
       "_rtScore": 46,
       "_csfdUrl": "https://www.csfd.cz/film/8283-posledni-skaut/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 70
     },
     {
       "id": 21,
@@ -559,7 +579,8 @@
       "_localPath": "W:\\Movies\\1992 - Batman se vraci.mkv",
       "_rtScore": 82,
       "_csfdUrl": "https://www.csfd.cz/film/1070-batman-se-vraci/",
-      "_pctCsfd": 77
+      "_pctCsfd": 77,
+      "_pctImdb": 71
     },
     {
       "id": 22,
@@ -586,7 +607,8 @@
       "_localPath": "W:\\Movies\\1992 - Saman.mkv",
       "_rtScore": 17,
       "_csfdUrl": "https://www.csfd.cz/film/6646-saman/",
-      "_pctCsfd": 67
+      "_pctCsfd": 67,
+      "_pctImdb": 60
     },
     {
       "id": 23,
@@ -613,7 +635,8 @@
       "_localPath": "W:\\Movies\\1993 - Cliffhanger.mkv",
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/4155-cliffhanger/",
-      "_pctCsfd": 76
+      "_pctCsfd": 76,
+      "_pctImdb": 65
     },
     {
       "id": 24,
@@ -640,7 +663,8 @@
       "_localPath": "W:\\Movies\\1993 - Demolition Man.mkv",
       "_rtScore": 64,
       "_csfdUrl": "https://www.csfd.cz/film/13018-demolition-man/",
-      "_pctCsfd": 79
+      "_pctCsfd": 79,
+      "_pctImdb": 67
     },
     {
       "id": 25,
@@ -666,7 +690,8 @@
       "_localPath": "W:\\Movies\\1993 - Dokonaly svet.mkv",
       "_rtScore": 78,
       "_csfdUrl": "https://www.csfd.cz/film/2509-dokonaly-svet/",
-      "_pctCsfd": 84
+      "_pctCsfd": 84,
+      "_pctImdb": 75
     },
     {
       "id": 26,
@@ -692,7 +717,8 @@
       "_localPath": "W:\\Movies\\1993 - Jursky park.mkv",
       "_rtScore": 91,
       "_csfdUrl": "https://www.csfd.cz/film/8644-jursky-park/",
-      "_pctCsfd": 86
+      "_pctCsfd": 86,
+      "_pctImdb": 82
     },
     {
       "id": 27,
@@ -717,7 +743,8 @@
       "_localPath": "W:\\Movies\\1993 - Muz bez tvare.mkv",
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/3298-muz-bez-tvare/",
-      "_pctCsfd": 73
+      "_pctCsfd": 73,
+      "_pctImdb": 67
     },
     {
       "id": 28,
@@ -745,7 +772,8 @@
       "_localPath": "W:\\Movies\\1993 - Na Hromnice o den vice.mkv",
       "_rtScore": 94,
       "_csfdUrl": "https://www.csfd.cz/film/7570-na-hromnice-o-den-vice/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 80
     },
     {
       "id": 29,
@@ -770,7 +798,8 @@
       "_localPath": "W:\\Movies\\1993 - Philadelphia.mkv",
       "_rtScore": 81,
       "_csfdUrl": "https://www.csfd.cz/film/2355-philadelphia/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 77
     },
     {
       "id": 30,
@@ -796,7 +825,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1993 - Schindleruv seznam.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/8653-schindleruv-seznam/",
-      "_pctCsfd": 92
+      "_pctCsfd": 92,
+      "_pctImdb": 90
     },
     {
       "id": 31,
@@ -823,7 +853,8 @@
       "_localPath": "W:\\Movies\\1993 - Utecenec.mkv",
       "_rtScore": 96,
       "_csfdUrl": "https://www.csfd.cz/film/2302-uprchlik/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 78
     },
     {
       "id": 32,
@@ -849,7 +880,8 @@
       "_localPath": "W:\\Movies\\1994 - Ace Ventura zvieraci detektiv.mkv",
       "_rtScore": 47,
       "_csfdUrl": "https://www.csfd.cz/film/11342-ace-ventura-zvireci-detektiv/",
-      "_pctCsfd": 73
+      "_pctCsfd": 73,
+      "_pctImdb": 69
     },
     {
       "id": 33,
@@ -874,7 +906,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1994 - Blazniva strela 3 - Posledni trapas.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/8294-blazniva-strela-33-a-1-3-posledni-trapas/",
-      "_pctCsfd": 79
+      "_pctCsfd": 79,
+      "_pctImdb": 65
     },
     {
       "id": 34,
@@ -901,7 +934,8 @@
       "_localPath": "W:\\Movies\\1994 - Divoka reka.mkv",
       "_rtScore": 63,
       "_csfdUrl": "https://www.csfd.cz/film/4126-divoka-reka/",
-      "_pctCsfd": 67
+      "_pctCsfd": 67,
+      "_pctImdb": 65
     },
     {
       "id": 35,
@@ -928,7 +962,8 @@
       "_localPath": "W:\\Movies\\1994 - Forrest Gump.mkv",
       "_rtScore": 75,
       "_csfdUrl": "https://www.csfd.cz/film/10135-forrest-gump/",
-      "_pctCsfd": 94
+      "_pctCsfd": 94,
+      "_pctImdb": 88
     },
     {
       "id": 36,
@@ -955,7 +990,8 @@
       "_localPath": "W:\\Movies\\1994 - Hvezdna brana.mkv",
       "_rtScore": 53,
       "_csfdUrl": "https://www.csfd.cz/film/2576-hvezdna-brana/",
-      "_pctCsfd": 76
+      "_pctCsfd": 76,
+      "_pctImdb": 70
     },
     {
       "id": 37,
@@ -982,7 +1018,8 @@
       "_localPath": "W:\\Movies\\1994 - Jasne nebezpeci.mkv",
       "_rtScore": 81,
       "_csfdUrl": "https://www.csfd.cz/film/11916-jasne-nebezpeci/",
-      "_pctCsfd": 69
+      "_pctCsfd": 69,
+      "_pctImdb": 69
     },
     {
       "id": 38,
@@ -1009,7 +1046,8 @@
       "_imdbUrl": "https://www.imdb.com/title/tt0110413/",
       "_localPath": "W:\\Movies\\1994 - Leon.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/773-leon/",
-      "_pctCsfd": 89
+      "_pctCsfd": 89,
+      "_pctImdb": 85
     },
     {
       "id": 39,
@@ -1036,7 +1074,8 @@
       "_localPath": "W:\\Movies\\1994 - Lvi kral.mkv",
       "_rtScore": 93,
       "_csfdUrl": "https://www.csfd.cz/film/6741-lvi-kral/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 85
     },
     {
       "id": 40,
@@ -1065,7 +1104,8 @@
       "_localPath": "W:\\Movies\\1994 - Maverick.mkv",
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/2443-maverick/",
-      "_pctCsfd": 83
+      "_pctCsfd": 83,
+      "_pctImdb": 70
     },
     {
       "id": 41,
@@ -1091,7 +1131,8 @@
       "_localPath": "W:\\Movies\\1994 - Pravdive lzi.mkv",
       "_rtScore": 70,
       "_csfdUrl": "https://www.csfd.cz/film/1251-pravdive-lzi/",
-      "_pctCsfd": 80
+      "_pctCsfd": 80,
+      "_pctImdb": 73
     },
     {
       "id": 42,
@@ -1117,7 +1158,8 @@
       "_localPath": "W:\\Movies\\1994 - Pulp Fiction.mkv",
       "_rtScore": 92,
       "_csfdUrl": "https://www.csfd.cz/film/8852-pulp-fiction-historky-z-podsveti/",
-      "_pctCsfd": 91
+      "_pctCsfd": 91,
+      "_pctImdb": 88
     },
     {
       "id": 43,
@@ -1145,7 +1187,8 @@
       "_localPath": "W:\\Movies\\1994 - Senzacni unos.mkv",
       "_rtScore": 43,
       "_csfdUrl": "https://www.csfd.cz/film/7685-senzacni-unos/",
-      "_pctCsfd": 63
+      "_pctCsfd": 63,
+      "_pctImdb": 59
     },
     {
       "id": 44,
@@ -1172,7 +1215,8 @@
       "_localPath": "W:\\Movies\\1994 - Silenstvi.mkv",
       "_rtScore": 59,
       "_csfdUrl": "https://www.csfd.cz/film/1113858-silenstvi/",
-      "_pctCsfd": 61
+      "_pctCsfd": 61,
+      "_pctImdb": 72
     },
     {
       "id": 45,
@@ -1198,7 +1242,8 @@
       "_localPath": "W:\\Movies\\1994 - Specialista.mkv",
       "_rtScore": 10,
       "_csfdUrl": "https://www.csfd.cz/film/16105-specialista/",
-      "_pctCsfd": 60
+      "_pctCsfd": 60,
+      "_pctImdb": 56
     },
     {
       "id": 46,
@@ -1225,7 +1270,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1994 - Vlk.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/6986-vlk/",
-      "_pctCsfd": 74
+      "_pctCsfd": 74,
+      "_pctImdb": 63
     },
     {
       "id": 47,
@@ -1252,7 +1298,8 @@
       "_localPath": "W:\\Movies\\1994 - Vrana.mkv",
       "_rtScore": 87,
       "_csfdUrl": "https://www.csfd.cz/film/16745-vrana/",
-      "_pctCsfd": 80
+      "_pctCsfd": 80,
+      "_pctImdb": 75
     },
     {
       "id": 48,
@@ -1278,7 +1325,8 @@
       "_localPath": "W:\\Movies\\1994 - Vykoupeni z veznice Shawshank.mkv",
       "_rtScore": 89,
       "_csfdUrl": "https://www.csfd.cz/film/2294-vykoupeni-z-veznice-shawshank/",
-      "_pctCsfd": 95
+      "_pctCsfd": 95,
+      "_pctImdb": 93
     },
     {
       "id": 49,
@@ -1304,7 +1352,8 @@
       "_localPath": "W:\\Movies\\1994 - Zona uniku.mkv",
       "_rtScore": 39,
       "_csfdUrl": "https://www.csfd.cz/film/369-zona-uniku/",
-      "_pctCsfd": 58
+      "_pctCsfd": 58,
+      "_pctImdb": 56
     },
     {
       "id": 50,
@@ -1330,7 +1379,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - 12 opic.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/3311-12-opic/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 80
     },
     {
       "id": 51,
@@ -1357,7 +1407,8 @@
       "_localPath": "W:\\Movies\\1995 - Ace Ventura 2 - Volanie divociny.mkv",
       "_rtScore": 21,
       "_csfdUrl": "https://www.csfd.cz/film/11343-ace-ventura-2-volani-divociny/",
-      "_pctCsfd": 64
+      "_pctCsfd": 64,
+      "_pctImdb": 64
     },
     {
       "id": 52,
@@ -1382,7 +1433,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Apollo 13.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/4541-apollo-13/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 77
     },
     {
       "id": 53,
@@ -1408,7 +1460,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Batman navzdy.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/8216-batman-navzdy/",
-      "_pctCsfd": 56
+      "_pctCsfd": 56,
+      "_pctImdb": 55
     },
     {
       "id": 54,
@@ -1434,7 +1487,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Bezmocna.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/17952-bezmocna/",
-      "_pctCsfd": 60
+      "_pctCsfd": 60,
+      "_pctImdb": 69
     },
     {
       "id": 55,
@@ -1459,7 +1513,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Casino.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/8242-kasino/",
-      "_pctCsfd": 88
+      "_pctCsfd": 88,
+      "_pctImdb": 82
     },
     {
       "id": 56,
@@ -1485,7 +1540,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Chytte ho.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/16441-chytte-ho/",
-      "_pctCsfd": 62
+      "_pctCsfd": 62,
+      "_pctImdb": 69
     },
     {
       "id": 57,
@@ -1511,7 +1567,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Desperado.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/7741-desperado/",
-      "_pctCsfd": 80
+      "_pctCsfd": 80,
+      "_pctImdb": 71
     },
     {
       "id": 58,
@@ -1537,7 +1594,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Jumanji.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/21832-jumanji/",
-      "_pctCsfd": 74
+      "_pctCsfd": 74,
+      "_pctImdb": 71
     },
     {
       "id": 59,
@@ -1564,7 +1622,8 @@
       "_localPath": "W:\\Movies\\1995 - Kongo.mkv",
       "_rtScore": 23,
       "_csfdUrl": "https://www.csfd.cz/film/11233-kongo/",
-      "_pctCsfd": 53
+      "_pctCsfd": 53,
+      "_pctImdb": 53
     },
     {
       "id": 60,
@@ -1592,7 +1651,8 @@
       "_localPath": "W:\\Movies\\1995 - Mizerove.mkv",
       "_rtScore": 43,
       "_csfdUrl": "https://www.csfd.cz/film/543-mizerove/",
-      "_pctCsfd": 75
+      "_pctCsfd": 75,
+      "_pctImdb": 68
     },
     {
       "id": 61,
@@ -1617,7 +1677,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Mortal Kombat - Boj na zivot a na smrt.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/150-mortal-kombat-boj-na-zivot-a-na-smrt/",
-      "_pctCsfd": 63
+      "_pctCsfd": 63,
+      "_pctImdb": 58
     },
     {
       "id": 62,
@@ -1644,7 +1705,8 @@
       "_localPath": "W:\\Movies\\1995 - Mutant.mkv",
       "_rtScore": 42,
       "_csfdUrl": "https://www.csfd.cz/film/2400-mutant/",
-      "_pctCsfd": 59
+      "_pctCsfd": 59,
+      "_pctImdb": 35
     },
     {
       "id": 63,
@@ -1670,7 +1732,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Nahla smrt.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/4639-nahla-smrt/",
-      "_pctCsfd": 50
+      "_pctCsfd": 50,
+      "_pctImdb": 59
     },
     {
       "id": 64,
@@ -1697,7 +1760,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Najemni vrazi.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/2432-najemni-vrazi/",
-      "_pctCsfd": 76
+      "_pctCsfd": 76,
+      "_pctImdb": 63
     },
     {
       "id": 65,
@@ -1721,7 +1785,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Nebezpecne myslenky.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/19424-nebezpecne-myslenky/",
-      "_pctCsfd": 73
+      "_pctCsfd": 73,
+      "_pctImdb": 65
     },
     {
       "id": 66,
@@ -1747,7 +1812,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Nelutostny suboj.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/6444-nelitostny-souboj/",
-      "_pctCsfd": 88
+      "_pctCsfd": 88,
+      "_pctImdb": 83
     },
     {
       "id": 67,
@@ -1772,7 +1838,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Nixon.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/8758-nixon/",
-      "_pctCsfd": 71
+      "_pctCsfd": 71,
+      "_pctImdb": 70
     },
     {
       "id": 68,
@@ -1798,7 +1865,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Obvykli podezreli.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/8411-obvykli-podezreli/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 85
     },
     {
       "id": 69,
@@ -1824,7 +1892,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Sedm.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/2671-sedm/",
-      "_pctCsfd": 92
+      "_pctCsfd": 92,
+      "_pctImdb": 86
     },
     {
       "id": 70,
@@ -1853,7 +1922,8 @@
       "_localPath": "W:\\Movies\\1995 - Sit.mkv",
       "_rtScore": 44,
       "_csfdUrl": "https://www.csfd.cz/film/21988-sit/",
-      "_pctCsfd": 64
+      "_pctCsfd": 64,
+      "_pctImdb": 62
     },
     {
       "id": 71,
@@ -1878,7 +1948,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Smoke.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/13948-smoke/",
-      "_pctCsfd": 82
+      "_pctCsfd": 82,
+      "_pctImdb": 74
     },
     {
       "id": 72,
@@ -1905,7 +1976,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Smrtiaca epidemia.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/7232-smrtici-epidemie/",
-      "_pctCsfd": 74
+      "_pctCsfd": 74,
+      "_pctImdb": 66
     },
     {
       "id": 73,
@@ -1929,7 +2001,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Soudce Dredd.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1256-soudce-dredd/",
-      "_pctCsfd": 53
+      "_pctCsfd": 53,
+      "_pctImdb": 56
     },
     {
       "id": 74,
@@ -1956,7 +2029,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Statecne srdce.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/3297-statecne-srdce/",
-      "_pctCsfd": 88
+      "_pctCsfd": 88,
+      "_pctImdb": 83
     },
     {
       "id": 75,
@@ -1983,7 +2057,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Toy Story.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/18184-toy-story-pribeh-hracek/",
-      "_pctCsfd": 86
+      "_pctCsfd": 86,
+      "_pctImdb": 83
     },
     {
       "id": 76,
@@ -2009,7 +2084,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Vodny svet.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/7684-vodni-svet/",
-      "_pctCsfd": 66
+      "_pctCsfd": 66,
+      "_pctImdb": 63
     },
     {
       "id": 77,
@@ -2036,7 +2112,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Vrazdy podle predlohy.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/141-vrazdy-podle-predlohy/",
-      "_pctCsfd": 67
+      "_pctCsfd": 67,
+      "_pctImdb": 66
     },
     {
       "id": 78,
@@ -2063,7 +2140,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Vrazedne alibi.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/10719-vrazedne-alibi/",
-      "_pctCsfd": 63
+      "_pctCsfd": 63,
+      "_pctImdb": 64
     },
     {
       "id": 79,
@@ -2090,7 +2168,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1995 - Zvlastni dny.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/783-zvlastni-dny/",
-      "_pctCsfd": 72
+      "_pctCsfd": 72,
+      "_pctImdb": 72
     },
     {
       "id": 80,
@@ -2117,7 +2196,8 @@
       "_localPath": "W:\\Movies\\1996 - Carodejky.mkv",
       "_rtScore": 57,
       "_csfdUrl": "https://www.csfd.cz/film/2774-carodejky/",
-      "_pctCsfd": 61
+      "_pctCsfd": 61,
+      "_pctImdb": 65
     },
     {
       "id": 81,
@@ -2144,7 +2224,8 @@
       "_localPath": "W:\\Movies\\1996 - Den Nezavislosti.mkv",
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/2572-den-nezavislosti/",
-      "_pctCsfd": 75
+      "_pctCsfd": 75,
+      "_pctImdb": 70
     },
     {
       "id": 82,
@@ -2172,7 +2253,8 @@
       "_localPath": "W:\\Movies\\1996 - Dlouhy polibek na dobrou noc.mkv",
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/4161-dlouhy-polibek-na-dobrou-noc/",
-      "_pctCsfd": 65
+      "_pctCsfd": 65,
+      "_pctImdb": 68
     },
     {
       "id": 83,
@@ -2199,7 +2281,8 @@
       "_localPath": "W:\\Movies\\1996 - Fargo.mkv",
       "_rtScore": 95,
       "_csfdUrl": "https://www.csfd.cz/film/1606-fargo/",
-      "_pctCsfd": 84
+      "_pctCsfd": 84,
+      "_pctImdb": 81
     },
     {
       "id": 84,
@@ -2227,7 +2310,8 @@
       "_localPath": "W:\\Movies\\1996 - Fenomen.mkv",
       "_rtScore": 49,
       "_csfdUrl": "https://www.csfd.cz/film/9194-fenomen/",
-      "_pctCsfd": 76
+      "_pctCsfd": 76,
+      "_pctImdb": 65
     },
     {
       "id": 85,
@@ -2254,7 +2338,8 @@
       "_localPath": "W:\\Movies\\1996 - Invaze.mkv",
       "_rtScore": 66,
       "_csfdUrl": "https://www.csfd.cz/film/21225-invaze/",
-      "_pctCsfd": 62
+      "_pctCsfd": 62,
+      "_pctImdb": 62
     },
     {
       "id": 86,
@@ -2281,7 +2366,8 @@
       "_localPath": "W:\\Movies\\1996 - Jerry Maguire.mkv",
       "_rtScore": 85,
       "_csfdUrl": "https://www.csfd.cz/film/11708-jerry-maguire/",
-      "_pctCsfd": 70
+      "_pctCsfd": 70,
+      "_pctImdb": 73
     },
     {
       "id": 87,
@@ -2306,7 +2392,8 @@
       "_localPath": "W:\\Movies\\1996 - Lid Versus Larry Flynt.mkv",
       "_rtScore": 88,
       "_csfdUrl": "https://www.csfd.cz/film/2983-lid-versus-larry-flynt/",
-      "_pctCsfd": 81
+      "_pctCsfd": 81,
+      "_pctImdb": 73
     },
     {
       "id": 88,
@@ -2334,7 +2421,8 @@
       "_localPath": "W:\\Movies\\1996 - Likvidator.mkv",
       "_rtScore": 43,
       "_csfdUrl": "https://www.csfd.cz/film/7931-likvidator/",
-      "_pctCsfd": 63
+      "_pctCsfd": 63,
+      "_pctImdb": 62
     },
     {
       "id": 89,
@@ -2363,7 +2451,8 @@
       "_localPath": "W:\\Movies\\1996 - Lovci lvu.mkv",
       "_rtScore": 51,
       "_csfdUrl": "https://www.csfd.cz/film/12166-lovci-lvu/",
-      "_pctCsfd": 76
+      "_pctCsfd": 76,
+      "_pctImdb": 68
     },
     {
       "id": 90,
@@ -2391,7 +2480,8 @@
       "_localPath": "W:\\Movies\\1996 - Od soumraku do usvitu.mkv",
       "_rtScore": 64,
       "_csfdUrl": "https://www.csfd.cz/film/7744-od-soumraku-do-usvitu/",
-      "_pctCsfd": 75
+      "_pctCsfd": 75,
+      "_pctImdb": 72
     },
     {
       "id": 91,
@@ -2418,7 +2508,8 @@
       "_localPath": "W:\\Movies\\1996 - Operace Zlomeny sip.mkv",
       "_rtScore": 53,
       "_csfdUrl": "https://www.csfd.cz/film/9846-operace-zlomeny-sip/",
-      "_pctCsfd": 64
+      "_pctCsfd": 64,
+      "_pctImdb": 61
     },
     {
       "id": 92,
@@ -2444,7 +2535,8 @@
       "_localPath": "W:\\Movies\\1996 - Prizraky.mkv",
       "_rtScore": 66,
       "_csfdUrl": "https://www.csfd.cz/film/4709-prizraky/",
-      "_pctCsfd": 69
+      "_pctCsfd": 69,
+      "_pctImdb": 71
     },
     {
       "id": 93,
@@ -2469,7 +2561,8 @@
       "_localPath": "W:\\Movies\\1996 - Rivalove.mkv",
       "_rtScore": 62,
       "_csfdUrl": "https://www.csfd.cz/film/14623-rivalove/",
-      "_pctCsfd": 65
+      "_pctCsfd": 65,
+      "_pctImdb": 70
     },
     {
       "id": 94,
@@ -2496,7 +2589,8 @@
       "_localPath": "W:\\Movies\\1996 - Skala.mkv",
       "_rtScore": 67,
       "_csfdUrl": "https://www.csfd.cz/film/546-skala/",
-      "_pctCsfd": 86
+      "_pctCsfd": 86,
+      "_pctImdb": 74
     },
     {
       "id": 95,
@@ -2521,7 +2615,8 @@
       "_localPath": "W:\\Movies\\1996 - Smrtici bumerang.mkv",
       "_rtScore": 97,
       "_csfdUrl": "https://www.csfd.cz/film/12375-smrtici-bumerang/",
-      "_pctCsfd": 84
+      "_pctCsfd": 84,
+      "_pctImdb": 80
     },
     {
       "id": 96,
@@ -2548,7 +2643,8 @@
       "_localPath": "W:\\Movies\\1996 - Spaci.mkv",
       "_rtScore": 73,
       "_csfdUrl": "https://www.csfd.cz/film/5955-spaci/",
-      "_pctCsfd": 84
+      "_pctCsfd": 84,
+      "_pctImdb": 75
     },
     {
       "id": 97,
@@ -2576,7 +2672,8 @@
       "_localPath": "W:\\Movies\\1996 - Star Trek VIII - První kontakt.mkv",
       "_rtScore": 93,
       "_csfdUrl": "https://www.csfd.cz/film/19251-star-trek-viii-prvni-kontakt/",
-      "_pctCsfd": 83
+      "_pctCsfd": 83,
+      "_pctImdb": 76
     },
     {
       "id": 98,
@@ -2602,7 +2699,8 @@
       "_localPath": "W:\\Movies\\1996 - Trainspotting.mkv",
       "_rtScore": 90,
       "_csfdUrl": "https://www.csfd.cz/film/901-trainspotting/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 81
     },
     {
       "id": 99,
@@ -2629,7 +2727,8 @@
       "_localPath": "W:\\Movies\\1996 - Twister.mkv",
       "_rtScore": 67,
       "_csfdUrl": "https://www.csfd.cz/film/11213-twister/",
-      "_pctCsfd": 69
+      "_pctCsfd": 69,
+      "_pctImdb": 66
     },
     {
       "id": 100,
@@ -2655,7 +2754,8 @@
       "_localPath": "W:\\Movies\\1996 - Vykupne.mkv",
       "_rtScore": 74,
       "_csfdUrl": "https://www.csfd.cz/film/4556-vykupne/",
-      "_pctCsfd": 75
+      "_pctCsfd": 75,
+      "_pctImdb": 67
     },
     {
       "id": 101,
@@ -2681,7 +2781,8 @@
       "_localPath": "W:\\Movies\\1997 - Air Force One.mkv",
       "_rtScore": 79,
       "_csfdUrl": "https://www.csfd.cz/film/7219-air-force-one/",
-      "_pctCsfd": 59
+      "_pctCsfd": 59,
+      "_pctImdb": 65
     },
     {
       "id": 102,
@@ -2708,7 +2809,8 @@
       "_localPath": "W:\\Movies\\1997 - Anakonda.mkv",
       "_rtScore": 41,
       "_csfdUrl": "https://www.csfd.cz/film/16454-anakonda/",
-      "_pctCsfd": 42
+      "_pctCsfd": 42,
+      "_pctImdb": 49
     },
     {
       "id": 103,
@@ -2733,7 +2835,8 @@
       "_localPath": "W:\\Movies\\1997 - Atentat.mkv",
       "_rtScore": 15,
       "_csfdUrl": "https://www.csfd.cz/film/331356-atentat/",
-      "_pctCsfd": 70
+      "_pctCsfd": 70,
+      "_pctImdb": 56
     },
     {
       "id": 104,
@@ -2760,7 +2863,8 @@
       "_localPath": "W:\\Movies\\1997 - Batman a Robin.mkv",
       "_rtScore": 12,
       "_csfdUrl": "https://www.csfd.cz/film/8215-batman-a-robin/",
-      "_pctCsfd": 34
+      "_pctCsfd": 34,
+      "_pctImdb": 38
     },
     {
       "id": 105,
@@ -2787,7 +2891,8 @@
       "_localPath": "W:\\Movies\\1997 - Con Air.mkv",
       "_rtScore": 58,
       "_csfdUrl": "https://www.csfd.cz/film/9714-con-air/",
-      "_pctCsfd": 78
+      "_pctCsfd": 78,
+      "_pctImdb": 69
     },
     {
       "id": 106,
@@ -2814,7 +2919,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1997 - Dabluv advokat.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/4061-dabluv-advokat/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 75
     },
     {
       "id": 107,
@@ -2839,7 +2945,8 @@
       "_localPath": "W:\\Movies\\1997 - Dobry Will Hunting.mkv",
       "_rtScore": 97,
       "_csfdUrl": "https://www.csfd.cz/film/9277-dobry-will-hunting/",
-      "_pctCsfd": 88
+      "_pctCsfd": 88,
+      "_pctImdb": 84
     },
     {
       "id": 108,
@@ -2865,7 +2972,8 @@
       "_localPath": "W:\\Movies\\1997 - G. I. Jane.mkv",
       "_rtScore": 53,
       "_csfdUrl": "https://www.csfd.cz/film/8270-g-i-jane/",
-      "_pctCsfd": 62
+      "_pctCsfd": 62,
+      "_pctImdb": 60
     },
     {
       "id": 109,
@@ -2893,7 +3001,8 @@
       "_localPath": "W:\\Movies\\1997 - Gattaca.mkv",
       "_rtScore": 82,
       "_csfdUrl": "https://www.csfd.cz/film/11993-gattaca/",
-      "_pctCsfd": 83
+      "_pctCsfd": 83,
+      "_pctImdb": 77
     },
     {
       "id": 110,
@@ -2920,7 +3029,8 @@
       "_localPath": "W:\\Movies\\1997 - Horizont udalosti.mkv",
       "_rtScore": 35,
       "_csfdUrl": "https://www.csfd.cz/film/149-horizont-udalosti/",
-      "_pctCsfd": 70
+      "_pctCsfd": 70,
+      "_pctImdb": 66
     },
     {
       "id": 111,
@@ -2947,7 +3057,8 @@
       "_localPath": "W:\\Movies\\1997 - Hra.mkv",
       "_rtScore": 77,
       "_csfdUrl": "https://www.csfd.cz/film/34236-hra/",
-      "_pctCsfd": 86
+      "_pctCsfd": 86,
+      "_pctImdb": 77
     },
     {
       "id": 112,
@@ -2975,7 +3086,8 @@
       "_localPath": "W:\\Movies\\1997 - Hvezdna pechota.mkv",
       "_rtScore": 72,
       "_csfdUrl": "https://www.csfd.cz/film/9302-hvezdna-pechota/",
-      "_pctCsfd": 77
+      "_pctCsfd": 77,
+      "_pctImdb": 73
     },
     {
       "id": 113,
@@ -3002,7 +3114,8 @@
       "_localPath": "W:\\Movies\\1997 - Jursky park 2.mkv",
       "_rtScore": 53,
       "_csfdUrl": "https://www.csfd.cz/film/8646-ztraceny-svet-jursky-park/",
-      "_pctCsfd": 67
+      "_pctCsfd": 67,
+      "_pctImdb": 66
     },
     {
       "id": 114,
@@ -3029,7 +3142,8 @@
       "_localPath": "W:\\Movies\\1997 - Kontakt.mkv",
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/10132-kontakt/",
-      "_pctCsfd": 82
+      "_pctCsfd": 82,
+      "_pctImdb": 75
     },
     {
       "id": 115,
@@ -3056,7 +3170,8 @@
       "_localPath": "W:\\Movies\\1997 - Kostka.mkv",
       "_rtScore": 63,
       "_csfdUrl": "https://www.csfd.cz/film/33285-kostka/",
-      "_pctCsfd": 74
+      "_pctCsfd": 74,
+      "_pctImdb": 71
     },
     {
       "id": 116,
@@ -3083,7 +3198,8 @@
       "_localPath": "W:\\Movies\\1997 - L. A. - Prisne tajne.mkv",
       "_rtScore": 99,
       "_csfdUrl": "https://www.csfd.cz/film/138274-prisne-tajne/",
-      "_pctCsfd": 89
+      "_pctCsfd": 89,
+      "_pctImdb": 82
     },
     {
       "id": 117,
@@ -3108,7 +3224,8 @@
       "_localPath": "W:\\Movies\\1997 - Lhar, lhar.mkv",
       "_rtScore": 83,
       "_csfdUrl": "https://www.csfd.cz/film/11351-lhar-lhar/",
-      "_pctCsfd": 69
+      "_pctCsfd": 69,
+      "_pctImdb": 69
     },
     {
       "id": 118,
@@ -3136,7 +3253,8 @@
       "_localPath": "W:\\Movies\\1997 - Muži v cernem.mkv",
       "_rtScore": 91,
       "_csfdUrl": "https://www.csfd.cz/film/11893-muzi-v-cernem/",
-      "_pctCsfd": 80
+      "_pctCsfd": 80,
+      "_pctImdb": 73
     },
     {
       "id": 119,
@@ -3163,7 +3281,8 @@
       "_localPath": "W:\\Movies\\1997 - Mírotvorce.mkv",
       "_rtScore": 46,
       "_csfdUrl": "https://www.csfd.cz/film/47859-mirotvorce/recenze/",
-      "_pctCsfd": 55
+      "_pctCsfd": 55,
+      "_pctImdb": 60
     },
     {
       "id": 120,
@@ -3189,7 +3308,8 @@
       "_imdbUrl": "https://www.imdb.com/title/tt0119116/",
       "_localPath": "W:\\Movies\\1997 - Paty Element.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/771-paty-element/",
-      "_pctCsfd": 84
+      "_pctCsfd": 84,
+      "_pctImdb": 76
     },
     {
       "id": 121,
@@ -3216,7 +3336,8 @@
       "_localPath": "W:\\Movies\\1997 - Princezna Mononoke.mkv",
       "_rtScore": 93,
       "_csfdUrl": "https://www.csfd.cz/film/22205-princezna-mononoke/",
-      "_pctCsfd": 87
+      "_pctCsfd": 87,
+      "_pctImdb": 83
     },
     {
       "id": 122,
@@ -3244,7 +3365,8 @@
       "_localPath": "W:\\Movies\\1997 - Sakal.mkv",
       "_rtScore": 24,
       "_csfdUrl": "https://www.csfd.cz/film/16734-sakal/",
-      "_pctCsfd": 68
+      "_pctCsfd": 68,
+      "_pctImdb": 64
     },
     {
       "id": 123,
@@ -3272,7 +3394,8 @@
       "_localPath": "W:\\Movies\\1997 - Spiknuti.mkv",
       "_rtScore": 57,
       "_csfdUrl": "https://www.csfd.cz/film/2434-spiknuti/",
-      "_pctCsfd": 76
+      "_pctCsfd": 76,
+      "_pctImdb": 67
     },
     {
       "id": 124,
@@ -3299,7 +3422,8 @@
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\1997 - Sílena jizda.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/35829-silena-jizda/",
-      "_pctCsfd": 67
+      "_pctCsfd": 67,
+      "_pctImdb": 66
     },
     {
       "id": 125,
@@ -3326,7 +3450,8 @@
       "_localPath": "W:\\Movies\\1997 - Tajemstvi lonskeho leta.mkv",
       "_rtScore": 46,
       "_csfdUrl": "https://www.csfd.cz/film/15382-tajemstvi-lonskeho-leta/",
-      "_pctCsfd": 61
+      "_pctCsfd": 61,
+      "_pctImdb": 59
     },
     {
       "id": 126,
@@ -3351,7 +3476,8 @@
       "_localPath": "W:\\Movies\\1997 - Temne spiknuti.mkv",
       "_rtScore": 7,
       "_csfdUrl": "https://www.csfd.cz/film/1729-temne-spiknuti/",
-      "_pctCsfd": 50
+      "_pctCsfd": 50,
+      "_pctImdb": 50
     },
     {
       "id": 127,
@@ -3377,7 +3503,8 @@
       "_localPath": "W:\\Movies\\1997 - Titanic.mkv",
       "_rtScore": 88,
       "_csfdUrl": "https://www.csfd.cz/film/1250-titanic/",
-      "_pctCsfd": 85
+      "_pctCsfd": 85,
+      "_pctImdb": 80
     },
     {
       "id": 128,
