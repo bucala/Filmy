@@ -919,3 +919,36 @@ input,textarea,.tmdb-inp,select{
 .dup-vs{font-size:11px;color:var(--text3);font-weight:700}
 .dup-rm{background:#e53935;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
 .dup-rm:hover{background:#c62828}
+
+/* ══ Poster Wall ══ */
+.mlist.posterwall{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:4px;padding:4px}
+.pwcard{cursor:pointer;aspect-ratio:2/3;overflow:hidden;border-radius:6px;position:relative;transition:transform .15s,box-shadow .15s}
+.pwcard:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:2}
+.pw-poster{width:100%;height:100%;object-fit:cover;display:block}
+.pw-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--card);color:var(--text3);font-size:11px;text-align:center;padding:6px}
+@media(min-width:600px){.mlist.posterwall{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
+@media(min-width:1000px){.mlist.posterwall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+
+/* ══ JustWatch button ══ */
+.btn-jw{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:8px;background:#ffd600;color:#000;font-size:12px;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:background .15s}
+.btn-jw:hover{background:#ffea00}
+
+/* ══ Person link (filmography) ══ */
+.det-person-link{color:var(--gold);cursor:pointer;text-decoration:none;border-bottom:1px dotted var(--gold)}
+.det-person-link:hover{color:var(--gold2);border-bottom-style:solid}
+.det-item-v .det-person-link{color:var(--gold)}
+
+/* ══ Tags ══ */
+.det-tags{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
+.det-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:var(--card2);color:var(--text2);font-size:12px}
+.det-tag-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+.det-tag-x:hover{color:#e53935}
+.det-tag-add{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1px dashed var(--border);color:var(--text3);font-size:12px;cursor:pointer;transition:all .15s}
+.det-tag-add:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ══ Filter panel tag input ══ */
+.fp-inp{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;box-sizing:border-box}
+.fp-inp:focus{outline:none;border-color:var(--gold)}
+
+/* ══ Detail cover tweaks for backdrop ══ */
+.det-cover{transition:filter .3s}

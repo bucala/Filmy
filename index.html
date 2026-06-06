@@ -75,6 +75,7 @@
           <option value="year">Rok</option>
           <option value="title">A–Z</option>
           <option value="pct">%</option>
+          <option value="dur">Dĺžka</option>
         </select>
         <button class="ctrl-btn" id="sortDir" title="Smer radenia">
           <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -174,6 +175,7 @@
       <option value="title">Podľa názvu</option>
       <option value="year">Podľa roku</option>
       <option value="pct" id="sortPctOpt">Podľa %</option>
+      <option value="dur">Podľa dĺžky</option>
     </select>
   </div>
 
@@ -445,6 +447,12 @@
     </button>
     <div class="sett-btn-hint">Stiahne CSV: poradie, TMDB ID, rok, názov, TMDB link, ČSFD link, ČSFD %.</div>
     <div style="height:8px"></div>
+    <button class="sett-btn secondary" id="settBtnCollage">
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+      <span class="sett-btn-label">Exportovať koláž (PNG)</span>
+    </button>
+    <div class="sett-btn-hint">Vygeneruje obrázok z plagátov aktuálne filtrovaných filmov (max 60).</div>
+    <div style="height:8px"></div>
     <button class="sett-btn secondary" id="settBtnImportCsfd">
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
       <span class="sett-btn-label">Importovať ČSFD linky (CSV)</span>
@@ -605,6 +613,9 @@
   <select class="fp-sel" id="fpCountry" title="Vybrať krajinu" aria-label="Vybrať krajinu">
     <option value="">Všetky krajiny</option>
   </select>
+
+  <div class="fp-sec">TAG</div>
+  <input type="text" class="fp-inp" id="fpTag" placeholder="Filtrovať podľa tagu..." aria-label="Tag filter">
 
   <div class="fp-sec">ŽÁNRE (viacnásobný výber)</div>
   <div class="fp-genres" id="fpGenreChips"></div>
