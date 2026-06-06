@@ -498,9 +498,17 @@
     <div style="height:8px"></div>
     <button class="sett-btn secondary" id="settBtnImportCsfd">
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
-      <span class="sett-btn-label">Importovať ČSFD linky (CSV)</span>
+      <span class="sett-btn-label">Importovať ČSFD linky (CSV/JSON)</span>
     </button>
-    <div class="sett-btn-hint">Načíta CSV s ČSFD linkami a hodnoteniami. Formát: <code>num,...,čsfdLink,čsfd%</code></div>
+    <div class="sett-btn-hint">Načíta export z TMDb → ČSFD matchera. Páruje podľa TMDb ID, potom podľa poradového čísla.</div>
+    <div class="sett-key-row" style="margin-top:8px">
+      <input class="sett-key-inp" id="csfdMatcherUrlInp" type="url" placeholder="https://movie-database-comparator.vercel.app" autocomplete="off">
+      <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="csfdMatcherUrlSave">OK</button>
+    </div>
+    <button class="sett-btn secondary" id="settBtnOpenCsfdMatcher" style="margin-top:8px">
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></span>
+      <span class="sett-btn-label">Otvoriť TMDb → ČSFD matcher</span>
+    </button>
     <div class="sett-key-st" id="csfdImportSt" style="margin-top:4px"></div>
     <div style="height:8px"></div>
     <button class="sett-btn secondary" id="settBtnRepair">
@@ -660,7 +668,7 @@
 
 <input type="file" id="fileInp" accept=".zip,.pdf" style="display:none">
 <input type="file" id="fileInpUpdate" accept=".zip,.pdf" style="display:none">
-<input type="file" id="fileInpCsfd" accept=".csv,.txt" style="display:none">
+<input type="file" id="fileInpCsfd" accept=".csv,.txt,.json,application/json" style="display:none">
 
 <!-- Film database — baked-in movie data with base64 poster thumbnails -->
 

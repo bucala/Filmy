@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
+var APP_VERSION = "6.3.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
 var _scriptCache={};
 function loadScript(url){
   if(_scriptCache[url])return _scriptCache[url];
@@ -41,6 +41,9 @@ function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n
 var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
 var omdbKey=localStorage.getItem("omdb_key")||"9ff40e48";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
+var CSFD_MATCHER_URL_KEY="mdb_csfd_matcher_url";
+var DEFAULT_CSFD_MATCHER_URL="https://movie-database-comparator.vercel.app";
+var csfdMatcherUrl=localStorage.getItem(CSFD_MATCHER_URL_KEY)||DEFAULT_CSFD_MATCHER_URL;
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
 var prefs={view:"grid",sort:"num",sortDir:"desc"};
@@ -1205,6 +1208,8 @@ function openSett(){
   var csfdCount=all.filter(function(m){return m._pctCsfd!=null;}).length;
   var csfdSt=document.getElementById('csfdBatchSt');
   if(csfdSt&&csfdCount)csfdSt.textContent=csfdCount+' filmov s ČSFD hodnotením';
+  var matcherInp=document.getElementById('csfdMatcherUrlInp');
+  if(matcherInp)matcherInp.value=csfdMatcherUrl;
   document.getElementById("ttabList").className="ttab"+(grid?"":" on");
   document.getElementById("ttabGrid").className="ttab"+(grid?" on":"");
   document.getElementById("settSortSel").value=prefs.sort||"num";
@@ -1872,6 +1877,13 @@ toast(_modeLabel);
     // Auto pull toggle
     var apTog = document.getElementById('autoPullTog');
     if (apTog) { localStorage.setItem(AUTO_PULL_KEY, apTog.checked ? '1' : '0'); }
+    var matcherInp = document.getElementById('csfdMatcherUrlInp');
+    if (matcherInp && matcherInp.value.trim()) {
+      var mv = matcherInp.value.trim();
+      if (mv.indexOf('http') !== 0) mv = 'https://' + mv;
+      csfdMatcherUrl = mv;
+      localStorage.setItem(CSFD_MATCHER_URL_KEY, mv);
+    }
     // Status
     var st = document.getElementById('saveAllSt');
     if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
@@ -1941,55 +1953,171 @@ toast(_modeLabel);
     repairNext();
   });
 
+  function saveCsfdMatcherUrl(){
+    var inp=document.getElementById('csfdMatcherUrlInp');
+    var val=(inp&&inp.value?inp.value:csfdMatcherUrl||DEFAULT_CSFD_MATCHER_URL).trim();
+    if(val&&val.indexOf('http')!==0) val='https://'+val;
+    csfdMatcherUrl=val||DEFAULT_CSFD_MATCHER_URL;
+    localStorage.setItem(CSFD_MATCHER_URL_KEY,csfdMatcherUrl);
+    var stEl=document.getElementById('csfdImportSt');
+    if(stEl){stEl.textContent='✓ Matcher URL uložená';stEl.className='sett-key-st ok';}
+    toast('URL matchera uložená');
+  }
+
+  function openCsfdMatcher(){
+    saveCsfdMatcherUrl();
+    window.open(csfdMatcherUrl,'_blank','noopener,noreferrer');
+  }
+
+  function importCsfdMatcherExport(rawText,fileName){
+    var text=String(rawText||'').replace(/^﻿/,'').trim();
+    var rows=/\.json$/i.test(fileName)?parseCsfdMatcherJson(text):parseCsfdMatcherCsv(text);
+    var index=buildCsfdMovieIndex();
+    var links=0,ratings=0,skipped=0;
+
+    rows.forEach(function(item){
+      var movie=findCsfdTargetMovie(item,index);
+      if(!movie){skipped++;return;}
+      if(item.tmdbId&&!movie.tmdbId) movie.tmdbId=parseInt(item.tmdbId)||item.tmdbId;
+      if(item.csfdLink){movie._csfdUrl=item.csfdLink;links++;}
+      var rating=parseCsfdPercent(item.csfdRating||item.rating||item.csfdPercent);
+      if(rating!=null){movie._pctCsfd=rating;ratings++;}
+    });
+
+    if(links>0||ratings>0) saveAllData();
+    return {links:links,ratings:ratings,skipped:skipped};
+  }
+
+  function parseCsfdMatcherJson(text){
+    var parsed=JSON.parse(text);
+    var list=Array.isArray(parsed)?parsed:(parsed.rows||parsed.movies||parsed.data||[]);
+    if(!Array.isArray(list)) throw new Error('JSON export neobsahuje pole riadkov.');
+    return list.map(function(item){
+      function pick(){
+        for(var i=0;i<arguments.length;i++){
+          if(arguments[i]!==undefined&&arguments[i]!==null) return arguments[i];
+        }
+        return '';
+      }
+      return {
+        orderNumber:String(pick(item.orderNumber,item.num,item.rowNumber)).trim(),
+        tmdbId:String(pick(item.tmdbId,item.tmdbID,item.tmdb_id)).trim(),
+        title:String(pick(item.title,item.nazov,item['Názov filmu'])).trim(),
+        year:String(pick(item.year,item.rok,item.Rok)).trim(),
+        csfdLink:String(pick(item.csfdLink,item.csfdUrl,item._csfdUrl,item['ČSFD Link'])).trim(),
+        csfdRating:String(pick(item.csfdRating,item._pctCsfd,item['ČSFD Hodnotenie'],item['ČSFD %'])).trim()
+      };
+    });
+  }
+
+  function parseCsfdMatcherCsv(text){
+    var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+    if(!lines.length) return [];
+    var first=parseCsvLine(lines[0]).map(function(v){return v.trim().toLowerCase();});
+    var hasHeader=first.some(function(v){return v.indexOf('tmdb')>=0||v.indexOf('čsfd')>=0||v.indexOf('csfd')>=0||v.indexOf('rok')>=0;});
+    var header=hasHeader?first:[];
+    var start=hasHeader?1:0;
+
+    function idx(names,fallback){
+      for(var i=0;i<header.length;i++){
+        for(var n=0;n<names.length;n++){
+          if(header[i].indexOf(names[n])>=0) return i;
+        }
+      }
+      return fallback;
+    }
+
+    var orderIdx=idx(['porad','order','#'],0);
+    var tmdbIdx=idx(['tmdb'],1);
+    var yearIdx=idx(['rok','year'],2);
+    var titleIdx=idx(['názov','nazov','title'],3);
+    var linkIdx=idx(['čsfd link','csfd link','čsfd','csfd'],5);
+    var ratingIdx=idx(['hodnotenie','rating','%'],6);
+
+    return lines.slice(start).map(function(line){
+      var cols=parseCsvLine(line);
+      return {
+        orderNumber:(cols[orderIdx]||'').trim(),
+        tmdbId:(cols[tmdbIdx]||'').trim(),
+        year:(cols[yearIdx]||'').trim(),
+        title:(cols[titleIdx]||'').trim(),
+        csfdLink:(cols[linkIdx]||'').trim(),
+        csfdRating:(cols[ratingIdx]||'').trim()
+      };
+    }).filter(function(item){return item.tmdbId||item.orderNumber||item.csfdLink||item.csfdRating;});
+  }
+
+  function parseCsvLine(line){
+    var out=[],cur='',quoted=false;
+    for(var i=0;i<line.length;i++){
+      var ch=line[i];
+      if(ch==='"'){
+        if(quoted&&line[i+1]==='"'){cur+='"';i++;}
+        else quoted=!quoted;
+      }else if(ch===','&&!quoted){out.push(cur);cur='';}
+      else cur+=ch;
+    }
+    out.push(cur);
+    return out;
+  }
+
+  function buildCsfdMovieIndex(){
+    var byTmdb={},byNum={};
+    all.forEach(function(m){
+      var tid=String(m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbId)||'').trim();
+      if(!tid&&m._tmdbUrl){
+        var mt=String(m._tmdbUrl).match(/\/movie\/(\d+)/);
+        if(mt)tid=mt[1];
+      }
+      if(tid) byTmdb[tid]=m;
+      var num=String(m.num||m.orderNumber||m.id||'').trim();
+      if(num) byNum[num]=m;
+    });
+    return {byTmdb:byTmdb,byNum:byNum};
+  }
+
+  function findCsfdTargetMovie(item,index){
+    var tid=String(item.tmdbId||'').trim();
+    if(tid&&index.byTmdb[tid]) return index.byTmdb[tid];
+    var num=String(item.orderNumber||'').trim();
+    if(num&&index.byNum[num]) return index.byNum[num];
+    return null;
+  }
+
+  function parseCsfdPercent(value){
+    if(value==null||value==='') return null;
+    var match=String(value).match(/(\d{1,3})/);
+    if(!match) return null;
+    var n=parseInt(match[1]);
+    if(isNaN(n)||n<0||n>100) return null;
+    return n;
+  }
+
   var _eCsfdImp=document.getElementById('settBtnImportCsfd');
   if(_eCsfdImp) _eCsfdImp.addEventListener('click',function(){
     document.getElementById('fileInpCsfd').click();
   });
+  var _eCsfdOpen=document.getElementById('settBtnOpenCsfdMatcher');
+  if(_eCsfdOpen) _eCsfdOpen.addEventListener('click',openCsfdMatcher);
+  var _eCsfdUrlSave=document.getElementById('csfdMatcherUrlSave');
+  if(_eCsfdUrlSave) _eCsfdUrlSave.addEventListener('click',saveCsfdMatcherUrl);
   document.getElementById('fileInpCsfd').addEventListener('change',function(ev){
     var file=ev.target.files[0];if(!file)return;
     var reader=new FileReader();
     reader.onload=function(e){
-      var text=e.target.result.replace(/^﻿/,'');
-      var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
-      var tmdbIndex={};
-      all.forEach(function(m){
-        var tid=String(m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbId)||'');
-        if(tid) tmdbIndex[tid]=m;
-      });
-      var matched=0,skipped=0,ratings=0;
-      lines.forEach(function(line,li){
-        var cols=line.split(',');
-        if(cols.length<6) return;
-        var seqNum=cols[0].trim();
-        if(seqNum==='#'||li===0&&isNaN(parseInt(seqNum))) return;
-        var tmdbId=cols[1].trim();
-        var movie=tmdbIndex[tmdbId]||all.find(function(m){return String(m.num)===seqNum;});
-        if(!movie){skipped++;return;}
-        if(tmdbId&&!movie.tmdbId) movie.tmdbId=parseInt(tmdbId)||null;
-        var found=false;
-        for(var i=5;i<cols.length;i++){
-          var val=cols[i].trim();
-          if(val.indexOf('csfd.')>=0){movie._csfdUrl=val;found=true;}
-          else if(val.indexOf('imdb.com')>=0){movie._imdbUrl=val;}
-          else {
-            var n=parseFloat(val);
-            if(!isNaN(n)&&n>=0&&n<=100){
-              if(movie._csfdUrl||found){movie._pctCsfd=Math.round(n);ratings++;}
-              else {movie._pctImdb=Math.round(n);ratings++;}
-            }
-          }
-        }
-        if(found) matched++;
-        else skipped++;
-      });
-      if(matched>0||ratings>0) saveAllData();
       var stEl=document.getElementById('csfdImportSt');
-      if(stEl){
-        stEl.textContent='Linky: '+matched+', hodnotenia: '+ratings+', preskočených: '+skipped;
-        stEl.className='sett-key-st'+((matched>0||ratings>0)?' ok':'');
+      try{
+        var result=importCsfdMatcherExport(e.target.result||'', file.name||'');
+        if(stEl){
+          stEl.textContent='Linky: '+result.links+', hodnotenia: '+result.ratings+', preskočených: '+result.skipped;
+          stEl.className='sett-key-st'+((result.links>0||result.ratings>0)?' ok':'');
+        }
+        toast('Import: '+result.links+' linkov, '+result.ratings+' hodnotení');
+        if(result.links>0||result.ratings>0){applyFilters();scheduleAutoPush('csfd-matcher-import');}
+      }catch(err){
+        if(stEl){stEl.textContent='Import zlyhal: '+(err&&err.message?err.message:'neznáma chyba');stEl.className='sett-key-st err';}
+        toast('Import ČSFD zlyhal');
       }
-      toast('Import: '+matched+' linkov, '+ratings+' hodnotení');
-      if(matched>0||ratings>0){applyFilters();scheduleAutoPush('csfd-import');}
     };
     reader.readAsText(file,'UTF-8');
     this.value='';
