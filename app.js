@@ -1233,7 +1233,6 @@ function openSett(){
   }
   // Sync autoPullTog
   const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
-  const _npt=document.getElementById("nativePlayerTog"); if(_npt)_npt.checked=useNativePlayer;
   // Sync rating source toggle
   document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){
     b.className=(b.dataset.src===ratingSource)?'ttab on':'ttab';
@@ -3682,9 +3681,6 @@ function copyToClip(text){
   }
 }
 
-// Legacy compat
-function buildPlayUrl(m){return null;}
-function buildVlcUrl(m){return null;}
 
 function copyMoviePath(id) {
   
