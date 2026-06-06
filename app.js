@@ -828,7 +828,11 @@ function startImdbBatch(){
       var match=url.match(/tt\d+/);
       if(match){ready.push({movie:m, imdbId:match[0]});return;}
     }
-    var tid=m.tmdbId||(c&&c.tmdbId)||null;
+    var tid=m.tmdbId||null;
+    if(!tid){
+      var cu=c&&c.tmdbUrl;
+      if(cu){var tm=cu.match(/\/movie\/(\d+)/);if(tm)tid=parseInt(tm[1]);}
+    }
     if(tid) needTmdb.push({movie:m, tmdbId:tid});
   });
   if(!ready.length&&!needTmdb.length){toast('Žiadne filmy na načítanie IMDB hodnotení');return;}
@@ -887,7 +891,11 @@ function startImdbBatch(){
       }
       var item=queue[idx++];
       fetch('/api/omdb?i='+item.imdbId+'&apikey='+omdbKey)
-        .then(function(r){return r.json();})
+        .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+        .catch(function(){
+          return fetch('https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey)
+            .then(function(r){return r.json();});
+        })
         .then(function(d){
           if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
             var pct=Math.round(parseFloat(d.imdbRating)*10);
@@ -934,7 +942,7 @@ function startCsfdBatch(){
     }
     var item=queue[idx++];
     fetch('/api/csfd?url='+encodeURIComponent(item.url))
-      .then(function(r){return r.json();})
+      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
       .then(function(d){
         if(d&&d.rating!=null){
           item.movie._pctCsfd=d.rating;updated++;
@@ -2407,6 +2415,19 @@ function matchApply(){
   if(!matchPendingData||!matchMovieId)return;
   var m=all.find(function(x){return x.id===matchMovieId;});if(!m)return;
   var d=matchPendingData;
+  var changes=[];
+  if(d.director&&m.director&&m.director!==d.director) changes.push('Réžia: "'+m.director+'" → "'+d.director+'"');
+  if(d.description&&m.description&&m.description!==d.description) changes.push('Popis: prepísaný ('+d.description.length+' znakov)');
+  if(d.cast&&m.cast&&m.cast!==d.cast) changes.push('Obsadenie: prepísané');
+  if(d.genres&&d.genres.length&&m.genres&&m.genres.join(',')!==d.genres.join(',')) changes.push('Žánre: '+m.genres.join(', ')+' → '+d.genres.join(', '));
+  if(d.country&&m.country&&m.country!==d.country) changes.push('Krajina: "'+m.country+'" → "'+d.country+'"');
+  if(d.duration&&m.duration&&m.duration!==d.duration) changes.push('Dĺžka: '+m.duration+' → '+d.duration);
+
+  if(changes.length>0){
+    var msg='Nasledujúce polia budú prepísané:\n\n'+changes.join('\n')+'\n\nPokračovať?';
+    if(!confirm(msg)) return;
+  }
+
   if(d.posterUrl)m.poster_thumb=d.posterUrl;
   if(d.description)m.description=d.description;
   if(d.director)m.director=d.director;
