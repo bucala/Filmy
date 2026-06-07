@@ -1,6 +1,5 @@
 (function(){
 "use strict";
-<<<<<<< HEAD
 var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
 var _scriptCache={};
 function loadScript(url){
@@ -19,11 +18,6 @@ function loadPdfJs(){
 }
 function loadJSZip(){return loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");}
 function loadChartJs(){return loadScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js");}
-=======
-var APP_VERSION = "6.1.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
-if(typeof pdfjsLib!=="undefined")
-  pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
->>>>>>> 3bb19b6595388ed8f5f470c600fa14ab55cadcbe
 
 /* ── SVG icon constants — avoids duplication across cardHTML, openDet ── */
 var STAR_ON  = '<svg viewBox="0 0 24 24" width="18" height="18" fill="var(--gold)" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
@@ -968,7 +962,8 @@ function keyStatus(stId,key){var st=document.getElementById(stId);if(!st)return;
    MODULE: Settings Panel
    ══════════════════════════════════════════════════════════ */
 function openSett(){
-  // Reset advanced section state each time panel opens
+  // Keep the panel predictable: always open on the first settings tab.
+  activateSettingsTab("appearance");
   // Sync color picker with current accent
   // Show GitHub token STATUS (never reveal the actual token)
   try {
@@ -1012,9 +1007,6 @@ function openSett(){
   var lc=Object.keys(liveCache).length;
   document.getElementById("settPfill").style.width=all.length?(lc/all.length*100)+"%":"0%";
   document.getElementById("settBatchSt").textContent=lc>0?lc+" z "+all.length+" filmov nacitanych":"";
-  document.getElementById("settInfoGrid").innerHTML=
-    infoItem("Filmov",all.length)+infoItem("S plagatom",all.filter(function(m){return m.poster_thumb&&m.poster_thumb.length>10;}).length)+
-    infoItem("Hodnotenia",lc)+infoItem("Oblubene",favs.size)+infoItem("Watchlist",wl.size)+infoItem("Videne",watched.size);
   var vt=document.getElementById("viewTog"); if(vt && vt.tagName==="SELECT") vt.value=grid?"grid":"list";
   document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
     b.className = 'ttab' + (b.dataset.mode === pathMode ? ' on' : '');
@@ -1034,7 +1026,6 @@ function openSett(){
   }
   // Sync autoPullTog
   const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
-  const _npt=document.getElementById("nativePlayerTog"); if(_npt)_npt.checked=useNativePlayer;
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
@@ -1416,36 +1407,248 @@ window.addEventListener("unhandledrejection",function(e){
   if(typeof toast==="function") toast("⚠ Async chyba: "+(reason&&reason.message?reason.message:String(reason)).slice(0,80));
 });
 
+function registerServiceWorker(){
+  if(typeof navigator==="undefined"||!("serviceWorker" in navigator)) return;
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("sw.js").catch(function(err){
+      console.warn("[FilmDB] Service Worker registration failed",err);
+    });
+  });
+}
+
+function byId(id){return document.getElementById(id);}
+function bindEl(id,eventName,handler){
+  var el=byId(id);
+  if(el)el.addEventListener(eventName,handler);
+  return el;
+}
+
+function saveTmdbKeyFromSettings(){
+  var inp=byId("tmdbKeyInp");
+  var k=inp?inp.value.trim():"";
+  tmdbKey=k;
+  if(k)localStorage.setItem("tmdb_key",k);
+  else localStorage.removeItem("tmdb_key");
+  keyStatus("tmdbKeySt",k);
+  toast(k?"TMDB kľúč uložený":"TMDB kľúč vymazaný");
+}
+
+function clearTmdbKeyFromSettings(){
+  tmdbKey="";
+  localStorage.removeItem("tmdb_key");
+  var inp=byId("tmdbKeyInp");
+  if(inp)inp.value="";
+  keyStatus("tmdbKeySt","");
+  toast("TMDB kľúč vymazaný");
+}
+
+function saveGitHubTokenFromSettings(){
+  var inp=byId("ghTokenInp");
+  var st=byId("ghTokenSt");
+  var t=inp?inp.value.trim():"";
+  if(!t){
+    localStorage.removeItem(GH_KEY);
+    ghToken="";
+    if(inp)inp.placeholder="ghp_... Personal Access Token";
+    if(st){st.textContent="Token vymazaný";st.className="sett-key-st err";}
+    toast("GitHub token vymazaný");
+    return;
+  }
+  if(st){st.textContent="Overujem token...";st.className="sett-key-st info";}
+  validateGhToken(t,function(ok,info){
+    if(!ok){
+      ghToken="";
+      localStorage.removeItem(GH_KEY);
+      if(st){st.textContent="❌ "+info+" — token nebol uložený";st.className="sett-key-st err";}
+      return;
+    }
+    ghToken=t;
+    localStorage.setItem(GH_KEY,t);
+    if(inp){
+      inp.value="";
+      inp.placeholder="••••••••••••••••••••••••••••••••••••••••";
+    }
+    if(st){st.textContent="✓ Token OK — "+info;st.className="sett-key-st ok";}
+    toast("GitHub token uložený");
+  });
+}
+
+function saveAllSettingsFromPanel(){
+  var ghInp=byId("ghTokenInp");
+  if(ghInp&&ghInp.value.trim())saveGitHubTokenFromSettings();
+  var tmdbInp=byId("tmdbKeyInp");
+  if(tmdbInp&&tmdbInp.value.trim())saveTmdbKeyFromSettings();
+
+  var smbInp=byId("smbPathInp");
+  if(smbInp&&smbInp.value.trim()){
+    var sv=smbInp.value.trim();
+    if(sv[sv.length-1]!=="/")sv+="/";
+    smbBase=sv;
+    localStorage.setItem(SMB_KEY,sv);
+  }
+
+  var locInp=byId("localPathInp");
+  if(locInp&&locInp.value.trim()){
+    var lv=locInp.value.trim();
+    if(lv[lv.length-1]!=="\\"&&lv[lv.length-1]!=="/")lv+="\\";
+    var nm={};nm[lv]=smbBase;smbMap=nm;
+    localStorage.setItem(SMB_MAP_KEY,JSON.stringify(nm));
+  }
+
+  var apTog=byId("autoPullTog");
+  if(apTog){
+    autoPull=apTog.checked;
+    localStorage.setItem(AUTO_PULL_KEY,apTog.checked?"1":"0");
+  }
+  var st=byId("saveAllSt");
+  if(st){st.textContent="✓ Nastavenia uložené";st.className="sett-key-st ok";setTimeout(function(){st.textContent="";},3000);}
+  toast("Nastavenia uložené ✓");
+}
+
+function activateSettingsTab(tabKey){
+  var key=tabKey || "appearance";
+  document.querySelectorAll(".sett-tab").forEach(function(tab){
+    var active=tab.dataset.tab===key;
+    tab.classList.toggle("active",active);
+    tab.setAttribute("aria-selected",active?"true":"false");
+  });
+  document.querySelectorAll(".sett-tab-panel").forEach(function(panel){
+    panel.classList.toggle("active",panel.dataset.panel===key);
+  });
+}
+
+function initSettingsPanelControls(){
+  bindEl("settCloseBtn","click",closeSett);
+  bindEl("settOverlay","click",closeSett);
+  bindEl("btnSett","click",openSett);
+  document.querySelectorAll(".sett-tab").forEach(function(tab){
+    tab.addEventListener("click",function(){
+      activateSettingsTab(tab.dataset.tab);
+    });
+  });
+  bindEl("ttabList","click",function(){settSetView("list");});
+  bindEl("ttabGrid","click",function(){settSetView("grid");});
+  bindEl("settSortSel","change",function(){settSetSort(this.value);});
+  bindEl("tmdbEye","click",function(){
+    var inp=byId("tmdbKeyInp");
+    if(!inp)return;
+    inp.type=inp.type==="password"?"text":"password";
+    this.textContent=inp.type==="password"?"\uD83D\uDC41":"\uD83D\uDE48";
+  });
+  bindEl("tmdbSaveKey","click",saveTmdbKeyFromSettings);
+  bindEl("tmdbDelKey","click",clearTmdbKeyFromSettings);
+  bindEl("settBtnPdf","click",impPdf);
+  bindEl("settBtnPdfUpdate","click",impPdfUpdate);
+  bindEl("settBtnBatch","click",settStartBatch);
+  bindEl("settBtnStop","click",function(){
+    liveRunning=false;
+    this.classList.add("hidden");
+    byId("batchBar").classList.add("hidden");
+    saveLiveCache();
+    renderList(filt);
+    toast("Prerušené.");
+  });
+  bindEl("settBtnExport","click",exportHtml);
+  bindEl("settBtnExportJson","click",exportJson);
+  bindEl("settBtnDuplicates","click",findDuplicates);
+  bindEl("settBtnClearLive","click",clearLiveData);
+  bindEl("settBtnClearAll","click",clearAllData);
+  bindEl("settBtnAdmin","click",openAdmin);
+  bindEl("settBtnSaveAll","click",saveAllSettingsFromPanel);
+}
+
+function initSyncSettingsControls(){
+  var autoPush=byId("autoPushTog");
+  if(autoPush){
+    autoPush.checked=prefs.autoPush!==false;
+    autoPush.addEventListener("change",function(){
+      prefs.autoPush=this.checked;
+      savePrefs();
+      toast("Auto-push: "+(this.checked?"zapnutý":"vypnutý"));
+    });
+  }
+  bindEl("ghTokenSave","click",saveGitHubTokenFromSettings);
+  bindEl("ghPushBtn","click",ghPush);
+  bindEl("ghPullBtn","click",ghPull);
+  var autoPullEl=byId("autoPullTog");
+  if(autoPullEl){
+    autoPullEl.checked=autoPull;
+    autoPullEl.addEventListener("change",function(){
+      autoPull=this.checked;
+      localStorage.setItem(AUTO_PULL_KEY,this.checked?"1":"0");
+      toast("Auto-načítanie z GitHubu: "+(this.checked?"zapnuté":"vypnuté"));
+    });
+  }
+}
+
+function initPlaybackSettingsControls(){
+  document.querySelectorAll("#pathModeToggle .ttab").forEach(function(btn){
+    btn.className=(btn.dataset.mode===pathMode)?"ttab on":"ttab";
+    btn.addEventListener("click",function(){
+      pathMode=this.dataset.mode;
+      localStorage.setItem(PATH_MODE_KEY,pathMode);
+      document.querySelectorAll("#pathModeToggle .ttab").forEach(function(b){b.className="ttab";});
+      this.className="ttab on";
+      var label=pathMode==="smb"?"Sieťová cesta (SMB) — aktívna":"Lokálna cesta — aktívna";
+      var hint=byId("pathModeHint");
+      if(hint)hint.textContent=label;
+      toast(label);
+      if(curId){
+        var pb=byId("playMovieBtn");
+        if(pb){
+          var lbl=pb.querySelector(".sett-btn-label");
+          if(lbl){
+            var pm=_isMobile?(pathMode==="smb"?"SMB":"Lokálne"):(pathMode==="smb"?"SMB":"VLC");
+            lbl.textContent="Prehrať · "+pm;
+          }
+          var mc=all.find(function(x){return x.id===curId;});
+          if(mc)pb.onclick=function(){playMovie(mc.id);};
+        }
+      }
+    });
+  });
+
+  bindEl("smbPathSave","click",function(){
+    var inp=byId("smbPathInp");
+    var val=inp?inp.value.trim():"";
+    if(val){
+      if(val[val.length-1]!=="/")val+="/";
+      smbBase=val;
+      localStorage.setItem(SMB_KEY,val);
+    }
+    var localInp=byId("localPathInp");
+    var localVal=localInp?localInp.value.trim():"";
+    if(localVal&&val){
+      if(localVal[localVal.length-1]!=="\\"&&localVal[localVal.length-1]!=="/")localVal+="\\";
+      var newMap={};newMap[localVal]=val;smbMap=newMap;
+      localStorage.setItem(SMB_MAP_KEY,JSON.stringify(newMap));
+    }
+    var st=byId("smbPathSt");
+    if(st){st.textContent="✓ SMB: "+(val||smbBase);st.className="sett-key-st ok";}
+    toast("SMB základ uložený");
+  });
+
+  bindEl("localPathSave","click",function(){
+    var inp=byId("localPathInp");
+    var localVal=inp?inp.value.trim():"";
+    if(!localVal){toast("Zadaj lokálny základ (napr. W:\\Movies\\)");return;}
+    if(localVal[localVal.length-1]!=="\\"&&localVal[localVal.length-1]!=="/")localVal+="\\";
+    var newMap={};newMap[localVal]=smbBase;smbMap=newMap;
+    localStorage.setItem(SMB_MAP_KEY,JSON.stringify(newMap));
+    var stL=byId("localPathSt");
+    if(stL){stL.textContent="✓ Lokálna cesta: "+localVal;stL.className="sett-key-st ok";}
+    var stS=byId("smbPathSt");
+    if(stS&&smbBase){stS.textContent="✓ SMB mapovanie: "+localVal+" → "+smbBase;stS.className="sett-key-st ok";}
+    toast("Lokálny základ uložený");
+  });
+}
+
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
-  var _scb = document.getElementById('settCloseBtn');
-  if (_scb) _scb.addEventListener('click', closeSett);
-  var _so = document.getElementById('settOverlay');
-  if (_so) _so.addEventListener('click', closeSett);
-
-  // Auto-push toggle
-  var _apt = document.getElementById('autoPushTog');
-  if (_apt) {
-    _apt.checked = prefs.autoPush !== false;
-    _apt.addEventListener('change', function(){
-      prefs.autoPush = this.checked;
-      savePrefs();
-      toast(`Auto-push: ${this.checked?'zapnutý':'vypnutý'}`);
-    });
-  }
-  // Native player toggle
-  var _npt = document.getElementById('nativePlayerTog');
-  if (_npt) {
-    _npt.checked = useNativePlayer;
-    _npt.addEventListener('change', function(){
-      useNativePlayer = this.checked;
-      localStorage.setItem(NATIVE_PLAYER_KEY, this.checked ? '1' : '0');
-      toast(`Prehrávač: ${this.checked?'natívny':'VLC handler'}`);
-    });
-  }
-
-  var _su=document.getElementById("settBtnPdfUpdate");if(_su)_su.addEventListener("click",impPdfUpdate);
+  initSettingsPanelControls();
+  initSyncSettingsControls();
+  initPlaybackSettingsControls();
   var _fu=document.getElementById("fileInpUpdate");if(_fu)_fu.addEventListener("change",handleFileUpdate);
   var ebZip = document.getElementById('emptyBtnZip');
   if (ebZip) ebZip.addEventListener('click', function(){document.getElementById('fileInp').click();});
@@ -1453,83 +1656,6 @@ document.addEventListener("DOMContentLoaded",function(){
   if (ebPull) ebPull.addEventListener('click', function(){ ghPull(); });
 
   autoCheckGitHub();
-  // Path mode toggle + SMB settings
-  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      pathMode = this.dataset.mode;
-      localStorage.setItem(PATH_MODE_KEY, pathMode);
-      document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
-      this.className = 'ttab on';
-      // Aktualizuj hint - jasné zobrazenie aktívneho stavu
-var _modeLabel = pathMode === 'smb' ? 'Sieťová cesta (SMB) — aktívna' : 'Lokálna cesta — aktívna';
-toast(_modeLabel);
-      // Aktualizuj hint s ukážkou cesty
-      var _hint = document.getElementById('pathModeHint');
-      if (_hint) {
-        _hint.textContent = pathMode === 'smb' ? 'Sieťová (SMB) — aktívna' : 'Lokálna cesta — aktívna';
-      }
-      // Aktualizuj detail panel ak je otvorený
-      var _dpth = document.querySelector('.det-path-hint');
-      // Aktualizuj play button label ak je detail otvorený
-      if (curId) {
-        var _pb = document.getElementById('playMovieBtn');
-        if (_pb) {
-          var _lbl = _pb.querySelector('.sett-btn-label');
-          if (_lbl) {
-            var _pm = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : 'VLC');
-            _lbl.textContent = 'Prehráť · ' + _pm;
-          }
-          var _mc = all.find(function(x){return x.id===curId;});
-          if (_mc) _pb.onclick = function(){ playMovie(_mc.id); };
-        }
-      }
-    });
-  // Set initial active state for pathMode buttons based on localStorage
-  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
-    b.className = (b.dataset.mode === pathMode) ? 'ttab on' : 'ttab';
-  });
-  });
-  var smbSaveBtn = document.getElementById('smbPathSave');
-  if (smbSaveBtn) smbSaveBtn.addEventListener('click', function(){
-    var val = document.getElementById('smbPathInp').value.trim();
-    if (val) {
-      if (val[val.length-1] !== '/') val += '/';
-      smbBase = val;
-      localStorage.setItem(SMB_KEY, val);
-    }
-    // Sync smbMap s aktuálnym localPathInp
-    var localVal = document.getElementById('localPathInp').value.trim();
-    if (localVal && val) {
-      if (localVal[localVal.length-1] !== '\\' && localVal[localVal.length-1] !== '/') localVal += '\\';
-      var newMap = {};
-      newMap[localVal] = val;
-      smbMap = newMap;
-      localStorage.setItem(SMB_MAP_KEY, JSON.stringify(newMap));
-    }
-    var st = document.getElementById('smbPathSt');
-    if (st) { st.textContent = '✓ SMB: ' + (val||smbBase); st.className = 'sett-key-st ok'; }
-    toast('SMB základ uložený');
-  });
-
-  // Samostatný listener pre localPathSave
-  var localSaveBtn = document.getElementById('localPathSave');
-  if (localSaveBtn) localSaveBtn.addEventListener('click', function(){
-    var localVal = document.getElementById('localPathInp').value.trim();
-    if (!localVal) { toast('Zadaj lokálny základ (napr. W:\\Movies\\)'); return; }
-    if (localVal[localVal.length-1] !== '\\' && localVal[localVal.length-1] !== '/') localVal += '\\';
-    // Aktualizuj smbMap: localVal → smbBase
-    var newMap = {};
-    newMap[localVal] = smbBase;
-    smbMap = newMap;
-    localStorage.setItem(SMB_MAP_KEY, JSON.stringify(newMap));
-    var stL = document.getElementById('localPathSt');
-    if (stL) { stL.textContent = '✓ Lokálna cesta: ' + localVal; stL.className = 'sett-key-st ok'; }
-    var stS = document.getElementById('smbPathSt');
-    if (stS && smbBase) { stS.textContent = '✓ SMB mapovanie: ' + localVal + '→ ' + smbBase; stS.className = 'sett-key-st ok'; }
-    toast('Lokálny základ uložený');
-  });
-
-  
 
   adjustScrnBody();
   setTimeout(adjustScrnBody,100);
@@ -1542,7 +1668,6 @@ toast(_modeLabel);
   var _eviewTo=document.getElementById("viewTog");if(_eviewTo)_eviewTo.addEventListener("click",function(){
     settSetView(grid ? "list" : "grid");
   });
-  var _ebtnSet=document.getElementById("btnSett");if(_ebtnSet)_ebtnSet.addEventListener("click",openSett);
   document.getElementById("btnStat").addEventListener("click",showStats);
   document.getElementById("btnFav").addEventListener("click",function(){
     favMode=!favMode;wlMode=false;
@@ -1566,58 +1691,6 @@ toast(_modeLabel);
   document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");_shiftScrnBody(false);saveLiveCache();renderList(filt);toast("Prerusene.");});
   document.getElementById("fileInp").addEventListener("change",handleFile);
   /* old emptyPdfBtn removed */
-  document.getElementById("settOverlay").addEventListener("click",closeSett);
-  var _ettabLi=document.getElementById("ttabList");if(_ettabLi)_ettabLi.addEventListener("click",function(){settSetView("list");});
-  var _ettabGr=document.getElementById("ttabGrid");if(_ettabGr)_ettabGr.addEventListener("click",function(){settSetView("grid");});
-  document.getElementById("settSortSel").addEventListener("change",function(){settSetSort(this.value);});
-  var _etmdbEy=document.getElementById("tmdbEye");if(_etmdbEy)_etmdbEy.addEventListener("click",function(){var inp=document.getElementById("tmdbKeyInp");inp.type=inp.type==="password"?"text":"password";this.textContent=inp.type==="password"?"\uD83D\uDC41":"\uD83D\uDE48";});
-  var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB kluc ulozeny!":"TMDB kluc vymazany");});
-  var _etmdbDe=document.getElementById("tmdbDelKey");if(_etmdbDe)_etmdbDe.addEventListener("click",function(){tmdbKey="";localStorage.removeItem("tmdb_key");document.getElementById("tmdbKeyInp").value="";keyStatus("tmdbKeySt","");});
-  document.getElementById("settBtnPdf").addEventListener("click",impPdf);
-  var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
-  var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
-  var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
-  var _eExportJ=document.getElementById("settBtnExportJson");if(_eExportJ)_eExportJ.addEventListener("click",exportJson);
-  var _eDupes=document.getElementById("settBtnDuplicates");if(_eDupes)_eDupes.addEventListener("click",findDuplicates);
-  var _eClearLv=document.getElementById("settBtnClearLive");if(_eClearLv)_eClearLv.addEventListener("click",clearLiveData);
-  var _eClearAll=document.getElementById("settBtnClearAll");if(_eClearAll)_eClearAll.addEventListener("click",clearAllData);
-  var _eAdmin=document.getElementById("settBtnAdmin");if(_eAdmin)_eAdmin.addEventListener("click",openAdmin);
-
-  // Uložiť všetky nastavenia
-  var _eSaveAll = document.getElementById('settBtnSaveAll');
-  if (_eSaveAll) _eSaveAll.addEventListener('click', function() {
-    // GitHub token
-    var ghInp = document.getElementById('ghTokenInp');
-    if (ghInp && ghInp.value.trim()) { ghToken = ghInp.value.trim(); localStorage.setItem(GH_KEY, ghToken); }
-    // TMDB key
-    var tmdbInp = document.getElementById('tmdbKeyInp');
-    if (tmdbInp && tmdbInp.value.trim()) { localStorage.setItem('mdb_tmdb_key', tmdbInp.value.trim()); }
-    // SMB base
-    var smbInp = document.getElementById('smbPathInp');
-    if (smbInp && smbInp.value.trim()) {
-      var sv = smbInp.value.trim();
-      if (sv[sv.length-1] !== '/') sv += '/';
-      smbBase = sv; localStorage.setItem(SMB_KEY, sv);
-    }
-    // Local path
-    var locInp = document.getElementById('localPathInp');
-    if (locInp && locInp.value.trim()) {
-      var lv = locInp.value.trim();
-      if (lv[lv.length-1] !== '\\' && lv[lv.length-1] !== '/') lv += '\\';
-      var nm = {}; nm[lv] = smbBase; smbMap = nm;
-      localStorage.setItem(SMB_MAP_KEY, JSON.stringify(nm));
-    }
-    // Native player toggle
-    var natTog = document.getElementById('nativePlayerTog');
-    if (natTog) { useNativePlayer = natTog.checked; localStorage.setItem(NATIVE_PLAYER_KEY, natTog.checked ? '1' : '0'); }
-    // Auto pull toggle
-    var apTog = document.getElementById('autoPullTog');
-    if (apTog) { localStorage.setItem(AUTO_PULL_KEY, apTog.checked ? '1' : '0'); }
-    // Status
-    var st = document.getElementById('saveAllSt');
-    if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
-    toast('Nastavenia uložené ✓');
-  });
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
   document.getElementById("adminSearchBtn").addEventListener("click",adminSearch);
   document.getElementById("adminSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")adminSearch();});
@@ -1631,49 +1704,10 @@ toast(_modeLabel);
   document.getElementById('btnRnd').addEventListener('click', openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', cycleWatchedMode);
   initGhSync();
+  registerServiceWorker();
   window.addEventListener('offline',function(){toast('Offline — dáta sú z cache');});
   window.addEventListener('online',function(){toast('Online');});
 
-  document.getElementById('ghTokenSave').addEventListener('click', function() {
-    var t = document.getElementById('ghTokenInp').value.trim();
-    ghToken = t;
-      // Validate token against GitHub API
-      var stEl = document.getElementById('ghTokenSt');
-      if (stEl) { stEl.textContent = 'Overujem token...'; stEl.className = 'sett-key-st info'; }
-      validateGhToken(t, function(ok, info) {
-        if (ok) {
-          if (stEl) { stEl.textContent = '✓ Token OK — ' + info; stEl.className = 'sett-key-st ok'; }
-        } else {
-          if (stEl) { stEl.textContent = '❌ ' + info + ' — Skontroluj scope repo, expiráciu, SSO.'; stEl.className = 'sett-key-st err'; }
-        }
-      });
-    if (t) {
-      localStorage.setItem('mdb_gh_token', t);
-      // Clear input immediately — never show token in plain text
-      document.getElementById('ghTokenInp').value = '';
-      document.getElementById('ghTokenInp').placeholder = '••••••••••••••••••••••••••••••••••••••••';
-      var st = document.getElementById('ghTokenSt');
-      if (st) { st.textContent = '✓ Token uložený'; st.className = 'sett-key-st ok'; }
-      toast('GitHub token uložený');
-    } else {
-      localStorage.removeItem('mdb_gh_token');
-      ghToken = '';
-      document.getElementById('ghTokenInp').placeholder = 'ghp_... Personal Access Token';
-      var st = document.getElementById('ghTokenSt');
-      if (st) { st.textContent = 'Token vymazaný'; st.className = 'sett-key-st err'; }
-    }
-  });
-  document.getElementById('ghPushBtn').addEventListener('click', ghPush);
-  document.getElementById('ghPullBtn').addEventListener('click', ghPull);
-  var _apt = document.getElementById('autoPullTog');
-  if (_apt) {
-    _apt.checked = autoPull;
-    _apt.addEventListener('change', function(){
-      autoPull = this.checked;
-      localStorage.setItem(AUTO_PULL_KEY, this.checked ? '1' : '0');
-      toast(`Auto-načítanie z GitHubu: ${this.checked?'zapnuté':'vypnuté'}`);
-    });
-  }
   var tx=0;
   ["detSc","statSc"].forEach(function(id){
     var el=document.getElementById(id);
@@ -2995,8 +3029,6 @@ function extractPostersFromPdf(pdf, mv){
    SMB share path configurable in settings
    ══════════════════════════════════════════════════════════════════ */
 var SMB_KEY     = 'mdb_smb_base';
-var NATIVE_PLAYER_KEY = 'mdb_native_player';
-var useNativePlayer = localStorage.getItem('mdb_native_player') === '1';
 
 var PATH_MODE_KEY = 'mdb_path_mode';
 var smbBase    = localStorage.getItem(SMB_KEY) || 'smb://DESKTOP-EGOG348/Movies/';
