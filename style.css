@@ -178,11 +178,11 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-adv-summary{
   display:flex;align-items:center;gap:8px;
   cursor:pointer;list-style:none;
-  padding:0 4px 6px;margin:18px 0 8px;
-  border-bottom:1px solid var(--border2);
-  background:none;border-radius:0;border:none;border-bottom:1px solid var(--border2);
-  font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:1.5px;
-  color:var(--gold);text-transform:uppercase;
+  padding:0 4px 10px;margin:18px 0 4px;
+  border-bottom:1px solid var(--border);
+  background:none;border-radius:0;border:none;border-bottom:1px solid var(--border);
+  font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:2px;
+  color:var(--text);
   user-select:none;white-space:nowrap;
 }
 .sett-adv-summary::-webkit-details-marker{display:none}
