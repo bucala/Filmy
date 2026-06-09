@@ -617,6 +617,7 @@ function updFavBtn(btn,id){var f=favs.has(id);btn.innerHTML=f?"&#11088; Odstrani
 function openDet(id){
   const m=all.find(x=>x.id===id); if(!m)return;
   curId=id;
+  const cached=liveCache[id];
   document.getElementById("detTitle").textContent=m.title;
   document.getElementById("detYr").textContent=[m.year||"",m.duration,m.country].filter(Boolean).join(" - ");
   const hp=m.poster_thumb&&m.poster_thumb.length>10;
@@ -636,7 +637,7 @@ function openDet(id){
   if(hp)document.getElementById("detInsetImg").src=m.poster_thumb;
   document.getElementById("detBg").style.display=hp?"none":"block";
 
-  const fav=favs.has(id), cached=liveCache[id];
+  const fav=favs.has(id);
   const genres=(m.genres||[]).map(g=>`<span class="dg-tag">${esc(g)}</span>`).join("");
   const items=[];
   if(m.director)items.push(["Režíser",'<a class="det-person-link" data-person="'+esc(m.director)+'">'+esc(m.director)+'</a>']);
