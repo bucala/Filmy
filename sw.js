@@ -5,7 +5,7 @@
    - CDN libs   → Cache-First (immutable versioned URLs)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260530-1242";
+const CACHE = "filmy-20260609-2202";
 
 const SHELL  = [
   "./",
@@ -43,6 +43,12 @@ self.addEventListener("activate", function(e){
 /* ── Fetch ── */
 self.addEventListener("fetch", function(e){
   var url = e.request.url;
+
+  /* API routes — Network-Only (never cache) */
+  if(url.includes("/api/")){
+    e.respondWith(fetch(e.request));
+    return;
+  }
 
   /* data.json — Network-First */
   if(url.includes("data.json")){
