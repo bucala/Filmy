@@ -174,20 +174,6 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .batch-bar{position:fixed;top:88px;left:0;right:0;z-index:150;padding:6px 14px;background:var(--card);border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:10px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.4)}
 .batch-bar.hidden{display:none}
 
-/* Rozšírené nastavenia – collapsible */
-.sett-adv-summary{
-  display:flex;align-items:center;gap:8px;
-  cursor:pointer;list-style:none;
-  padding:0 4px 6px;margin:18px 0 8px;
-  border-bottom:1px solid var(--border2);
-  background:none;border-radius:0;border:none;border-bottom:1px solid var(--border2);
-  font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:1.5px;
-  color:var(--gold);text-transform:uppercase;
-  user-select:none;white-space:nowrap;
-}
-.sett-adv-summary::-webkit-details-marker{display:none}
-#advSettDetails[open] .sett-adv-summary svg{transform:rotate(180deg)}
-.sett-adv-body{padding:4px 0 0;}
 .batch-info{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text2);white-space:nowrap}
 .batch-pbar{height:6px;background:var(--border);border-radius:2px;flex:1;overflow:hidden}
 .batch-pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s;width:0%}
@@ -255,7 +241,19 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 
 /* ── Handle & title ─────────────────────────────────────────────── */
 .sett-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 14px}
-.sett-title{font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);margin-bottom:2px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sett-title{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:800;letter-spacing:1.2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sett-title svg{color:var(--gold);flex-shrink:0}
+.sett-title span{line-height:1.15}
+.sett-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border);scrollbar-width:none}
+.sett-tabs::-webkit-scrollbar{display:none}
+.sett-tab{border:1px solid var(--border2);background:var(--card2);color:var(--text2);border-radius:8px;padding:8px 10px;font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.sett-tab:hover{border-color:var(--gold);color:var(--gold)}
+.sett-tab.active{background:var(--gold);border-color:var(--gold);color:#0a0a0f}
+.sett-tab.danger{color:#e06060}
+.sett-tab.danger.active{background:rgba(224,85,85,.18);border-color:#e06060;color:#ff8c8c}
+.sett-tab-panel{display:none}
+.sett-tab-panel.active{display:block}
+.sett-save-footer{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
 
 /* ── Section label — unified ────────────────────────────────────── */
 
@@ -285,7 +283,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-key-inp:focus{border-color:var(--gold)}
 .sett-key-inp::placeholder{color:var(--text3)}
 .sett-key-st{font-family:"JetBrains Mono",monospace;font-size:10px;min-height:14px;margin-bottom:6px;padding:0 2px}
-.sett-key-st.ok{display:none}.sett-key-st.err{color:#e05555}
+.sett-key-st.ok{color:#22cc88}.sett-key-st.err{color:#e05555}
 
 /* ── Unified icon button (eye, delete) ─────────────────────────── */
 .sett-icon-btn{background:var(--card2);border:1px solid var(--border2);border-radius:10px;
@@ -324,12 +322,6 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sync-status.ok{background:rgba(34,204,136,.08);color:#22cc88;border:1px solid rgba(34,204,136,.2);display:block}
 .sync-status.err{background:rgba(224,80,80,.08);color:#e07070;border:1px solid rgba(224,80,80,.2);display:block}
 .sync-status.info{background:rgba(74,158,255,.08);color:#4a9eff;border:1px solid rgba(74,158,255,.2);display:block}
-
-/* ── Info grid (PREHĽAD) ────────────────────────────────────────── */
-.sett-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.sett-info-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-.sett-info-lbl{font-family:"JetBrains Mono",monospace;font-size:8px;letter-spacing:2px;color:var(--text3);margin-bottom:3px}
-.sett-info-val{font-family:"Bebas Neue",sans-serif;font-size:22px;color:var(--gold);line-height:1}
 
 /* ══════════════════════════════════════════════════════════════════
    THEMES — background + text accent palettes

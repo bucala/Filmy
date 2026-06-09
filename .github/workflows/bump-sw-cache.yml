@@ -8,6 +8,9 @@ on:
       - 'style.css'
       - 'index.html'
       - 'data.js'
+      - 'data.json'
+      - 'sw.js'
+      - 'manifest.webmanifest'
 
 permissions:
   contents: write
@@ -21,6 +24,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate source files
+        run: |
+          node --check app.js
+          node --check sw.js
+          node -e "const fs=require('fs'); JSON.parse(fs.readFileSync('data.json','utf8')); JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));"
+          ! grep -R -n -E '^(<<<<<<<|=======|>>>>>>>)' app.js sw.js data.json index.html style.css manifest.webmanifest
 
       - name: Bump SW cache version
         run: |
