@@ -1320,6 +1320,18 @@ function closeSett() {
   document.getElementById("settPanel").classList.add("hidden");
 }
 
+function activateSettingsTab(tabKey){
+  var key=tabKey||"appearance";
+  document.querySelectorAll(".sett-tab").forEach(function(tab){
+    var active=tab.dataset.tab===key;
+    tab.classList.toggle("active",active);
+    tab.setAttribute("aria-selected",active?"true":"false");
+  });
+  document.querySelectorAll(".sett-tab-panel").forEach(function(panel){
+    panel.classList.toggle("active",panel.dataset.panel===key);
+  });
+}
+
 function infoItem(l, v) {
   return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
 }
@@ -1707,6 +1719,9 @@ document.addEventListener("DOMContentLoaded",function(){
   if (_scb) _scb.addEventListener('click', closeSett);
   var _so = document.getElementById('settOverlay');
   if (_so) _so.addEventListener('click', closeSett);
+  document.querySelectorAll('.sett-tab').forEach(function(tab){
+    tab.addEventListener('click',function(){activateSettingsTab(tab.dataset.tab);});
+  });
 
   // Auto-push toggle
   var _apt = document.getElementById('autoPushTog');

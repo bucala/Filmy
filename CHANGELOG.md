@@ -1,55 +1,69 @@
 # Changelog — Filmová Databáza
 
-Všetky zmeny sú dokumentované podľa [Keep a Changelog](https://keepachangelog.com/sk/).
+## [10.2.0] — 2026-05-28
+
+### 🏗 Kompletná reštrukturalizácia
+Aplikácia prepísaná z pôvodného single-file (236KB) na modulárnu architektúru:
+- `index.html` (35 KB) — HTML šablóna, odkazy na externý CSS/JS
+- `style.css` (50 KB) — všetky štýly, 6 skinov s --gold-rgb
+- `app.js` (127 KB) — celá aplikačná logika (115 funkcií, IIFE)
+- `data.json` — databáza filmov (GitHub sync)
+- `sw.js` — Service Worker (PWA)
+- `manifest.webmanifest` — PWA manifest
+
+### ✨ Pridané / Obnovené z pôvodnej verzie
+- Všetkých 115 pôvodných funkcií zachovaných
+- ZIP import (parseEMDBZip), PDF fallback, TMDB batch, VLC prehrávanie
+- GitHub sync (ghPush/ghPull, 401/404/409 handling, validateGhToken)
+- scheduleAutoPush, autoCheckGitHub, autoPushTog
+- Pokročilý filter panel (openFp, initFp, applyFp, resetFp)
+- 6 skinov (Dark, Slate, Crimson, Forest, Linen, Paper)
+
+### 🐛 Opravené (kombinácia všetkých predchádzajúcich fixov)
+- **Settings X button** — closeSett() vnútri IIFE scope, onclick nefungovalo; prepísané na addEventListener
+- **Scroll iba 40 filmov** — #scrnBody nemal top:88px; infinite scroll prepojený na scrnBody namiesto mlist
+- **Scrollbar (fscroll) nereagoval** — sledoval mlist namiesto scrnBody
+- **hdr-row2-right ikony zmizli** — pridané position:sticky;right:0;background:var(--hdr)
+- **hdr-row2-left nepokrývali** — overflow-x:auto s -webkit-overflow-scrolling:touch, skrytý scrollbar
+- **Text v nastaveniach sa označoval** — user-select:none na sett-panel
+- **sett-sec neviditeľné** — display:flex;align-items:center;gap:6px;white-space:nowrap
+- **skinGrid wrapper chýbal** — pridaný div#skinGrid + DARK chip + Vzhľad/Skin section header
+- **Genre pills nerespektovali skin** — .gtag prepísaný na rgba(var(--gold-rgb))
+- **cfav/lfav nekonzistentné** — zjednotené na 38×38px s bg, border, hover, active stavy
+- **.switch/.slider CSS chýbal** — toggle prepínače fungujú
+- **batch-bar neviditeľný** — position:fixed;top:0;z-index:8000
+- **--gold-rgb** pridané do všetkých 6 skinov
+- **hdr-icon active/on stav** — vizuálna zmena pri zakliknutí
+- **playMovieBtn orphan** — odstránený
 
 ---
 
-## [6.2.0] — 2026-05-29
+## [11.0.0] — 2026-05-28
 
-### Opravené
-- **CORS chyba** — `raw.githubusercontent.com` blokoval fetch z Vercel; prepnuté na GitHub Contents API (CORS OK)
-- **Duplicitný console.log** — `APP_VERSION` bol definovaný dvakrát
-- **Tlačidlo Prehraj film** — `window.location.href` nefungovalo pre `vlc://`, `file://`, `smb://`; nahradené anchor click (`openMovieUrl`)
-- **Toggle prepínač** — CSS `.ttab.on` bol prepísaný `#pathModeToggle .ttab` (vyššia špecificita); pridané explicitné `#pathModeToggle .ttab.on`
-- **Sirota CSS** — Rozbitý selektor v `.ttab` bloku odstránený
+### ✨ Kompletný rebuild
+- Aplikácia prebudovaná z pôvodného single-file zdroja (Google Drive) do modulárnej štruktúry
+- Zdrojový kód: `index.html` (35 KB) + `style.css` (50 KB) + `app.js` (127 KB)
+- 115 funkcií, 0 duplikátov, 20/20 features ✅
 
-### Pridané
-- **Loading status bar** — Zlatý progress bar (0→10→50→80→100%) viditeľný počas ghPull
-- **emptyPullStatus** — Status správa priamo v prázdnom stave stránky
-- **localPathSave OK button** — Samostatné ukladanie lokálneho základu cesty
-- **pathModeHint** — Zobrazenie ukážkovej cesty po prepnutí Lokálna/Sieťová
-- **ghPull bez tokenu** — Načítanie databázy funguje aj bez GitHub PAT tokenu
-
-### Zmenené
-- Empty state: odstránené tlačidlo „Nahrať ZIP/PDF", zostalo len „Načítať z GitHubu"
-
----
-
-## [6.1.0] — 2026-05-28
-
-### Opravené
-- Duplikát `function closeSett` v IIFE
-- CSS `.slider` a `.slider:before` chýbali → toggle switch nemal vizuál
-- Vercel deployoval z vetvy `main` (nie `Perplexity`) — všetky opravy presunuté na `main`
-- Service Worker cachoval starý `app.js` — bump CACHE verzie pri každom fixe
-
-### Pridané
-- `GH_BRANCH = 'Perplexity'` — správna vetva pre GitHub sync
-- `autoPull` default ON — automatické načítanie pri štarte
-- JSZip CDN pre ZIP export
-- `text-overflow: ellipsis` pre `.ttab` v pathMode toggle
+### 🐛 Opravené (kumulatívne zo všetkých predchádzajúcich verzií)
+- `.sett-sec display:flex` — nastavenia sekcie viditeľné (SVG + text v jednom riadku)
+- `.gtag` (žánre pills) — `rgba(var(--gold-rgb),.13)` namiesto hardcoded `#1a1a2e`
+- `--gold-rgb` CSS var — pridaná do všetkých 6 skinov
+- `.cfav` + `.lfav` (hviezda obľúbených) — 38×38px button s bg/border/hover/active
+- `.batch-bar` — `position:fixed;top:0;z-index:8000`
+- `.sett-panel` — `user-select:none`, `background:var(--bg)` (opaque)
+- `.scrn-body` — `background:var(--bg)` (žiadne presvitanie)
+- `skinGrid` wrapper + DARK chip + "Vzhľad / Skin" header obnovené
+- `.switch`/`.slider` CSS pre toggle prepínače
+- `.hdr-icon.active` stav CSS
+- CSS duplikáty vyčistené (23 → 0)
+- `onclick="closeSett()"` nahradený `addEventListener`
 
 ---
 
-## [6.0.0] — 2026-05-28
+## [11.1.0] — 2026-05-28
 
-### Pridané
-- Kompletný refactor do IIFE modulov
-- Service Worker s Cache-First stratégiou
-- PWA manifest
-- SMB path mapping (lokálna ↔ sieťová cesta)
-- TMDB batch fetch s progress barom
-- Štatistická obrazovka s Chart.js grafmi
-- Filter panel (rok, hodnotenie, krajina, žáner)
-- Watchlist a Watch History
-- Export ZIP / PDF
+### 🐛 Opravené
+- **Settings X button nefungoval** — `closeSett()` je vnútri IIFE, `onclick` z HTML ju nedosiahol; pridaný `addEventListener` v DCL bloku + overlay click
+- **Scroll zobrazoval iba 40 filmov** — infinite scroll bol napojený na `mlist` (display:grid, žiadny overflow), nie na `scrnBody` (position:fixed, overflow-y:auto); prepojený na `scrnBody` s 300px triggerom
+- **hdr-row2-right (filter/sort/view)** — nebolo `position:sticky` → ikony zmizli pri horizontálnom scroll ikon; pridané `sticky;right:0` s pozadím
