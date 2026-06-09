@@ -1284,7 +1284,8 @@ function openSett(){
   var lc=Object.keys(liveCache).length;
   document.getElementById("settPfill").style.width=all.length?(lc/all.length*100)+"%":"0%";
   document.getElementById("settBatchSt").textContent=lc>0?lc+" z "+all.length+" filmov nacitanych":"";
-  document.getElementById("settInfoGrid").innerHTML=
+  var _ig=document.getElementById("settInfoGrid");
+  if(_ig)_ig.innerHTML=
     infoItem("Filmov",all.length)+infoItem("S plagatom",all.filter(function(m){return m.poster_thumb&&m.poster_thumb.length>10;}).length)+
     infoItem("Hodnotenia",lc)+infoItem("Oblubene",favs.size)+infoItem("Watchlist",wl.size)+infoItem("Videne",watched.size);
   var vt=document.getElementById("viewTog"); if(vt && vt.tagName==="SELECT") vt.value=grid?"grid":"list";
