@@ -600,18 +600,21 @@ cons ─────────────────────────
   cursor:pointer;
   color:var(--text2);
   transition:border-color .15s,color .15s,background .15s}
-.hdr-act:hover{
-  border-color:var(--gold);color:var(--gold);
-  background:rgba(212,169,67,.07)}
+@media(hover:hover){
+  .hdr-act:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,169,67,.07)}
+  .hdr-act-fav:hover{border-color:#ff6b8a;color:#ff6b8a;background:rgba(255,80,110,.09)}
+  .hdr-act-wl:hover{border-color:#3dcfaa;color:#3dcfaa;background:rgba(50,200,150,.09)}
+  .hdr-act-watch:hover{border-color:#5ddd5d;color:#5ddd5d;background:rgba(60,200,60,.09)}
+}
 .hdr-act.active{
   border-color:var(--gold);color:var(--gold);
   background:rgba(212,169,67,.13)}
 .hdr-act svg{pointer-events:none;flex-shrink:0}
-.hdr-act-fav:hover,.hdr-act-fav.active{
+.hdr-act-fav.active{
   border-color:#ff6b8a;color:#ff6b8a;background:rgba(255,80,110,.09)}
-.hdr-act-wl:hover,.hdr-act-wl.active{
+.hdr-act-wl.active{
   border-color:#3dcfaa;color:#3dcfaa;background:rgba(50,200,150,.09)}
-.hdr-act-watch:hover,.hdr-act-watch.active{
+.hdr-act-watch.active{
   border-color:#5ddd5d;color:#5ddd5d;background:rgba(60,200,60,.09)}
 
 /* ═══════════════════════════════════════════════════
@@ -620,6 +623,7 @@ cons ─────────────────────────
 .hdr-row2-left{
   display:flex;align-items:center;gap:7px;
   padding:6px 8px;flex:1;min-width:0;
+  overflow-x:auto;
   scrollbar-width:none;-ms-overflow-style:none}
 .hdr-row2-left::-webkit-scrollbar{display:none}
 .hdr-row2-right{
