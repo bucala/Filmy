@@ -599,6 +599,7 @@ cons ─────────────────────────
   border-radius:50%;
   cursor:pointer;
   color:var(--text2);
+  touch-action:manipulation;
   transition:border-color .15s,color .15s,background .15s}
 @media(hover:hover){
   .hdr-act:hover{border-color:var(--gold);color:var(--gold);background:rgba(212,169,67,.07)}
@@ -760,6 +761,16 @@ input,textarea,.tmdb-inp,select{
   gap:10px;padding:8px 10px 80px}
 @media(max-width:520px){
   .mlist.grid{grid-template-columns:1fr;padding:8px 9px 20px}
+  .hdr-row2{min-height:38px}
+  .hdr-act{width:30px;height:30px}
+  .hdr-act svg{width:15px;height:15px}
+  .hdr-row2-left{gap:5px;padding:4px 6px}
+  .hdr-row2-right{gap:4px;padding:0 6px}
+  .ctrl-btn{height:26px;padding:0 7px}
+  .ctrl-btn svg{width:11px;height:11px}
+  .sort-sel{height:26px;padding:0 18px 0 7px;font-size:11px;
+    background-position:right 5px center}
+  .view-tog{width:28px;padding:0}
 }
 
 /* mainSc only contains header — it's just a flex container for the hdr */
