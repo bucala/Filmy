@@ -681,7 +681,7 @@ function openDet(id){
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
       ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
                '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
-      <a class="btn-jw" href="https://www.justwatch.com/sk/search?q=${encodeURIComponent(m.title)}" target="_blank">&#x1F4FA; Kde pozerať</a>
+      <a class="btn-jw" href="https://www.justwatch.com/sk/vyh%C4%BEad%C3%A1va%C5%A5?q=${encodeURIComponent(m.title)}" target="_blank">&#x1F4FA; Kde pozerať</a>
       <button class="btn-match" id="btnMatch" title="Ručné TMDB párovanie">&#x2699; Párovanie</button>
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
