@@ -571,7 +571,7 @@ function cardHTML(m){
   const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
   if(posterWall){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
-    return `<div class="mcard pwcard" data-id="${m.id}" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}</div>`;
+    return `<div class="pwcard" data-id="${m.id}" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}</div>`;
   }
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
