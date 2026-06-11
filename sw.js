@@ -1,11 +1,11 @@
 /* ══ Filmová Databáza — sw.js  ══
    Strategy:
-   - Shell (index.html, app.js, style.css, data.js, manifest, icon) → Cache-First
-   - data.json  → Network-First (always try fresh, fallback to cache)
-   - CDN libs   → Cache-First (immutable versioned URLs)
+   - Shell (same-origin)  → Network-First (always fresh, fallback to cache)
+   - data.json            → Network-First
+   - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260611-1812";
+const CACHE = "filmy-20260611-2050";
 
 const SHELL  = [
   "./",
@@ -64,34 +64,33 @@ self.addEventListener("fetch", function(e){
     return;
   }
 
-  /* data.json (same-origin only) — Network-First */
-  if(url.includes("data.json") && new URL(url).origin === self.location.origin){
+  /* CDN libs — Cache-First (versioned, immutable) */
+  if(url.includes("cdn.jsdelivr.net") || url.includes("cdnjs.cloudflare.com") ||
+     url.includes("fonts.googleapis.com") || url.includes("fonts.gstatic.com")){
     e.respondWith(
-      fetch(e.request)
-        .then(function(res){
-          if(res.ok){
-            var clone = res.clone();
-            caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
-          }
+      caches.match(e.request).then(function(cached){
+        if(cached) return cached;
+        return fetch(e.request).then(function(res){
+          if(!res || res.status !== 200) return res;
+          var clone = res.clone();
+          caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
           return res;
-        })
-        .catch(function(){
-          return caches.match(e.request);
-        })
+        });
+      })
     );
     return;
   }
 
-  /* Everything else — Cache-First */
+  /* Same-origin (shell + data.json) — Network-First */
   e.respondWith(
-    caches.match(e.request).then(function(cached){
-      if(cached) return cached;
-      return fetch(e.request).then(function(res){
-        if(!res || res.status !== 200 || res.type === "opaque") return res;
+    fetch(e.request).then(function(res){
+      if(res.ok){
         var clone = res.clone();
         caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
-        return res;
-      });
+      }
+      return res;
+    }).catch(function(){
+      return caches.match(e.request);
     })
   );
 });
