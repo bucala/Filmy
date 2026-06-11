@@ -585,9 +585,9 @@ cons ─────────────────────────
    ═══════════════════════════════════════════════════ */
 .hdr-act{
   display:flex;align-items:center;justify-content:center;
-  width:36px;height:36px;flex-shrink:0;padding:0;
+  width:30px;height:30px;flex-shrink:0;padding:0;
   background:var(--card2);
-  border:1.5px solid var(--border2);
+  border:1px solid var(--border2);
   border-radius:50%;
   cursor:pointer;
   color:var(--text2);
@@ -614,7 +614,7 @@ cons ─────────────────────────
    ROW2 LAYOUT
    ═══════════════════════════════════════════════════ */
 .hdr-row2-left{
-  display:flex;align-items:center;gap:7px;
+  display:flex;align-items:center;gap:5px;
   padding:4px 8px;flex:1;min-width:0;
   overflow-x:auto;overflow-y:hidden;
   scrollbar-width:none;-ms-overflow-style:none}
@@ -753,6 +753,7 @@ input,textarea,.tmdb-inp,select{
   gap:10px;padding:8px 10px 80px}
 @media(max-width:520px){
   .mlist.grid{grid-template-columns:1fr;padding:8px 9px 20px}
+  .mlist.posterwall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:3px;padding:3px}
 }
 
 /* mainSc only contains header — it's just a flex container for the hdr */
