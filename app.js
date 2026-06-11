@@ -2703,12 +2703,7 @@ var ghToken       = localStorage.getItem('mdb_gh_token') || '';
 /* ══════════════════════════════════════════════════════════
    MODULE: GitHub Sync — push/pull data.json
    ══════════════════════════════════════════════════════════ */
-function _shiftScrnBody(on) {
-  var sb = document.getElementById('scrnBody');
-  if (!sb) return;
-  // batch-bar height ~34px → posunúť scrn-body nadol keď je bar viditeľný
-  sb.style.top = on ? '122px' : '';
-}
+
 
 function ghSetStatus(msg, type) {
   var el = document.getElementById('ghSyncStatus');
@@ -3543,13 +3538,6 @@ function initTheme() {
    sortDir button flips asc/desc
    Both sync with hidden #sortSel for backward compatibility
    ══════════════════════════════════════════════════════════════════ */
-var SORT_OPTS = [
-  {val:'num',  lbl:'Por.'},
-  {val:'year', lbl:'Rok'},
-  {val:'title',lbl:'A–Z'},
-  {val:'pct',  lbl:'%'},
-  {val:'dur',  lbl:'Dĺžka'},
-];
 
 function syncSortPill(){
   var cur = prefs.sort || 'num';
@@ -3661,156 +3649,8 @@ window.addEventListener('resize',adjustScrnBody);
 window.addEventListener('load',adjustScrnBody);
 
 
-/* ══════════════════════════════════════════════════════════════════
-   POSTER EXTRACTION from PDF pages
-   EMDB-style PDFs have 1 movie per page with poster image embedded.
-   We render each page to canvas and extract the poster region (left ~40%).
-   ══════════════════════════════════════════════════════════════════ */
-function extractPostersFromPdf(pdf, mv){
-  /* ══════════════════════════════════════════════════════════════
-     Extract EMBEDDED images from PDF using PDF.js operatorList.
-     EMDB exports store poster images directly in the PDF — this
-     extracts the actual image data instead of rendering/cropping.
-     Strategy:
-       1. Scan all pages for image objects
-       2. On each page, pick the LARGEST image (= the poster)
-       3. Resize to 180×270 thumbnail
-       4. Match to movies sequentially (page 1 → movie 1, etc.)
-     ══════════════════════════════════════════════════════════════ */
-  var totalPages = pdf.numPages;
-  var processed  = 0;
-  var extracted   = 0;
-  var OPS = pdfjsLib.OPS;
-  var chain = Promise.resolve();
-  
-  mv.forEach(function(movie, idx){
-    chain = chain.then(function(){
-      var pageNum = idx + 1;
-      if (pageNum > totalPages) { processed++; return; }
-      
-      return pdf.getPage(pageNum).then(function(page){
-        return page.getOperatorList().then(function(ops){
-          // Collect all image names on this page
-          var imageNames = [];
-          for (var k = 0; k < ops.fnArray.length; k++){
-            if (ops.fnArray[k] === OPS.paintImageXObject ||
-                ops.fnArray[k] === OPS.paintJpegXObject) {
-              imageNames.push(ops.argsArray[k][0]);
-            }
-          }
-          if (!imageNames.length) { processed++; return; }
-          
-          // Get all images, find the largest one (= poster)
-          var imgPromises = imageNames.map(function(name){
-            return new Promise(function(resolve){
-              try {
-                page.objs.get(name, function(imgData){
-                  resolve(imgData);
-                });
-              } catch(e) { resolve(null); }
-              // Timeout fallback
-              setTimeout(function(){ resolve(null); }, 3000);
-            });
-          });
-          
-          return Promise.all(imgPromises).then(function(images){
-            // Find the largest image (by pixel count)
-            var best = null, bestSize = 0;
-            images.forEach(function(img){
-              if (!img || !img.width || !img.height) return;
-              var size = img.width * img.height;
-              // Poster should be at least 50×50 and largest on page
-              if (size > bestSize && img.width >= 50 && img.height >= 50) {
-                best = img;
-                bestSize = size;
-              }
-            });
-            
-            if (!best) { processed++; return; }
-            
-            // Convert image data to canvas → JPEG thumbnail
-            try {
-              var srcCanvas = document.createElement("canvas");
-              srcCanvas.width = best.width;
-              srcCanvas.height = best.height;
-              var sctx = srcCanvas.getContext("2d");
-              
-              // PDF.js image data can be ImageData or raw RGBA array
-              if (best.data && best.data.length) {
-                var idata;
-                if (best.data instanceof Uint8ClampedArray) {
-                  idata = new ImageData(best.data, best.width, best.height);
-                } else {
-                  // Convert to Uint8ClampedArray
-                  var arr = new Uint8ClampedArray(best.width * best.height * 4);
-                  // Handle RGB (3 channels) or RGBA (4 channels)
-                  var channels = best.data.length / (best.width * best.height);
-                  if (channels >= 4) {
-                    arr.set(best.data.subarray(0, arr.length));
-                  } else if (channels >= 3) {
-                    // RGB → RGBA
-                    var src = best.data;
-                    for (var p = 0, d = 0; p < src.length; p += 3, d += 4) {
-                      arr[d]     = src[p];
-                      arr[d + 1] = src[p + 1];
-                      arr[d + 2] = src[p + 2];
-                      arr[d + 3] = 255;
-                    }
-                  }
-                  idata = new ImageData(arr, best.width, best.height);
-                }
-                sctx.putImageData(idata, 0, 0);
-              } else if (best.bitmap) {
-                // ImageBitmap path (newer PDF.js)
-                sctx.drawImage(best.bitmap, 0, 0);
-              } else if (best.src) {
-                // Already a data URL or blob URL
-                movie.poster_thumb = best.src;
-                extracted++;
-                processed++;
-                return;
-              }
-              
-              // Resize to thumbnail (180×270)
-              var thumbCanvas = document.createElement("canvas");
-              thumbCanvas.width = 180;
-              thumbCanvas.height = 270;
-              var tctx = thumbCanvas.getContext("2d");
-              tctx.imageSmoothingQuality = "high";
-              tctx.drawImage(srcCanvas, 0, 0, best.width, best.height, 0, 0, 180, 270);
-              
-              movie.poster_thumb = thumbCanvas.toDataURL("image/jpeg", 0.78);
-              extracted++;
-              
-              // Free memory
-              srcCanvas.width = 0;
-              thumbCanvas.width = 0;
-            } catch(e) {
-              console.warn("Poster extraction error for movie #" + movie.num + ":", e);
-            }
-            
-            processed++;
-            if (processed % 20 === 0) {
-              setP(55 + Math.round(processed / mv.length * 30),
-                   "Plagáty " + processed + "/" + mv.length + " (" + extracted + " OK)");
-            }
-          });
-        });
-      }).catch(function(e){
-        console.warn("Page " + (idx+1) + " error:", e);
-        processed++;
-      });
-    });
-  });
-  
-  return chain.then(function(){
-    setP(87, "Extrahovaných " + extracted + " plagátov z " + mv.length + " filmov");
-});
-}
-
-
-
-
+/* extractPostersFromPdf (~140 lines) removed — never called. Restore from git history if needed. */
+function extractPostersFromPdf(){}
 
 
 /* ══════════════════════════════════════════════════════════════════
