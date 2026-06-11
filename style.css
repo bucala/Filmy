@@ -539,8 +539,24 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   background:var(--card);border:1px solid var(--border2);border-radius:12px;
   padding:10px 18px;font-family:"JetBrains Mono",monospace;font-size:12px;
   color:var(--text);z-index:2000;opacity:0;pointer-events:none;
-  transition:opacity .2s,transform .2s;white-space:nowrap}
+  transition:opacity .2s,transform .2s;
+  max-width:calc(100vw - 32px);white-space:normal;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Accent color picker swatches ─────────────────────────────── */
+.color-picker-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0}
+.color-swatch{
+  width:36px;height:36px;border-radius:50%;cursor:pointer;flex-shrink:0;
+  border:2px solid var(--border2);
+  transition:transform .12s,border-color .12s,box-shadow .12s}
+.color-swatch:hover{transform:scale(1.1)}
+.color-swatch.active{
+  border-color:var(--text);
+  box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--gold)}
+.color-inp-wrap{display:flex;align-items:center}
+.color-inp-wrap input[type="color"]{
+  width:36px;height:36px;padding:0;border:2px dashed var(--border2);
+  border-radius:50%;background:transparent;cursor:pointer}
 /* ── Sort pill ───────────────────────────────────────────────────── */
 
 #sortLbl{min-width:20px;text-align:center}
