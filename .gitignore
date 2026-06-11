@@ -7,3 +7,4 @@ Filmy/
 __pycache__/
 *.pyc
 *.iml
+changelog.md
