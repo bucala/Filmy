@@ -99,10 +99,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 /* Per-button active accent colours */
 
 /* ── Sort + Filter + View controls ─────────────────────────────── */
-.sort-wrap{display:none}/* replaced by sort-pill */
-/* inside sort-pill */
-.sort-dir{display:none}/* replaced by sort-dir-btn */
-/* sort-dir:hover removed */
+/* sort-wrap/sort-dir removed — replaced by sort-sel + sortDir button */
 
 .fp-btn:hover{border-color:var(--gold);color:var(--gold)}
 .fp-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(212,169,67,.1)}
@@ -139,7 +136,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .ltitle{font-family:"Bebas Neue",sans-serif;font-size:16px;
   color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   line-height:1.2;display:block}
-.lmeta{font-family:"JetBrains Mono",monospace;font-size:9px;color:#d4a943}
+.lmeta{font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--gold)}
 .lright{display:flex;gap:3px;flex-shrink:0;padding:0 4px;align-items:center}
 .lfav{width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;
   background:var(--card2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;
@@ -157,7 +154,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .cpost-n{font-family:"Bebas Neue",sans-serif;font-size:14px;color:var(--gold)}
 .cbody{display:flex;flex:1;padding:10px 12px;min-width:0;flex-direction:column;justify-content:space-between;overflow:hidden}
 .ctitle{font-family:"Bebas Neue",sans-serif;font-size:17px;color:var(--text);line-height:1.15;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.cmeta{font-family:"JetBrains Mono",monospace;font-size:10px;color:#d4a943;margin-bottom:4px;display:block}
+.cmeta{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold);margin-bottom:4px;display:block}
 .cdir{font-size:11px;color:var(--text2);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .cgenres{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px}
 .gtag{font-family:"JetBrains Mono",monospace;font-size:8px;background:rgba(var(--gold-rgb,212,169,67),.13);color:var(--gold);border-radius:4px;padding:2px 6px;border:1px solid rgba(var(--gold-rgb,212,169,67),.3);letter-spacing:.3px}
@@ -175,19 +172,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .batch-bar.hidden{display:none}
 
 /* Rozšírené nastavenia – collapsible */
-.sett-adv-summary{
-  display:flex;align-items:center;gap:8px;
-  cursor:pointer;list-style:none;
-  padding:0 4px 10px;margin:18px 0 4px;
-  border-bottom:1px solid var(--border);
-  background:none;border-radius:0;border:none;border-bottom:1px solid var(--border);
-  font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:2px;
-  color:var(--text);
-  user-select:none;white-space:nowrap;
-}
-.sett-adv-summary::-webkit-details-marker{display:none}
-#advSettDetails[open] .sett-adv-summary svg{transform:rotate(180deg)}
-.sett-adv-body{padding:4px 0 0;}
+/* sett-adv-summary/details removed — replaced by tab UI */
 .batch-info{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text2);white-space:nowrap}
 .batch-pbar{height:6px;background:var(--border);border-radius:2px;flex:1;overflow:hidden}
 .batch-pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s;width:0%}
@@ -251,7 +236,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .dec-c span{color:var(--gold);font-weight:700}
 .sett-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .sett-overlay.hidden,.sett-panel.hidden{display:none}
-.sett-panel{-webkit-user-select:none;user-select:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;z-index:501;padding:0 16px 40px;max-height:86vh;overflow-y:auto;overscroll-behavior:contain}
+.sett-panel{-webkit-user-select:none;user-select:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;z-index:501;padding:0 16px calc(40px + env(safe-area-inset-bottom,0px));max-height:86svh;overflow-y:auto;overscroll-behavior:contain}
 
 /* ── Handle & title ─────────────────────────────────────────────── */
 .sett-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 14px}
@@ -401,16 +386,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   --hdr-bg:linear-gradient(180deg,#dce8f4 0%,#e4eef8 100%);--hdr-border:#b8cce0
 }
 
-/* ── 3-LEVEL COLOR PICKER ─────────────────────────────────────── */
-.text-palette-swatch{display:inline-flex;flex-direction:column;align-items:center;
-  padding:6px 8px;border-radius:8px;cursor:pointer;border:2px solid transparent;
-  background:var(--card2);transition:border-color .15s,transform .15s;min-width:44px}
-.text-palette-swatch:hover{transform:scale(1.06)}
-.text-palette-swatch.active{border-color:var(--gold)}
-#textPaletteRow{display:flex;gap:6px;flex-wrap:wrap}
-
-.bg-palette-swatch:hover{transform:scale(1.04)}
-.bg-palette-swatch.active{border-color:var(--gold)}
+/* 3-level color picker removed — unified into skin system */
 
 /* ══════════════════════════════════════════════════════════════════
    ADMIN PANEL — CSS was missing, restored
@@ -454,7 +430,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
    ══════════════════════════════════════════════════════════════════ */
 .fp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:none}
 .fp-overlay.open{display:block}
-.fp-panel{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;z-index:401;padding:0 16px 40px;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,1,.23,1);-webkit-overflow-scrolling:touch}
+.fp-panel{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;z-index:401;padding:0 16px calc(40px + env(safe-area-inset-bottom,0px));max-height:85svh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,1,.23,1);-webkit-overflow-scrolling:touch}
 .fp-panel.open{transform:translateY(0)}
 .fp-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 14px}
 .fp-title{font-family:"Bebas Neue",sans-serif;font-size:18px;letter-spacing:2px;color:var(--text);margin-bottom:2px;display:flex;align-items:center;justify-content:space-between}
@@ -539,8 +515,24 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   background:var(--card);border:1px solid var(--border2);border-radius:12px;
   padding:10px 18px;font-family:"JetBrains Mono",monospace;font-size:12px;
   color:var(--text);z-index:2000;opacity:0;pointer-events:none;
-  transition:opacity .2s,transform .2s;white-space:nowrap}
+  transition:opacity .2s,transform .2s;
+  max-width:calc(100vw - 32px);white-space:normal;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Accent color picker swatches ─────────────────────────────── */
+.color-picker-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0}
+.color-swatch{
+  width:36px;height:36px;border-radius:50%;cursor:pointer;flex-shrink:0;
+  border:2px solid var(--border2);
+  transition:transform .12s,border-color .12s,box-shadow .12s}
+.color-swatch:hover{transform:scale(1.1)}
+.color-swatch.active{
+  border-color:var(--text);
+  box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--gold)}
+.color-inp-wrap{display:flex;align-items:center}
+.color-inp-wrap input[type="color"]{
+  width:36px;height:36px;padding:0;border:2px dashed var(--border2);
+  border-radius:50%;background:transparent;cursor:pointer}
 /* ── Sort pill ───────────────────────────────────────────────────── */
 
 #sortLbl{min-width:20px;text-align:center}
@@ -586,7 +578,7 @@ cons ─────────────────────────
 
 /* ── Right-side controls ─────────────────────────────────── */
 
-.frollbar{display:none}
+/* .frollbar removed — dead selector */
 
 /* ═══════════════════════════════════════════════════
    LEFT 5 ICONS — circular, fp-btn-like
@@ -761,16 +753,14 @@ input,textarea,.tmdb-inp,select{
   gap:10px;padding:8px 10px 80px}
 @media(max-width:520px){
   .mlist.grid{grid-template-columns:1fr;padding:8px 9px 20px}
-  .hdr-row2{min-height:38px}
-  .hdr-act{width:30px;height:30px}
-  .hdr-act svg{width:15px;height:15px}
-  .hdr-row2-left{gap:5px;padding:4px 6px}
-  .hdr-row2-right{gap:4px;padding:0 6px}
-  .ctrl-btn{height:26px;padding:0 7px}
-  .ctrl-btn svg{width:11px;height:11px}
-  .sort-sel{height:26px;padding:0 18px 0 7px;font-size:11px;
-    background-position:right 5px center}
-  .view-tog{width:28px;padding:0}
+  .hdr-row2{flex-wrap:wrap;min-height:auto}
+  .hdr-row2-left{width:100%;justify-content:center;gap:8px;padding:5px 8px;order:2}
+  .hdr-row2-div{display:none}
+  .hdr-row2-right{width:100%;justify-content:center;gap:5px;padding:4px 8px;order:1;
+    position:static;border-bottom:1px solid var(--border)}
+  .hdr-act{width:38px;height:38px}
+  .ctrl-btn{height:32px;padding:0 10px}
+  .sort-sel{height:32px}
 }
 
 /* mainSc only contains header — it's just a flex container for the hdr */
@@ -923,15 +913,15 @@ input,textarea,.tmdb-inp,select{
 
 /* ── Stat screen — charts & cards ─────────────────── */
 .stat-charts{display:flex;flex-wrap:wrap;gap:16px;margin-top:8px}
-.chart-card{flex:1 1 260px;background:var(--c2);border-radius:12px;padding:16px;min-width:220px}
-.chart-title{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);margin-bottom:10px;text-transform:uppercase}
+.chart-card{flex:1 1 260px;background:var(--card2);border-radius:12px;padding:16px;min-width:220px}
+.chart-title{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);margin-bottom:10px;text-transform:uppercase}
 .chart-wrap{position:relative;height:220px;width:100%}
 /* Search highlight */
 .fz-hl{background:rgba(212,169,67,.35);border-radius:3px;padding:0 1px;font-style:normal}
 /* Film panel thumbnails */
 .thumbnail{width:48px;height:68px;object-fit:cover;border-radius:4px;flex-shrink:0}
-.thumbnail-text{width:48px;height:68px;border-radius:4px;background:var(--c2);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--t2);flex-shrink:0}
-.actor-name{font-size:12px;color:var(--t2);margin-top:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thumbnail-text{width:48px;height:68px;border-radius:4px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text2);flex-shrink:0}
+.actor-name{font-size:12px;color:var(--text2);margin-top:4px;text-align:center;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .percentage{font-size:11px;font-weight:700;color:var(--gold)}
 .skel-grid{display:flex;flex-direction:column;gap:5px;padding:8px 10px}
 .skel-card{height:52px;border-radius:8px;background:var(--card);border:1px solid var(--border);overflow:hidden;position:relative}
