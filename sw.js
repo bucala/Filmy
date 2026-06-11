@@ -5,7 +5,7 @@
    - CDN libs   → Cache-First (immutable versioned URLs)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260611-1803";
+const CACHE = "filmy-20260611-2010";
 
 const SHELL  = [
   "./",
@@ -19,11 +19,20 @@ const SHELL  = [
   "https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"
 ];
 
-/* ── Install: pre-cache shell ── */
+/* ── Install: pre-cache shell (bypass HTTP cache) ── */
 self.addEventListener("install", function(e){
   e.waitUntil(
     caches.open(CACHE)
-      .then(function(c){ return c.addAll(SHELL); })
+      .then(function(c){
+        return Promise.all(
+          SHELL.map(function(url){
+            return fetch(url, {cache:"no-store"}).then(function(res){
+              if(!res.ok) throw new Error("Failed to fetch "+url);
+              return c.put(url, res);
+            });
+          })
+        );
+      })
       .then(function(){ return self.skipWaiting(); })
   );
 });
