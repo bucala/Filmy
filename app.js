@@ -294,21 +294,22 @@ function initColorPicker() {
 /* ══════════════════════════════════════════════════════════
    MODULE: Search — Fuse.js fuzzy search + highlighting
    ══════════════════════════════════════════════════════════ */
+var FUSE_OPTS={
+  includeScore:true,
+  includeMatches:true,
+  minMatchCharLength:2,
+  threshold:0.42,        // 0=exact, 1=match anything
+  ignoreLocation:true,
+  keys:[
+    {name:"title",      weight:0.55},
+    {name:"director",   weight:0.20},
+    {name:"year",       weight:0.10},
+    {name:"genres",     weight:0.10},
+    {name:"description",weight:0.05}
+  ]
+};
 function buildFuse(){
-  fuseInst=new Fuse(all,{
-    includeScore:true,
-    includeMatches:true,
-    minMatchCharLength:2,
-    threshold:0.42,        // 0=exact, 1=match anything
-    ignoreLocation:true,
-    keys:[
-      {name:"title",      weight:0.55},
-      {name:"director",   weight:0.20},
-      {name:"year",       weight:0.10},
-      {name:"genres",     weight:0.10},
-      {name:"description",weight:0.05}
-    ]
-  });
+  fuseInst=new Fuse(all,FUSE_OPTS);
 }
 
 
@@ -364,7 +365,7 @@ function applyFilters(){
     } else {
       if(!fuseInst)buildFuse();
       var noFilters=!favMode&&!wlMode&&!watchedMode&&fpActiveCount()===0;
-      var searchInst=noFilters?fuseInst:new Fuse(pool,fuseInst._options);
+      var searchInst=noFilters?fuseInst:new Fuse(pool,FUSE_OPTS);
       const results=searchInst.search(q);
       list=results.map(r=>r.item);
       if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
@@ -514,7 +515,7 @@ function renderList(list){
     if(nrt)nrt.textContent=q?"Nic pre \""+q+"\"":favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
     return;
   }
-  nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
+  nr.style.display="none";ml.style.display=""; ml.className = posterWall ? "mlist posterwall" : (grid ? "mlist grid" : "mlist");
   curPage=0;ml.innerHTML="";
   // FIX2b: Event delegation — one listener replaces per-card listeners (1750+ → 1)
   if(ml._delegated) ml.removeEventListener("click",ml._delegated);
@@ -641,7 +642,7 @@ function openDet(id){
   const genres=(m.genres||[]).map(g=>`<span class="dg-tag">${esc(g)}</span>`).join("");
   const items=[];
   if(m.director)items.push(["Režíser",'<a class="det-person-link" data-person="'+esc(m.director)+'">'+esc(m.director)+'</a>']);
-  items.push(["Rok",m.year||"–"],["Dĺžka",m.duration||"–"],["Krajina",m.country||"–"],["#",m.num]);
+  items.push(["Rok",esc(String(m.year||"–"))],["Dĺžka",esc(String(m.duration||"–"))],["Krajina",esc(String(m.country||"–"))],["#",esc(String(m.num))]);
   const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
   const imdbUrl=(cached&&cached.imdbUrl)||null;
   const csfdUrl=m._csfdUrl||null;
@@ -686,7 +687,7 @@ function openDet(id){
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
     <div class="sec">Detaily</div>
-    <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${esc(String(it[1]))}</div></div>`).join("")}</div>
+    <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${it[1]}</div></div>`).join("")}</div>
     ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${m.cast.split(',').map(function(a){var n=a.trim();return n?'<a class="det-person-link" data-person="'+esc(n)+'">'+esc(n)+'</a>':'';}).filter(Boolean).join(', ')}</div>`:""}
     <div class="sec">Tagy</div>
     <div class="det-tags" id="detTags">
@@ -1679,7 +1680,13 @@ function findDuplicates(){
 function showMod(t,s){document.getElementById("mTtl").textContent=t;document.getElementById("mSub").textContent=s;document.getElementById("mFill").style.width="0%";document.getElementById("mStat").textContent="0%";document.getElementById("mOv").classList.remove("hidden");}
 function setP(p,s){document.getElementById("mFill").style.width=p+"%";document.getElementById("mStat").textContent=s;}
 function hideMod(){document.getElementById("mOv").classList.add("hidden");}
-function toast(msg){var t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}
+function toast(msg){
+  var t=document.createElement("div");t.className="toast";
+  t.setAttribute("role","status");t.textContent=msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add("show");});
+  setTimeout(function(){t.classList.remove("show");setTimeout(function(){t.remove();},250);},3000);
+}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 
@@ -1712,6 +1719,19 @@ window.addEventListener("unhandledrejection",function(e){
   console.error("[FilmDB unhandled promise]",reason);
   if(typeof toast==="function") toast("⚠ Async chyba: "+(reason&&reason.message?reason.message:String(reason)).slice(0,80));
 });
+
+
+/* ══════════════════════════════════════════════════════
+   SERVICE WORKER — offline shell + data caching (sw.js)
+   Skipped for file:// (exported HTML backups).
+   ══════════════════════════════════════════════════════ */
+if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(err){
+      console.warn("[FilmDB] SW registration failed:",err);
+    });
+  });
+}
 
 
 document.addEventListener("DOMContentLoaded",function(){
@@ -3166,6 +3186,8 @@ function updateFpPills() {
       applyFilters();
     });
   });
+  // pills live inside the header — re-measure so the list doesn't hide under it
+  adjustScrnBody();
 }
 
 function initFp() {
