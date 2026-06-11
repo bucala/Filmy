@@ -615,8 +615,8 @@ cons ─────────────────────────
    ═══════════════════════════════════════════════════ */
 .hdr-row2-left{
   display:flex;align-items:center;gap:7px;
-  padding:6px 8px;flex:1;min-width:0;
-  overflow-x:auto;
+  padding:4px 8px;flex:1;min-width:0;
+  overflow-x:auto;overflow-y:hidden;
   scrollbar-width:none;-ms-overflow-style:none}
 .hdr-row2-left::-webkit-scrollbar{display:none}
 .hdr-row2-right{
@@ -753,17 +753,6 @@ input,textarea,.tmdb-inp,select{
   gap:10px;padding:8px 10px 80px}
 @media(max-width:520px){
   .mlist.grid{grid-template-columns:1fr;padding:8px 9px 20px}
-  .hdr-row2{min-height:38px}
-  .hdr-row2-left{gap:4px;padding:4px 6px}
-  .hdr-act{width:30px;height:30px}
-  .hdr-act svg{width:14px;height:14px}
-  .hdr-row2-right{gap:3px;padding:0 6px}
-  .ctrl-btn{height:26px;padding:0 6px}
-  .ctrl-btn svg{width:11px;height:11px}
-  .sort-sel{height:26px;min-width:56px;font-size:9px;padding:0 16px 0 6px;
-    background-position:right 5px center}
-  .view-tog{width:26px}
-  #sortDir{width:26px}
 }
 
 /* mainSc only contains header — it's just a flex container for the hdr */
