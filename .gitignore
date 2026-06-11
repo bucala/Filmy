@@ -1,9 +1,9 @@
-.idea/misc.xml
-
 Filmy/
-patch_d2.py
-patch_filmy.py
 .venv/
 *.bak
 .vercel
 .env*
+.idea/
+__pycache__/
+*.pyc
+*.iml

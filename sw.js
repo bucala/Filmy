@@ -5,7 +5,7 @@
    - CDN libs   → Cache-First (immutable versioned URLs)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260610-0003";
+const CACHE = "filmy-20260611-audit";
 
 const SHELL  = [
   "./",
@@ -50,13 +50,20 @@ self.addEventListener("fetch", function(e){
     return;
   }
 
-  /* data.json — Network-First */
-  if(url.includes("data.json")){
+  /* GitHub API / raw — Network-Only (never cache auth/sync traffic) */
+  if(url.includes("api.github.com") || url.includes("raw.githubusercontent.com")){
+    return;
+  }
+
+  /* data.json (same-origin only) — Network-First */
+  if(url.includes("data.json") && new URL(url).origin === self.location.origin){
     e.respondWith(
       fetch(e.request)
         .then(function(res){
-          var clone = res.clone();
-          caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
+          if(res.ok){
+            var clone = res.clone();
+            caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
+          }
           return res;
         })
         .catch(function(){
