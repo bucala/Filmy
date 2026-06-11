@@ -99,10 +99,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 /* Per-button active accent colours */
 
 /* ── Sort + Filter + View controls ─────────────────────────────── */
-.sort-wrap{display:none}/* replaced by sort-pill */
-/* inside sort-pill */
-.sort-dir{display:none}/* replaced by sort-dir-btn */
-/* sort-dir:hover removed */
+/* sort-wrap/sort-dir removed — replaced by sort-sel + sortDir button */
 
 .fp-btn:hover{border-color:var(--gold);color:var(--gold)}
 .fp-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(212,169,67,.1)}
@@ -175,19 +172,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .batch-bar.hidden{display:none}
 
 /* Rozšírené nastavenia – collapsible */
-.sett-adv-summary{
-  display:flex;align-items:center;gap:8px;
-  cursor:pointer;list-style:none;
-  padding:0 4px 10px;margin:18px 0 4px;
-  border-bottom:1px solid var(--border);
-  background:none;border-radius:0;border:none;border-bottom:1px solid var(--border);
-  font-family:"Bebas Neue",sans-serif;font-size:20px;letter-spacing:2px;
-  color:var(--text);
-  user-select:none;white-space:nowrap;
-}
-.sett-adv-summary::-webkit-details-marker{display:none}
-#advSettDetails[open] .sett-adv-summary svg{transform:rotate(180deg)}
-.sett-adv-body{padding:4px 0 0;}
+/* sett-adv-summary/details removed — replaced by tab UI */
 .batch-info{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--text2);white-space:nowrap}
 .batch-pbar{height:6px;background:var(--border);border-radius:2px;flex:1;overflow:hidden}
 .batch-pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px;transition:width .3s;width:0%}
@@ -401,16 +386,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   --hdr-bg:linear-gradient(180deg,#dce8f4 0%,#e4eef8 100%);--hdr-border:#b8cce0
 }
 
-/* ── 3-LEVEL COLOR PICKER ─────────────────────────────────────── */
-.text-palette-swatch{display:inline-flex;flex-direction:column;align-items:center;
-  padding:6px 8px;border-radius:8px;cursor:pointer;border:2px solid transparent;
-  background:var(--card2);transition:border-color .15s,transform .15s;min-width:44px}
-.text-palette-swatch:hover{transform:scale(1.06)}
-.text-palette-swatch.active{border-color:var(--gold)}
-#textPaletteRow{display:flex;gap:6px;flex-wrap:wrap}
-
-.bg-palette-swatch:hover{transform:scale(1.04)}
-.bg-palette-swatch.active{border-color:var(--gold)}
+/* 3-level color picker removed — unified into skin system */
 
 /* ══════════════════════════════════════════════════════════════════
    ADMIN PANEL — CSS was missing, restored
@@ -602,7 +578,7 @@ cons ─────────────────────────
 
 /* ── Right-side controls ─────────────────────────────────── */
 
-.frollbar{display:none}
+/* .frollbar removed — dead selector */
 
 /* ═══════════════════════════════════════════════════
    LEFT 5 ICONS — circular, fp-btn-like
