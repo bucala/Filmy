@@ -1971,7 +1971,7 @@ toast(_modeLabel);
     if (ghInp && ghInp.value.trim()) { ghToken = ghInp.value.trim(); localStorage.setItem(GH_KEY, ghToken); }
     // TMDB key
     var tmdbInp = document.getElementById('tmdbKeyInp');
-    if (tmdbInp && tmdbInp.value.trim()) { localStorage.setItem('mdb_tmdb_key', tmdbInp.value.trim()); }
+    if (tmdbInp && tmdbInp.value.trim()) { tmdbKey = tmdbInp.value.trim(); localStorage.setItem('tmdb_key', tmdbKey); }
     // SMB base
     var smbInp = document.getElementById('smbPathInp');
     if (smbInp && smbInp.value.trim()) {
@@ -2781,7 +2781,11 @@ function ghPush() {
       if (c.poster_thumb && c.poster_thumb.indexOf('data:') === 0) c.poster_thumb = '';
       return c;
     }),
-    liveCache: liveCache
+    liveCache: liveCache,
+    favourites: Array.from(favs),
+    watchlist:  Array.from(wl),
+    watched:    Array.from(watched),
+    watchedDates: watchedDates
   };
 
   var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
@@ -2957,6 +2961,10 @@ function ghPull() {
         Object.assign(liveCache, payload.liveCache);
         saveLiveCache();
       }
+      if (payload.favourites) { favs = new Set(payload.favourites); safeSave(FK, JSON.stringify(payload.favourites)); }
+      if (payload.watchlist)  { wl = new Set(payload.watchlist);    safeSave(WK, JSON.stringify(payload.watchlist)); }
+      if (payload.watched)    { watched = new Set(payload.watched); safeSave(VK, JSON.stringify(payload.watched)); }
+      if (payload.watchedDates) { watchedDates = payload.watchedDates; safeSave(VDK, JSON.stringify(payload.watchedDates)); }
       // Restore poster URLs from liveCache for movies without poster
       all.forEach(function(m){
         if((!m.poster_thumb||m.poster_thumb.length<10)&&liveCache[m.id]&&liveCache[m.id].posterUrl){
@@ -3818,7 +3826,9 @@ var pathMode   = localStorage.getItem(PATH_MODE_KEY) || 'smb'; // 'local' or 'sm
 // SMB mapping: local drive letter → SMB share
 // W:\Movies\ → smb://DESKTOP-EGOG348/Movies/
 var SMB_MAP_KEY = 'mdb_smb_map';
-var smbMap = JSON.parse(localStorage.getItem(SMB_MAP_KEY) || '{"W:\\\\Movies\\\\":"smb://DESKTOP-EGOG348/Movies/"}');
+var smbMap;
+try { smbMap = JSON.parse(localStorage.getItem(SMB_MAP_KEY) || '{}'); } catch(e) { smbMap = {}; }
+if (!smbMap || typeof smbMap !== 'object' || !Object.keys(smbMap).length) smbMap = {"W:\\\\Movies\\\\":"smb://DESKTOP-EGOG348/Movies/"};
 
 function removeDiacritics(str) {
   var map = {
@@ -4246,5 +4256,11 @@ function scheduleAutoPush(reason) {
     if (all && all.length) ghPush();
   }, 5000);
 }
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && autoPushTimer) {
+    clearTimeout(autoPushTimer); autoPushTimer = null;
+    if (!ghPushInProgress && ghToken && all && all.length) ghPush();
+  }
+});
 
 })();
