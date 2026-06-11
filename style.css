@@ -753,14 +753,17 @@ input,textarea,.tmdb-inp,select{
   gap:10px;padding:8px 10px 80px}
 @media(max-width:520px){
   .mlist.grid{grid-template-columns:1fr;padding:8px 9px 20px}
-  .hdr-row2{flex-wrap:wrap;min-height:auto}
-  .hdr-row2-left{width:100%;justify-content:center;gap:8px;padding:5px 8px;order:2}
-  .hdr-row2-div{display:none}
-  .hdr-row2-right{width:100%;justify-content:center;gap:5px;padding:4px 8px;order:1;
-    position:static;border-bottom:1px solid var(--border)}
-  .hdr-act{width:38px;height:38px}
-  .ctrl-btn{height:32px;padding:0 10px}
-  .sort-sel{height:32px}
+  .hdr-row2{min-height:38px}
+  .hdr-row2-left{gap:4px;padding:4px 6px}
+  .hdr-act{width:30px;height:30px}
+  .hdr-act svg{width:14px;height:14px}
+  .hdr-row2-right{gap:3px;padding:0 6px}
+  .ctrl-btn{height:26px;padding:0 6px}
+  .ctrl-btn svg{width:11px;height:11px}
+  .sort-sel{height:26px;min-width:56px;font-size:9px;padding:0 16px 0 6px;
+    background-position:right 5px center}
+  .view-tog{width:26px}
+  #sortDir{width:26px}
 }
 
 /* mainSc only contains header — it's just a flex container for the hdr */
