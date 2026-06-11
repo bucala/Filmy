@@ -739,7 +739,7 @@ function openDet(id){
   document.getElementById("detBody").scrollTop=0;
   if(!cached)fetchLiveData(id);
 }
-function closeDet(){document.getElementById("detSc").classList.add("hidden");document.getElementById("mainSc").classList.remove("hidden");renderList(filt);}
+function closeDet(){document.getElementById("detSc").classList.add("hidden");document.getElementById("mainSc").classList.remove("hidden");}
 
 function fetchLiveData(id){
   var m=all.find(function(x){return x.id===id;});if(!m||!tmdbKey)return;
@@ -3318,8 +3318,12 @@ function initKeyboard() {
       if (!document.getElementById('settOverlay').classList.contains('hidden')) {
         closeSett(); return;
       }
-      if (document.getElementById('adminPanelSc').style.display !== 'none') {
+      var adminEl = document.getElementById('adminPanelSc');
+      if (adminEl && adminEl.offsetParent !== null) {
         closeAdmin(); return;
+      }
+      if (!document.getElementById('statSc').classList.contains('hidden')) {
+        closeStat(); return;
       }
       if (!document.getElementById('detSc').classList.contains('hidden')) {
         document.getElementById('btnBack').click(); return;
