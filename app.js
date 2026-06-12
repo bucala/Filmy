@@ -3480,23 +3480,29 @@ var THEME_ACCENTS = {
 /* ══════════════════════════════════════════════════════════
    MODULE: Theme (unified skin system)
    ══════════════════════════════════════════════════════════ */
+var _autoThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+
 function applyTheme(skinId) {
-  // Apply skin via both data-skin and data-theme (for backward compat with CSS)
-  document.documentElement.setAttribute('data-skin',  skinId);
-  document.documentElement.setAttribute('data-theme', skinId);
-  // Clear separate text/bg overrides — skin defines everything
+  var resolved = skinId;
+  if (skinId === 'auto') {
+    resolved = _autoThemeMq.matches ? 'dark' : 'linen';
+  }
+  document.documentElement.setAttribute('data-skin',  resolved);
+  document.documentElement.setAttribute('data-theme', resolved);
   document.documentElement.removeAttribute('data-text');
   document.documentElement.removeAttribute('data-bg');
   try { localStorage.setItem(THEME_KEY, skinId); } catch(e) {}
-  // Sync accent to skin default — reset custom override
   localStorage.removeItem(ACCENT_KEY);
-  var acc = THEME_ACCENTS[skinId];
+  var acc = THEME_ACCENTS[resolved];
   if (acc) applyAccentColor(acc.gold, acc.gold2);
-  // Update skin chip active state
   document.querySelectorAll('.skin-chip').forEach(function(s) {
     s.classList.toggle('active', s.dataset.skin === skinId);
   });
 }
+
+_autoThemeMq.addEventListener('change', function() {
+  if (localStorage.getItem(THEME_KEY) === 'auto') applyTheme('auto');
+});
 
 function initTheme() {
   var saved = localStorage.getItem(THEME_KEY) || 'dark';
@@ -4108,39 +4114,7 @@ document.addEventListener('visibilitychange', function() {
 });
 
 
-/* ══════════════════════════════════════════════════════════
-   MODULE: Auto Dark/Light Theme
-   ══════════════════════════════════════════════════════════ */
-var _autoThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
-
-function resolveAutoTheme() {
-  return _autoThemeMq.matches ? 'dark' : 'linen';
-}
-
-(function patchInitTheme() {
-  var origApply = applyTheme;
-  applyTheme = function(skinId) {
-    if (skinId === 'auto') {
-      var resolved = resolveAutoTheme();
-      document.documentElement.setAttribute('data-skin', resolved);
-      document.documentElement.setAttribute('data-theme', resolved);
-      document.documentElement.removeAttribute('data-text');
-      document.documentElement.removeAttribute('data-bg');
-      try { localStorage.setItem(THEME_KEY, 'auto'); } catch(e) {}
-      localStorage.removeItem(ACCENT_KEY);
-      var acc = THEME_ACCENTS[resolved];
-      if (acc) applyAccentColor(acc.gold, acc.gold2);
-      document.querySelectorAll('.skin-chip').forEach(function(s) {
-        s.classList.toggle('active', s.dataset.skin === 'auto');
-      });
-      return;
-    }
-    origApply(skinId);
-  };
-  _autoThemeMq.addEventListener('change', function() {
-    if (localStorage.getItem(THEME_KEY) === 'auto') applyTheme('auto');
-  });
-})();
+/* Auto Dark/Light Theme — integrated into applyTheme above */
 
 
 /* ══════════════════════════════════════════════════════════
@@ -4261,7 +4235,14 @@ function toggleBulkMode() {
 
 function updateBulkCnt() {
   var el = document.getElementById('bulkCnt');
-  if (el) el.textContent = bulkSel.size + ' vybranych';
+  if (el) el.textContent = bulkSel.size + ' vybraných';
+  var cb = document.getElementById('bulkSelAllCb');
+  if (cb) {
+    var ml = document.getElementById('mlist');
+    var total = ml ? ml.querySelectorAll('[data-id]').length : 0;
+    cb.checked = total > 0 && bulkSel.size >= total;
+    cb.indeterminate = bulkSel.size > 0 && bulkSel.size < total;
+  }
 }
 
 function bulkToggleCard(card) {
@@ -4283,15 +4264,15 @@ document.addEventListener('DOMContentLoaded', function() {
     bulkToggleCard(card);
   }, true);
 
-  var bulkSelAll = document.getElementById('bulkSelAll');
-  if (bulkSelAll) bulkSelAll.addEventListener('click', function() {
+  var bulkSelAllCb = document.getElementById('bulkSelAllCb');
+  if (bulkSelAllCb) bulkSelAllCb.addEventListener('change', function() {
     var ml = document.getElementById('mlist');
     var cards = ml.querySelectorAll('[data-id]');
-    var allSelected = bulkSel.size >= cards.length;
+    var shouldSelect = bulkSelAllCb.checked;
     cards.forEach(function(c) {
       var id = parseInt(c.dataset.id, 10);
-      if (allSelected) { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
-      else { bulkSel.add(id); c.classList.add('bulk-sel'); }
+      if (shouldSelect) { bulkSel.add(id); c.classList.add('bulk-sel'); }
+      else { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
     });
     updateBulkCnt();
   });
@@ -4399,22 +4380,6 @@ function openMapPanel() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var btnMore = document.getElementById('btnMore');
-  var moreMenu = document.getElementById('moreMenu');
-  if (btnMore && moreMenu) {
-    btnMore.addEventListener('click', function(e) {
-      e.stopPropagation();
-      moreMenu.classList.toggle('hidden');
-    });
-    document.addEventListener('click', function(e) {
-      if (!moreMenu.contains(e.target) && e.target !== btnMore) {
-        moreMenu.classList.add('hidden');
-      }
-    });
-    moreMenu.addEventListener('click', function() {
-      moreMenu.classList.add('hidden');
-    });
-  }
   var btnMap = document.getElementById('btnMap');
   if (btnMap) btnMap.addEventListener('click', openMapPanel);
   var mapClose = document.getElementById('mapClose');
@@ -4544,7 +4509,7 @@ document.addEventListener('DOMContentLoaded', function() {
    MODULE: Quick Add
    ══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function() {
-  var fab = document.getElementById('quickAddFab');
+  var settBtn = document.getElementById('settBtnQuickAdd');
   var ov = document.getElementById('quickAddOv');
   var panel = document.getElementById('quickAddPanel');
   var inp = document.getElementById('quickAddInp');
@@ -4553,9 +4518,10 @@ document.addEventListener('DOMContentLoaded', function() {
   var status = document.getElementById('quickAddStatus');
   var close = document.getElementById('quickAddClose');
 
-  if (!fab) return;
+  if (!settBtn) return;
 
-  fab.addEventListener('click', function() {
+  settBtn.addEventListener('click', function() {
+    document.getElementById('settOv').classList.add('hidden');
     ov.classList.remove('hidden');
     inp.value = ''; results.innerHTML = ''; status.textContent = '';
     setTimeout(function() { inp.focus(); }, 100);
