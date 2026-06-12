@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260611-2037";
+const CACHE = "filmy-20260612-0900";
 
 const SHELL  = [
   "./",
@@ -61,6 +61,11 @@ self.addEventListener("fetch", function(e){
 
   /* GitHub API / raw — Network-Only (never cache auth/sync traffic) */
   if(url.includes("api.github.com") || url.includes("raw.githubusercontent.com")){
+    return;
+  }
+
+  /* TMDB images — passthrough (don't intercept cross-origin opaque responses) */
+  if(url.includes("image.tmdb.org")){
     return;
   }
 
