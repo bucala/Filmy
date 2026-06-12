@@ -62,6 +62,18 @@
         <button class="hdr-act hdr-act-stat" id="btnStat" title="Štatistiky" aria-label="Štatistiky">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </button>
+        <button class="hdr-act hdr-act-bulk" id="btnBulk" title="Hromadný výber" aria-label="Hromadný výber">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </button>
+        <button class="hdr-act hdr-act-map" id="btnMap" title="Filmová mapa" aria-label="Filmová mapa">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg>
+        </button>
+        <button class="hdr-act hdr-act-timeline" id="btnTimeline" title="Časová os" aria-label="Časová os">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>
+        </button>
+        <button class="hdr-act hdr-act-decade" id="btnDecade" title="Dekádový prehľad" aria-label="Dekádový prehľad">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
       </div>
       <div class="hdr-row2-div"></div>
       <div class="hdr-row2-right">
@@ -140,6 +152,7 @@
     <img class="det-cover" id="detCover" src="" alt="" style="display:none">
     <div class="det-grad"></div>
     <button class="det-back" id="btnBack">&#8592;</button>
+    <button class="det-share" id="btnShare" title="Zdielat" aria-label="Zdielat"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
     <div class="det-inset" id="detInset" style="display:none"><img id="detInsetImg" src="" alt=""></div>
     <div class="det-ta"><div class="det-title" id="detTitle"></div><div class="det-yr" id="detYr"></div></div>
   </div>
@@ -228,6 +241,13 @@
       <div class="skin-info">
         <div class="skin-name" style="color:#1a4060">PAPER <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-left:3px"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></div>
         <div class="skin-desc" style="color:#345878">Svetlo &middot; modrá</div>
+      </div>
+    </div>
+    <div class="skin-chip skin-chip-auto" data-skin="auto" style="background:linear-gradient(135deg,#0f0f14 50%,#f8f4ec 50%)">
+      <div class="skin-dot" style="background:linear-gradient(135deg,#d4a943 50%,#7a5c18 50%);border-color:#888"></div>
+      <div class="skin-info">
+        <div class="skin-name" style="color:#b0b0b0">AUTO <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-left:3px"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
+        <div class="skin-desc" style="color:#888">Podla systemu</div>
       </div>
     </div>
   </div>
@@ -622,6 +642,88 @@
   <div class="fp-footer">
     <button class="fp-reset" id="fpReset">Resetovať</button>
     <button class="fp-apply" id="fpApply">Použiť filter</button>
+  </div>
+</div>
+
+<!-- DUPLICATE PANEL -->
+<div class="m-ov hidden" id="dupOv">
+  <div class="dup-panel" id="dupPanel">
+    <div class="admin-hdr">
+      <div class="admin-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><rect x="8" y="2" width="13" height="13" rx="2"/><path d="M4 8H3a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-1"/></svg>Duplikaty</div>
+      <button class="admin-close" id="dupClose">&#x2715; Zavriet</button>
+    </div>
+    <div id="dupContent"></div>
+  </div>
+</div>
+
+<!-- BULK ACTION BAR -->
+<div class="bulk-bar hidden" id="bulkBar">
+  <button class="bulk-act" id="bulkSelAll">Vybrat vsetky</button>
+  <span class="bulk-cnt" id="bulkCnt">0 vybranych</span>
+  <div class="bulk-acts">
+    <button class="bulk-act bulk-fav" id="bulkFav" title="Oblubene"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button>
+    <button class="bulk-act bulk-wl" id="bulkWl" title="Watchlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <button class="bulk-act bulk-watched" id="bulkWatched" title="Videne"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg></button>
+    <button class="bulk-act bulk-rm" id="bulkRm" title="Odstranit">&#x1F5D1;</button>
+  </div>
+</div>
+
+<!-- FILM MAP PANEL -->
+<div class="m-ov hidden" id="mapOv">
+  <div class="map-panel" id="mapPanel">
+    <div class="admin-hdr">
+      <div class="admin-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Filmova mapa</div>
+      <button class="admin-close" id="mapClose">&#x2715; Zavriet</button>
+    </div>
+    <div id="mapContent"></div>
+  </div>
+</div>
+
+<!-- TIMELINE PANEL -->
+<div class="m-ov hidden" id="timelineOv">
+  <div class="timeline-panel" id="timelinePanel">
+    <div class="admin-hdr">
+      <div class="admin-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><line x1="2" y1="12" x2="22" y2="12"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>Casova os</div>
+      <button class="admin-close" id="timelineClose">&#x2715; Zavriet</button>
+    </div>
+    <div id="timelineContent"></div>
+  </div>
+</div>
+
+<!-- DECADE PANEL -->
+<div class="m-ov hidden" id="decadeOv">
+  <div class="decade-panel" id="decadePanel">
+    <div class="admin-hdr">
+      <div class="admin-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/></svg>Dekadovy prehlad</div>
+      <button class="admin-close" id="decadeClose">&#x2715; Zavriet</button>
+    </div>
+    <div id="decadeContent"></div>
+  </div>
+</div>
+
+<!-- QUICK ADD FAB -->
+<button class="quick-add-fab" id="quickAddFab" title="Rychle pridat film" aria-label="Rychle pridat film">+</button>
+<div class="quick-add-panel hidden" id="quickAddPanel">
+  <div class="admin-hdr">
+    <div class="admin-title">Rychle pridat</div>
+    <button class="admin-close" id="quickAddClose">&#x2715;</button>
+  </div>
+  <div class="admin-search-row">
+    <input class="admin-inp" id="quickAddInp" placeholder="Nazov filmu..." autocomplete="off">
+    <button class="admin-btn" id="quickAddSearch">Hladaj</button>
+  </div>
+  <div class="admin-status" id="quickAddStatus"></div>
+  <div class="admin-results" id="quickAddResults"></div>
+</div>
+
+<!-- QR/SHARE OVERLAY -->
+<div class="m-ov hidden" id="shareOv">
+  <div class="share-panel" id="sharePanel">
+    <div class="admin-hdr">
+      <div class="admin-title">Zdielat film</div>
+      <button class="admin-close" id="shareClose">&#x2715;</button>
+    </div>
+    <div id="shareContent"></div>
   </div>
 </div>
 
