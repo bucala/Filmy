@@ -4107,4 +4107,659 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Auto Dark/Light Theme
+   ══════════════════════════════════════════════════════════ */
+var _autoThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+
+function resolveAutoTheme() {
+  return _autoThemeMq.matches ? 'dark' : 'linen';
+}
+
+(function patchInitTheme() {
+  var origApply = applyTheme;
+  applyTheme = function(skinId) {
+    if (skinId === 'auto') {
+      var resolved = resolveAutoTheme();
+      document.documentElement.setAttribute('data-skin', resolved);
+      document.documentElement.setAttribute('data-theme', resolved);
+      document.documentElement.removeAttribute('data-text');
+      document.documentElement.removeAttribute('data-bg');
+      try { localStorage.setItem(THEME_KEY, 'auto'); } catch(e) {}
+      localStorage.removeItem(ACCENT_KEY);
+      var acc = THEME_ACCENTS[resolved];
+      if (acc) applyAccentColor(acc.gold, acc.gold2);
+      document.querySelectorAll('.skin-chip').forEach(function(s) {
+        s.classList.toggle('active', s.dataset.skin === 'auto');
+      });
+      return;
+    }
+    origApply(skinId);
+  };
+  _autoThemeMq.addEventListener('change', function() {
+    if (localStorage.getItem(THEME_KEY) === 'auto') applyTheme('auto');
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Duplicate Detection
+   ══════════════════════════════════════════════════════════ */
+function levenshtein(a, b) {
+  var m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  var d = [];
+  for (var i = 0; i <= m; i++) d[i] = [i];
+  for (var j = 0; j <= n; j++) d[0][j] = j;
+  for (i = 1; i <= m; i++) {
+    for (j = 1; j <= n; j++) {
+      d[i][j] = a[i-1] === b[j-1] ? d[i-1][j-1]
+        : Math.min(d[i-1][j-1], d[i-1][j], d[i][j-1]) + 1;
+    }
+  }
+  return d[m][n];
+}
+
+function findDuplicates() {
+  var groups = [], seen = new Set();
+  for (var i = 0; i < all.length; i++) {
+    if (seen.has(i)) continue;
+    var group = [all[i]];
+    var ti = (all[i].title || '').toLowerCase().trim();
+    var yi = all[i].year || 0;
+    var tidi = all[i].tmdb_id || all[i].id;
+    for (var j = i + 1; j < all.length; j++) {
+      if (seen.has(j)) continue;
+      var tj = (all[j].title || '').toLowerCase().trim();
+      var yj = all[j].year || 0;
+      var tidj = all[j].tmdb_id || all[j].id;
+      var dup = false;
+      if (tidi && tidj && tidi === tidj && i !== j) dup = true;
+      if (!dup && ti === tj && ti.length > 0) dup = true;
+      if (!dup && yi === yj && yi > 0 && ti.length > 2 && tj.length > 2 && levenshtein(ti, tj) <= 2) dup = true;
+      if (dup) { group.push(all[j]); seen.add(j); }
+    }
+    if (group.length > 1) { groups.push(group); seen.add(i); }
+  }
+  return groups;
+}
+
+function openDupPanel() {
+  var groups = findDuplicates();
+  var el = document.getElementById('dupContent');
+  if (!groups.length) {
+    el.innerHTML = '<div class="dup-empty">Ziadne duplikaty nenajdene</div>';
+  } else {
+    var h = '';
+    groups.forEach(function(g, gi) {
+      h += '<div class="dup-group"><div class="dup-group-hdr">Skupina ' + (gi+1) + ' (' + g.length + ' filmy)</div>';
+      g.forEach(function(m) {
+        var poster = m.poster_thumb && m.poster_thumb.length > 10
+          ? '<img class="dup-poster" src="' + esc(m.poster_thumb) + '" alt="">'
+          : '<div class="dup-poster" style="background:var(--card2)"></div>';
+        h += '<div class="dup-row">' + poster +
+          '<div class="dup-info"><div class="dup-title">' + esc(m.title || '') + '</div>' +
+          '<div class="dup-meta">#' + m.num + ' | ' + (m.year || '?') + ' | ID:' + m.id + '</div></div>' +
+          '<button class="dup-del" data-id="' + m.id + '" title="Odstranit">&#x2715;</button></div>';
+      });
+      h += '</div>';
+    });
+    el.innerHTML = h;
+  }
+  document.getElementById('dupOv').classList.remove('hidden');
+  el.addEventListener('click', function(e) {
+    var btn = e.target.closest('.dup-del');
+    if (!btn) return;
+    var id = parseInt(btn.dataset.id, 10);
+    if (!confirm('Naozaj odstranit film #' + id + '?')) return;
+    all = all.filter(function(m) { return m.id !== id; });
+    filt = filt.filter(function(m) { return m.id !== id; });
+    favs.delete(id); wl.delete(id); watched.delete(id);
+    safeSave(SK, JSON.stringify(all));
+    safeSave(FK, JSON.stringify(Array.from(favs)));
+    scheduleAutoPush('dup-delete');
+    toast('Film odstraneny');
+    openDupPanel();
+    renderAll();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var dupBtn = document.getElementById('settBtnDuplicates');
+  if (dupBtn) dupBtn.addEventListener('click', openDupPanel);
+  var dupClose = document.getElementById('dupClose');
+  if (dupClose) dupClose.addEventListener('click', function() { document.getElementById('dupOv').classList.add('hidden'); });
+  var dupOv = document.getElementById('dupOv');
+  if (dupOv) dupOv.addEventListener('click', function(e) { if (e.target === dupOv) dupOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Bulk Edit
+   ══════════════════════════════════════════════════════════ */
+var bulkMode = false, bulkSel = new Set();
+
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  bulkSel.clear();
+  var ml = document.getElementById('mlist');
+  var bar = document.getElementById('bulkBar');
+  var btn = document.getElementById('btnBulk');
+  if (bulkMode) {
+    ml.classList.add('bulk-mode');
+    bar.classList.remove('hidden');
+    btn.classList.add('on');
+  } else {
+    ml.classList.remove('bulk-mode');
+    bar.classList.add('hidden');
+    btn.classList.remove('on');
+    ml.querySelectorAll('.bulk-sel').forEach(function(c) { c.classList.remove('bulk-sel'); });
+  }
+  updateBulkCnt();
+}
+
+function updateBulkCnt() {
+  var el = document.getElementById('bulkCnt');
+  if (el) el.textContent = bulkSel.size + ' vybranych';
+}
+
+function bulkToggleCard(card) {
+  var id = parseInt(card.dataset.id, 10);
+  if (bulkSel.has(id)) { bulkSel.delete(id); card.classList.remove('bulk-sel'); }
+  else { bulkSel.add(id); card.classList.add('bulk-sel'); }
+  updateBulkCnt();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnBulk = document.getElementById('btnBulk');
+  if (btnBulk) btnBulk.addEventListener('click', toggleBulkMode);
+
+  document.getElementById('mlist').addEventListener('click', function(e) {
+    if (!bulkMode) return;
+    var card = e.target.closest('[data-id]');
+    if (!card) return;
+    e.preventDefault(); e.stopPropagation();
+    bulkToggleCard(card);
+  }, true);
+
+  var bulkSelAll = document.getElementById('bulkSelAll');
+  if (bulkSelAll) bulkSelAll.addEventListener('click', function() {
+    var ml = document.getElementById('mlist');
+    var cards = ml.querySelectorAll('[data-id]');
+    var allSelected = bulkSel.size >= cards.length;
+    cards.forEach(function(c) {
+      var id = parseInt(c.dataset.id, 10);
+      if (allSelected) { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
+      else { bulkSel.add(id); c.classList.add('bulk-sel'); }
+    });
+    updateBulkCnt();
+  });
+
+  var bulkFav = document.getElementById('bulkFav');
+  if (bulkFav) bulkFav.addEventListener('click', function() {
+    bulkSel.forEach(function(id) { favs.add(id); });
+    safeSave(FK, JSON.stringify(Array.from(favs)));
+    toast(bulkSel.size + ' filmov pridanych do oblubenych');
+    scheduleAutoPush('bulk-fav');
+  });
+
+  var bulkWl = document.getElementById('bulkWl');
+  if (bulkWl) bulkWl.addEventListener('click', function() {
+    bulkSel.forEach(function(id) { wl.add(id); });
+    safeSave(WK, JSON.stringify(Array.from(wl)));
+    toast(bulkSel.size + ' filmov pridanych do watchlistu');
+    scheduleAutoPush('bulk-wl');
+  });
+
+  var bulkWatched = document.getElementById('bulkWatched');
+  if (bulkWatched) bulkWatched.addEventListener('click', function() {
+    bulkSel.forEach(function(id) { watched.add(id); watchedDates[id] = Date.now(); });
+    safeSave(VK, JSON.stringify(Array.from(watched)));
+    safeSave(VDK, JSON.stringify(watchedDates));
+    toast(bulkSel.size + ' filmov oznacenych ako videne');
+    scheduleAutoPush('bulk-watched');
+  });
+
+  var bulkRm = document.getElementById('bulkRm');
+  if (bulkRm) bulkRm.addEventListener('click', function() {
+    if (!bulkSel.size) return;
+    if (!confirm('Naozaj odstranit ' + bulkSel.size + ' filmov?')) return;
+    all = all.filter(function(m) { return !bulkSel.has(m.id); });
+    bulkSel.forEach(function(id) { favs.delete(id); wl.delete(id); watched.delete(id); });
+    safeSave(SK, JSON.stringify(all));
+    safeSave(FK, JSON.stringify(Array.from(favs)));
+    toast(bulkSel.size + ' filmov odstranenych');
+    toggleBulkMode();
+    renderAll();
+    scheduleAutoPush('bulk-rm');
+  });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Film Map
+   ══════════════════════════════════════════════════════════ */
+var COUNTRY_FLAGS = {
+  'usa':'&#127482;&#127480;','united states':'&#127482;&#127480;','us':'&#127482;&#127480;',
+  'uk':'&#127468;&#127463;','united kingdom':'&#127468;&#127463;','great britain':'&#127468;&#127463;',
+  'france':'&#127467;&#127479;','fr':'&#127467;&#127479;',
+  'germany':'&#127465;&#127466;','de':'&#127465;&#127466;',
+  'czech republic':'&#127464;&#127487;','cz':'&#127464;&#127487;','czechia':'&#127464;&#127487;',
+  'slovakia':'&#127480;&#127472;','sk':'&#127480;&#127472;',
+  'italy':'&#127470;&#127481;','japan':'&#127471;&#127477;','spain':'&#127466;&#127480;',
+  'south korea':'&#127472;&#127479;','korea':'&#127472;&#127479;','canada':'&#127464;&#127462;',
+  'australia':'&#127462;&#127482;','india':'&#127470;&#127475;','china':'&#127464;&#127475;',
+  'sweden':'&#127480;&#127466;','denmark':'&#127465;&#127472;','norway':'&#127475;&#127476;',
+  'russia':'&#127479;&#127482;','poland':'&#127477;&#127473;','hungary':'&#127469;&#127482;',
+  'ireland':'&#127470;&#127466;','belgium':'&#127463;&#127466;','netherlands':'&#127475;&#127473;',
+  'new zealand':'&#127475;&#127487;','brazil':'&#127463;&#127479;','mexico':'&#127474;&#127485;',
+  'argentina':'&#127462;&#127479;','austria':'&#127462;&#127481;','switzerland':'&#127464;&#127469;',
+  'finland':'&#127467;&#127470;','turkey':'&#127481;&#127479;','romania':'&#127479;&#127476;',
+  'portugal':'&#127477;&#127481;','thailand':'&#127481;&#127469;','south africa':'&#127487;&#127462;'
+};
+
+function openMapPanel() {
+  var counts = {};
+  all.forEach(function(m) {
+    var c = (m.country || '').trim();
+    if (!c) return;
+    c.split(/[,\/]/).forEach(function(part) {
+      var p = part.trim();
+      if (p) counts[p] = (counts[p] || 0) + 1;
+    });
+  });
+  var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; });
+  var maxCnt = sorted.length ? sorted[0][1] : 1;
+  var total = sorted.reduce(function(s, e) { return s + e[1]; }, 0);
+  var h = '<div class="map-total">' + sorted.length + ' krajin | ' + total + ' filmov celkovo</div><div class="map-grid">';
+  sorted.forEach(function(e) {
+    var name = e[0], cnt = e[1];
+    var key = name.toLowerCase();
+    var flag = COUNTRY_FLAGS[key] || '&#127988;';
+    var pct = Math.round(cnt / maxCnt * 100);
+    h += '<div class="map-country" data-country="' + esc(name) + '"><span class="map-flag">' + flag + '</span>' +
+      '<div style="flex:1;min-width:0"><div class="map-cname">' + esc(name) + '</div>' +
+      '<div class="map-bar" style="width:' + pct + '%"></div></div>' +
+      '<span class="map-ccnt">' + cnt + '</span></div>';
+  });
+  h += '</div>';
+  document.getElementById('mapContent').innerHTML = h;
+  document.getElementById('mapOv').classList.remove('hidden');
+  document.getElementById('mapContent').addEventListener('click', function(e) {
+    var card = e.target.closest('.map-country');
+    if (!card) return;
+    document.getElementById('mapOv').classList.add('hidden');
+    fpState.country = card.dataset.country;
+    updateFpBadge();
+    updateFpPills();
+    applyFilters();
+    toast('Filter: ' + card.dataset.country);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnMap = document.getElementById('btnMap');
+  if (btnMap) btnMap.addEventListener('click', openMapPanel);
+  var mapClose = document.getElementById('mapClose');
+  if (mapClose) mapClose.addEventListener('click', function() { document.getElementById('mapOv').classList.add('hidden'); });
+  var mapOv = document.getElementById('mapOv');
+  if (mapOv) mapOv.addEventListener('click', function(e) { if (e.target === mapOv) mapOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Timeline
+   ══════════════════════════════════════════════════════════ */
+function openTimeline() {
+  var byYear = {};
+  all.forEach(function(m) {
+    var y = m.year || 0;
+    if (y < 1900) return;
+    if (!byYear[y]) byYear[y] = [];
+    byYear[y].push(m);
+  });
+  var years = Object.keys(byYear).map(Number).sort(function(a, b) { return a - b; });
+  var h = '<div class="tl-scroll"><div class="tl-track">';
+  years.forEach(function(y) {
+    var ms = byYear[y];
+    var isDecade = y % 10 === 0;
+    h += '<div class="tl-year">';
+    h += '<div class="tl-posters">';
+    var show = ms.slice(0, 5);
+    show.forEach(function(m) {
+      if (m.poster_thumb && m.poster_thumb.length > 10) {
+        h += '<img class="tl-poster" src="' + esc(m.poster_thumb) + '" data-id="' + m.id + '" title="' + esc(m.title || '') + '" loading="lazy">';
+      }
+    });
+    if (ms.length > 5) h += '<div class="tl-cnt">+' + (ms.length - 5) + '</div>';
+    h += '</div>';
+    h += '<div class="tl-label' + (isDecade ? ' tl-decade' : '') + '">' + y + '</div>';
+    h += '<div class="tl-cnt">' + ms.length + '</div>';
+    h += '</div>';
+  });
+  h += '</div></div>';
+  document.getElementById('timelineContent').innerHTML = h;
+  document.getElementById('timelineOv').classList.remove('hidden');
+  document.getElementById('timelineContent').addEventListener('click', function(e) {
+    var poster = e.target.closest('.tl-poster');
+    if (poster && poster.dataset.id) {
+      document.getElementById('timelineOv').classList.add('hidden');
+      openDet(parseInt(poster.dataset.id, 10));
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnTl = document.getElementById('btnTimeline');
+  if (btnTl) btnTl.addEventListener('click', openTimeline);
+  var tlClose = document.getElementById('timelineClose');
+  if (tlClose) tlClose.addEventListener('click', function() { document.getElementById('timelineOv').classList.add('hidden'); });
+  var tlOv = document.getElementById('timelineOv');
+  if (tlOv) tlOv.addEventListener('click', function(e) { if (e.target === tlOv) tlOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Decade Overview
+   ══════════════════════════════════════════════════════════ */
+function openDecadePanel() {
+  var byDecade = {};
+  all.forEach(function(m) {
+    var y = m.year || 0;
+    if (y < 1900) return;
+    var dec = Math.floor(y / 10) * 10;
+    if (!byDecade[dec]) byDecade[dec] = [];
+    byDecade[dec].push(m);
+  });
+  var decades = Object.keys(byDecade).map(Number).sort(function(a, b) { return b - a; });
+  var h = '';
+  decades.forEach(function(dec) {
+    var ms = byDecade[dec];
+    var genreCnt = {};
+    var dirCnt = {};
+    ms.forEach(function(m) {
+      (m.genres || []).forEach(function(g) { genreCnt[g] = (genreCnt[g] || 0) + 1; });
+      if (m.director) dirCnt[m.director] = (dirCnt[m.director] || 0) + 1;
+    });
+    var topGenre = Object.entries(genreCnt).sort(function(a, b) { return b[1] - a[1]; })[0];
+    var topDir = Object.entries(dirCnt).sort(function(a, b) { return b[1] - a[1]; })[0];
+    h += '<div class="dec-group">';
+    h += '<div class="dec-hdr"><span class="dec-title">' + dec + 's</span>';
+    h += '<span class="dec-stat">' + ms.length + ' filmov</span>';
+    if (topGenre) h += '<span class="dec-genre">' + esc(topGenre[0]) + '</span>';
+    if (topDir) h += '<span class="dec-stat">Top: ' + esc(topDir[0]) + '</span>';
+    h += '</div>';
+    h += '<div class="dec-scroll">';
+    ms.sort(function(a, b) { return (a.year || 0) - (b.year || 0); });
+    ms.forEach(function(m) {
+      h += '<div class="dec-card" data-id="' + m.id + '">';
+      if (m.poster_thumb && m.poster_thumb.length > 10) {
+        h += '<img class="dec-poster" src="' + esc(m.poster_thumb) + '" alt="" loading="lazy">';
+      } else {
+        h += '<div class="dec-ph">' + esc((m.title || '').substring(0, 15)) + '</div>';
+      }
+      h += '<div class="dec-name">' + esc(m.title || '') + '</div></div>';
+    });
+    h += '</div></div>';
+  });
+  document.getElementById('decadeContent').innerHTML = h;
+  document.getElementById('decadeOv').classList.remove('hidden');
+  document.getElementById('decadeContent').addEventListener('click', function(e) {
+    var card = e.target.closest('.dec-card');
+    if (card && card.dataset.id) {
+      document.getElementById('decadeOv').classList.add('hidden');
+      openDet(parseInt(card.dataset.id, 10));
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnDec = document.getElementById('btnDecade');
+  if (btnDec) btnDec.addEventListener('click', openDecadePanel);
+  var decClose = document.getElementById('decadeClose');
+  if (decClose) decClose.addEventListener('click', function() { document.getElementById('decadeOv').classList.add('hidden'); });
+  var decOv = document.getElementById('decadeOv');
+  if (decOv) decOv.addEventListener('click', function(e) { if (e.target === decOv) decOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Quick Add
+   ══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  var fab = document.getElementById('quickAddFab');
+  var panel = document.getElementById('quickAddPanel');
+  var inp = document.getElementById('quickAddInp');
+  var btn = document.getElementById('quickAddSearch');
+  var results = document.getElementById('quickAddResults');
+  var status = document.getElementById('quickAddStatus');
+  var close = document.getElementById('quickAddClose');
+
+  if (!fab) return;
+
+  fab.addEventListener('click', function() {
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) { inp.value = ''; results.innerHTML = ''; status.textContent = ''; inp.focus(); }
+  });
+
+  if (close) close.addEventListener('click', function() { panel.classList.add('hidden'); });
+
+  function qaSearch() {
+    var q = (inp.value || '').trim();
+    if (!q) return;
+    status.textContent = 'Hladam...';
+    results.innerHTML = '';
+    var key = tmdbKey;
+    fetch('https://api.themoviedb.org/3/search/movie?api_key=' + key + '&query=' + encodeURIComponent(q) + '&language=sk-SK')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        status.textContent = '';
+        if (!data.results || !data.results.length) { status.textContent = 'Nic nenajdene'; return; }
+        var h = '';
+        data.results.slice(0, 8).forEach(function(r) {
+          var poster = r.poster_path ? 'https://image.tmdb.org/t/p/w92' + r.poster_path : '';
+          var yr = (r.release_date || '').substring(0, 4);
+          var exists = all.some(function(m) { return m.tmdb_id === r.id || m.id === r.id; });
+          h += '<div class="qa-card">';
+          h += poster ? '<img class="qa-poster" src="' + esc(poster) + '" loading="lazy">' : '<div class="qa-poster" style="background:var(--card2)"></div>';
+          h += '<div class="qa-info"><div class="qa-title">' + esc(r.title || '') + '</div>';
+          h += '<div class="qa-meta">' + yr + ' | TMDB:' + r.id + '</div></div>';
+          h += '<button class="qa-add" data-tmdb="' + r.id + '"' + (exists ? ' disabled title="Uz existuje"' : '') + '>' + (exists ? 'Existuje' : '+ Pridat') + '</button>';
+          h += '</div>';
+        });
+        results.innerHTML = h;
+      })
+      .catch(function() { status.textContent = 'Chyba pri hladani'; });
+  }
+
+  btn.addEventListener('click', qaSearch);
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') qaSearch(); });
+
+  results.addEventListener('click', function(e) {
+    var addBtn = e.target.closest('.qa-add');
+    if (!addBtn || addBtn.disabled) return;
+    var tmdbId = parseInt(addBtn.dataset.tmdb, 10);
+    addBtn.disabled = true;
+    addBtn.textContent = '...';
+    var key = tmdbKey;
+    fetch('https://api.themoviedb.org/3/movie/' + tmdbId + '?api_key=' + key + '&language=sk-SK&append_to_response=credits,videos')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var maxNum = all.reduce(function(mx, m) { return Math.max(mx, m.num || 0); }, 0);
+        var genres = (d.genres || []).map(function(g) { return g.name; });
+        var dir = '';
+        if (d.credits && d.credits.crew) {
+          var dc = d.credits.crew.find(function(c) { return c.job === 'Director'; });
+          if (dc) dir = dc.name;
+        }
+        var movie = {
+          id: d.id,
+          tmdb_id: d.id,
+          num: maxNum + 1,
+          title: d.title || '',
+          year: parseInt((d.release_date || '').substring(0, 4)) || 0,
+          director: dir,
+          genres: genres,
+          country: (d.production_countries || []).map(function(c) { return c.name; }).join(', '),
+          duration: d.runtime || 0,
+          poster_thumb: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : '',
+          _tags: []
+        };
+        liveCache[movie.id] = {
+          pct: d.vote_average ? Math.round(d.vote_average * 10) : null,
+          posterUrl: movie.poster_thumb,
+          backdrop: d.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + d.backdrop_path : '',
+          overview: d.overview || '',
+          trailer: '',
+          cast: d.credits && d.credits.cast ? d.credits.cast.slice(0, 10).map(function(c) { return c.name; }).join(', ') : '',
+          countries: movie.country
+        };
+        if (d.videos && d.videos.results) {
+          var tr = d.videos.results.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; });
+          if (tr) liveCache[movie.id].trailer = tr.key;
+        }
+        all.push(movie);
+        safeSave(SK, JSON.stringify(all));
+        safeSave(LK, JSON.stringify(liveCache));
+        buildFuse();
+        renderAll();
+        scheduleAutoPush('quick-add');
+        addBtn.textContent = 'Pridany';
+        toast(movie.title + ' pridany');
+      })
+      .catch(function() { addBtn.textContent = 'Chyba'; addBtn.disabled = false; });
+  });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Drag & Drop Reorder
+   ══════════════════════════════════════════════════════════ */
+var dragSrcId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  var ml = document.getElementById('mlist');
+  if (!ml) return;
+
+  ml.addEventListener('dragstart', function(e) {
+    if (bulkMode || posterWall) return;
+    var card = e.target.closest('[data-id]');
+    if (!card) return;
+    dragSrcId = parseInt(card.dataset.id, 10);
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(dragSrcId));
+  });
+
+  ml.addEventListener('dragover', function(e) {
+    if (dragSrcId === null) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var card = e.target.closest('[data-id]');
+    ml.querySelectorAll('.drag-over').forEach(function(c) { c.classList.remove('drag-over'); });
+    if (card) card.classList.add('drag-over');
+  });
+
+  ml.addEventListener('dragleave', function(e) {
+    var card = e.target.closest('[data-id]');
+    if (card) card.classList.remove('drag-over');
+  });
+
+  ml.addEventListener('drop', function(e) {
+    e.preventDefault();
+    ml.querySelectorAll('.drag-over,.dragging').forEach(function(c) { c.classList.remove('drag-over', 'dragging'); });
+    var card = e.target.closest('[data-id]');
+    if (!card || dragSrcId === null) { dragSrcId = null; return; }
+    var targetId = parseInt(card.dataset.id, 10);
+    if (dragSrcId === targetId) { dragSrcId = null; return; }
+    var srcIdx = all.findIndex(function(m) { return m.id === dragSrcId; });
+    var tgtIdx = all.findIndex(function(m) { return m.id === targetId; });
+    if (srcIdx < 0 || tgtIdx < 0) { dragSrcId = null; return; }
+    var item = all.splice(srcIdx, 1)[0];
+    all.splice(tgtIdx, 0, item);
+    all.forEach(function(m, i) { m.num = i + 1; });
+    safeSave(SK, JSON.stringify(all));
+    renderAll();
+    scheduleAutoPush('drag-reorder');
+    toast('Poradie zmenene');
+    dragSrcId = null;
+  });
+
+  ml.addEventListener('dragend', function() {
+    ml.querySelectorAll('.drag-over,.dragging').forEach(function(c) { c.classList.remove('drag-over', 'dragging'); });
+    dragSrcId = null;
+  });
+});
+
+(function patchCards() {
+  var origAppend = appendCards;
+  appendCards = function(list, ml) {
+    origAppend(list, ml);
+    if (!posterWall) {
+      ml.querySelectorAll('[data-id]:not([draggable])').forEach(function(c) {
+        c.setAttribute('draggable', 'true');
+      });
+    }
+  };
+})();
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Share / QR
+   ══════════════════════════════════════════════════════════ */
+function openSharePanel(movieId) {
+  var m = all.find(function(x) { return x.id === movieId; });
+  if (!m) return;
+  var c = liveCache[m.id] || {};
+  var tmdbUrl = m.tmdb_id ? 'https://www.themoviedb.org/movie/' + m.tmdb_id : '';
+  var text = m.title + ' (' + (m.year || '?') + ')';
+  if (m.director) text += '\nReziser: ' + m.director;
+  if (m.genres && m.genres.length) text += '\nZanre: ' + m.genres.join(', ');
+  var pct = getMoviePct(m);
+  if (pct != null) text += '\nHodnotenie: ' + pct + '%';
+  if (tmdbUrl) text += '\n' + tmdbUrl;
+
+  var h = '<div class="share-text">' + esc(text).replace(/\n/g, '<br>') + '</div>';
+  h += '<div class="share-btns">';
+  if (navigator.share) {
+    h += '<button class="share-btn primary" id="shareNative">Zdielat</button>';
+  }
+  h += '<button class="share-btn" id="shareCopy">Kopirovat text</button>';
+  if (tmdbUrl) h += '<button class="share-btn" id="shareTmdb">Otvorit TMDB</button>';
+  h += '</div>';
+
+  document.getElementById('shareContent').innerHTML = h;
+  document.getElementById('shareOv').classList.remove('hidden');
+
+  var nativeBtn = document.getElementById('shareNative');
+  if (nativeBtn) nativeBtn.addEventListener('click', function() {
+    navigator.share({ title: m.title, text: text, url: tmdbUrl || undefined }).catch(function() {});
+  });
+
+  var copyBtn = document.getElementById('shareCopy');
+  if (copyBtn) copyBtn.addEventListener('click', function() {
+    navigator.clipboard.writeText(text).then(function() {
+      copyBtn.textContent = 'Skopirovane!';
+      setTimeout(function() { copyBtn.textContent = 'Kopirovat text'; }, 2000);
+    });
+  });
+
+  var tmdbBtn = document.getElementById('shareTmdb');
+  if (tmdbBtn) tmdbBtn.addEventListener('click', function() {
+    window.open(tmdbUrl, '_blank');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var shareBtn = document.getElementById('btnShare');
+  if (shareBtn) shareBtn.addEventListener('click', function() {
+    if (curId) openSharePanel(curId);
+  });
+  var shareClose = document.getElementById('shareClose');
+  if (shareClose) shareClose.addEventListener('click', function() { document.getElementById('shareOv').classList.add('hidden'); });
+  var shareOv = document.getElementById('shareOv');
+  if (shareOv) shareOv.addEventListener('click', function(e) { if (e.target === shareOv) shareOv.classList.add('hidden'); });
+});
+
 })();
