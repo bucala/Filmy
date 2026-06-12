@@ -848,7 +848,7 @@ input,textarea,.tmdb-inp,select{
 .btn-play-copy:hover{background:rgba(130,130,150,.2);color:var(--gold)}
 
 /* ── Play overlay on grid card poster ────────────────────────── */
-.cpost-wrap{position:relative;overflow:hidden}
+.cpost-wrap{position:relative;overflow:hidden;border-radius:8px}
 .cpost-play{
   position:absolute;bottom:6px;right:6px;
   width:34px;height:34px;
