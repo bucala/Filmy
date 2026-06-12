@@ -1,69 +1,101 @@
-# Changelog — Filmová Databáza
+# Changelog
 
-## [10.2.0] — 2026-05-28
+Vsetky vyznamne zmeny v projekte su dokumentovane v tomto subore.
 
-### 🏗 Kompletná reštrukturalizácia
-Aplikácia prepísaná z pôvodného single-file (236KB) na modulárnu architektúru:
-- `index.html` (35 KB) — HTML šablóna, odkazy na externý CSS/JS
-- `style.css` (50 KB) — všetky štýly, 6 skinov s --gold-rgb
-- `app.js` (127 KB) — celá aplikačná logika (115 funkcií, IIFE)
-- `data.json` — databáza filmov (GitHub sync)
-- `sw.js` — Service Worker (PWA)
-- `manifest.webmanifest` — PWA manifest
-
-### ✨ Pridané / Obnovené z pôvodnej verzie
-- Všetkých 115 pôvodných funkcií zachovaných
-- ZIP import (parseEMDBZip), PDF fallback, TMDB batch, VLC prehrávanie
-- GitHub sync (ghPush/ghPull, 401/404/409 handling, validateGhToken)
-- scheduleAutoPush, autoCheckGitHub, autoPushTog
-- Pokročilý filter panel (openFp, initFp, applyFp, resetFp)
-- 6 skinov (Dark, Slate, Crimson, Forest, Linen, Paper)
-
-### 🐛 Opravené (kombinácia všetkých predchádzajúcich fixov)
-- **Settings X button** — closeSett() vnútri IIFE scope, onclick nefungovalo; prepísané na addEventListener
-- **Scroll iba 40 filmov** — #scrnBody nemal top:88px; infinite scroll prepojený na scrnBody namiesto mlist
-- **Scrollbar (fscroll) nereagoval** — sledoval mlist namiesto scrnBody
-- **hdr-row2-right ikony zmizli** — pridané position:sticky;right:0;background:var(--hdr)
-- **hdr-row2-left nepokrývali** — overflow-x:auto s -webkit-overflow-scrolling:touch, skrytý scrollbar
-- **Text v nastaveniach sa označoval** — user-select:none na sett-panel
-- **sett-sec neviditeľné** — display:flex;align-items:center;gap:6px;white-space:nowrap
-- **skinGrid wrapper chýbal** — pridaný div#skinGrid + DARK chip + Vzhľad/Skin section header
-- **Genre pills nerespektovali skin** — .gtag prepísaný na rgba(var(--gold-rgb))
-- **cfav/lfav nekonzistentné** — zjednotené na 38×38px s bg, border, hover, active stavy
-- **.switch/.slider CSS chýbal** — toggle prepínače fungujú
-- **batch-bar neviditeľný** — position:fixed;top:0;z-index:8000
-- **--gold-rgb** pridané do všetkých 6 skinov
-- **hdr-icon active/on stav** — vizuálna zmena pri zakliknutí
-- **playMovieBtn orphan** — odstránený
+Format vychadza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 
 ---
 
-## [11.0.0] — 2026-05-28
+## [6.3.0] — 2026-06-12
 
-### ✨ Kompletný rebuild
-- Aplikácia prebudovaná z pôvodného single-file zdroja (Google Drive) do modulárnej štruktúry
-- Zdrojový kód: `index.html` (35 KB) + `style.css` (50 KB) + `app.js` (127 KB)
-- 115 funkcií, 0 duplikátov, 20/20 features ✅
+### Opravene
+- **Posterwall layout** — `aspect-ratio:2/3` priamo na obrazkoch namiesto nespolahlivej `::before` padding techniky (#39, #38, #37, #36, #35)
+- **Ikony v headeri** — opravena CSS syntax chyba ktora zozrala `.hdr-act` pravidlo (#34)
+- **Service Worker strategia** — prepnutie z Cache-First na Network-First pre same-origin subory (#33)
+- **SW pre-caching** — `fetch(url, {cache:'no-store'})` bypass HTTP cache (#32)
+- **Cache-Control hlavicky** — `vercel.json` hlavicky pre vsetky shell subory (#31)
+- **Akciove ikony** — zjednoteny vizual s `ctrl-btn` stylom (#30)
+- **TMDB obrazky v SW** — passthrough pre cross-origin requesty (#39)
+- **Poster border-radius** — zaoblenie na vsetkych stranach v grid view (#40)
 
-### 🐛 Opravené (kumulatívne zo všetkých predchádzajúcich verzií)
-- `.sett-sec display:flex` — nastavenia sekcie viditeľné (SVG + text v jednom riadku)
-- `.gtag` (žánre pills) — `rgba(var(--gold-rgb),.13)` namiesto hardcoded `#1a1a2e`
-- `--gold-rgb` CSS var — pridaná do všetkých 6 skinov
-- `.cfav` + `.lfav` (hviezda obľúbených) — 38×38px button s bg/border/hover/active
-- `.batch-bar` — `position:fixed;top:0;z-index:8000`
-- `.sett-panel` — `user-select:none`, `background:var(--bg)` (opaque)
-- `.scrn-body` — `background:var(--bg)` (žiadne presvitanie)
-- `skinGrid` wrapper + DARK chip + "Vzhľad / Skin" header obnovené
-- `.switch`/`.slider` CSS pre toggle prepínače
-- `.hdr-icon.active` stav CSS
-- CSS duplikáty vyčistené (23 → 0)
-- `onclick="closeSett()"` nahradený `addEventListener`
+---
+
+## [6.2.0] — 2026-06-10
+
+### Opravene
+- **openDet crash** — `const` temporal dead zone opravena (#25)
+- **Header na mobile** — vsetky tlacidla sa zmestia bez scrollovania (#26)
+- **JustWatch SK** — spravna cesta `/sk/vyhladavat` (#26)
+
+---
+
+## [6.1.0] — 2026-06-02
+
+### Pridane
+- **Batch 1** — obnovene 7 mrtvych funkcii: SW registracia, toast notifikacie, Fuse.js init, posterwall, color picker, HTML export (#27)
+- **Batch 2** — spolahliva synchronizacia kolekcii, flush fix, key bug (#27)
+- **Batch 4** — mobilny layout, design tokeny, UX vylepsenia (#27)
+
+### Opravene
+- **Batch 3** — bezpecnost (SSRF ochrana), timeouty, SW, deploy konfiguracia (#27)
+- **Batch 5** — odstraneny dead code (#27)
+
+---
+
+## [6.0.0] — 2026-06-01
+
+### Pridane
+- **Settings panel audit** — preorganizovane do 6 tabov (#21, #22, #23)
+- **CSFD matcher audit** — vylepseny import workflow (#22)
+- **Vercel deploy** — `vercel.json` s cache hlavickami
 
 ---
 
 ## [11.1.0] — 2026-05-28
 
-### 🐛 Opravené
-- **Settings X button nefungoval** — `closeSett()` je vnútri IIFE, `onclick` z HTML ju nedosiahol; pridaný `addEventListener` v DCL bloku + overlay click
-- **Scroll zobrazoval iba 40 filmov** — infinite scroll bol napojený na `mlist` (display:grid, žiadny overflow), nie na `scrnBody` (position:fixed, overflow-y:auto); prepojený na `scrnBody` s 300px triggerom
-- **hdr-row2-right (filter/sort/view)** — nebolo `position:sticky` → ikony zmizli pri horizontálnom scroll ikon; pridané `sticky;right:0` s pozadím
+### Opravene
+- **Settings X button** — `closeSett()` vnuti IIFE, `onclick` z HTML ju nedosiahol; pridany `addEventListener`
+- **Infinite scroll** — napojeny na `scrnBody` namiesto `mlist` s 300px triggerom
+- **hdr-row2-right** — `position:sticky;right:0` aby ikony nezmizli pri scroll
+
+---
+
+## [11.0.0] — 2026-05-28
+
+### Pridane
+- Kompletny rebuild aplikacie z povodneho single-file zdroja
+- 115 funkcii, 0 duplikatov, 20/20 features
+- Modularna architektura: `index.html` + `style.css` + `app.js`
+
+### Opravene
+- `.sett-sec display:flex` — nastavenia sekcie viditelne
+- `.gtag` zanre pills — `rgba(var(--gold-rgb),.13)` namiesto hardcoded farby
+- `--gold-rgb` CSS var pridana do vsetkych 6 skinov
+- `.cfav` + `.lfav` — 38x38px button s hover/active stavmi
+- `.batch-bar` — `position:fixed;top:0;z-index:8000`
+- `.sett-panel` — `user-select:none`, opaque pozadie
+- `skinGrid` wrapper + DARK chip obnovene
+- `.switch`/`.slider` CSS pre toggle prepinade
+- CSS duplikaty vycistene (23 -> 0)
+
+---
+
+## [10.2.0] — 2026-05-28
+
+### Pridane
+- Kompletna restrukturalizacia z povodneho single-file (236KB) na modularnu architekturu
+- Vsetkych 115 povodnych funkcii zachovanych
+- ZIP import, PDF fallback, TMDB batch, VLC prehravanie
+- GitHub sync s 401/404/409 error handling
+- Pokrocily filter panel
+- 6 skinov: Dark, Slate, Crimson, Forest, Linen, Paper
+
+### Opravene
+- Settings X button — prepojenie cez `addEventListener`
+- Scroll — `#scrnBody` s `top:88px`, infinite scroll na spravnom elemente
+- Scrollbar (fscroll) — sleduje `scrnBody`
+- Header row2 right ikony — sticky positioning
+- Header row2 left — horizontalny scroll s ukrytym scrollbarom
+- Text v nastaveniach — `user-select:none`
+- Genre pills skin-aware
+- cfav/lfav zjednotene na 38x38px
