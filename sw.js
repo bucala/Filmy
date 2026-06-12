@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260613-0001";
+const CACHE = "filmy-20260613-0002";
 
 const SHELL  = [
   "./",
