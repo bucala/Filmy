@@ -65,15 +65,14 @@
         <button class="hdr-act hdr-act-bulk" id="btnBulk" title="Hromadný výber" aria-label="Hromadný výber">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         </button>
-        <button class="hdr-act hdr-act-map" id="btnMap" title="Filmová mapa" aria-label="Filmová mapa">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg>
+        <button class="hdr-act hdr-act-more" id="btnMore" title="Viac" aria-label="Viac">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
         </button>
-        <button class="hdr-act hdr-act-timeline" id="btnTimeline" title="Časová os" aria-label="Časová os">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg>
-        </button>
-        <button class="hdr-act hdr-act-decade" id="btnDecade" title="Dekádový prehľad" aria-label="Dekádový prehľad">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        </button>
+        <div class="hdr-more-menu hidden" id="moreMenu">
+          <button class="hdr-more-item" id="btnMap"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg> Filmova mapa</button>
+          <button class="hdr-more-item" id="btnTimeline"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="22" y2="12"/><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></svg> Casova os</button>
+          <button class="hdr-more-item" id="btnDecade"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dekadovy prehlad</button>
+        </div>
       </div>
       <div class="hdr-row2-div"></div>
       <div class="hdr-row2-right">
@@ -703,17 +702,19 @@
 
 <!-- QUICK ADD FAB -->
 <button class="quick-add-fab" id="quickAddFab" title="Rychle pridat film" aria-label="Rychle pridat film">+</button>
-<div class="quick-add-panel hidden" id="quickAddPanel">
-  <div class="admin-hdr">
-    <div class="admin-title">Rychle pridat</div>
-    <button class="admin-close" id="quickAddClose">&#x2715;</button>
+<div class="m-ov hidden" id="quickAddOv">
+  <div class="qa-panel" id="quickAddPanel">
+    <div class="admin-hdr">
+      <div class="admin-title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Rychle pridat film</div>
+      <button class="admin-close" id="quickAddClose">&#x2715; Zavriet</button>
+    </div>
+    <div class="admin-search-row">
+      <input class="admin-inp" id="quickAddInp" placeholder="Nazov filmu..." autocomplete="off">
+      <button class="admin-btn" id="quickAddSearch">Hladaj</button>
+    </div>
+    <div class="admin-status" id="quickAddStatus"></div>
+    <div class="admin-results" id="quickAddResults"></div>
   </div>
-  <div class="admin-search-row">
-    <input class="admin-inp" id="quickAddInp" placeholder="Nazov filmu..." autocomplete="off">
-    <button class="admin-btn" id="quickAddSearch">Hladaj</button>
-  </div>
-  <div class="admin-status" id="quickAddStatus"></div>
-  <div class="admin-results" id="quickAddResults"></div>
 </div>
 
 <!-- QR/SHARE OVERLAY -->

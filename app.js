@@ -4399,6 +4399,22 @@ function openMapPanel() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  var btnMore = document.getElementById('btnMore');
+  var moreMenu = document.getElementById('moreMenu');
+  if (btnMore && moreMenu) {
+    btnMore.addEventListener('click', function(e) {
+      e.stopPropagation();
+      moreMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', function(e) {
+      if (!moreMenu.contains(e.target) && e.target !== btnMore) {
+        moreMenu.classList.add('hidden');
+      }
+    });
+    moreMenu.addEventListener('click', function() {
+      moreMenu.classList.add('hidden');
+    });
+  }
   var btnMap = document.getElementById('btnMap');
   if (btnMap) btnMap.addEventListener('click', openMapPanel);
   var mapClose = document.getElementById('mapClose');
@@ -4529,6 +4545,7 @@ document.addEventListener('DOMContentLoaded', function() {
    ══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function() {
   var fab = document.getElementById('quickAddFab');
+  var ov = document.getElementById('quickAddOv');
   var panel = document.getElementById('quickAddPanel');
   var inp = document.getElementById('quickAddInp');
   var btn = document.getElementById('quickAddSearch');
@@ -4539,11 +4556,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (!fab) return;
 
   fab.addEventListener('click', function() {
-    panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden')) { inp.value = ''; results.innerHTML = ''; status.textContent = ''; inp.focus(); }
+    ov.classList.remove('hidden');
+    inp.value = ''; results.innerHTML = ''; status.textContent = '';
+    setTimeout(function() { inp.focus(); }, 100);
   });
 
-  if (close) close.addEventListener('click', function() { panel.classList.add('hidden'); });
+  if (close) close.addEventListener('click', function() { ov.classList.add('hidden'); });
+  if (ov) ov.addEventListener('click', function(e) { if (e.target === ov) ov.classList.add('hidden'); });
 
   function qaSearch() {
     var q = (inp.value || '').trim();
