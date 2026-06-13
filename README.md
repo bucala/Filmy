@@ -1,150 +1,246 @@
 <p align="center">
-  <img src="favicon.svg" width="80" alt="Filmy logo">
+  <a href="https://filmy-iota.vercel.app">
+    <img src="https://github.com/bucala/Filmy/raw/main/favicon.svg" width="96" alt="Filmy — MFD logo">
+  </a>
 </p>
 
-<h1 align="center">Marcelova Filmova Databaza</h1>
+<h1 align="center">Marcelova Filmová Databáza</h1>
 
 <p align="center">
-  <strong>Osobna filmova databaza s 1 700+ filmami, offline podporou a TMDB integraciou.</strong>
+  <em>Osobná filmová databáza s <b>1 700+</b> filmami, offline podporou, TMDB integráciou a natívnymi appkami.</em>
 </p>
 
 <p align="center">
-  <a href="https://filmy-iota.vercel.app"><img alt="Vercel" src="https://img.shields.io/badge/live-filmy--iota.vercel.app-black?style=flat-square&logo=vercel"></a>
-  <img alt="PWA" src="https://img.shields.io/badge/PWA-ready-5A0FC8?style=flat-square&logo=pwa">
+  <a href="https://filmy-iota.vercel.app"><img alt="Live" src="https://img.shields.io/badge/▸_LIVE_DEMO-filmy--iota.vercel.app-0a0a0f?style=for-the-badge&logo=vercel&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <img alt="PWA" src="https://img.shields.io/badge/PWA-ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white">
+  <img alt="Vanilla JS" src="https://img.shields.io/badge/Vanilla_JS-zero_deps-F7DF1E?style=flat-square&logo=javascript&logoColor=black">
+  <img alt="Offline" src="https://img.shields.io/badge/offline-first-43a047?style=flat-square">
+  <img alt="Android" src="https://img.shields.io/badge/Android-APK-3DDC84?style=flat-square&logo=android&logoColor=white">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-Electron-357EC7?style=flat-square&logo=electron&logoColor=white">
+  <img alt="Version" src="https://img.shields.io/badge/v7.0.0-d4a943?style=flat-square">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
-  <img alt="Vanilla JS" src="https://img.shields.io/badge/vanilla-JS-F7DF1E?style=flat-square&logo=javascript&logoColor=black">
-  <img alt="Version" src="https://img.shields.io/badge/v6.3.0-gold?style=flat-square">
 </p>
 
 ---
 
-## Rychly start
+## Rýchly štart
 
 ```
-1. Otvor  https://filmy-iota.vercel.app
-2. Klikni "Nacitat z GitHubu" — databaza sa stiahne automaticky
-3. (volitelne) Nastav GitHub PAT token v ⚙️ pre ukladanie zmien
+1.  Otvor   https://filmy-iota.vercel.app
+2.  Klikni  ⚙️ → Sync → "Načítať z GitHubu"
+3.  Hotovo — databáza sa stiahne automaticky
 ```
 
-> Aplikacia funguje aj offline — po prvom nacitani ju mozes pouzivat bez internetu.
+> **Offline:** po prvom načítaní funguje aj bez internetu — Service Worker všetko cachuje.
 
 ---
 
-## Funkcie
+## Prehľad funkcií
 
-### Prehlad filmov
+<table>
+<tr>
+<td width="50%">
 
-| Rezim | Popis |
+### Zobrazenie filmov
+| Režim | Popis |
 |-------|-------|
-| **Zoznam** | Kompaktne riadky — cislo, nazov, rok, zanre, hodnotenie |
-| **Grid** | Karty s posterom, nazvom, rezisom a zanrami — 2-stlpcovy responzivny layout |
-| **Posterwall** | Vysoko-hustotna stena posterov — az 6+ stlpcov, cisty vizual bez textu |
+| **Zoznam** | Kompaktné riadky — číslo, názov, rok, žánre, hodnotenie |
+| **Grid** | Karty s posterom, režisérom a žánrami — 2‑stĺpcový layout |
+| **Posterwall** | Hustá stena posterov — 6+ stĺpcov, čistý vizuál |
 
-### Vyhladavanie a filtrovanie
-
-- **Fuzzy search** (Fuse.js) — hladaj podla nazvu, rezisera, roku
-- **Pokrocily filter** — rok, minimalne hodnotenie, krajina, zanre (multi-select), tagy
-- **Radenie** — podla cisla, roku, nazvu (A-Z), hodnotenia (%), dlzky
-- **Nahodny film** — tlacidlo na nahodny vyber z kolekcie
+</td>
+<td width="50%">
 
 ### Kolekcie
+| Kolekcia | Popis |
+|----------|-------|
+| &#9733; **Obľúbené** | Označ filmy hviezdou |
+| &#128065; **Watchlist** | Filmy na pozeranie |
+| &#10003; **Videné** | Pozreté filmy s dátumom |
 
-| Kolekcia | Ikona | Popis |
-|----------|-------|-------|
-| Oblubene | &#9733; | Oznac filmy hviezdou |
-| Watchlist | &#128065; | Filmy na pozretie |
-| Videne | &#10003; | Filmy uz pozrete s datumom |
+</td>
+</tr>
+<tr>
+<td>
 
-### TMDB integracia
+### Vyhľadávanie a filtre
+- **Fuzzy search** (Fuse.js) — názov, režisér, rok
+- **Pokročilý filter** — rok, min. hodnotenie, krajina, žánre, tagy
+- **Radenie** — číslo, rok, názov (A→Z), hodnotenie (%), dĺžka
+- **Náhodný film** — jedno kliknutie na náhodný výber
+- **Dekádový prehľad** — filmy zoskupené podľa dekád
 
-- Automaticke hodnotenia, postery, backdrops a trailery
-- Admin panel — pridaj film priamo cez TMDB ID
-- Manualne parovanie existujucich filmov s TMDB
-- Podpora viacerych zdrojov hodnoteni: **TMDB**, **IMDb** (OMDB), **CSFD**
+</td>
+<td>
 
-### CSFD Matcher
+### TMDB integrácia
+- Automatické hodnotenia, postery, backdrops a trailery
+- Admin panel — pridaj film cez TMDB ID
+- Manuálne párovanie existujúcich filmov
+- Zdroje hodnotení: **TMDB** · **IMDb** (OMDB) · **ČSFD**
+- **ČSFD Matcher** — import CSV/JSON s hodnoteniami
 
-- Otvorenie externej matcher appky podla TMDB ID
-- Import CSV/JSON exportu s CSFD linkami a hodnoteniami
+</td>
+</tr>
+</table>
 
-### Statistiky
+### Štatistiky
 
-Interaktivne grafy (Chart.js):
-- Zanrove rozlozenie (kolacovy graf)
-- Top reziseri (stlpcovy)
-- Krajiny povodou (stlpcovy)
-- Histogram hodnoteni
-- Rozlozenie dlzky filmov
+Interaktívne grafy (Chart.js): žánrové rozloženie · top režiséri · krajiny pôvodu · histogram hodnotení · rozloženie dĺžky filmov
 
-### Prehravanie
+### Prehrávanie filmov
 
-| Metoda | Popis |
-|--------|-------|
-| VLC Protocol | `vlc://` handler — otvor priamo vo VLC |
-| Nativny prehravac | `file://` protokol |
-| SMB sietove cesty | `\\server\share\film.mkv` |
+| Metóda | Protokol | Platforma |
+|--------|----------|-----------|
+| **MPC‑HC** | `mpc://` | Windows |
+| **VLC** | `vlc://` | Windows, Android |
+| **Portable MPC/VLC** | `portable://` | Windows (USB) |
+| **SMB sieť** | `vlc://smb://server/path` | Android, Windows |
+| **Lokálna cesta** | `W:\Movies\film.mkv` | Windows |
 
-### Sync a zalohy
+<details>
+<summary><b>Nastavenie prehrávača na PC</b></summary>
 
-- **GitHub Sync** — push/pull `data.json` cez GitHub API (PAT token)
-- **Auto-sync** pri starte + planovany auto-push
-- **Export** — CSV (Excel), JSON backup, HTML backup (baked-in data), kolazkove PNG
-- **Import** — ZIP (EMDB), PDF fallback, JSON restore
+1. Stiahni `register-mpc.reg` alebo `register-vlc.reg` zo zložky `setup/`
+2. Spusti ako správca — zaregistruje `mpc://` alebo `vlc://` handler
+3. V nastaveniach vyber prehrávač a režim cesty (lokálna / SMB)
+4. Klikni **Prehráť** na filme — cesta sa skopíruje + otvorí sa prehrávač
 
-### Dalsie
+Pre **Portable** režim: stiahni `.reg` a `.bat` z nastavení → ulož do `W:\Portable-Handler\`
+</details>
 
-- **6 farebnych tem** — Dark, Slate, Crimson, Forest, Linen, Paper
-- **Vlastna akcentova farba** — color picker
-- **PWA** — instalovatelna ako nativna aplikacia
-- **Offline rezim** — Service Worker s Network-First strategiou
-- **Klavesove skratky** — `/` (hladanie), `Esc` (zatvorit), sipky (navigacia)
-- **Rychly scroll** — drag handle na pravej strane
-- **Podobne filmy** — scoring podla zanrov a rezisera
+### Sync a zálohy
+
+| Funkcia | Popis |
+|---------|-------|
+| **GitHub Sync** | Push / pull `data.json` cez GitHub API (PAT token) |
+| **Auto-sync** | Automatický pull pri štarte + plánovaný auto-push |
+| **Export** | CSV · JSON · HTML (baked-in dáta) · kolážové PNG |
+| **Import** | ZIP (EMDB) · PDF fallback · JSON restore |
+| **Hromadný výber** | Označenie viacerých filmov + hromadné akcie |
+| **Rýchle pridanie** | Pridaj film priamo cez TMDB z nastavení |
 
 ---
 
-## Temy
+## Témy
 
-| Tema | Typ | Akcentova farba |
-|------|-----|-----------------|
-| **Dark** | Tmava | `#d4a943` zlata |
-| **Slate** | Tmava | `#5aabff` modra |
-| **Crimson** | Tmava | `#e85555` cervena |
-| **Forest** | Tmava | `#6ac840` zelena |
-| **Linen** | Svetla | `#7a5c18` hneda |
-| **Paper** | Svetla | `#1a4e7c` modra |
+<table>
+<tr>
+<td align="center"><img src="https://img.shields.io/badge/●-0a0a0f?style=flat-square" width="12"> <b>Dark</b><br><sub><img src="https://img.shields.io/badge/accent-d4a943?style=flat-square&logoColor=white" height="14"></sub></td>
+<td align="center"><img src="https://img.shields.io/badge/●-1a1e2e?style=flat-square" width="12"> <b>Slate</b><br><sub><img src="https://img.shields.io/badge/accent-5aabff?style=flat-square&logoColor=white" height="14"></sub></td>
+<td align="center"><img src="https://img.shields.io/badge/●-1a0a0a?style=flat-square" width="12"> <b>Crimson</b><br><sub><img src="https://img.shields.io/badge/accent-e85555?style=flat-square&logoColor=white" height="14"></sub></td>
+<td align="center"><img src="https://img.shields.io/badge/●-0a1a0a?style=flat-square" width="12"> <b>Forest</b><br><sub><img src="https://img.shields.io/badge/accent-6ac840?style=flat-square&logoColor=white" height="14"></sub></td>
+<td align="center"><img src="https://img.shields.io/badge/●-f5f0e6?style=flat-square" width="12"> <b>Linen</b><br><sub><img src="https://img.shields.io/badge/accent-7a5c18?style=flat-square&logoColor=white" height="14"></sub></td>
+<td align="center"><img src="https://img.shields.io/badge/●-f0f4f8?style=flat-square" width="12"> <b>Paper</b><br><sub><img src="https://img.shields.io/badge/accent-1a4e7c?style=flat-square&logoColor=white" height="14"></sub></td>
+<td align="center"><img src="https://img.shields.io/badge/●-auto?style=flat-square" width="12"> <b>Auto</b><br><sub>systémová</sub></td>
+</tr>
+</table>
+
+Vlastná akcentová farba cez color picker v nastaveniach.
 
 ---
 
-## Architektura
+## Platformy
+
+<table>
+<tr>
+<td align="center" width="33%">
+  <img src="https://img.shields.io/badge/Web-PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA"><br>
+  <sub><b>filmy-iota.vercel.app</b></sub><br>
+  <sub>Inštalovateľná ako natívna appka</sub>
+</td>
+<td align="center" width="33%">
+  <img src="https://img.shields.io/badge/Android-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"><br>
+  <sub><b>WebView + immersive fullscreen</b></sub><br>
+  <sub>Build cez GitHub Actions alebo Android Studio</sub>
+</td>
+<td align="center" width="33%">
+  <img src="https://img.shields.io/badge/Windows-Electron-357EC7?style=for-the-badge&logo=electron&logoColor=white" alt="Windows"><br>
+  <sub><b>Standalone desktopová appka</b></sub><br>
+  <sub>npm install → npm start</sub>
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>Android build</b></summary>
+
+**Lokálne:**
+1. Otvor koreň repozitára v Android Studio
+2. Počkaj na Gradle sync
+3. Spusti `:android-app:assembleDebug`
+
+**GitHub Actions:**
+Workflow **Android APK** zostaví debug APK pri PR, push do `main`, alebo manuálne cez **Run workflow**. Výsledok: artifact `filmy-debug-apk`.
+
+Gradle automaticky skopíruje web appku do Android assets.
+</details>
+
+<details>
+<summary><b>Windows (Electron) build</b></summary>
+
+```bash
+cd desktop
+npm install
+npm start          # dev režim
+npm run build      # produkčný build
+```
+
+Pozri [`desktop/BUILD.md`](desktop/BUILD.md) pre detaily.
+</details>
+
+---
+
+## Architektúra
 
 ```
-filmy/
-  index.html              Hlavna stranka (35 KB)
-  style.css               Vsetky styly + 6 skinov (50 KB)
-  app.js                  Cela aplikacna logika (127 KB)
-  data.json               Databaza filmov (GitHub sync)
-  sw.js                   Service Worker (PWA cache)
-  manifest.webmanifest    PWA manifest
-  vercel.json             Vercel deploy config + cache headers
-  api/
-    csfd.js               CSFD API proxy
-    omdb.js               OMDB API proxy
+Filmy/
+├── index.html               Hlavná stránka
+├── style.css                Všetky štýly + 7 skinov
+├── app.js                   Aplikačná logika (IIFE)
+├── portable-handler.js      Portable prehrávač modul
+├── data.json                Databáza filmov (GitHub sync)
+├── sw.js                    Service Worker (Network-First)
+├── manifest.webmanifest     PWA manifest
+├── favicon.svg              Logo — filmový pás s "MFD"
+├── vercel.json              Vercel deploy + cache headers
+├── api/
+│   ├── csfd.js              ČSFD API proxy
+│   └── omdb.js              OMDB API proxy
+├── setup/
+│   ├── MPC-Handler/         register-mpc.reg + mpc-run.bat
+│   └── VLC-Handler/         register-vlc.reg + vlc-run.bat
+├── android-app/             Android Studio modul (WebView)
+│   └── src/main/
+│       ├── AndroidManifest.xml
+│       ├── java/.../MainActivity.java
+│       └── res/drawable/ic_launcher_foreground.xml
+├── android/                 TWA konfigurácia
+│   └── twa-manifest.json
+└── desktop/                 Electron wrapper
+    ├── main.js
+    ├── preload.js
+    └── package.json
 ```
 
 ### Tech stack
 
-| Technologia | Pouzitie |
+| Technológia | Použitie |
 |-------------|----------|
-| **Vanilla JS** | Ziadny framework — cista IIFE architektura |
-| **Fuse.js** | Fuzzy vyhladavanie |
-| **Chart.js** | Interaktivne grafy v statistikach |
+| **Vanilla JS** | Žiadny framework — čistá IIFE architektúra |
+| **Fuse.js** | Fuzzy vyhľadávanie |
+| **Chart.js** | Interaktívne grafy v štatistikách |
 | **PDF.js** | PDF import fallback |
 | **JSZip** | ZIP import (EMDB) |
-| **Service Worker** | Offline cache, Network-First strategia |
+| **Service Worker** | Offline cache, Network-First stratégia |
 | **Vercel** | Hosting + serverless API proxy |
-| **GitHub API** | Sync databazy |
-| **TMDB API** | Metdata filmov, postery, trailery |
+| **GitHub API** | Sync databázy cez PAT token |
+| **TMDB API** | Metadáta filmov, postery, trailery |
+| **Electron** | Windows desktopová appka |
+| **Android WebView** | Natívna Android appka |
 
 ---
 
@@ -152,53 +248,42 @@ filmy/
 
 | Tab | Obsah |
 |-----|-------|
-| **Vzhlad** | Tema, skin, akcentova farba |
-| **Data** | Import/export, JSON/CSV/HTML/ZIP |
+| **Vzhľad** | Téma, skin, akcentová farba, auto téma |
+| **Dáta** | Import / export — JSON, CSV, HTML, ZIP |
 | **Sync** | GitHub PAT token, auto-pull, auto-push |
-| **Prehravanie** | VLC/nativny, lokalna/SMB cesta |
-| **Nastroje** | TMDB admin, CSFD matcher, manualny match |
-| **Danger** | Reset databazy, vycistenie cache |
+| **Prehrávanie** | MPC-HC / VLC / Portable, lokálna / SMB cesta |
+| **Nástroje** | TMDB admin, ČSFD matcher, manuálny match |
+| **Danger** | Reset databázy, vyčistenie cache |
 
 ---
 
-## Vyvoj
+## Klávesové skratky
 
-Aplikacia je staticka — bez build stepu. Staci editovat subory a commitnut.
+| Klávesa | Akcia |
+|---------|-------|
+| `/` | Fokus na vyhľadávanie |
+| `Esc` | Zatvoriť detail / nastavenia |
+| `←` `→` | Predchádzajúci / nasledujúci film |
+
+---
+
+## Vývoj
+
+Aplikácia je statická — bez build stepu. Stačí editovať súbory a commitnúť.
 
 ```bash
-# Lokalne testovanie
+# Lokálne testovanie
 npx serve .
 
-# Deploy — push do main vetvy, Vercel sa redeploy automaticky
+# Deploy — push do main, Vercel sa automaticky redeployne
 git push origin main
 ```
 
-GitHub Action `.github/workflows/bump-sw-cache.yml` automaticky bumps SW cache version pri kazdom push do `main`.
+GitHub Action `.github/workflows/bump-sw-cache.yml` automaticky bumpne SW cache version pri každom push do `main`.
 
 ---
-
-## 🤖 Android aplikácia
-
-Repo obsahuje Android Studio projekt v module `android-app`.
-
-### Lokálne cez Android Studio
-
-1. Otvor koreň repozitára `Filmy` v Android Studio.
-2. Počkaj na Gradle sync.
-3. Spusti konfiguráciu `android-app` alebo task `:android-app:assembleDebug`.
-
-Gradle pred buildom automaticky skopíruje web appku (`index.html`, `app.js`, `style.css`, `data.json`, manifest a ikony) do Android assets a spustí ju vo WebView.
-
-### GitHub Actions
-
-Workflow **Android APK** zostaví debug APK pri PR, pushi do `Perplexity` / `main`, alebo manuálne cez **Run workflow** v GitHub Actions.
-
-Výsledný APK je v artifacte `filmy-debug-apk`.
-
----
-
-## 📋 Changelog
 
 <p align="center">
-  <sub>Vytvoril Marcel Bucala</sub>
+  <sub>Vytvoril <b>Marcel Bucala</b> · 2026</sub><br>
+  <sub><a href="https://filmy-iota.vercel.app">filmy-iota.vercel.app</a></sub>
 </p>
