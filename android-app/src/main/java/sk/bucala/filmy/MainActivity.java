@@ -2,13 +2,13 @@ package sk.bucala.filmy;
 
 import android.app.Activity;
 import android.os.Build;
+import android.os.BuildConfig;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import sk.bucala.filmy.BuildConfig;
 
 public class MainActivity extends Activity {
     private WebView webView;
