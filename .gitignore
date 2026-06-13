@@ -7,3 +7,9 @@ Filmy/
 __pycache__/
 *.pyc
 *.iml
+desktop/node_modules/
+desktop/dist/
+android/*.keystore
+android/app/
+android/.gradle/
+android/build/

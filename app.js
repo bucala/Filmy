@@ -4218,15 +4218,15 @@ function toggleBulkMode() {
   bulkMode = !bulkMode;
   bulkSel.clear();
   var ml = document.getElementById('mlist');
-  var bar = document.getElementById('bulkBar');
+  var inl = document.getElementById('bulkInline');
   var btn = document.getElementById('btnBulk');
   if (bulkMode) {
     ml.classList.add('bulk-mode');
-    bar.classList.remove('hidden');
+    inl.classList.remove('hidden');
     btn.classList.add('on');
   } else {
     ml.classList.remove('bulk-mode');
-    bar.classList.add('hidden');
+    inl.classList.add('hidden');
     btn.classList.remove('on');
     ml.querySelectorAll('.bulk-sel').forEach(function(c) { c.classList.remove('bulk-sel'); });
   }
