@@ -682,7 +682,7 @@ function openDet(id){
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
       ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
                '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
-      <a class="btn-jw" href="https://www.justwatch.com/sk/vyh%C4%BEad%C3%A1va%C5%A5?q=${encodeURIComponent(m.title)}" target="_blank">&#x1F4FA; Kde pozerať</a>
+      <a class="btn-jw" href="https://www.justwatch.com/sk/vyh%C4%BEad%C3%A1va%C5%A5?q=${encodeURIComponent(m.title)}" target="_blank"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Kde pozerať</a>
       <button class="btn-match" id="btnMatch" title="Ručné TMDB párovanie">&#x2699; Párovanie</button>
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
@@ -3773,9 +3773,12 @@ function playMovie(id){
   if(!path){toast('Cesta k súboru nie je nastavená.');return;}
 
   if(_isAndroid){
-    var scheme=pathMode==='smb'?'smb':'file';
-    var target=pathMode==='smb'?path.replace(/^smb:\/\//,''):path;
-    window.location.href='intent://'+target+'#Intent;scheme='+scheme+';type=video/*;end';
+    var proto=playerProto||'vlc';
+    if(pathMode==='smb'){
+      window.location.href=proto+'://'+path;
+    } else {
+      window.location.href='intent://'+path+'#Intent;scheme=file;type=video/*;end';
+    }
     return;
   }
 
