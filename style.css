@@ -988,16 +988,13 @@ input,textarea,.tmdb-inp,select{
 .dup-del:hover{background:#e53935;color:#fff}
 .dup-empty{padding:24px;text-align:center;color:var(--text3);font-size:13px}
 
-/* ══ Feature: Bulk edit ══ */
-.bulk-bar{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:2px solid var(--gold);padding:8px 16px;display:flex;align-items:center;gap:12px}
-.bulk-sel-all-label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap}
-.bulk-sel-all-cb{width:18px;height:18px;accent-color:var(--gold);cursor:pointer}
-.bulk-cnt{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--gold);flex:1;text-align:center;font-weight:700}
-.bulk-acts{display:flex;gap:6px}
-.bulk-act{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text);cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .15s}
-.bulk-act:hover{border-color:var(--gold);color:var(--gold);background:rgba(var(--gold-rgb),.1)}
-.bulk-rm{border-color:rgba(229,57,53,.4);color:#e53935}
-.bulk-rm:hover{background:#e53935;color:#fff;border-color:#e53935}
+/* ══ Feature: Bulk edit — inline header controls ══ */
+.bulk-inline{display:none;align-items:center;gap:4px;margin-left:2px;padding-left:6px;border-left:2px solid var(--gold)}
+.bulk-inline:not(.hidden){display:flex}
+.bulk-cnt{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--gold);font-weight:700;min-width:16px;text-align:center}
+.bulk-sel-all{color:var(--gold) !important}
+.bulk-act-rm{color:#e53935 !important}
+.bulk-act-rm:hover{color:#ff6659 !important}
 .mlist.bulk-mode .mcard{cursor:pointer;position:relative}
 .mlist.bulk-mode .mcard::after{content:'';position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:4px;border:2px solid var(--gold);background:rgba(0,0,0,.5);transition:all .15s;z-index:3;box-sizing:border-box}
 .mlist.bulk-mode .mcard.bulk-sel::after{background:var(--gold);border-color:var(--gold);content:'\2713';color:#0a0a0f;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}

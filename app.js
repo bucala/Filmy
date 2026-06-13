@@ -4218,15 +4218,15 @@ function toggleBulkMode() {
   bulkMode = !bulkMode;
   bulkSel.clear();
   var ml = document.getElementById('mlist');
-  var bar = document.getElementById('bulkBar');
+  var inl = document.getElementById('bulkInline');
   var btn = document.getElementById('btnBulk');
   if (bulkMode) {
     ml.classList.add('bulk-mode');
-    bar.classList.remove('hidden');
+    inl.classList.remove('hidden');
     btn.classList.add('on');
   } else {
     ml.classList.remove('bulk-mode');
-    bar.classList.add('hidden');
+    inl.classList.add('hidden');
     btn.classList.remove('on');
     ml.querySelectorAll('.bulk-sel').forEach(function(c) { c.classList.remove('bulk-sel'); });
   }
@@ -4235,14 +4235,7 @@ function toggleBulkMode() {
 
 function updateBulkCnt() {
   var el = document.getElementById('bulkCnt');
-  if (el) el.textContent = bulkSel.size + ' vybraných';
-  var cb = document.getElementById('bulkSelAllCb');
-  if (cb) {
-    var ml = document.getElementById('mlist');
-    var total = ml ? ml.querySelectorAll('[data-id]').length : 0;
-    cb.checked = total > 0 && bulkSel.size >= total;
-    cb.indeterminate = bulkSel.size > 0 && bulkSel.size < total;
-  }
+  if (el) el.textContent = bulkSel.size || '0';
 }
 
 function bulkToggleCard(card) {
@@ -4264,15 +4257,15 @@ document.addEventListener('DOMContentLoaded', function() {
     bulkToggleCard(card);
   }, true);
 
-  var bulkSelAllCb = document.getElementById('bulkSelAllCb');
-  if (bulkSelAllCb) bulkSelAllCb.addEventListener('change', function() {
+  var bulkSelAllBtn = document.getElementById('bulkSelAll');
+  if (bulkSelAllBtn) bulkSelAllBtn.addEventListener('click', function() {
     var ml = document.getElementById('mlist');
     var cards = ml.querySelectorAll('[data-id]');
-    var shouldSelect = bulkSelAllCb.checked;
+    var allSelected = bulkSel.size >= cards.length;
     cards.forEach(function(c) {
       var id = parseInt(c.dataset.id, 10);
-      if (shouldSelect) { bulkSel.add(id); c.classList.add('bulk-sel'); }
-      else { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
+      if (allSelected) { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
+      else { bulkSel.add(id); c.classList.add('bulk-sel'); }
     });
     updateBulkCnt();
   });
