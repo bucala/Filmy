@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.BuildConfig;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
