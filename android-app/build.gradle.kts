@@ -20,6 +20,7 @@ android {
 val webAssetFiles = listOf(
     "index.html",
     "app.js",
+    "portable-handler.js",
     "style.css",
     "data.js",
     "data.json",
