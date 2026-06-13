@@ -1754,22 +1754,70 @@ document.addEventListener("DOMContentLoaded",function(){
       toast(`Auto-push: ${this.checked?'zapnutý':'vypnutý'}`);
     });
   }
-  // Player protocol toggle (MPC / VLC)
+  // Player protocol toggle (MPC / VLC / Portable)
+  var _portWrap = document.getElementById('portableSettingsWrap');
   document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(btn){
     btn.addEventListener('click', function(){
       playerProto = this.dataset.proto;
       localStorage.setItem(PLAYER_PROTO_KEY, playerProto);
       document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className='ttab on';
-      toast('Prehrávač: ' + playerProto.toUpperCase());
+      if(_portWrap) _portWrap.style.display = playerProto==='portable' ? 'block' : 'none';
+      toast('Prehrávač: ' + (playerProto==='portable'?'Portable':playerProto.toUpperCase()));
       var _pb2=document.getElementById('playMovieBtn');
-      if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+playerProto.toUpperCase();}
+      if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+(playerProto==='portable'?'Portable':playerProto.toUpperCase());}
       updatePathPreview();
     });
   });
   document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){
     b.className = (b.dataset.proto === playerProto) ? 'ttab on' : 'ttab';
   });
+  if(_portWrap) _portWrap.style.display = playerProto==='portable' ? 'block' : 'none';
+
+  // Portable settings wiring
+  (function(){
+    var ptToggle = document.getElementById('portableTypeToggle');
+    var mpcInp = document.getElementById('portableMpcInp');
+    var vlcInp = document.getElementById('portableVlcInp');
+    var mpcSave = document.getElementById('portableMpcSave');
+    var vlcSave = document.getElementById('portableVlcSave');
+    var stEl = document.getElementById('portablePathSt');
+    var dlReg = document.getElementById('portableDownloadReg');
+    var dlBat = document.getElementById('portableDownloadBat');
+
+    if(mpcInp) mpcInp.value = localStorage.getItem('mdb_portable_mpc') || 'W:\\MPC-portable\\mpc-hc64.exe';
+    if(vlcInp) vlcInp.value = localStorage.getItem('mdb_portable_vlc') || 'W:\\vlc-portable\\vlc-portable.exe';
+
+    var portType = localStorage.getItem('mdb_portable_mode') || 'mpc';
+    if(ptToggle){
+      ptToggle.querySelectorAll('.ttab').forEach(function(b){
+        b.className = b.dataset.ptype===portType ? 'ttab on' : 'ttab';
+        b.addEventListener('click', function(){
+          portType = this.dataset.ptype;
+          localStorage.setItem('mdb_portable_mode', portType);
+          ptToggle.querySelectorAll('.ttab').forEach(function(t){t.className='ttab';});
+          this.className='ttab on';
+          if(stEl){stEl.textContent='✓ Portable: '+(portType==='vlc'?'VLC':'MPC-HC');stEl.className='sett-key-st ok';}
+        });
+      });
+    }
+    if(mpcSave) mpcSave.addEventListener('click', function(){
+      var v = mpcInp.value.trim();
+      if(v){localStorage.setItem('mdb_portable_mpc',v);if(typeof portableMpcPath!=='undefined')portableMpcPath=v;if(stEl){stEl.textContent='✓ MPC cesta uložená';stEl.className='sett-key-st ok';}}
+    });
+    if(vlcSave) vlcSave.addEventListener('click', function(){
+      var v = vlcInp.value.trim();
+      if(v){localStorage.setItem('mdb_portable_vlc',v);if(typeof portableVlcPath!=='undefined')portableVlcPath=v;if(stEl){stEl.textContent='✓ VLC cesta uložená';stEl.className='sett-key-st ok';}}
+    });
+    if(dlReg) dlReg.addEventListener('click', function(){
+      if(typeof downloadPortableReg==='function') downloadPortableReg();
+      else toast('portable-handler.js nie je načítaný');
+    });
+    if(dlBat) dlBat.addEventListener('click', function(){
+      if(typeof downloadPortableBat==='function') downloadPortableBat();
+      else toast('portable-handler.js nie je načítaný');
+    });
+  })();
 
   function syncSortPctLabel(){
     var o=document.getElementById('sortPctOpt');
@@ -3788,6 +3836,16 @@ function playMovie(id){
     clipPath='\\\\'+clipPath.substring(6);
   }
   copyToClip(clipPath);
+
+  // Portable mode — use portable-handler.js
+  if(playerProto==='portable' && typeof launchPortable==='function'){
+    var portMode = localStorage.getItem('mdb_portable_mode') || 'mpc';
+    launchPortable(clipPath, portMode);
+    setTimeout(function(){
+      toast('Cesta skopírovaná. Portable prehrávač sa pokúša spustiť...');
+    },800);
+    return;
+  }
 
   var protoPath=path.replace(/\\/g,'/');
   if(pathMode==='smb'){
