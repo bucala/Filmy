@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-var APP_VERSION = "6.2.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
+var APP_VERSION = "6.3.0"; console.log("[FilmDB] v" + APP_VERSION + " loaded ✅");
 var _scriptCache={};
 function loadScript(url){
   if(_scriptCache[url])return _scriptCache[url];
@@ -25,7 +25,7 @@ var STAR_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stro
 var EYE_ON   = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 var EYE_OFF  = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
 var FILM_ICO = '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="2" y="3" width="15" height="18" rx="2"/><path d="M17 7h3l2 4-2 4h-3"/><circle cx="9" cy="12" r="3"/></svg>';
-var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={},genre="",grid=false,favMode=false,wlMode=false,watchedMode=false,curId=null;
+var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={},genre="",grid=false,posterWall=false,favMode=false,wlMode=false,watchedMode=false,curId=null;
 
 /* fpState declared here (with other global state) so applyFilters() can safely
    reference it during init(), before the Filter Panel module code runs.
@@ -36,13 +36,25 @@ var all=[],filt=[],favs=new Set(),wl=new Set(),watched=new Set(),watchedDates={}
    MODULE: Config & State
    Global constants, storage keys, and runtime state variables.
    ══════════════════════════════════════════════════════════ */
-var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[]};
-function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;return n;}
-var tmdbKey=localStorage.getItem("tmdb_key")||"";
+var fpState={yearFrom:0,yearTo:0,minRating:0,country:"",genres:[],tag:""};
+function fpActiveCount(){var n=0;if(fpState.yearFrom>0)n++;if(fpState.yearTo>0)n++;if(fpState.minRating>0)n++;if(fpState.country)n++;if(fpState.genres.length>0)n++;if(fpState.tag)n++;return n;}
+var tmdbKey=localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
+var omdbKey=localStorage.getItem("omdb_key")||"9ff40e48";
 var SK="mdb_v5",FK="mdb_fav5",WK="mdb_wl1",VK="mdb_watched1",VDK="mdb_wdates1",LK="mdb_live_v3",PK="mdb_prefs";
+var CSFD_MATCHER_URL_KEY="mdb_csfd_matcher_url";
+var DEFAULT_CSFD_MATCHER_URL="https://movie-database-comparator.vercel.app";
+var csfdMatcherUrl=localStorage.getItem(CSFD_MATCHER_URL_KEY)||DEFAULT_CSFD_MATCHER_URL;
 var liveCache={},liveRunning=false;
 var tmdbAbortCtrl = null; // AbortController for TMDB batch
 var prefs={view:"grid",sort:"num",sortDir:"desc"};
+var ratingSource=localStorage.getItem('mdb_ratingsrc')||'tmdb';
+
+function getMoviePct(m){
+  if(ratingSource==='imdb'){return m._pctImdb!=null?m._pctImdb:null;}
+  if(ratingSource==='csfd'){return m._pctCsfd!=null?m._pctCsfd:null;}
+  var c=liveCache[m.id];return c&&c.pct!=null?c.pct:null;
+}
+var RATING_LABELS={tmdb:'TMDB',imdb:'IMDB',csfd:'ČSFD'};
 
 
 
@@ -66,6 +78,12 @@ function init(){
   }
   var empty=localStorage.getItem("mdb_empty")==="1";
   all=empty?[]:(saved||[]);
+  // Restore poster URLs from liveCache for movies that lost base64 posters
+  all.forEach(function(m){
+    if((!m.poster_thumb||m.poster_thumb.length<10)&&liveCache[m.id]&&liveCache[m.id].posterUrl){
+      m.poster_thumb=liveCache[m.id].posterUrl;
+    }
+  });
   if(!saved&&!empty&&all.length>0)try{
     // First-time save: strip base64 posters, keep URL posters
     var toSave=all.map(function(m){
@@ -113,6 +131,17 @@ function loadLiveCache(){
   try{var r=localStorage.getItem(LK);if(r)liveCache=validateLiveCache(JSON.parse(r));}catch(e){liveCache={};}
 }
 function saveLiveCache(){try{localStorage.setItem(LK,JSON.stringify(liveCache));}catch(e){}}
+function saveAllData(){
+  saveLiveCache();
+  try{
+    var toSave=all.map(function(m){
+      var c=Object.assign({},m);
+      if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
+      return c;
+    });
+    safeSave(SK,JSON.stringify(toSave));
+  }catch(e){}
+}
 
 function safeSave(key,val){
   try{localStorage.setItem(key,val);}
@@ -124,11 +153,15 @@ function loadPrefs(){
   // Migrate old sort values to new "pct"
   if(prefs.sort==="ratingTmdb"||prefs.sort==="ratingImdb")prefs.sort="pct";
   // Validate sort value exists in dropdown
-  var validSorts=["num","title","year","pct"];
+  var validSorts=["num","title","year","pct","dur"];
   if(validSorts.indexOf(prefs.sort)<0)prefs.sort="num";
   savePrefs();
   grid=(prefs.view==="grid");
-  if(grid){var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");if(ml)ml.className="mlist grid";if(vt){ vt.innerHTML=grid?'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>':'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>'; vt.setAttribute('data-mode',grid?'grid':'list'); }}
+  posterWall=(prefs.view==="posterwall");
+  {var _iv=prefs.view||'list';var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");
+    if(ml)ml.className=posterWall?'mlist posterwall':grid?'mlist grid':'mlist';
+    if(vt){vt.innerHTML=VIEW_ICONS[_iv]||VIEW_ICONS.list;vt.title=VIEW_TITLES[_iv]||'';}
+  }
   document.getElementById("sortSel").value=prefs.sort||"num";
   updateSortDirBtn(); if(typeof syncSortPill==="function") syncSortPill();
 }
@@ -261,21 +294,22 @@ function initColorPicker() {
 /* ══════════════════════════════════════════════════════════
    MODULE: Search — Fuse.js fuzzy search + highlighting
    ══════════════════════════════════════════════════════════ */
+var FUSE_OPTS={
+  includeScore:true,
+  includeMatches:true,
+  minMatchCharLength:2,
+  threshold:0.42,        // 0=exact, 1=match anything
+  ignoreLocation:true,
+  keys:[
+    {name:"title",      weight:0.55},
+    {name:"director",   weight:0.20},
+    {name:"year",       weight:0.10},
+    {name:"genres",     weight:0.10},
+    {name:"description",weight:0.05}
+  ]
+};
 function buildFuse(){
-  fuseInst=new Fuse(all,{
-    includeScore:true,
-    includeMatches:true,
-    minMatchCharLength:2,
-    threshold:0.42,        // 0=exact, 1=match anything
-    ignoreLocation:true,
-    keys:[
-      {name:"title",      weight:0.55},
-      {name:"director",   weight:0.20},
-      {name:"year",       weight:0.10},
-      {name:"genres",     weight:0.10},
-      {name:"description",weight:0.05}
-    ]
-  });
+  fuseInst=new Fuse(all,FUSE_OPTS);
 }
 
 
@@ -299,12 +333,14 @@ function applyFilters(){
     if(fpState.yearFrom>0&&(m.year||0)<fpState.yearFrom)return false;
     if(fpState.yearTo>0&&(m.year||0)>fpState.yearTo)return false;
     if(fpState.minRating>0){
-      const lv=liveCache[m.id];
-      const pct=lv&&lv.pct!=null?lv.pct:null;
+      const pct=getMoviePct(m);
       if(pct===null||pct<fpState.minRating)return false;
     }
     if(fpState.country){
       if(!(m.country||"").toLowerCase().includes(fpState.country.toLowerCase()))return false;
+    }
+    if(fpState.tag){
+      if(!(m._tags||[]).some(function(t){return t.toLowerCase().includes(fpState.tag.toLowerCase());}))return false;
     }
     return true;
   });
@@ -319,7 +355,8 @@ function applyFilters(){
       (m.title||"").toLowerCase().includes(ql)||
       (m.director||"").toLowerCase().includes(ql)||
       String(m.year||"").includes(ql)||
-      (m.genres||[]).join(" ").toLowerCase().includes(ql)
+      (m.genres||[]).join(" ").toLowerCase().includes(ql)||
+      (m._tags||[]).join(" ").toLowerCase().includes(ql)
     );
     if(exactMatches.length>0){
       list=exactMatches;
@@ -328,7 +365,7 @@ function applyFilters(){
     } else {
       if(!fuseInst)buildFuse();
       var noFilters=!favMode&&!wlMode&&!watchedMode&&fpActiveCount()===0;
-      var searchInst=noFilters?fuseInst:new Fuse(pool,fuseInst._options);
+      var searchInst=noFilters?fuseInst:new Fuse(pool,FUSE_OPTS);
       const results=searchInst.search(q);
       list=results.map(r=>r.item);
       if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
@@ -411,19 +448,17 @@ function sortList(list){
   var asc=(prefs.sortDir||"desc")==="asc";
 
   if(s==="pct"){
-    // Two-pass: stable sort by separating rated/unrated, then sorting rated
     var rated=[],unrated=[];
     list.forEach(function(m){
-      var c=liveCache[m.id];
-      if(c&&c.pct!=null)rated.push(m);
+      var p=getMoviePct(m);
+      if(p!=null)rated.push(m);
       else unrated.push(m);
     });
-    // Sort rated strictly by pct, then by num as stable tiebreak
     rated.sort(function(a,b){
-      var pa=liveCache[a.id].pct;
-      var pb=liveCache[b.id].pct;
+      var pa=getMoviePct(a);
+      var pb=getMoviePct(b);
       if(pa!==pb)return asc?pa-pb:pb-pa;
-      return a.num-b.num; // stable tiebreak
+      return a.num-b.num;
     });
     // Unrated keep original order (sort by num)
     unrated.sort(function(a,b){return a.num-b.num;});
@@ -451,6 +486,15 @@ function sortList(list){
     return;
   }
 
+  if(s==="dur"){
+    list.sort(function(a,b){
+      var da=parseInt(a.duration)||0,db=parseInt(b.duration)||0;
+      if(da!==db)return asc?da-db:db-da;
+      return a.num-b.num;
+    });
+    return;
+  }
+
   // num (default)
   list.sort(function(a,b){return asc?a.num-b.num:b.num-a.num;});
 }
@@ -471,7 +515,7 @@ function renderList(list){
     if(nrt)nrt.textContent=q?"Nic pre \""+q+"\"":favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
     return;
   }
-  nr.style.display="none";ml.style.display=""; ml.className = grid ? "mlist grid" : "mlist";
+  nr.style.display="none";ml.style.display=""; ml.className = posterWall ? "mlist posterwall" : (grid ? "mlist grid" : "mlist");
   curPage=0;ml.innerHTML="";
   // FIX2b: Event delegation — one listener replaces per-card listeners (1750+ → 1)
   if(ml._delegated) ml.removeEventListener("click",ml._delegated);
@@ -509,21 +553,26 @@ function appendCards(list,ml){
 /* ══════════════════════════════════════════════════════════
    MODULE: Cards — HTML builders for grid and list modes
    ══════════════════════════════════════════════════════════ */
-function pctBadge(cached){
-  if(!cached||cached.pct==null)return "";
-  var p=cached.pct;
+function pctBadge(cached,m){
+  var p=m?getMoviePct(m):(cached&&cached.pct!=null?cached.pct:null);
+  if(p==null)return "";
   var cls=p>=70?"pct-g":p>=50?"pct-a":"pct-b";
-  return '<div class="pct-badge '+cls+'"><div class="pct-badge-lbl">TMDB</div><div class="pct-badge-val">'+p+'%</div></div>';
+  var lbl=RATING_LABELS[ratingSource]||'TMDB';
+  return '<div class="pct-badge '+cls+'"><div class="pct-badge-lbl">'+lbl+'</div><div class="pct-badge-val">'+p+'%</div></div>';
 }
 
 function cardHTML(m){
   const fav=favs.has(m.id), cached=liveCache[m.id];
   const genres=(m.genres||[]).slice(0,2).map(g=>`<span class="gtag">${esc(g)}</span>`).join("");
   const ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
-  const badge=pctBadge(cached);
+  const badge=pctBadge(cached,m);
   const titleH=hlField(m,"title");
   const dirH=m.director?hlField(m,"director"):"";
   const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?STAR_ON:STAR_OFF}</button>`;
+  if(posterWall){
+    const hp=m.poster_thumb&&m.poster_thumb.length>10;
+    return `<div class="pwcard" data-id="${m.id}" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}</div>`;
+  }
   if(grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
@@ -569,34 +618,46 @@ function updFavBtn(btn,id){var f=favs.has(id);btn.innerHTML=f?"&#11088; Odstrani
 function openDet(id){
   const m=all.find(x=>x.id===id); if(!m)return;
   curId=id;
+  const cached=liveCache[id];
   document.getElementById("detTitle").textContent=m.title;
   document.getElementById("detYr").textContent=[m.year||"",m.duration,m.country].filter(Boolean).join(" - ");
   const hp=m.poster_thumb&&m.poster_thumb.length>10;
+  var backdropSrc=(cached&&cached.backdropUrl)||null;
+  var heroSrc=backdropSrc||m.poster_thumb;
   ["detBlur","detCover"].forEach(eid=>{
     const el=document.getElementById(eid);
-    el.style.display=hp?"block":"none"; if(hp)el.src=m.poster_thumb;
+    el.style.display=hp?"block":"none"; if(hp)el.src=heroSrc;
   });
+  if(backdropSrc){
+    var coverEl=document.getElementById("detCover");
+    if(coverEl){coverEl.src=backdropSrc;coverEl.style.display="block";}
+    var blurEl=document.getElementById("detBlur");
+    if(blurEl)blurEl.style.display="none";
+  }
   const ins=document.getElementById("detInset"); ins.style.display=hp?"block":"none";
   if(hp)document.getElementById("detInsetImg").src=m.poster_thumb;
   document.getElementById("detBg").style.display=hp?"none":"block";
 
-  const fav=favs.has(id), cached=liveCache[id];
+  const fav=favs.has(id);
   const genres=(m.genres||[]).map(g=>`<span class="dg-tag">${esc(g)}</span>`).join("");
   const items=[];
-  if(m.director)items.push(["Režíser",m.director]);
-  items.push(["Rok",m.year||"–"],["Dĺžka",m.duration||"–"],["Krajina",m.country||"–"],["#",m.num]);
+  if(m.director)items.push(["Režíser",'<a class="det-person-link" data-person="'+esc(m.director)+'">'+esc(m.director)+'</a>']);
+  items.push(["Rok",esc(String(m.year||"–"))],["Dĺžka",esc(String(m.duration||"–"))],["Krajina",esc(String(m.country||"–"))],["#",esc(String(m.num))]);
   const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
   const imdbUrl=(cached&&cached.imdbUrl)||null;
+  const csfdUrl=m._csfdUrl||null;
 
   // Rating pill
   let ratingHtml;
-  if(!cached){
+  var detPct=getMoviePct(m);
+  var detLbl=RATING_LABELS[ratingSource]||'TMDB';
+  if(!cached&&ratingSource==='tmdb'){
     ratingHtml=`<div class="rating-pill-na" id="ratingBox">${tmdbKey?"Načítavam…":"–"}</div>`;
-  } else if(cached.pct!=null){
-    const col=cached.pct>=70?"#00c853":cached.pct>=50?"#ffd600":"#e53935";
-    ratingHtml=`<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:${col}">${cached.pct}%</div></div>`;
+  } else if(detPct!=null){
+    const col=detPct>=70?"#00c853":detPct>=50?"#ffd600":"#e53935";
+    ratingHtml=`<div class="rating-pill"><div class="rating-pill-lbl">${detLbl}</div><div class="rating-pill-val" style="color:${col}">${detPct}%</div></div>`;
   } else {
-    ratingHtml='<div class="rating-pill-na">N/A</div>';
+    ratingHtml='<div class="rating-pill-na" id="ratingBox">N/A</div>';
   }
 
   const html=
@@ -619,11 +680,20 @@ function openDet(id){
       <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
       ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
                '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
+      ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
+               '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
+      <a class="btn-jw" href="https://www.justwatch.com/sk/vyh%C4%BEad%C3%A1va%C5%A5?q=${encodeURIComponent(m.title)}" target="_blank"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Kde pozerať</a>
+      <button class="btn-match" id="btnMatch" title="Ručné TMDB párovanie">&#x2699; Párovanie</button>
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
     <div class="sec">Detaily</div>
-    <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${esc(String(it[1]))}</div></div>`).join("")}</div>
-    ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${esc(m.cast)}</div>`:""}
+    <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${it[1]}</div></div>`).join("")}</div>
+    ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${m.cast.split(',').map(function(a){var n=a.trim();return n?'<a class="det-person-link" data-person="'+esc(n)+'">'+esc(n)+'</a>':'';}).filter(Boolean).join(', ')}</div>`:""}
+    <div class="sec">Tagy</div>
+    <div class="det-tags" id="detTags">
+      ${(m._tags||[]).map(function(t){return '<span class="det-tag">'+esc(t)+'<button class="det-tag-x" data-tag="'+esc(t)+'">&times;</button></span>';}).join('')}
+      <span class="det-tag-add" id="detTagAdd">+ pridať</span>
+    </div>
     ${buildSimilarHtml(m)}`;
 
   document.getElementById("detBody").innerHTML=html;
@@ -636,7 +706,7 @@ function openDet(id){
   document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    var _playMode = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : 'VLC');
+    var _playMode = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : playerProto.toUpperCase());
     playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + _playMode;
     playBtn.onclick=function(){
       var _m=all.find(function(x){return x.id===id;})||m;
@@ -645,12 +715,31 @@ function openDet(id){
   }
   document.getElementById("btnPlayCopy").onclick=function(){copyMoviePath(id);};
   document.getElementById("btnTr").onclick=function(){openTrailer(id);};
+  document.getElementById("btnMatch").onclick=function(){openMatchPanel(id);};
+  document.querySelectorAll(".det-person-link").forEach(function(el){
+    el.onclick=function(e){e.preventDefault();closeDet();var inp=document.getElementById("srchInp");if(inp){inp.value=el.dataset.person;inp.dispatchEvent(new Event("input"));}};
+  });
+  var tagAdd=document.getElementById("detTagAdd");
+  if(tagAdd) tagAdd.onclick=function(){
+    var tag=prompt("Nový tag:");
+    if(!tag||!tag.trim())return;
+    tag=tag.trim();
+    if(!m._tags)m._tags=[];
+    if(m._tags.indexOf(tag)<0){m._tags.push(tag);saveAllData();scheduleAutoPush('tag');openDet(id);}
+  };
+  document.querySelectorAll(".det-tag-x").forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var tag=btn.dataset.tag;
+      if(m._tags){m._tags=m._tags.filter(function(t){return t!==tag;});if(!m._tags.length)delete m._tags;saveAllData();scheduleAutoPush('tag');openDet(id);}
+    };
+  });
   document.getElementById("mainSc").classList.add("hidden");
   document.getElementById("detSc").classList.remove("hidden");
   document.getElementById("detBody").scrollTop=0;
   if(!cached)fetchLiveData(id);
 }
-function closeDet(){document.getElementById("detSc").classList.add("hidden");document.getElementById("mainSc").classList.remove("hidden");renderList(filt);}
+function closeDet(){document.getElementById("detSc").classList.add("hidden");document.getElementById("mainSc").classList.remove("hidden");}
 
 function fetchLiveData(id){
   var m=all.find(function(x){return x.id===id;});if(!m||!tmdbKey)return;
@@ -660,21 +749,43 @@ function fetchLiveData(id){
   doTMDBFetch(m,function(data){clearTimeout(timer);if(data){liveCache[id]=data;saveLiveCache();}if(curId===id)applyLive(id,data);},ac?ac.signal:null);
 }
 function applyLive(id,data){
-  // Update rating pill
   var rbox=document.getElementById("ratingBox");
   if(rbox){
-    if(data&&data.pct!=null){
-      var col=data.pct>=70?"#00c853":data.pct>=50?"#ffd600":"#e53935";
-      rbox.outerHTML='<div class="rating-pill"><div class="rating-pill-lbl">TMDB</div><div class="rating-pill-val" style="color:'+col+'">'+data.pct+'%</div></div>';
+    var mv=all.find(function(x){return x.id===id;});
+    var p=mv?getMoviePct(mv):(data&&data.pct!=null?data.pct:null);
+    var lbl=RATING_LABELS[ratingSource]||'TMDB';
+    if(p!=null){
+      var col=p>=70?"#00c853":p>=50?"#ffd600":"#e53935";
+      rbox.outerHTML='<div class="rating-pill"><div class="rating-pill-lbl">'+lbl+'</div><div class="rating-pill-val" style="color:'+col+'">'+p+'%</div></div>';
     } else {
-      rbox.outerHTML='<div class="rating-pill-na">N/A</div>';
+      rbox.outerHTML='<div class="rating-pill-na" id="ratingBox">N/A</div>';
     }
   }
   if(!data)return;
+  if(data.posterUrl){
+    var mv=all.find(function(x){return x.id===id;});
+    if(mv) mv.poster_thumb=data.posterUrl;
+    ["detBlur","detCover"].forEach(function(eid){
+      var el=document.getElementById(eid);
+      if(el){el.src=data.posterUrl;el.style.display='block';}
+    });
+    var insetEl=document.getElementById("detInsetImg");
+    if(insetEl) insetEl.src=data.posterUrl;
+    var insetWrap=document.getElementById("detInset");
+    if(insetWrap) insetWrap.style.display='block';
+    var bgEl=document.getElementById("detBg");
+    if(bgEl) bgEl.style.display='none';
+  }
   if(data.ytKey){var b=document.getElementById("btnTr");if(b)b.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="6,3 20,12 6,21"/></svg>Prehrať Trailer';}
+  if(data.backdropUrl){
+    var coverEl=document.getElementById("detCover");
+    if(coverEl){coverEl.src=data.backdropUrl;coverEl.style.display='block';coverEl.style.filter='brightness(.55)';}
+    var blurEl=document.getElementById("detBlur");
+    if(blurEl)blurEl.style.display='none';
+  }
   if(data.tmdbUrl){var tb=document.getElementById("btnTmdb");if(tb)tb.href=data.tmdbUrl;}
   if(data.imdbUrl){var ib=document.getElementById("btnImdb");if(ib){ib.href=data.imdbUrl;ib.style.display="inline-flex";}}
-  var mv=all.find(function(x){return x.id===id;});if(mv&&data.ytKey)mv._yt=data.ytKey;
+  var mv2=all.find(function(x){return x.id===id;});if(mv2&&data.ytKey)mv2._yt=data.ytKey;
 }
 
 
@@ -685,10 +796,17 @@ function applyLive(id,data){
 function doTMDBFetch(m,cb,signal){
   if(!tmdbKey){cb(null);return;}
   var opts=signal?{signal:signal}:{};
-  fetch("https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&year="+(m.year||"")+"&language=sk",opts)
+  var baseUrl="https://api.themoviedb.org/3/search/movie?api_key="+tmdbKey+"&query="+encodeURIComponent(m.title)+"&language=sk";
+  fetch(baseUrl+"&year="+(m.year||""),opts)
     .then(function(r){return r.json();})
     .then(function(sd){
-      if(!sd.results||!sd.results.length){cb(null);return;}
+      if(!sd.results||!sd.results.length){
+        return fetch(baseUrl,opts).then(function(r2){return r2.json();});
+      }
+      return sd;
+    })
+    .then(function(sd){
+      if(!sd||!sd.results||!sd.results.length){cb(null);return;}
       var res=sd.results[0],tmdbId=res.id;
       var pct=res.vote_average?Math.round(res.vote_average*10):null;
       var posterUrl=res.poster_path?"https://image.tmdb.org/t/p/w300"+res.poster_path:null;
@@ -699,7 +817,8 @@ function doTMDBFetch(m,cb,signal){
           var imdbId=d.external_ids&&d.external_ids.imdb_id?d.external_ids.imdb_id:null;
           var videos=d.videos&&d.videos.results?d.videos.results:[];
           var tr=videos.find(function(v){return v.type==="Trailer"&&v.site==="YouTube";})||videos.find(function(v){return v.site==="YouTube";});
-          cb({pct:pct,ytKey:tr?tr.key:null,posterUrl:posterUrl,
+          var backdropUrl=d.backdrop_path?"https://image.tmdb.org/t/p/w1280"+d.backdrop_path:null;
+          cb({pct:pct,ytKey:tr?tr.key:null,posterUrl:posterUrl,backdropUrl:backdropUrl,
               tmdbUrl:"https://www.themoviedb.org/movie/"+tmdbId,
               imdbUrl:imdbId?"https://www.imdb.com/title/"+imdbId+"/":null});
         });
@@ -720,24 +839,10 @@ function settStartBatch(){
   var total=queue.length,done=0;
   var bar=document.getElementById("batchBar");
   bar.classList.remove("hidden");
-  _shiftScrnBody(true);
+  /* bar is in flow now */
   document.getElementById("batchInfo").textContent="0/"+total;
   document.getElementById("batchFill").style.width="0%";
 
-  function savePersistent(){
-    saveLiveCache();
-    try{
-      var toSave=all.map(function(m){
-        var c=Object.assign({},m);
-        if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0) c.poster_thumb="";
-        return c;
-      });
-      safeSave(SK,JSON.stringify(toSave));
-    }catch(e){}
-  }
-
-  // FIX: Parallel batch — 5 concurrent requests instead of 1 sequential.
-  // TMDB rate limit ~40 req/s; groups of 5 every 300ms = ~16 req/s (safe).
   var CONCURRENCY=5;
   function runBatch(){
     if(!liveRunning||!queue.length){
@@ -745,10 +850,11 @@ function settStartBatch(){
         liveRunning=false;
         if(tmdbAbortCtrl){tmdbAbortCtrl.abort();tmdbAbortCtrl=null;}
         bar.classList.add("hidden");
-        _shiftScrnBody(false);
-        savePersistent();
+        /* bar is in flow now */
+        saveAllData();
         renderList(filt);
         toast("Načítané: "+done+"/"+total+" filmov!");
+        scheduleAutoPush('tmdb-batch');
       }
       return;
     }
@@ -760,7 +866,7 @@ function settStartBatch(){
         done++;
         document.getElementById("batchFill").style.width=Math.round(done/total*100)+"%";
         document.getElementById("batchInfo").textContent=done+"/"+total;
-        if(done%50===0) savePersistent();
+        if(done%50===0) saveAllData();
         pending--;
         if(pending===0){
           if(done%20<CONCURRENCY) renderList(filt);
@@ -772,13 +878,175 @@ function settStartBatch(){
   runBatch();
 }
 
+function startImdbBatch(){
+  if(!omdbKey){
+    var st=document.getElementById('omdbKeySt');
+    if(st){st.textContent='Najprv zadajte OMDB API kľúč';st.className='sett-key-st';}
+    return;
+  }
+  var ready=[],needTmdb=[];
+  all.forEach(function(m){
+    if(m._pctImdb!=null) return;
+    var c=liveCache[m.id];
+    var url=(c&&c.imdbUrl)||m._imdbUrl||null;
+    if(url){
+      var match=url.match(/tt\d+/);
+      if(match){ready.push({movie:m, imdbId:match[0]});return;}
+    }
+    var tid=m.tmdbId||null;
+    if(!tid){
+      var cu=c&&c.tmdbUrl;
+      if(cu){var tm=cu.match(/\/movie\/(\d+)/);if(tm)tid=parseInt(tm[1]);}
+    }
+    if(tid) needTmdb.push({movie:m, tmdbId:tid});
+  });
+  if(!ready.length&&!needTmdb.length){toast('Žiadne filmy na načítanie IMDB hodnotení');return;}
+  var fill=document.getElementById('imdbPfill');
+  var stEl=document.getElementById('imdbBatchSt');
+
+  if(needTmdb.length&&tmdbKey){
+    stEl.textContent='Hľadám IMDB ID cez TMDb ('+needTmdb.length+' filmov)...';
+    fill.style.width='0%';
+    var ti=0,resolved=0;
+    function nextTmdb(){
+      if(ti>=needTmdb.length){
+        stEl.textContent='Nájdených '+resolved+' IMDB ID. Sťahujem hodnotenia...';
+        runOmdbBatch(ready);
+        return;
+      }
+      var it=needTmdb[ti++];
+      fetch('https://api.themoviedb.org/3/movie/'+it.tmdbId+'/external_ids?api_key='+tmdbKey)
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d.imdb_id){
+            it.movie._imdbUrl='https://www.imdb.com/title/'+d.imdb_id+'/';
+            ready.push({movie:it.movie, imdbId:d.imdb_id});
+            resolved++;
+          }
+        })
+        .catch(function(){})
+        .then(function(){
+          fill.style.width=Math.round(ti/needTmdb.length*30)+'%';
+          setTimeout(nextTmdb,120);
+        });
+    }
+    nextTmdb();
+  } else {
+    runOmdbBatch(ready);
+  }
+
+  function runOmdbBatch(queue){
+    if(!queue.length){
+      stEl.textContent='Žiadne IMDB ID nájdené';
+      fill.style.width='100%';
+      return;
+    }
+    var total=queue.length,done=0,updated=0,failed=0;
+    fill.style.width='30%';
+    stEl.textContent='0 / '+total;
+    var idx=0;
+    function next(){
+      if(idx>=queue.length){
+        saveAllData();
+        fill.style.width='100%';
+        stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
+        renderList(filt);
+        scheduleAutoPush('imdb-batch');
+        return;
+      }
+      var item=queue[idx++];
+      fetch('/api/omdb?i='+item.imdbId+'&apikey='+omdbKey)
+        .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+        .catch(function(){
+          return fetch('https://www.omdbapi.com/?i='+item.imdbId+'&apikey='+omdbKey)
+            .then(function(r){return r.json();});
+        })
+        .then(function(d){
+          if(d&&d.Response==='True'&&d.imdbRating&&d.imdbRating!=='N/A'){
+            var pct=Math.round(parseFloat(d.imdbRating)*10);
+            if(!isNaN(pct)){item.movie._pctImdb=pct;updated++;}
+          }
+        })
+        .catch(function(){failed++;})
+        .then(function(){
+          done++;
+          fill.style.width=Math.round(30+done/total*70)+'%';
+          stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
+          if(done%50===0) saveAllData();
+          setTimeout(next,200);
+        });
+    }
+    next();
+  }
+}
+
+function startCsfdBatch(){
+  var queue=[];
+  all.forEach(function(m){
+    if(m._pctCsfd!=null) return;
+    var url=m._csfdUrl;
+    if(!url) return;
+    queue.push({movie:m, url:url});
+  });
+  if(!queue.length){toast('Žiadne filmy s ČSFD linkom na načítanie');return;}
+  var fill=document.getElementById('csfdPfill');
+  var stEl=document.getElementById('csfdBatchSt');
+  var total=queue.length,done=0,updated=0,failed=0;
+  fill.style.width='0%';
+  stEl.textContent='0 / '+total;
+
+  var idx=0;
+  function next(){
+    if(idx>=queue.length){
+      saveAllData();
+      fill.style.width='100%';
+      stEl.textContent='Hotovo: '+updated+' hodnotení načítaných'+(failed?' ('+failed+' chýb)':'');
+      renderList(filt);
+      scheduleAutoPush('csfd-batch');
+      return;
+    }
+    var item=queue[idx++];
+    fetch('/api/csfd?url='+encodeURIComponent(item.url))
+      .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+      .then(function(d){
+        if(d&&d.rating!=null){
+          item.movie._pctCsfd=d.rating;updated++;
+        }
+      })
+      .catch(function(){failed++;})
+      .then(function(){
+        done++;
+        fill.style.width=Math.round(done/total*100)+'%';
+        stEl.textContent=done+' / '+total+(updated?' ('+updated+' OK)':'');
+        if(done%50===0) saveAllData();
+        setTimeout(next,300);
+      });
+  }
+  next();
+}
+
 function openTrailer(id){
   var m=all.find(function(x){return x.id===id;});if(!m)return;
-  var cached=liveCache[id],ytKey=m._yt||(cached&&cached.ytKey)||null;
-  if(ytKey){document.getElementById("trFrame").src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";document.getElementById("trOv").classList.remove("hidden");}
-  else window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+  var cached=liveCache[id];
+  var ytKey=m._yt||(cached&&cached.ytKey)||null;
+  if(!ytKey&&cached&&cached.ytKey) ytKey=cached.ytKey;
+  if(ytKey){
+    var ov=document.getElementById("trOv");
+    var fr=document.getElementById("trFrame");
+    fr.src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";
+    ov.classList.remove("hidden");
+    ov.style.display="flex";
+  } else {
+    window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+  }
 }
-function closeTr(){document.getElementById("trFrame").src="";document.getElementById("trOv").classList.add("hidden");}
+function closeTr(){
+  var fr=document.getElementById("trFrame");
+  var ov=document.getElementById("trOv");
+  fr.src="";
+  ov.classList.add("hidden");
+  ov.style.display="";
+}
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: Statistics with Chart.js
@@ -844,9 +1112,10 @@ function showStats(){
   const withLive=Object.keys(liveCache).length;
   const withPoster=all.filter(m=>m.poster_thumb&&m.poster_thumb.length>10).length;
 
-  // Average TMDB rating
-  const rated=Object.values(liveCache).filter(v=>v&&v.pct!=null);
-  const avgRating=rated.length?Math.round(rated.reduce((a,v)=>a+v.pct,0)/rated.length):null;
+  // Average rating (uses selected source)
+  const ratedMovies=all.filter(function(m){return getMoviePct(m)!=null;});
+  const avgRating=ratedMovies.length?Math.round(ratedMovies.reduce(function(a,m){return a+getMoviePct(m);},0)/ratedMovies.length):null;
+  const rated=ratedMovies;
 
   // Top directors (top 8)
   const dirCounts={};
@@ -962,8 +1231,7 @@ function keyStatus(stId,key){var st=document.getElementById(stId);if(!st)return;
    MODULE: Settings Panel
    ══════════════════════════════════════════════════════════ */
 function openSett(){
-  // Keep the panel predictable: always open on the first settings tab.
-  activateSettingsTab("appearance");
+  // Reset advanced section state each time panel opens
   // Sync color picker with current accent
   // Show GitHub token STATUS (never reveal the actual token)
   try {
@@ -999,14 +1267,29 @@ function openSett(){
   });
   document.getElementById("tmdbKeyInp").value=tmdbKey;
   document.getElementById("tmdbKeyInp").type="password";
-  document.getElementById("tmdbEye").textContent="\uD83D\uDC41";
   keyStatus("tmdbKeySt",tmdbKey);
+  var omdbInp=document.getElementById('omdbKeyInp');
+  if(omdbInp){omdbInp.value=omdbKey;omdbInp.type='password';}
+  var omdbSt=document.getElementById('omdbKeySt');
+  if(omdbSt){omdbSt.textContent=omdbKey?'✓ OMDB kľúč uložený':'';omdbSt.className=omdbKey?'sett-key-st ok':'sett-key-st';}
+  var imdbCount=all.filter(function(m){return m._pctImdb!=null;}).length;
+  var imdbSt=document.getElementById('imdbBatchSt');
+  if(imdbSt&&imdbCount)imdbSt.textContent=imdbCount+' filmov s IMDB hodnotením';
+  var csfdCount=all.filter(function(m){return m._pctCsfd!=null;}).length;
+  var csfdSt=document.getElementById('csfdBatchSt');
+  if(csfdSt&&csfdCount)csfdSt.textContent=csfdCount+' filmov s ČSFD hodnotením';
+  var matcherInp=document.getElementById('csfdMatcherUrlInp');
+  if(matcherInp)matcherInp.value=csfdMatcherUrl;
   document.getElementById("ttabList").className="ttab"+(grid?"":" on");
   document.getElementById("ttabGrid").className="ttab"+(grid?" on":"");
   document.getElementById("settSortSel").value=prefs.sort||"num";
   var lc=Object.keys(liveCache).length;
   document.getElementById("settPfill").style.width=all.length?(lc/all.length*100)+"%":"0%";
   document.getElementById("settBatchSt").textContent=lc>0?lc+" z "+all.length+" filmov nacitanych":"";
+  var _ig=document.getElementById("settInfoGrid");
+  if(_ig)_ig.innerHTML=
+    infoItem("Filmov",all.length)+infoItem("S plagatom",all.filter(function(m){return m.poster_thumb&&m.poster_thumb.length>10;}).length)+
+    infoItem("Hodnotenia",lc)+infoItem("Oblubene",favs.size)+infoItem("Watchlist",wl.size)+infoItem("Videne",watched.size);
   var vt=document.getElementById("viewTog"); if(vt && vt.tagName==="SELECT") vt.value=grid?"grid":"list";
   document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
     b.className = 'ttab' + (b.dataset.mode === pathMode ? ' on' : '');
@@ -1026,6 +1309,10 @@ function openSett(){
   }
   // Sync autoPullTog
   const _apt=document.getElementById("autoPullTog"); if(_apt)_apt.checked=autoPull;
+  // Sync rating source toggle
+  document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){
+    b.className=(b.dataset.src===ratingSource)?'ttab on':'ttab';
+  });
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 }
@@ -1035,23 +1322,43 @@ function closeSett() {
   document.getElementById("settPanel").classList.add("hidden");
 }
 
+function activateSettingsTab(tabKey){
+  var key=tabKey||"appearance";
+  document.querySelectorAll(".sett-tab").forEach(function(tab){
+    var active=tab.dataset.tab===key;
+    tab.classList.toggle("active",active);
+    tab.setAttribute("aria-selected",active?"true":"false");
+  });
+  document.querySelectorAll(".sett-tab-panel").forEach(function(panel){
+    panel.classList.toggle("active",panel.dataset.panel===key);
+  });
+}
+
 function infoItem(l, v) {
   return `<div class="sett-info-item"><div class="sett-info-lbl">${l}</div><div class="sett-info-val">${v}</div></div>`;
 }
 
+var VIEW_MODES=['list','grid','posterwall'];
+var VIEW_ICONS={
+  list:'<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>',
+  grid:'<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>',
+  posterwall:'<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="1" width="4" height="6" rx="1"/><rect x="6" y="1" width="4" height="6" rx="1"/><rect x="11" y="1" width="4" height="6" rx="1"/><rect x="1" y="9" width="4" height="6" rx="1"/><rect x="6" y="9" width="4" height="6" rx="1"/><rect x="11" y="9" width="4" height="6" rx="1"/></svg>'
+};
+var VIEW_TITLES={list:'Prepnúť na grid',grid:'Prepnúť na poster wall',posterwall:'Prepnúť na zoznam'};
 function settSetView(v){
   grid = v === 'grid';
+  posterWall = v === 'posterwall';
   var ml = document.getElementById('mlist');
   var vt = document.getElementById('viewTog');
-  if (ml) ml.className = grid ? 'mlist grid' : 'mlist';
+  if (ml) ml.className = posterWall ? 'mlist posterwall' : grid ? 'mlist grid' : 'mlist';
   if (vt) {
-    vt.innerHTML = grid ? '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>' : '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>';
-    vt.title = grid ? 'Prepnúť na zoznam' : 'Prepnúť na grid';
+    vt.innerHTML = VIEW_ICONS[v]||VIEW_ICONS.list;
+    vt.title = VIEW_TITLES[v]||'';
   }
   var tl = document.getElementById('ttabList');
   var tg = document.getElementById('ttabGrid');
-  if (tl) tl.className = 'ttab' + (grid ? '' : ' on');
-  if (tg) tg.className = 'ttab' + (grid ? ' on' : '');
+  if (tl) tl.className = 'ttab' + (v==='list' ? ' on' : '');
+  if (tg) tg.className = 'ttab' + (v==='grid' ? ' on' : '');
   prefs.view = v; savePrefs(); renderList(filt);
 }
 function settSetSort(v){prefs.sort=v;savePrefs();document.getElementById("sortSel").value=v;syncSortPill();applyFilters();}
@@ -1373,7 +1680,13 @@ function findDuplicates(){
 function showMod(t,s){document.getElementById("mTtl").textContent=t;document.getElementById("mSub").textContent=s;document.getElementById("mFill").style.width="0%";document.getElementById("mStat").textContent="0%";document.getElementById("mOv").classList.remove("hidden");}
 function setP(p,s){document.getElementById("mFill").style.width=p+"%";document.getElementById("mStat").textContent=s;}
 function hideMod(){document.getElementById("mOv").classList.add("hidden");}
-function toast(msg){var t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.remove();},3000);}
+function toast(msg){
+  var t=document.createElement("div");t.className="toast";
+  t.setAttribute("role","status");t.textContent=msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(function(){t.classList.add("show");});
+  setTimeout(function(){t.classList.remove("show");setTimeout(function(){t.remove();},250);},3000);
+}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 
@@ -1407,248 +1720,80 @@ window.addEventListener("unhandledrejection",function(e){
   if(typeof toast==="function") toast("⚠ Async chyba: "+(reason&&reason.message?reason.message:String(reason)).slice(0,80));
 });
 
-function registerServiceWorker(){
-  if(typeof navigator==="undefined"||!("serviceWorker" in navigator)) return;
+
+/* ══════════════════════════════════════════════════════
+   SERVICE WORKER — offline shell + data caching (sw.js)
+   Skipped for file:// (exported HTML backups).
+   ══════════════════════════════════════════════════════ */
+if("serviceWorker" in navigator && location.protocol.indexOf("http")===0){
   window.addEventListener("load",function(){
-    navigator.serviceWorker.register("sw.js").catch(function(err){
-      console.warn("[FilmDB] Service Worker registration failed",err);
+    navigator.serviceWorker.register("./sw.js").catch(function(err){
+      console.warn("[FilmDB] SW registration failed:",err);
     });
-  });
-}
-
-function byId(id){return document.getElementById(id);}
-function bindEl(id,eventName,handler){
-  var el=byId(id);
-  if(el)el.addEventListener(eventName,handler);
-  return el;
-}
-
-function saveTmdbKeyFromSettings(){
-  var inp=byId("tmdbKeyInp");
-  var k=inp?inp.value.trim():"";
-  tmdbKey=k;
-  if(k)localStorage.setItem("tmdb_key",k);
-  else localStorage.removeItem("tmdb_key");
-  keyStatus("tmdbKeySt",k);
-  toast(k?"TMDB kľúč uložený":"TMDB kľúč vymazaný");
-}
-
-function clearTmdbKeyFromSettings(){
-  tmdbKey="";
-  localStorage.removeItem("tmdb_key");
-  var inp=byId("tmdbKeyInp");
-  if(inp)inp.value="";
-  keyStatus("tmdbKeySt","");
-  toast("TMDB kľúč vymazaný");
-}
-
-function saveGitHubTokenFromSettings(){
-  var inp=byId("ghTokenInp");
-  var st=byId("ghTokenSt");
-  var t=inp?inp.value.trim():"";
-  if(!t){
-    localStorage.removeItem(GH_KEY);
-    ghToken="";
-    if(inp)inp.placeholder="ghp_... Personal Access Token";
-    if(st){st.textContent="Token vymazaný";st.className="sett-key-st err";}
-    toast("GitHub token vymazaný");
-    return;
-  }
-  if(st){st.textContent="Overujem token...";st.className="sett-key-st info";}
-  validateGhToken(t,function(ok,info){
-    if(!ok){
-      ghToken="";
-      localStorage.removeItem(GH_KEY);
-      if(st){st.textContent="❌ "+info+" — token nebol uložený";st.className="sett-key-st err";}
-      return;
-    }
-    ghToken=t;
-    localStorage.setItem(GH_KEY,t);
-    if(inp){
-      inp.value="";
-      inp.placeholder="••••••••••••••••••••••••••••••••••••••••";
-    }
-    if(st){st.textContent="✓ Token OK — "+info;st.className="sett-key-st ok";}
-    toast("GitHub token uložený");
-  });
-}
-
-function saveAllSettingsFromPanel(){
-  var ghInp=byId("ghTokenInp");
-  if(ghInp&&ghInp.value.trim())saveGitHubTokenFromSettings();
-  var tmdbInp=byId("tmdbKeyInp");
-  if(tmdbInp&&tmdbInp.value.trim())saveTmdbKeyFromSettings();
-
-  var smbInp=byId("smbPathInp");
-  if(smbInp&&smbInp.value.trim()){
-    var sv=smbInp.value.trim();
-    if(sv[sv.length-1]!=="/")sv+="/";
-    smbBase=sv;
-    localStorage.setItem(SMB_KEY,sv);
-  }
-
-  var locInp=byId("localPathInp");
-  if(locInp&&locInp.value.trim()){
-    var lv=locInp.value.trim();
-    if(lv[lv.length-1]!=="\\"&&lv[lv.length-1]!=="/")lv+="\\";
-    var nm={};nm[lv]=smbBase;smbMap=nm;
-    localStorage.setItem(SMB_MAP_KEY,JSON.stringify(nm));
-  }
-
-  var apTog=byId("autoPullTog");
-  if(apTog){
-    autoPull=apTog.checked;
-    localStorage.setItem(AUTO_PULL_KEY,apTog.checked?"1":"0");
-  }
-  var st=byId("saveAllSt");
-  if(st){st.textContent="✓ Nastavenia uložené";st.className="sett-key-st ok";setTimeout(function(){st.textContent="";},3000);}
-  toast("Nastavenia uložené ✓");
-}
-
-function activateSettingsTab(tabKey){
-  var key=tabKey || "appearance";
-  document.querySelectorAll(".sett-tab").forEach(function(tab){
-    var active=tab.dataset.tab===key;
-    tab.classList.toggle("active",active);
-    tab.setAttribute("aria-selected",active?"true":"false");
-  });
-  document.querySelectorAll(".sett-tab-panel").forEach(function(panel){
-    panel.classList.toggle("active",panel.dataset.panel===key);
-  });
-}
-
-function initSettingsPanelControls(){
-  bindEl("settCloseBtn","click",closeSett);
-  bindEl("settOverlay","click",closeSett);
-  bindEl("btnSett","click",openSett);
-  document.querySelectorAll(".sett-tab").forEach(function(tab){
-    tab.addEventListener("click",function(){
-      activateSettingsTab(tab.dataset.tab);
-    });
-  });
-  bindEl("ttabList","click",function(){settSetView("list");});
-  bindEl("ttabGrid","click",function(){settSetView("grid");});
-  bindEl("settSortSel","change",function(){settSetSort(this.value);});
-  bindEl("tmdbEye","click",function(){
-    var inp=byId("tmdbKeyInp");
-    if(!inp)return;
-    inp.type=inp.type==="password"?"text":"password";
-    this.textContent=inp.type==="password"?"\uD83D\uDC41":"\uD83D\uDE48";
-  });
-  bindEl("tmdbSaveKey","click",saveTmdbKeyFromSettings);
-  bindEl("tmdbDelKey","click",clearTmdbKeyFromSettings);
-  bindEl("settBtnPdf","click",impPdf);
-  bindEl("settBtnPdfUpdate","click",impPdfUpdate);
-  bindEl("settBtnBatch","click",settStartBatch);
-  bindEl("settBtnStop","click",function(){
-    liveRunning=false;
-    this.classList.add("hidden");
-    byId("batchBar").classList.add("hidden");
-    saveLiveCache();
-    renderList(filt);
-    toast("Prerušené.");
-  });
-  bindEl("settBtnExport","click",exportHtml);
-  bindEl("settBtnExportJson","click",exportJson);
-  bindEl("settBtnDuplicates","click",findDuplicates);
-  bindEl("settBtnClearLive","click",clearLiveData);
-  bindEl("settBtnClearAll","click",clearAllData);
-  bindEl("settBtnAdmin","click",openAdmin);
-  bindEl("settBtnSaveAll","click",saveAllSettingsFromPanel);
-}
-
-function initSyncSettingsControls(){
-  var autoPush=byId("autoPushTog");
-  if(autoPush){
-    autoPush.checked=prefs.autoPush!==false;
-    autoPush.addEventListener("change",function(){
-      prefs.autoPush=this.checked;
-      savePrefs();
-      toast("Auto-push: "+(this.checked?"zapnutý":"vypnutý"));
-    });
-  }
-  bindEl("ghTokenSave","click",saveGitHubTokenFromSettings);
-  bindEl("ghPushBtn","click",ghPush);
-  bindEl("ghPullBtn","click",ghPull);
-  var autoPullEl=byId("autoPullTog");
-  if(autoPullEl){
-    autoPullEl.checked=autoPull;
-    autoPullEl.addEventListener("change",function(){
-      autoPull=this.checked;
-      localStorage.setItem(AUTO_PULL_KEY,this.checked?"1":"0");
-      toast("Auto-načítanie z GitHubu: "+(this.checked?"zapnuté":"vypnuté"));
-    });
-  }
-}
-
-function initPlaybackSettingsControls(){
-  document.querySelectorAll("#pathModeToggle .ttab").forEach(function(btn){
-    btn.className=(btn.dataset.mode===pathMode)?"ttab on":"ttab";
-    btn.addEventListener("click",function(){
-      pathMode=this.dataset.mode;
-      localStorage.setItem(PATH_MODE_KEY,pathMode);
-      document.querySelectorAll("#pathModeToggle .ttab").forEach(function(b){b.className="ttab";});
-      this.className="ttab on";
-      var label=pathMode==="smb"?"Sieťová cesta (SMB) — aktívna":"Lokálna cesta — aktívna";
-      var hint=byId("pathModeHint");
-      if(hint)hint.textContent=label;
-      toast(label);
-      if(curId){
-        var pb=byId("playMovieBtn");
-        if(pb){
-          var lbl=pb.querySelector(".sett-btn-label");
-          if(lbl){
-            var pm=_isMobile?(pathMode==="smb"?"SMB":"Lokálne"):(pathMode==="smb"?"SMB":"VLC");
-            lbl.textContent="Prehrať · "+pm;
-          }
-          var mc=all.find(function(x){return x.id===curId;});
-          if(mc)pb.onclick=function(){playMovie(mc.id);};
-        }
-      }
-    });
-  });
-
-  bindEl("smbPathSave","click",function(){
-    var inp=byId("smbPathInp");
-    var val=inp?inp.value.trim():"";
-    if(val){
-      if(val[val.length-1]!=="/")val+="/";
-      smbBase=val;
-      localStorage.setItem(SMB_KEY,val);
-    }
-    var localInp=byId("localPathInp");
-    var localVal=localInp?localInp.value.trim():"";
-    if(localVal&&val){
-      if(localVal[localVal.length-1]!=="\\"&&localVal[localVal.length-1]!=="/")localVal+="\\";
-      var newMap={};newMap[localVal]=val;smbMap=newMap;
-      localStorage.setItem(SMB_MAP_KEY,JSON.stringify(newMap));
-    }
-    var st=byId("smbPathSt");
-    if(st){st.textContent="✓ SMB: "+(val||smbBase);st.className="sett-key-st ok";}
-    toast("SMB základ uložený");
-  });
-
-  bindEl("localPathSave","click",function(){
-    var inp=byId("localPathInp");
-    var localVal=inp?inp.value.trim():"";
-    if(!localVal){toast("Zadaj lokálny základ (napr. W:\\Movies\\)");return;}
-    if(localVal[localVal.length-1]!=="\\"&&localVal[localVal.length-1]!=="/")localVal+="\\";
-    var newMap={};newMap[localVal]=smbBase;smbMap=newMap;
-    localStorage.setItem(SMB_MAP_KEY,JSON.stringify(newMap));
-    var stL=byId("localPathSt");
-    if(stL){stL.textContent="✓ Lokálna cesta: "+localVal;stL.className="sett-key-st ok";}
-    var stS=byId("smbPathSt");
-    if(stS&&smbBase){stS.textContent="✓ SMB mapovanie: "+localVal+" → "+smbBase;stS.className="sett-key-st ok";}
-    toast("Lokálny základ uložený");
   });
 }
 
 
 document.addEventListener("DOMContentLoaded",function(){
   init();
-  initSettingsPanelControls();
-  initSyncSettingsControls();
-  initPlaybackSettingsControls();
+  var _scb = document.getElementById('settCloseBtn');
+  if (_scb) _scb.addEventListener('click', closeSett);
+  var _so = document.getElementById('settOverlay');
+  if (_so) _so.addEventListener('click', closeSett);
+  document.querySelectorAll('.sett-tab').forEach(function(tab){
+    tab.addEventListener('click',function(){activateSettingsTab(tab.dataset.tab);});
+  });
+
+  // Auto-push toggle
+  var _apt = document.getElementById('autoPushTog');
+  if (_apt) {
+    _apt.checked = prefs.autoPush !== false;
+    _apt.addEventListener('change', function(){
+      prefs.autoPush = this.checked;
+      savePrefs();
+      toast(`Auto-push: ${this.checked?'zapnutý':'vypnutý'}`);
+    });
+  }
+  // Player protocol toggle (MPC / VLC)
+  document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      playerProto = this.dataset.proto;
+      localStorage.setItem(PLAYER_PROTO_KEY, playerProto);
+      document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){b.className='ttab';});
+      this.className='ttab on';
+      toast('Prehrávač: ' + playerProto.toUpperCase());
+      var _pb2=document.getElementById('playMovieBtn');
+      if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+playerProto.toUpperCase();}
+      updatePathPreview();
+    });
+  });
+  document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){
+    b.className = (b.dataset.proto === playerProto) ? 'ttab on' : 'ttab';
+  });
+
+  function syncSortPctLabel(){
+    var o=document.getElementById('sortPctOpt');
+    if(o) o.textContent='Podľa % '+RATING_LABELS[ratingSource];
+  }
+  syncSortPctLabel();
+  document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      ratingSource=this.dataset.src;
+      localStorage.setItem('mdb_ratingsrc',ratingSource);
+      document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){b.className='ttab';});
+      this.className='ttab on';
+      var stEl=document.getElementById('ratingSrcSt');
+      if(stEl){stEl.textContent='✓ '+RATING_LABELS[ratingSource]+' — uložené';stEl.className='sett-key-st ok';}
+      syncSortPctLabel();
+      applyFilters();
+      toast('Hodnotenia: '+RATING_LABELS[ratingSource]);
+    });
+  });
+  document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){
+    b.className=(b.dataset.src===ratingSource)?'ttab on':'ttab';
+  });
+
+  var _su=document.getElementById("settBtnPdfUpdate");if(_su)_su.addEventListener("click",impPdfUpdate);
   var _fu=document.getElementById("fileInpUpdate");if(_fu)_fu.addEventListener("change",handleFileUpdate);
   var ebZip = document.getElementById('emptyBtnZip');
   if (ebZip) ebZip.addEventListener('click', function(){document.getElementById('fileInp').click();});
@@ -1656,18 +1801,121 @@ document.addEventListener("DOMContentLoaded",function(){
   if (ebPull) ebPull.addEventListener('click', function(){ ghPull(); });
 
   autoCheckGitHub();
+  // Path mode toggle + SMB settings
+  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      pathMode = this.dataset.mode;
+      localStorage.setItem(PATH_MODE_KEY, pathMode);
+      document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){b.className='ttab';});
+      this.className = 'ttab on';
+      // Aktualizuj hint - jasné zobrazenie aktívneho stavu
+var _modeLabel = pathMode === 'smb' ? 'Sieťová cesta (SMB) — aktívna' : 'Lokálna cesta — aktívna';
+toast(_modeLabel);
+      // Aktualizuj hint s ukážkou cesty
+      var _hint = document.getElementById('pathModeHint');
+      if (_hint) {
+        _hint.textContent = pathMode === 'smb' ? 'Sieťová (SMB) — aktívna' : 'Lokálna cesta — aktívna';
+      }
+      updatePathPreview();
+      // Aktualizuj detail panel ak je otvorený
+      var _dpth = document.querySelector('.det-path-hint');
+      // Aktualizuj play button label ak je detail otvorený
+      if (curId) {
+        var _pb = document.getElementById('playMovieBtn');
+        if (_pb) {
+          var _lbl = _pb.querySelector('.sett-btn-label');
+          if (_lbl) {
+            var _pm = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : playerProto.toUpperCase());
+            _lbl.textContent = 'Prehráť · ' + _pm;
+          }
+          var _mc = all.find(function(x){return x.id===curId;});
+          if (_mc) _pb.onclick = function(){ playMovie(_mc.id); };
+        }
+      }
+    });
+  // Set initial active state for pathMode buttons based on localStorage
+  document.querySelectorAll('#pathModeToggle .ttab').forEach(function(b){
+    b.className = (b.dataset.mode === pathMode) ? 'ttab on' : 'ttab';
+  });
+  });
+  var smbSaveBtn = document.getElementById('smbPathSave');
+  if (smbSaveBtn) smbSaveBtn.addEventListener('click', function(){
+    var val = document.getElementById('smbPathInp').value.trim();
+    if (val) {
+      if (val[val.length-1] !== '/') val += '/';
+      smbBase = val;
+      localStorage.setItem(SMB_KEY, val);
+    }
+    // Sync smbMap s aktuálnym localPathInp
+    var localVal = document.getElementById('localPathInp').value.trim();
+    if (localVal && val) {
+      if (localVal[localVal.length-1] !== '\\' && localVal[localVal.length-1] !== '/') localVal += '\\';
+      var newMap = {};
+      newMap[localVal] = val;
+      smbMap = newMap;
+      localStorage.setItem(SMB_MAP_KEY, JSON.stringify(newMap));
+    }
+    var st = document.getElementById('smbPathSt');
+    if (st) { st.textContent = '✓ SMB: ' + (val||smbBase); st.className = 'sett-key-st ok'; }
+    updatePathPreview();
+    toast('SMB základ uložený');
+  });
+
+  // Samostatný listener pre localPathSave
+  var localSaveBtn = document.getElementById('localPathSave');
+  if (localSaveBtn) localSaveBtn.addEventListener('click', function(){
+    var localVal = document.getElementById('localPathInp').value.trim();
+    if (!localVal) { toast('Zadaj lokálny základ (napr. W:\\Movies\\)'); return; }
+    if (localVal[localVal.length-1] !== '\\' && localVal[localVal.length-1] !== '/') localVal += '\\';
+    // Aktualizuj smbMap: localVal → smbBase
+    var newMap = {};
+    newMap[localVal] = smbBase;
+    smbMap = newMap;
+    localStorage.setItem(SMB_MAP_KEY, JSON.stringify(newMap));
+    var stL = document.getElementById('localPathSt');
+    if (stL) { stL.textContent = '✓ Lokálna cesta: ' + localVal; stL.className = 'sett-key-st ok'; }
+    var stS = document.getElementById('smbPathSt');
+    if (stS && smbBase) { stS.textContent = '✓ SMB mapovanie: ' + localVal + '→ ' + smbBase; stS.className = 'sett-key-st ok'; }
+    updatePathPreview();
+    toast('Lokálny základ uložený');
+  });
+
+  var _thBtn=document.getElementById('testHandlerBtn');
+  if(_thBtn) _thBtn.addEventListener('click',function(){
+    var proto=playerProto||'mpc';
+    var testUrl;
+    var stEl=document.getElementById('testHandlerSt');
+    if(pathMode==='smb'){
+      var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
+      if(base[base.length-1]!=='/')base+='/';
+      var server=base.replace(/^smb:\/\//,'')+'test-handler.mkv';
+      testUrl=proto+'://'+encodeURI(server);
+    } else {
+      testUrl=proto+'://W/Movies/test-handler.mkv';
+    }
+    if(stEl){stEl.textContent='Posielam: '+testUrl;stEl.className='sett-key-st ok';}
+    console.log('[FilmDB] Test handler URL:',testUrl);
+    window.location.href=testUrl;
+    setTimeout(function(){
+      if(stEl){stEl.innerHTML='Odoslané: <code>'+testUrl+'</code><br>Ak sa prehrávač neotvoril, handler nie je správne zaregistrovaný.';stEl.className='sett-key-st';}
+    },2000);
+  });
 
   adjustScrnBody();
   setTimeout(adjustScrnBody,100);
   initTheme();
   initColorPicker();
+  updatePathPreview();
   
   document.getElementById("srchInp").addEventListener("input",function(){document.getElementById("srchClr").style.display=this.value?"block":"none";applyFilters();});
   document.getElementById("srchClr").addEventListener("click",function(){document.getElementById("srchInp").value="";this.style.display="none";applyFilters();});
   /* sortSel.change handled by initSortCycle */
   var _eviewTo=document.getElementById("viewTog");if(_eviewTo)_eviewTo.addEventListener("click",function(){
-    settSetView(grid ? "list" : "grid");
+    var cur=prefs.view||'list';
+    var ni=VIEW_MODES.indexOf(cur);
+    settSetView(VIEW_MODES[(ni+1)%VIEW_MODES.length]);
   });
+  var _ebtnSet=document.getElementById("btnSett");if(_ebtnSet)_ebtnSet.addEventListener("click",openSett);
   document.getElementById("btnStat").addEventListener("click",showStats);
   document.getElementById("btnFav").addEventListener("click",function(){
     favMode=!favMode;wlMode=false;
@@ -1688,14 +1936,322 @@ document.addEventListener("DOMContentLoaded",function(){
   document.getElementById("btnBack").addEventListener("click",closeDet);
   document.getElementById("btnStatCls").addEventListener("click",closeStat);
   document.getElementById("trClose").addEventListener("click",closeTr);
-  document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");_shiftScrnBody(false);saveLiveCache();renderList(filt);toast("Prerusene.");});
+  document.getElementById("btnBatchStop").addEventListener("click",function(){liveRunning=false;document.getElementById("batchBar").classList.add("hidden");/* bar is in flow now */saveLiveCache();renderList(filt);toast("Prerusene.");});
   document.getElementById("fileInp").addEventListener("change",handleFile);
   /* old emptyPdfBtn removed */
+  document.getElementById("settOverlay").addEventListener("click",closeSett);
+  var _ettabLi=document.getElementById("ttabList");if(_ettabLi)_ettabLi.addEventListener("click",function(){settSetView("list");});
+  var _ettabGr=document.getElementById("ttabGrid");if(_ettabGr)_ettabGr.addEventListener("click",function(){settSetView("grid");});
+  document.getElementById("settSortSel").addEventListener("change",function(){settSetSort(this.value);});
+  var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();tmdbKey=k;localStorage.setItem("tmdb_key",k);keyStatus("tmdbKeySt",k);toast(k?"TMDB k\u013E\u00FA\u010D ulo\u017Een\u00FD":"TMDB k\u013E\u00FA\u010D vymazan\u00FD");});
+  document.getElementById("settBtnPdf").addEventListener("click",impPdf);
+  var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",settStartBatch);
+  var _eStop=document.getElementById("settBtnStop");if(_eStop)_eStop.addEventListener("click",function(){liveRunning=false;this.classList.add("hidden");document.getElementById("batchBar").classList.add("hidden");saveLiveCache();renderList(filt);toast("Prerusene.");});
+  document.getElementById('omdbSaveKey').addEventListener('click',function(){
+    var k=document.getElementById('omdbKeyInp').value.trim();
+    omdbKey=k;localStorage.setItem('omdb_key',k);
+    var st=document.getElementById('omdbKeySt');
+    if(st){st.textContent=k?'✓ OMDB kľúč uložený':'Kľúč vymazaný';st.className='sett-key-st'+(k?' ok':'');}
+    toast(k?'OMDB kľúč uložený':'OMDB kľúč vymazaný');
+  });
+  document.getElementById('settBtnImdb').addEventListener('click',startImdbBatch);
+  var _eCsfdBatch=document.getElementById('settBtnCsfd');if(_eCsfdBatch)_eCsfdBatch.addEventListener('click',startCsfdBatch);
+  var _eExport=document.getElementById("settBtnExport");if(_eExport)_eExport.addEventListener("click",exportHtml);
+  var _eExportJ=document.getElementById("settBtnExportJson");if(_eExportJ)_eExportJ.addEventListener("click",exportJson);
+  var _eDupes=document.getElementById("settBtnDuplicates");if(_eDupes)_eDupes.addEventListener("click",findDuplicates);
+  var _eClearLv=document.getElementById("settBtnClearLive");if(_eClearLv)_eClearLv.addEventListener("click",clearLiveData);
+  var _eClearAll=document.getElementById("settBtnClearAll");if(_eClearAll)_eClearAll.addEventListener("click",clearAllData);
+  var _eAdmin=document.getElementById("settBtnAdmin");if(_eAdmin)_eAdmin.addEventListener("click",openAdmin);
+
+  // Uložiť všetky nastavenia
+  var _eSaveAll = document.getElementById('settBtnSaveAll');
+  if (_eSaveAll) _eSaveAll.addEventListener('click', function() {
+    // GitHub token
+    var ghInp = document.getElementById('ghTokenInp');
+    if (ghInp && ghInp.value.trim()) { ghToken = ghInp.value.trim(); localStorage.setItem(GH_KEY, ghToken); }
+    // TMDB key
+    var tmdbInp = document.getElementById('tmdbKeyInp');
+    if (tmdbInp && tmdbInp.value.trim()) { tmdbKey = tmdbInp.value.trim(); localStorage.setItem('tmdb_key', tmdbKey); }
+    // SMB base
+    var smbInp = document.getElementById('smbPathInp');
+    if (smbInp && smbInp.value.trim()) {
+      var sv = smbInp.value.trim();
+      if (sv[sv.length-1] !== '/') sv += '/';
+      smbBase = sv; localStorage.setItem(SMB_KEY, sv);
+    }
+    // Local path
+    var locInp = document.getElementById('localPathInp');
+    if (locInp && locInp.value.trim()) {
+      var lv = locInp.value.trim();
+      if (lv[lv.length-1] !== '\\' && lv[lv.length-1] !== '/') lv += '\\';
+      var nm = {}; nm[lv] = smbBase; smbMap = nm;
+      localStorage.setItem(SMB_MAP_KEY, JSON.stringify(nm));
+    }
+    // Player proto is saved on click, no extra save needed here
+    // Auto pull toggle
+    var apTog = document.getElementById('autoPullTog');
+    if (apTog) { localStorage.setItem(AUTO_PULL_KEY, apTog.checked ? '1' : '0'); }
+    var matcherInp = document.getElementById('csfdMatcherUrlInp');
+    if (matcherInp && matcherInp.value.trim()) {
+      var mv = matcherInp.value.trim();
+      if (mv.indexOf('http') !== 0) mv = 'https://' + mv;
+      csfdMatcherUrl = mv;
+      localStorage.setItem(CSFD_MATCHER_URL_KEY, mv);
+    }
+    // Status
+    var st = document.getElementById('saveAllSt');
+    if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
+    toast('Nastavenia uložené ✓');
+  });
+  var _eExcel=document.getElementById('settBtnExcel');
+  if(_eExcel) _eExcel.addEventListener('click',function(){
+    var bom='﻿';
+    var rows=all.map(function(m){
+      var tmdbId=m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbUrl?liveCache[m.id].tmdbUrl.match(/\/(\d+)/):null);
+      if(tmdbId&&Array.isArray(tmdbId)) tmdbId=tmdbId[1];
+      tmdbId=tmdbId||'';
+      var link=m._tmdbUrl||(liveCache[m.id]&&liveCache[m.id].tmdbUrl)||'';
+      if(!link&&tmdbId){
+        var slug=(m.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+        link='https://www.themoviedb.org/movie/'+tmdbId+'-'+slug;
+      }
+      var title=(m.title||'').replace(/,/g,' ');
+      var csfd=m._csfdUrl||'';
+      var csfdPct=m._pctCsfd!=null?m._pctCsfd+'%':'';
+      return (m.num||'')+','+tmdbId+','+(m.year||'')+','+title+','+link+','+csfd+','+csfdPct;
+    });
+    var csv=bom+rows.join('\n')+'\n';
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='filmy_export_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('CSV exportované ('+all.length+' filmov)');
+  });
+
+  var _eCollage=document.getElementById('settBtnCollage');
+  if(_eCollage) _eCollage.addEventListener('click',function(){closeSett();exportCollage();});
+
+  var _eRepair=document.getElementById('settBtnRepair');
+  if(_eRepair) _eRepair.addEventListener('click',function(){
+    if(!tmdbKey){toast('Najprv nastav TMDB API kľúč');return;}
+    var broken=all.filter(function(m){
+      return !m.poster_thumb||m.poster_thumb.length<10||!m.description;
+    });
+    var stEl=document.getElementById('repairSt');
+    if(!broken.length){
+      if(stEl){stEl.textContent='Všetky filmy majú plagát aj popis.';stEl.className='sett-key-st ok';}
+      toast('Žiadne poškodené filmy!');return;
+    }
+    if(stEl){stEl.textContent='Opravujem '+broken.length+' filmov...';stEl.className='sett-key-st';}
+    var done=0,fixed=0;
+    var failed=[];
+    function repairNext(){
+      if(done>=broken.length){
+        saveAllData();renderList(filt);
+        var msg='Hotovo! Opravených: '+fixed+' z '+broken.length;
+        if(failed.length) msg+=' (nenájdené: '+failed.length+')';
+        if(stEl){stEl.textContent=msg;stEl.className='sett-key-st'+(fixed>0?' ok':'');}
+        toast('Oprava dokončená: '+fixed+'/'+broken.length);
+        scheduleAutoPush('repair');
+        return;
+      }
+      var m=broken[done];
+      delete liveCache[m.id];
+      doTMDBFetch(m,function(data){
+        if(data){liveCache[m.id]=data;fixed++;}
+        else {failed.push(m.title+' ('+m.year+')');}
+        done++;
+        if(stEl) stEl.textContent='Opravujem... '+done+'/'+broken.length;
+        setTimeout(repairNext,350);
+      },null);
+    }
+    repairNext();
+  });
+
+  function saveCsfdMatcherUrl(){
+    var inp=document.getElementById('csfdMatcherUrlInp');
+    var val=(inp&&inp.value?inp.value:csfdMatcherUrl||DEFAULT_CSFD_MATCHER_URL).trim();
+    if(val&&val.indexOf('http')!==0) val='https://'+val;
+    csfdMatcherUrl=val||DEFAULT_CSFD_MATCHER_URL;
+    localStorage.setItem(CSFD_MATCHER_URL_KEY,csfdMatcherUrl);
+    var stEl=document.getElementById('csfdImportSt');
+    if(stEl){stEl.textContent='✓ Matcher URL uložená';stEl.className='sett-key-st ok';}
+    toast('URL matchera uložená');
+  }
+
+  function openCsfdMatcher(){
+    saveCsfdMatcherUrl();
+    window.open(csfdMatcherUrl,'_blank','noopener,noreferrer');
+  }
+
+  function importCsfdMatcherExport(rawText,fileName){
+    var text=String(rawText||'').replace(/^﻿/,'').trim();
+    var rows=/\.json$/i.test(fileName)?parseCsfdMatcherJson(text):parseCsfdMatcherCsv(text);
+    var index=buildCsfdMovieIndex();
+    var links=0,ratings=0,skipped=0;
+
+    rows.forEach(function(item){
+      var movie=findCsfdTargetMovie(item,index);
+      if(!movie){skipped++;return;}
+      if(item.tmdbId&&!movie.tmdbId) movie.tmdbId=parseInt(item.tmdbId)||item.tmdbId;
+      if(item.csfdLink){movie._csfdUrl=item.csfdLink;links++;}
+      var rating=parseCsfdPercent(item.csfdRating||item.rating||item.csfdPercent);
+      if(rating!=null){movie._pctCsfd=rating;ratings++;}
+    });
+
+    if(links>0||ratings>0) saveAllData();
+    return {links:links,ratings:ratings,skipped:skipped};
+  }
+
+  function parseCsfdMatcherJson(text){
+    var parsed=JSON.parse(text);
+    var list=Array.isArray(parsed)?parsed:(parsed.rows||parsed.movies||parsed.data||[]);
+    if(!Array.isArray(list)) throw new Error('JSON export neobsahuje pole riadkov.');
+    return list.map(function(item){
+      function pick(){
+        for(var i=0;i<arguments.length;i++){
+          if(arguments[i]!==undefined&&arguments[i]!==null) return arguments[i];
+        }
+        return '';
+      }
+      return {
+        orderNumber:String(pick(item.orderNumber,item.num,item.rowNumber)).trim(),
+        tmdbId:String(pick(item.tmdbId,item.tmdbID,item.tmdb_id)).trim(),
+        title:String(pick(item.title,item.nazov,item['Názov filmu'])).trim(),
+        year:String(pick(item.year,item.rok,item.Rok)).trim(),
+        csfdLink:String(pick(item.csfdLink,item.csfdUrl,item._csfdUrl,item['ČSFD Link'])).trim(),
+        csfdRating:String(pick(item.csfdRating,item._pctCsfd,item['ČSFD Hodnotenie'],item['ČSFD %'])).trim()
+      };
+    });
+  }
+
+  function parseCsfdMatcherCsv(text){
+    var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+    if(!lines.length) return [];
+    var first=parseCsvLine(lines[0]).map(function(v){return v.trim().toLowerCase();});
+    var hasHeader=first.some(function(v){return v.indexOf('tmdb')>=0||v.indexOf('čsfd')>=0||v.indexOf('csfd')>=0||v.indexOf('rok')>=0;});
+    var header=hasHeader?first:[];
+    var start=hasHeader?1:0;
+
+    function idx(names,fallback){
+      for(var i=0;i<header.length;i++){
+        for(var n=0;n<names.length;n++){
+          if(header[i].indexOf(names[n])>=0) return i;
+        }
+      }
+      return fallback;
+    }
+
+    var orderIdx=idx(['porad','order','#'],0);
+    var tmdbIdx=idx(['tmdb'],1);
+    var yearIdx=idx(['rok','year'],2);
+    var titleIdx=idx(['názov','nazov','title'],3);
+    var linkIdx=idx(['čsfd link','csfd link','čsfd','csfd'],5);
+    var ratingIdx=idx(['hodnotenie','rating','%'],6);
+
+    return lines.slice(start).map(function(line){
+      var cols=parseCsvLine(line);
+      return {
+        orderNumber:(cols[orderIdx]||'').trim(),
+        tmdbId:(cols[tmdbIdx]||'').trim(),
+        year:(cols[yearIdx]||'').trim(),
+        title:(cols[titleIdx]||'').trim(),
+        csfdLink:(cols[linkIdx]||'').trim(),
+        csfdRating:(cols[ratingIdx]||'').trim()
+      };
+    }).filter(function(item){return item.tmdbId||item.orderNumber||item.csfdLink||item.csfdRating;});
+  }
+
+  function parseCsvLine(line){
+    var out=[],cur='',quoted=false;
+    for(var i=0;i<line.length;i++){
+      var ch=line[i];
+      if(ch==='"'){
+        if(quoted&&line[i+1]==='"'){cur+='"';i++;}
+        else quoted=!quoted;
+      }else if(ch===','&&!quoted){out.push(cur);cur='';}
+      else cur+=ch;
+    }
+    out.push(cur);
+    return out;
+  }
+
+  function buildCsfdMovieIndex(){
+    var byTmdb={},byNum={};
+    all.forEach(function(m){
+      var tid=String(m.tmdbId||(liveCache[m.id]&&liveCache[m.id].tmdbId)||'').trim();
+      if(!tid&&m._tmdbUrl){
+        var mt=String(m._tmdbUrl).match(/\/movie\/(\d+)/);
+        if(mt)tid=mt[1];
+      }
+      if(tid) byTmdb[tid]=m;
+      var num=String(m.num||m.orderNumber||m.id||'').trim();
+      if(num) byNum[num]=m;
+    });
+    return {byTmdb:byTmdb,byNum:byNum};
+  }
+
+  function findCsfdTargetMovie(item,index){
+    var tid=String(item.tmdbId||'').trim();
+    if(tid&&index.byTmdb[tid]) return index.byTmdb[tid];
+    var num=String(item.orderNumber||'').trim();
+    if(num&&index.byNum[num]) return index.byNum[num];
+    return null;
+  }
+
+  function parseCsfdPercent(value){
+    if(value==null||value==='') return null;
+    var match=String(value).match(/(\d{1,3})/);
+    if(!match) return null;
+    var n=parseInt(match[1]);
+    if(isNaN(n)||n<0||n>100) return null;
+    return n;
+  }
+
+  var _eCsfdImp=document.getElementById('settBtnImportCsfd');
+  if(_eCsfdImp) _eCsfdImp.addEventListener('click',function(){
+    document.getElementById('fileInpCsfd').click();
+  });
+  var _eCsfdOpen=document.getElementById('settBtnOpenCsfdMatcher');
+  if(_eCsfdOpen) _eCsfdOpen.addEventListener('click',openCsfdMatcher);
+  var _eCsfdUrlSave=document.getElementById('csfdMatcherUrlSave');
+  if(_eCsfdUrlSave) _eCsfdUrlSave.addEventListener('click',saveCsfdMatcherUrl);
+  document.getElementById('fileInpCsfd').addEventListener('change',function(ev){
+    var file=ev.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var stEl=document.getElementById('csfdImportSt');
+      try{
+        var result=importCsfdMatcherExport(e.target.result||'', file.name||'');
+        if(stEl){
+          stEl.textContent='Linky: '+result.links+', hodnotenia: '+result.ratings+', preskočených: '+result.skipped;
+          stEl.className='sett-key-st'+((result.links>0||result.ratings>0)?' ok':'');
+        }
+        toast('Import: '+result.links+' linkov, '+result.ratings+' hodnotení');
+        if(result.links>0||result.ratings>0){applyFilters();scheduleAutoPush('csfd-matcher-import');}
+      }catch(err){
+        if(stEl){stEl.textContent='Import zlyhal: '+(err&&err.message?err.message:'neznáma chyba');stEl.className='sett-key-st err';}
+        toast('Import ČSFD zlyhal');
+      }
+    };
+    reader.readAsText(file,'UTF-8');
+    this.value='';
+  });
+
   document.getElementById("adminClose").addEventListener("click",closeAdmin);
   document.getElementById("adminSearchBtn").addEventListener("click",adminSearch);
   document.getElementById("adminSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")adminSearch();});
   document.getElementById("adminAddBtn").addEventListener("click",adminAddMovie);
   document.getElementById("adminCancelBtn").addEventListener("click",adminClearPreview);
+
+  document.getElementById("matchClose").addEventListener("click",closeMatchPanel);
+  document.getElementById("matchSearchBtn").addEventListener("click",matchSearch);
+  document.getElementById("matchSearchInp").addEventListener("keydown",function(e){if(e.key==="Enter")matchSearch();});
+  document.getElementById("matchApplyBtn").addEventListener("click",matchApply);
+  document.getElementById("matchCancelBtn").addEventListener("click",function(){document.getElementById('matchPreview').classList.remove('show');matchPendingData=null;});
+  document.getElementById("matchOv").addEventListener("click",function(e){if(e.target===this)closeMatchPanel();});
 
   // GitHub sync
   initFp();
@@ -1704,10 +2260,49 @@ document.addEventListener("DOMContentLoaded",function(){
   document.getElementById('btnRnd').addEventListener('click', openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', cycleWatchedMode);
   initGhSync();
-  registerServiceWorker();
   window.addEventListener('offline',function(){toast('Offline — dáta sú z cache');});
   window.addEventListener('online',function(){toast('Online');});
 
+  document.getElementById('ghTokenSave').addEventListener('click', function() {
+    var t = document.getElementById('ghTokenInp').value.trim();
+    ghToken = t;
+      // Validate token against GitHub API
+      var stEl = document.getElementById('ghTokenSt');
+      if (stEl) { stEl.textContent = 'Overujem token...'; stEl.className = 'sett-key-st info'; }
+      validateGhToken(t, function(ok, info) {
+        if (ok) {
+          if (stEl) { stEl.textContent = '✓ Token OK — ' + info; stEl.className = 'sett-key-st ok'; }
+        } else {
+          if (stEl) { stEl.textContent = '❌ ' + info + ' — Skontroluj scope repo, expiráciu, SSO.'; stEl.className = 'sett-key-st err'; }
+        }
+      });
+    if (t) {
+      localStorage.setItem('mdb_gh_token', t);
+      // Clear input immediately — never show token in plain text
+      document.getElementById('ghTokenInp').value = '';
+      document.getElementById('ghTokenInp').placeholder = '••••••••••••••••••••••••••••••••••••••••';
+      var st = document.getElementById('ghTokenSt');
+      if (st) { st.textContent = '✓ Token uložený'; st.className = 'sett-key-st ok'; }
+      toast('GitHub token uložený');
+    } else {
+      localStorage.removeItem('mdb_gh_token');
+      ghToken = '';
+      document.getElementById('ghTokenInp').placeholder = 'ghp_... Personal Access Token';
+      var st = document.getElementById('ghTokenSt');
+      if (st) { st.textContent = 'Token vymazaný'; st.className = 'sett-key-st err'; }
+    }
+  });
+  document.getElementById('ghPushBtn').addEventListener('click', ghPush);
+  document.getElementById('ghPullBtn').addEventListener('click', ghPull);
+  var _apt = document.getElementById('autoPullTog');
+  if (_apt) {
+    _apt.checked = autoPull;
+    _apt.addEventListener('change', function(){
+      autoPull = this.checked;
+      localStorage.setItem(AUTO_PULL_KEY, this.checked ? '1' : '0');
+      toast(`Auto-načítanie z GitHubu: ${this.checked?'zapnuté':'vypnuté'}`);
+    });
+  }
   var tx=0;
   ["detSc","statSc"].forEach(function(id){
     var el=document.getElementById(id);
@@ -1895,6 +2490,7 @@ function adminBuildPreview(d) {
     liveData: {
       pct:     pct,
       ytKey:   trailer ? trailer.key : null,
+      backdropUrl: d.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + d.backdrop_path : null,
       tmdbUrl: 'https://www.themoviedb.org/movie/' + d.id,
       imdbUrl: imdbId ? 'https://www.imdb.com/title/' + imdbId + '/' : null
     }
@@ -1941,6 +2537,154 @@ function adminSaveAll() {
   }
 }
 
+/* ══════════════════════════════════════════════════════════
+   MODULE: Manual TMDB Match — pair existing movie with TMDB
+   ══════════════════════════════════════════════════════════ */
+var matchMovieId=null;
+var matchPendingData=null;
+
+function openMatchPanel(id){
+  var m=all.find(function(x){return x.id===id;});if(!m)return;
+  matchMovieId=id;
+  matchPendingData=null;
+  var info=document.getElementById('matchMovieInfo');
+  var poster=m.poster_thumb&&m.poster_thumb.length>10?'<img src="'+esc(m.poster_thumb)+'" alt="">':'';
+  info.innerHTML=poster+'<div><div class="mmi-text"><b>#'+m.num+'</b> '+esc(m.title)+'</div><div class="mmi-sub">'+(m.year||'?')+' · '+(m.director||'–')+'</div></div>';
+  document.getElementById('matchSearchInp').value=m.title;
+  document.getElementById('matchStatus').textContent='';
+  document.getElementById('matchResults').innerHTML='';
+  document.getElementById('matchPreview').classList.remove('show');
+  var ov=document.getElementById('matchOv');
+  ov.classList.remove('hidden');
+  ov.style.display='flex';
+  document.getElementById('matchSearchInp').focus();
+}
+
+function closeMatchPanel(){
+  var ov=document.getElementById('matchOv');
+  ov.classList.add('hidden');
+  ov.style.display='';
+  matchMovieId=null;matchPendingData=null;
+}
+
+function matchSearch(){
+  var q=document.getElementById('matchSearchInp').value.trim();
+  if(!q)return;
+  if(!tmdbKey){document.getElementById('matchStatus').textContent='Chýba TMDB API kľúč';return;}
+  document.getElementById('matchStatus').textContent='Hľadám...';
+  document.getElementById('matchResults').innerHTML='';
+  document.getElementById('matchPreview').classList.remove('show');
+  var btn=document.getElementById('matchSearchBtn');
+  btn.disabled=true;
+  var isId=/^\d+$/.test(q);
+  var url=isId
+    ?'https://api.themoviedb.org/3/movie/'+q+'?api_key='+tmdbKey+'&language=sk&append_to_response=videos,external_ids,credits'
+    :'https://api.themoviedb.org/3/search/movie?api_key='+tmdbKey+'&query='+encodeURIComponent(q)+'&language=sk&page=1';
+  fetch(url).then(function(r){return r.json();}).then(function(data){
+    btn.disabled=false;
+    if(isId){
+      if(data.success===false){document.getElementById('matchStatus').textContent='TMDB ID nenájdené.';return;}
+      matchShowResults([data]);
+    } else {
+      if(!data.results||!data.results.length){document.getElementById('matchStatus').textContent='Nič sa nenašlo.';return;}
+      matchShowResults(data.results.slice(0,30));
+    }
+  }).catch(function(){btn.disabled=false;document.getElementById('matchStatus').textContent='Chyba siete.';});
+}
+
+function matchShowResults(results){
+  document.getElementById('matchStatus').textContent=results.length+' výsledk'+(results.length===1?'':results.length<5?'y':'ov');
+  var container=document.getElementById('matchResults');
+  container.innerHTML=results.map(function(r,idx){
+    var poster=r.poster_path?'<img class="admin-poster" src="https://image.tmdb.org/t/p/w92'+r.poster_path+'" alt="">':'<div class="admin-poster-ph">🎬</div>';
+    var year=(r.release_date||'').slice(0,4)||'?';
+    var rating=r.vote_average?Math.round(r.vote_average*10)+'%':'–';
+    return '<div class="admin-result-item" data-idx="'+idx+'">'+poster+'<div><div class="admin-ri-title">'+esc(r.title||r.name)+'</div><div class="admin-ri-meta">'+year+' · ⭐ '+rating+(r.original_title&&r.original_title!==r.title?'<br>'+esc(r.original_title):'')+'</div></div></div>';
+  }).join('');
+  container._results=results;
+  container.querySelectorAll('.admin-result-item').forEach(function(el){
+    el.addEventListener('click',function(){
+      container.querySelectorAll('.admin-result-item').forEach(function(x){x.classList.remove('selected');});
+      el.classList.add('selected');
+      matchFetchFull(container._results[parseInt(el.dataset.idx)].id);
+    });
+  });
+}
+
+function matchFetchFull(tmdbId){
+  document.getElementById('matchStatus').textContent='Načítavam detaily...';
+  fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'?api_key='+tmdbKey+'&language=sk&append_to_response=videos,external_ids,credits')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      document.getElementById('matchStatus').textContent='';
+      var posterUrl=d.poster_path?'https://image.tmdb.org/t/p/w342'+d.poster_path:'';
+      var thumbUrl=d.poster_path?'https://image.tmdb.org/t/p/w185'+d.poster_path:'';
+      var year=(d.release_date||'').slice(0,4)||'?';
+      var dur=d.runtime?d.runtime+' min':'';
+      var pct=d.vote_average?Math.round(d.vote_average*10):null;
+      var genres=(d.genres||[]).map(function(g){return g.name;});
+      var videos=(d.videos&&d.videos.results)||[];
+      var trailer=videos.find(function(v){return v.type==='Trailer'&&v.site==='YouTube';})||videos.find(function(v){return v.site==='YouTube';});
+      var imdbId=d.external_ids&&d.external_ids.imdb_id?d.external_ids.imdb_id:null;
+      var cast=(d.credits&&d.credits.cast||[]).slice(0,10).map(function(a){return a.name;}).join(', ');
+      var director='';
+      if(d.credits&&d.credits.crew){var dir=d.credits.crew.find(function(c){return c.job==='Director';});if(dir)director=dir.name;}
+      var countries=(d.production_countries||[]).map(function(c){return c.iso_3166_1;}).join(', ');
+
+      var pvPoster=document.getElementById('matchPvPoster');
+      pvPoster.src=posterUrl||'';pvPoster.style.display=posterUrl?'block':'none';
+      document.getElementById('matchPvTitle').textContent=d.title||d.original_title;
+      document.getElementById('matchPvMeta').innerHTML=[year,dur,countries,pct!=null?'⭐ '+pct+'%':''].filter(Boolean).join(' · ')+(director?'<br>🎬 '+esc(director):'');
+      document.getElementById('matchPvGenres').innerHTML=genres.map(function(g){return '<span class="admin-pv-tag">'+esc(g)+'</span>';}).join('');
+      document.getElementById('matchPreview').classList.add('show');
+
+      matchPendingData={
+        posterUrl:thumbUrl,description:(d.overview||'').substring(0,500),
+        director:director,cast:cast,genres:genres,country:countries,
+        duration:dur,tmdbId:d.id,
+        liveData:{pct:pct,ytKey:trailer?trailer.key:null,
+          backdropUrl:d.backdrop_path?'https://image.tmdb.org/t/p/w1280'+d.backdrop_path:null,
+          tmdbUrl:'https://www.themoviedb.org/movie/'+d.id,
+          imdbUrl:imdbId?'https://www.imdb.com/title/'+imdbId+'/':null,
+          posterUrl:thumbUrl}
+      };
+    }).catch(function(){document.getElementById('matchStatus').textContent='Chyba načítavania.';});
+}
+
+function matchApply(){
+  if(!matchPendingData||!matchMovieId)return;
+  var m=all.find(function(x){return x.id===matchMovieId;});if(!m)return;
+  var d=matchPendingData;
+  var changes=[];
+  if(d.director&&m.director&&m.director!==d.director) changes.push('Réžia: "'+m.director+'" → "'+d.director+'"');
+  if(d.description&&m.description&&m.description!==d.description) changes.push('Popis: prepísaný ('+d.description.length+' znakov)');
+  if(d.cast&&m.cast&&m.cast!==d.cast) changes.push('Obsadenie: prepísané');
+  if(d.genres&&d.genres.length&&m.genres&&m.genres.join(',')!==d.genres.join(',')) changes.push('Žánre: '+m.genres.join(', ')+' → '+d.genres.join(', '));
+  if(d.country&&m.country&&m.country!==d.country) changes.push('Krajina: "'+m.country+'" → "'+d.country+'"');
+  if(d.duration&&m.duration&&m.duration!==d.duration) changes.push('Dĺžka: '+m.duration+' → '+d.duration);
+
+  if(changes.length>0){
+    var msg='Nasledujúce polia budú prepísané:\n\n'+changes.join('\n')+'\n\nPokračovať?';
+    if(!confirm(msg)) return;
+  }
+
+  if(d.posterUrl)m.poster_thumb=d.posterUrl;
+  if(d.description)m.description=d.description;
+  if(d.director)m.director=d.director;
+  if(d.cast)m.cast=d.cast;
+  if(d.genres&&d.genres.length)m.genres=d.genres;
+  if(d.country)m.country=d.country;
+  if(d.duration)m.duration=d.duration;
+  if(d.tmdbId)m.tmdbId=d.tmdbId;
+  liveCache[m.id]=d.liveData;
+  saveLiveCache();
+  adminSaveAll();
+  toast('✓ Film "'+m.title+'" spárovaný s TMDB #'+d.tmdbId);
+  closeMatchPanel();
+  openDet(m.id);
+  renderAll();
+  scheduleAutoPush('match');
+}
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: GitHub Online Sync
@@ -1959,12 +2703,7 @@ var ghToken       = localStorage.getItem('mdb_gh_token') || '';
 /* ══════════════════════════════════════════════════════════
    MODULE: GitHub Sync — push/pull data.json
    ══════════════════════════════════════════════════════════ */
-function _shiftScrnBody(on) {
-  var sb = document.getElementById('scrnBody');
-  if (!sb) return;
-  // batch-bar height ~34px → posunúť scrn-body nadol keď je bar viditeľný
-  sb.style.top = on ? '122px' : '';
-}
+
 
 function ghSetStatus(msg, type) {
   var el = document.getElementById('ghSyncStatus');
@@ -1981,21 +2720,21 @@ function ghSetStatus(msg, type) {
       setTimeout(function(){
         mb.classList.add('hidden');
         if (bar) bar.style.width = '0%';
-        _shiftScrnBody(false);
+        /* bar is in flow now */
       }, 1400);
     } else if (type === 'err') {
       mb.classList.remove('hidden');
       mb.style.borderBottomColor = '#e05555';
-      _shiftScrnBody(true);
+      /* bar is in flow now */
       setTimeout(function(){
         mb.classList.add('hidden');
         mb.style.borderBottomColor = '';
-        _shiftScrnBody(false);
+        /* bar is in flow now */
       }, 3500);
     } else {
       mb.classList.remove('hidden');
       mb.style.borderBottomColor = '';
-      _shiftScrnBody(true);
+      /* bar is in flow now */
     }
   }
 }
@@ -2019,7 +2758,10 @@ function ghApiFileUrl() {
 
 function ghPush() {
   if (!ghToken) { ghSetStatus('Nastav GitHub token.', 'err'); return; }
+  if (ghPushInProgress) { scheduleAutoPush('busy'); return; }
+  ghPushInProgress = true;
   if (!all || !all.length) {
+    ghPushInProgress = false;
     ghSetStatus('Žiadne dáta na uloženie. Najprv importuj alebo načítaj.', 'err');
     toast('Databáza je prázdna');
     return;
@@ -2034,7 +2776,11 @@ function ghPush() {
       if (c.poster_thumb && c.poster_thumb.indexOf('data:') === 0) c.poster_thumb = '';
       return c;
     }),
-    liveCache: liveCache
+    liveCache: liveCache,
+    favourites: Array.from(favs),
+    watchlist:  Array.from(wl),
+    watched:    Array.from(watched),
+    watchedDates: watchedDates
   };
 
   var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
@@ -2087,32 +2833,48 @@ function ghPush() {
     })
     .then(function(res) {
       if (res.ok) {
+        ghPushInProgress = false;
         var ts = new Date().toLocaleTimeString('sk');
         ghSetStatus(`✓ Uložené ${ts} · ${all.length} filmov`, 'ok');
         toast('Databáza uložená na GitHub!');
       } else if (res.status === 409 || res.status === 422) {
-        // SHA mismatch (409 Conflict or 422) — re-fetch SHA and retry ONCE
         ghSetStatus('SHA mismatch, opakujem…', 'info');
-        fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers: hdrs })
-          .then(function(r2) {
-            if (!r2.ok) throw new Error('Retry GET failed: ' + r2.status);
-            return r2.json();
-          })
-          .then(function(d2) { return doWrite(d2.sha); })
-          .then(function(res2) {
-            if (res2.ok) {
-              ghSetStatus(`✓ Uložené (2. pokus) · ${all.length} filmov`, 'ok');
-              toast('Databáza uložená na GitHub!');
-            } else {
-              ghSetStatus(`Chyba retry: ${res2.d.message||res2.status}`, 'err');
-            }
-          })
-          .catch(e2=>ghSetStatus(`Retry zlyhalo: ${e2.message}`, 'err'));
+        setTimeout(function(){
+          fetch(`${baseUrl}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`, { headers: hdrs, cache: 'no-store' })
+            .then(function(r2) {
+              if (!r2.ok) throw new Error('Retry GET failed: ' + r2.status);
+              return r2.json();
+            })
+            .then(function(d2) {
+              if (!d2.sha) {
+                return fetch(`${baseUrl}/git/trees/${GH_BRANCH}`, { headers: hdrs, cache: 'no-store' })
+                  .then(function(tr){return tr.json();})
+                  .then(function(tree){
+                    var f=(tree.tree||[]).find(function(x){return x.path===GH_FILE;});
+                    return f?f.sha:null;
+                  });
+              }
+              return d2.sha;
+            })
+            .then(function(sha2){ return doWrite(sha2); })
+            .then(function(res2) {
+              ghPushInProgress = false;
+              if (res2.ok) {
+                ghSetStatus(`✓ Uložené (2. pokus) · ${all.length} filmov`, 'ok');
+                toast('Databáza uložená na GitHub!');
+              } else {
+                ghSetStatus(`Chyba retry: ${(res2.d&&res2.d.message)||res2.status}`, 'err');
+              }
+            })
+            .catch(function(e2){ghPushInProgress=false;ghSetStatus(`Retry zlyhalo: ${e2.message}`, 'err');});
+        }, 1500);
       } else {
-        ghSetStatus(`Chyba: ${res.d.message||'HTTP '+res.status}`, 'err');
+        ghPushInProgress = false;
+        ghSetStatus(`Chyba: ${(res.d&&res.d.message)||'HTTP '+res.status}`, 'err');
       }
     })
     .catch(function(e) {
+      ghPushInProgress = false;
       if(e.message!=='401')ghSetStatus(`Sieťová chyba: ${e.message}`, 'err');
     });
 }
@@ -2194,6 +2956,16 @@ function ghPull() {
         Object.assign(liveCache, payload.liveCache);
         saveLiveCache();
       }
+      if (payload.favourites) { favs = new Set(payload.favourites); safeSave(FK, JSON.stringify(payload.favourites)); }
+      if (payload.watchlist)  { wl = new Set(payload.watchlist);    safeSave(WK, JSON.stringify(payload.watchlist)); }
+      if (payload.watched)    { watched = new Set(payload.watched); safeSave(VK, JSON.stringify(payload.watched)); }
+      if (payload.watchedDates) { watchedDates = payload.watchedDates; safeSave(VDK, JSON.stringify(payload.watchedDates)); }
+      // Restore poster URLs from liveCache for movies without poster
+      all.forEach(function(m){
+        if((!m.poster_thumb||m.poster_thumb.length<10)&&liveCache[m.id]&&liveCache[m.id].posterUrl){
+          m.poster_thumb=liveCache[m.id].posterUrl;
+        }
+      });
 
       try {
         var toSave = all.map(function(m) {
@@ -2265,6 +3037,7 @@ function initGhSync() {
    MODULE: Advanced Filter Panel
    ══════════════════════════════════════════════════════════ */
 function openFp() {
+  closeSett();
   var panel   = document.getElementById('fpPanel');
   var overlay = document.getElementById('fpOverlay');
 
@@ -2309,11 +3082,12 @@ function openFp() {
     gBox.appendChild(ch);
   });
 
-  // ── Restore slider / year values ──────────────────────────────
+  // ── Restore slider / year / tag values ──────────────────────────────
   document.getElementById('fpYearFrom').value    = fpState.yearFrom || '';
   document.getElementById('fpYearTo').value      = fpState.yearTo   || '';
   document.getElementById('fpRatingSlider').value = fpState.minRating;
   document.getElementById('fpRatingVal').textContent = fpState.minRating + '%';
+  var tagInp=document.getElementById('fpTag');if(tagInp)tagInp.value=fpState.tag||'';
 
   overlay.classList.add('open');
   panel.classList.add('open');
@@ -2332,6 +3106,7 @@ function applyFp() {
   fpState.yearTo    = parseInt(document.getElementById('fpYearTo').value)    || 0;
   fpState.minRating = parseInt(document.getElementById('fpRatingSlider').value) || 0;
   fpState.country   = document.getElementById('fpCountry').value;
+  fpState.tag       = (document.getElementById('fpTag')||{}).value||'';
   // genres already updated live via chip clicks
 
   // Sync fbar: if exactly one genre is selected in panel, reflect it in fbar
@@ -2350,13 +3125,14 @@ function applyFp() {
 
 /* Reset all panel filters */
 function resetFp() {
-  fpState = { yearFrom:0, yearTo:0, minRating:0, country:'', genres:[] };
+  fpState = { yearFrom:0, yearTo:0, minRating:0, country:'', genres:[], tag:'' };
   genre   = '';
   document.getElementById('fpYearFrom').value     = '';
   document.getElementById('fpYearTo').value       = '';
   document.getElementById('fpRatingSlider').value = 0;
   document.getElementById('fpRatingVal').textContent = '0%';
   document.getElementById('fpCountry').value      = '';
+  var tagInp=document.getElementById('fpTag');if(tagInp)tagInp.value='';
   document.querySelectorAll('.fp-genre-chip').forEach(function(c) { c.classList.remove('on'); });
   buildChips();
   closeFp();
@@ -2372,7 +3148,7 @@ function updateFpBadge() {
   var btn   = document.getElementById('fpBtn');
   badge.textContent = cnt;
   badge.className   = 'fp-badge' + (cnt ? ' show' : '');
-  btn.className     = 'fp-btn'   + (cnt ? ' active' : '');
+  btn.className     = 'ctrl-btn fp-btn' + (cnt ? ' active' : '');
 }
 
 /* Render dismissible pills showing active filters */
@@ -2413,6 +3189,8 @@ function updateFpPills() {
       applyFilters();
     });
   });
+  // pills live inside the header — re-measure so the list doesn't hide under it
+  adjustScrnBody();
 }
 
 function initFp() {
@@ -2523,8 +3301,11 @@ function initKeyboard() {
 
     // Escape → close topmost overlay
     if (e.key === 'Escape') {
+      if (!document.getElementById('matchOv').classList.contains('hidden')) {
+        closeMatchPanel(); return;
+      }
       if (!document.getElementById('trOv').classList.contains('hidden')) {
-        document.getElementById('trOv').classList.add('hidden'); return;
+        closeTr(); return;
       }
       if (document.getElementById('fpPanel').classList.contains('open')) {
         closeFp(); return;
@@ -2532,8 +3313,12 @@ function initKeyboard() {
       if (!document.getElementById('settOverlay').classList.contains('hidden')) {
         closeSett(); return;
       }
-      if (document.getElementById('adminPanelSc').style.display !== 'none') {
+      var adminEl = document.getElementById('adminPanelSc');
+      if (adminEl && adminEl.offsetParent !== null) {
         closeAdmin(); return;
+      }
+      if (!document.getElementById('statSc').classList.contains('hidden')) {
+        closeStat(); return;
       }
       if (!document.getElementById('detSc').classList.contains('hidden')) {
         document.getElementById('btnBack').click(); return;
@@ -2695,23 +3480,29 @@ var THEME_ACCENTS = {
 /* ══════════════════════════════════════════════════════════
    MODULE: Theme (unified skin system)
    ══════════════════════════════════════════════════════════ */
+var _autoThemeMq = window.matchMedia('(prefers-color-scheme: dark)');
+
 function applyTheme(skinId) {
-  // Apply skin via both data-skin and data-theme (for backward compat with CSS)
-  document.documentElement.setAttribute('data-skin',  skinId);
-  document.documentElement.setAttribute('data-theme', skinId);
-  // Clear separate text/bg overrides — skin defines everything
+  var resolved = skinId;
+  if (skinId === 'auto') {
+    resolved = _autoThemeMq.matches ? 'dark' : 'linen';
+  }
+  document.documentElement.setAttribute('data-skin',  resolved);
+  document.documentElement.setAttribute('data-theme', resolved);
   document.documentElement.removeAttribute('data-text');
   document.documentElement.removeAttribute('data-bg');
   try { localStorage.setItem(THEME_KEY, skinId); } catch(e) {}
-  // Sync accent to skin default — reset custom override
   localStorage.removeItem(ACCENT_KEY);
-  var acc = THEME_ACCENTS[skinId];
+  var acc = THEME_ACCENTS[resolved];
   if (acc) applyAccentColor(acc.gold, acc.gold2);
-  // Update skin chip active state
   document.querySelectorAll('.skin-chip').forEach(function(s) {
     s.classList.toggle('active', s.dataset.skin === skinId);
   });
 }
+
+_autoThemeMq.addEventListener('change', function() {
+  if (localStorage.getItem(THEME_KEY) === 'auto') applyTheme('auto');
+});
 
 function initTheme() {
   var saved = localStorage.getItem(THEME_KEY) || 'dark';
@@ -2753,12 +3544,6 @@ function initTheme() {
    sortDir button flips asc/desc
    Both sync with hidden #sortSel for backward compatibility
    ══════════════════════════════════════════════════════════════════ */
-var SORT_OPTS = [
-  {val:'num',  lbl:'Por.'},
-  {val:'year', lbl:'Rok'},
-  {val:'title',lbl:'A–Z'},
-  {val:'pct',  lbl:'%'},
-];
 
 function syncSortPill(){
   var cur = prefs.sort || 'num';
@@ -2826,7 +3611,7 @@ function handleFileUpdate(){
     var existMap={};
     all.forEach(function(m){existMap[m.num]=m;});
     var added=0,updated=0,unchanged=0;
-    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","tmdbId"];
+    var mergeFields=["title","year","duration","director","genres","country","cast","description","_localPath","_yt","_tmdbUrl","_imdbUrl","_csfdUrl","_pctImdb","_pctCsfd","tmdbId","_tags"];
     newMovies.forEach(function(nm){
       var existing=existMap[nm.num];
       if(!existing){
@@ -2870,165 +3655,19 @@ window.addEventListener('resize',adjustScrnBody);
 window.addEventListener('load',adjustScrnBody);
 
 
-/* ══════════════════════════════════════════════════════════════════
-   POSTER EXTRACTION from PDF pages
-   EMDB-style PDFs have 1 movie per page with poster image embedded.
-   We render each page to canvas and extract the poster region (left ~40%).
-   ══════════════════════════════════════════════════════════════════ */
-function extractPostersFromPdf(pdf, mv){
-  /* ══════════════════════════════════════════════════════════════
-     Extract EMBEDDED images from PDF using PDF.js operatorList.
-     EMDB exports store poster images directly in the PDF — this
-     extracts the actual image data instead of rendering/cropping.
-     Strategy:
-       1. Scan all pages for image objects
-       2. On each page, pick the LARGEST image (= the poster)
-       3. Resize to 180×270 thumbnail
-       4. Match to movies sequentially (page 1 → movie 1, etc.)
-     ══════════════════════════════════════════════════════════════ */
-  var totalPages = pdf.numPages;
-  var processed  = 0;
-  var extracted   = 0;
-  var OPS = pdfjsLib.OPS;
-  var chain = Promise.resolve();
-  
-  mv.forEach(function(movie, idx){
-    chain = chain.then(function(){
-      var pageNum = idx + 1;
-      if (pageNum > totalPages) { processed++; return; }
-      
-      return pdf.getPage(pageNum).then(function(page){
-        return page.getOperatorList().then(function(ops){
-          // Collect all image names on this page
-          var imageNames = [];
-          for (var k = 0; k < ops.fnArray.length; k++){
-            if (ops.fnArray[k] === OPS.paintImageXObject ||
-                ops.fnArray[k] === OPS.paintJpegXObject) {
-              imageNames.push(ops.argsArray[k][0]);
-            }
-          }
-          if (!imageNames.length) { processed++; return; }
-          
-          // Get all images, find the largest one (= poster)
-          var imgPromises = imageNames.map(function(name){
-            return new Promise(function(resolve){
-              try {
-                page.objs.get(name, function(imgData){
-                  resolve(imgData);
-                });
-              } catch(e) { resolve(null); }
-              // Timeout fallback
-              setTimeout(function(){ resolve(null); }, 3000);
-            });
-          });
-          
-          return Promise.all(imgPromises).then(function(images){
-            // Find the largest image (by pixel count)
-            var best = null, bestSize = 0;
-            images.forEach(function(img){
-              if (!img || !img.width || !img.height) return;
-              var size = img.width * img.height;
-              // Poster should be at least 50×50 and largest on page
-              if (size > bestSize && img.width >= 50 && img.height >= 50) {
-                best = img;
-                bestSize = size;
-              }
-            });
-            
-            if (!best) { processed++; return; }
-            
-            // Convert image data to canvas → JPEG thumbnail
-            try {
-              var srcCanvas = document.createElement("canvas");
-              srcCanvas.width = best.width;
-              srcCanvas.height = best.height;
-              var sctx = srcCanvas.getContext("2d");
-              
-              // PDF.js image data can be ImageData or raw RGBA array
-              if (best.data && best.data.length) {
-                var idata;
-                if (best.data instanceof Uint8ClampedArray) {
-                  idata = new ImageData(best.data, best.width, best.height);
-                } else {
-                  // Convert to Uint8ClampedArray
-                  var arr = new Uint8ClampedArray(best.width * best.height * 4);
-                  // Handle RGB (3 channels) or RGBA (4 channels)
-                  var channels = best.data.length / (best.width * best.height);
-                  if (channels >= 4) {
-                    arr.set(best.data.subarray(0, arr.length));
-                  } else if (channels >= 3) {
-                    // RGB → RGBA
-                    var src = best.data;
-                    for (var p = 0, d = 0; p < src.length; p += 3, d += 4) {
-                      arr[d]     = src[p];
-                      arr[d + 1] = src[p + 1];
-                      arr[d + 2] = src[p + 2];
-                      arr[d + 3] = 255;
-                    }
-                  }
-                  idata = new ImageData(arr, best.width, best.height);
-                }
-                sctx.putImageData(idata, 0, 0);
-              } else if (best.bitmap) {
-                // ImageBitmap path (newer PDF.js)
-                sctx.drawImage(best.bitmap, 0, 0);
-              } else if (best.src) {
-                // Already a data URL or blob URL
-                movie.poster_thumb = best.src;
-                extracted++;
-                processed++;
-                return;
-              }
-              
-              // Resize to thumbnail (180×270)
-              var thumbCanvas = document.createElement("canvas");
-              thumbCanvas.width = 180;
-              thumbCanvas.height = 270;
-              var tctx = thumbCanvas.getContext("2d");
-              tctx.imageSmoothingQuality = "high";
-              tctx.drawImage(srcCanvas, 0, 0, best.width, best.height, 0, 0, 180, 270);
-              
-              movie.poster_thumb = thumbCanvas.toDataURL("image/jpeg", 0.78);
-              extracted++;
-              
-              // Free memory
-              srcCanvas.width = 0;
-              thumbCanvas.width = 0;
-            } catch(e) {
-              console.warn("Poster extraction error for movie #" + movie.num + ":", e);
-            }
-            
-            processed++;
-            if (processed % 20 === 0) {
-              setP(55 + Math.round(processed / mv.length * 30),
-                   "Plagáty " + processed + "/" + mv.length + " (" + extracted + " OK)");
-            }
-          });
-        });
-      }).catch(function(e){
-        console.warn("Page " + (idx+1) + " error:", e);
-        processed++;
-      });
-    });
-  });
-  
-  return chain.then(function(){
-    setP(87, "Extrahovaných " + extracted + " plagátov z " + mv.length + " filmov");
-});
-}
-
-
-
-
+/* extractPostersFromPdf (~140 lines) removed — never called. Restore from git history if needed. */
+function extractPostersFromPdf(){}
 
 
 /* ══════════════════════════════════════════════════════════════════
    MODULE: VLC Local Playback via SMB
-   Builds vlc:// URLs from movie metadata to play local .mkv files
+   Builds mpc:// URLs from movie metadata to play local .mkv files
    File naming convention: "YYYY - Title (no diacritics).mkv"
    SMB share path configurable in settings
    ══════════════════════════════════════════════════════════════════ */
 var SMB_KEY     = 'mdb_smb_base';
+var PLAYER_PROTO_KEY = 'mdb_player_proto';
+var playerProto = localStorage.getItem(PLAYER_PROTO_KEY) || 'mpc';
 
 var PATH_MODE_KEY = 'mdb_path_mode';
 var smbBase    = localStorage.getItem(SMB_KEY) || 'smb://DESKTOP-EGOG348/Movies/';
@@ -3037,7 +3676,9 @@ var pathMode   = localStorage.getItem(PATH_MODE_KEY) || 'smb'; // 'local' or 'sm
 // SMB mapping: local drive letter → SMB share
 // W:\Movies\ → smb://DESKTOP-EGOG348/Movies/
 var SMB_MAP_KEY = 'mdb_smb_map';
-var smbMap = JSON.parse(localStorage.getItem(SMB_MAP_KEY) || '{"W:\\\\Movies\\\\":"smb://DESKTOP-EGOG348/Movies/"}');
+var smbMap;
+try { smbMap = JSON.parse(localStorage.getItem(SMB_MAP_KEY) || '{}'); } catch(e) { smbMap = {}; }
+if (!smbMap || typeof smbMap !== 'object' || !Object.keys(smbMap).length) smbMap = {"W:\\\\Movies\\\\":"smb://DESKTOP-EGOG348/Movies/"};
 
 function removeDiacritics(str) {
   var map = {
@@ -3095,6 +3736,36 @@ var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
 
+function updatePathPreview(){
+  var el=document.getElementById('playPathPreview');
+  if(!el)return;
+  var sample='2026 - Tom Clancys Jack Ryan.mkv';
+  var proto=playerProto||'mpc';
+  if(pathMode==='smb'){
+    var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
+    if(base[base.length-1]!=='/')base+='/';
+    var smbPath=base+sample;
+    var server=smbPath.replace(/^smb:\/\//,'');
+    var protoUrl=proto+'://'+encodeURI(server);
+    var uncPath='\\\\'+server.replace(/\//g,'\\');
+    el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+smbPath.replace(/</g,'&lt;')+'<br>'+
+      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Handler otvorí:</b> '+uncPath.replace(/</g,'&lt;');
+  } else {
+    var localBase='W:\\Movies\\';
+    for(var k in smbMap){localBase=k;break;}
+    localBase=localBase.replace(/\//g,'\\');
+    if(localBase[localBase.length-1]!=='\\') localBase+='\\';
+    var localPath=localBase+sample;
+    var fwdPath=localPath.replace(/\\/g,'/');
+    var driveStripped=fwdPath.replace(/^([A-Za-z]):/,'$1');
+    var protoUrl=proto+'://'+encodeURI(driveStripped);
+    el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+localPath.replace(/</g,'&lt;')+'<br>'+
+      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Handler otvorí:</b> '+localPath.replace(/</g,'&lt;');
+  }
+}
+
 function playMovie(id){
   var m=all.find(function(x){return x.id===id;});
   if(!m)return;
@@ -3102,38 +3773,33 @@ function playMovie(id){
   if(!path){toast('Cesta k súboru nie je nastavená.');return;}
 
   if(_isAndroid){
-    var scheme=pathMode==='smb'?'smb':'file';
-    var target=pathMode==='smb'?path.replace(/^smb:\/\//,''):path;
-    window.location.href='intent://'+target+'#Intent;scheme='+scheme+';type=video/*;end';
+    var proto=playerProto||'vlc';
+    if(pathMode==='smb'){
+      window.location.href=proto+'://'+path;
+    } else {
+      window.location.href='intent://'+path+'#Intent;scheme=file;type=video/*;end';
+    }
     return;
   }
 
-  // PC — build path for clipboard
-  var clipPath=path;
-  if(pathMode==='smb'){
-    if(clipPath.indexOf('smb://')==0) clipPath='\\\\'+clipPath.substring(6).replace(/\//g,'\\');
-  } else {
-    clipPath=clipPath.replace(/\//g,'\\');
+  // PC — clipboard gets Windows backslash path, protocol gets forward-slash path
+  var clipPath=path.replace(/\//g,'\\');
+  if(pathMode==='smb'&&clipPath.indexOf('smb:\\\\')==0){
+    clipPath='\\\\'+clipPath.substring(6);
   }
   copyToClip(clipPath);
 
+  var protoPath=path.replace(/\\/g,'/');
   if(pathMode==='smb'){
-    // Sieťové: try vlc:// with smb URI
-    var smb=path;
-    if(smb.indexOf('smb://')!==0) smb='smb://'+smb.replace(/^[\/\\]+/,'');
-    window.location.href='vlc://'+encodeURI(smb);
-    setTimeout(function(){
-      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, vlož cestu manuálne (Ctrl+V).');
-    },800);
-  } else {
-    // Lokálne: try vlc:// with file URI
-    var localFp=path.replace(/\\/g,'/');
-    if(localFp.charAt(1)===':') localFp=localFp.charAt(0)+':'+localFp.substring(2);
-    window.location.href='vlc://file:///'+encodeURI(localFp);
-    setTimeout(function(){
-      toast('Cesta skopírovaná do schránky. Ak sa VLC neotvoril, potrebuješ zaregistrovať VLC Protocol Handler.');
-    },800);
+    if(protoPath.indexOf('smb://')==0) protoPath=protoPath.substring(6);
   }
+  var proto=playerProto||'mpc';
+  window.location.href=proto+'://'+encodeURI(protoPath);
+
+  var label=proto.toUpperCase();
+  setTimeout(function(){
+    toast('Cesta skopírovaná. Ak sa '+label+' neotvoril, skontroluj registráciu '+proto+':// handlera.');
+  },800);
 }
 
 function copyToClip(text){
@@ -3145,9 +3811,6 @@ function copyToClip(text){
   }
 }
 
-// Legacy compat
-function buildPlayUrl(m){return null;}
-function buildVlcUrl(m){return null;}
 
 function copyMoviePath(id) {
   
@@ -3399,14 +4062,685 @@ function autoCheckGitHub() {
 
 
 /* ── Auto-push to GitHub (5s debounce) ──────────────────────────── */
+function exportCollage(){
+  var src=filt.length?filt:all;
+  var movies=src.filter(function(m){return m.poster_thumb&&m.poster_thumb.length>10;});
+  if(!movies.length){toast('Žiadne filmy s plagátmi');return;}
+  var max=60;
+  if(movies.length>max)movies=movies.slice(0,max);
+  var cols=Math.ceil(Math.sqrt(movies.length*1.5));
+  var rows=Math.ceil(movies.length/cols);
+  var pw=150,ph=225;
+  var canvas=document.createElement('canvas');
+  canvas.width=cols*pw;canvas.height=rows*ph;
+  var ctx=canvas.getContext('2d');
+  ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,canvas.width,canvas.height);
+  var loaded=0;
+  movies.forEach(function(m,i){
+    var img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=function(){
+      var col=i%cols,row=Math.floor(i/cols);
+      ctx.drawImage(img,col*pw,row*ph,pw,ph);
+      loaded++;
+      if(loaded>=movies.length){
+        canvas.toBlob(function(blob){
+          var a=document.createElement('a');
+          a.href=URL.createObjectURL(blob);
+          a.download='filmy_collage_'+new Date().toISOString().slice(0,10)+'.png';
+          a.click();URL.revokeObjectURL(a.href);
+          toast('Koláž exportovaná ('+movies.length+' filmov)');
+        },'image/png');
+      }
+    };
+    img.onerror=function(){loaded++;if(loaded>=movies.length)img.onload();};
+    img.src=m.poster_thumb;
+  });
+}
+
 var autoPushTimer = null;
+var ghPushInProgress = false;
 function scheduleAutoPush(reason) {
   if (!ghToken || prefs.autoPush === false) return;
   if (autoPushTimer) clearTimeout(autoPushTimer);
   autoPushTimer = setTimeout(function() {
     autoPushTimer = null;
+    if (ghPushInProgress) { scheduleAutoPush('deferred'); return; }
     if (all && all.length) ghPush();
   }, 5000);
 }
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && autoPushTimer) {
+    clearTimeout(autoPushTimer); autoPushTimer = null;
+    if (!ghPushInProgress && ghToken && all && all.length) ghPush();
+  }
+});
+
+
+/* Auto Dark/Light Theme — integrated into applyTheme above */
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Duplicate Detection
+   ══════════════════════════════════════════════════════════ */
+function levenshtein(a, b) {
+  var m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  var d = [];
+  for (var i = 0; i <= m; i++) d[i] = [i];
+  for (var j = 0; j <= n; j++) d[0][j] = j;
+  for (i = 1; i <= m; i++) {
+    for (j = 1; j <= n; j++) {
+      d[i][j] = a[i-1] === b[j-1] ? d[i-1][j-1]
+        : Math.min(d[i-1][j-1], d[i-1][j], d[i][j-1]) + 1;
+    }
+  }
+  return d[m][n];
+}
+
+function findDuplicates() {
+  var groups = [], seen = new Set();
+  for (var i = 0; i < all.length; i++) {
+    if (seen.has(i)) continue;
+    var group = [all[i]];
+    var ti = (all[i].title || '').toLowerCase().trim();
+    var yi = all[i].year || 0;
+    var tidi = all[i].tmdb_id || all[i].id;
+    for (var j = i + 1; j < all.length; j++) {
+      if (seen.has(j)) continue;
+      var tj = (all[j].title || '').toLowerCase().trim();
+      var yj = all[j].year || 0;
+      var tidj = all[j].tmdb_id || all[j].id;
+      var dup = false;
+      if (tidi && tidj && tidi === tidj && i !== j) dup = true;
+      if (!dup && ti === tj && ti.length > 0) dup = true;
+      if (!dup && yi === yj && yi > 0 && ti.length > 2 && tj.length > 2 && levenshtein(ti, tj) <= 2) dup = true;
+      if (dup) { group.push(all[j]); seen.add(j); }
+    }
+    if (group.length > 1) { groups.push(group); seen.add(i); }
+  }
+  return groups;
+}
+
+function openDupPanel() {
+  var groups = findDuplicates();
+  var el = document.getElementById('dupContent');
+  if (!groups.length) {
+    el.innerHTML = '<div class="dup-empty">Ziadne duplikaty nenajdene</div>';
+  } else {
+    var h = '';
+    groups.forEach(function(g, gi) {
+      h += '<div class="dup-group"><div class="dup-group-hdr">Skupina ' + (gi+1) + ' (' + g.length + ' filmy)</div>';
+      g.forEach(function(m) {
+        var poster = m.poster_thumb && m.poster_thumb.length > 10
+          ? '<img class="dup-poster" src="' + esc(m.poster_thumb) + '" alt="">'
+          : '<div class="dup-poster" style="background:var(--card2)"></div>';
+        h += '<div class="dup-row">' + poster +
+          '<div class="dup-info"><div class="dup-title">' + esc(m.title || '') + '</div>' +
+          '<div class="dup-meta">#' + m.num + ' | ' + (m.year || '?') + ' | ID:' + m.id + '</div></div>' +
+          '<button class="dup-del" data-id="' + m.id + '" title="Odstranit">&#x2715;</button></div>';
+      });
+      h += '</div>';
+    });
+    el.innerHTML = h;
+  }
+  document.getElementById('dupOv').classList.remove('hidden');
+  el.addEventListener('click', function(e) {
+    var btn = e.target.closest('.dup-del');
+    if (!btn) return;
+    var id = parseInt(btn.dataset.id, 10);
+    if (!confirm('Naozaj odstranit film #' + id + '?')) return;
+    all = all.filter(function(m) { return m.id !== id; });
+    filt = filt.filter(function(m) { return m.id !== id; });
+    favs.delete(id); wl.delete(id); watched.delete(id);
+    safeSave(SK, JSON.stringify(all));
+    safeSave(FK, JSON.stringify(Array.from(favs)));
+    scheduleAutoPush('dup-delete');
+    toast('Film odstraneny');
+    openDupPanel();
+    renderAll();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var dupBtn = document.getElementById('settBtnDuplicates');
+  if (dupBtn) dupBtn.addEventListener('click', openDupPanel);
+  var dupClose = document.getElementById('dupClose');
+  if (dupClose) dupClose.addEventListener('click', function() { document.getElementById('dupOv').classList.add('hidden'); });
+  var dupOv = document.getElementById('dupOv');
+  if (dupOv) dupOv.addEventListener('click', function(e) { if (e.target === dupOv) dupOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Bulk Edit
+   ══════════════════════════════════════════════════════════ */
+var bulkMode = false, bulkSel = new Set();
+
+function toggleBulkMode() {
+  bulkMode = !bulkMode;
+  bulkSel.clear();
+  var ml = document.getElementById('mlist');
+  var inl = document.getElementById('bulkInline');
+  var btn = document.getElementById('btnBulk');
+  if (bulkMode) {
+    ml.classList.add('bulk-mode');
+    inl.classList.remove('hidden');
+    btn.classList.add('on');
+  } else {
+    ml.classList.remove('bulk-mode');
+    inl.classList.add('hidden');
+    btn.classList.remove('on');
+    ml.querySelectorAll('.bulk-sel').forEach(function(c) { c.classList.remove('bulk-sel'); });
+  }
+  updateBulkCnt();
+}
+
+function updateBulkCnt() {
+  var el = document.getElementById('bulkCnt');
+  if (el) el.textContent = bulkSel.size || '0';
+}
+
+function bulkToggleCard(card) {
+  var id = parseInt(card.dataset.id, 10);
+  if (bulkSel.has(id)) { bulkSel.delete(id); card.classList.remove('bulk-sel'); }
+  else { bulkSel.add(id); card.classList.add('bulk-sel'); }
+  updateBulkCnt();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnBulk = document.getElementById('btnBulk');
+  if (btnBulk) btnBulk.addEventListener('click', toggleBulkMode);
+
+  document.getElementById('mlist').addEventListener('click', function(e) {
+    if (!bulkMode) return;
+    var card = e.target.closest('[data-id]');
+    if (!card) return;
+    e.preventDefault(); e.stopPropagation();
+    bulkToggleCard(card);
+  }, true);
+
+  var bulkSelAllBtn = document.getElementById('bulkSelAll');
+  if (bulkSelAllBtn) bulkSelAllBtn.addEventListener('click', function() {
+    var ml = document.getElementById('mlist');
+    var cards = ml.querySelectorAll('[data-id]');
+    var allSelected = bulkSel.size >= cards.length;
+    cards.forEach(function(c) {
+      var id = parseInt(c.dataset.id, 10);
+      if (allSelected) { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
+      else { bulkSel.add(id); c.classList.add('bulk-sel'); }
+    });
+    updateBulkCnt();
+  });
+
+  var bulkFav = document.getElementById('bulkFav');
+  if (bulkFav) bulkFav.addEventListener('click', function() {
+    bulkSel.forEach(function(id) { favs.add(id); });
+    safeSave(FK, JSON.stringify(Array.from(favs)));
+    toast(bulkSel.size + ' filmov pridanych do oblubenych');
+    scheduleAutoPush('bulk-fav');
+  });
+
+  var bulkWl = document.getElementById('bulkWl');
+  if (bulkWl) bulkWl.addEventListener('click', function() {
+    bulkSel.forEach(function(id) { wl.add(id); });
+    safeSave(WK, JSON.stringify(Array.from(wl)));
+    toast(bulkSel.size + ' filmov pridanych do watchlistu');
+    scheduleAutoPush('bulk-wl');
+  });
+
+  var bulkWatched = document.getElementById('bulkWatched');
+  if (bulkWatched) bulkWatched.addEventListener('click', function() {
+    bulkSel.forEach(function(id) { watched.add(id); watchedDates[id] = Date.now(); });
+    safeSave(VK, JSON.stringify(Array.from(watched)));
+    safeSave(VDK, JSON.stringify(watchedDates));
+    toast(bulkSel.size + ' filmov oznacenych ako videne');
+    scheduleAutoPush('bulk-watched');
+  });
+
+  var bulkRm = document.getElementById('bulkRm');
+  if (bulkRm) bulkRm.addEventListener('click', function() {
+    if (!bulkSel.size) return;
+    if (!confirm('Naozaj odstranit ' + bulkSel.size + ' filmov?')) return;
+    all = all.filter(function(m) { return !bulkSel.has(m.id); });
+    bulkSel.forEach(function(id) { favs.delete(id); wl.delete(id); watched.delete(id); });
+    safeSave(SK, JSON.stringify(all));
+    safeSave(FK, JSON.stringify(Array.from(favs)));
+    toast(bulkSel.size + ' filmov odstranenych');
+    toggleBulkMode();
+    renderAll();
+    scheduleAutoPush('bulk-rm');
+  });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Film Map
+   ══════════════════════════════════════════════════════════ */
+var COUNTRY_FLAGS = {
+  'usa':'&#127482;&#127480;','united states':'&#127482;&#127480;','us':'&#127482;&#127480;',
+  'uk':'&#127468;&#127463;','united kingdom':'&#127468;&#127463;','great britain':'&#127468;&#127463;',
+  'france':'&#127467;&#127479;','fr':'&#127467;&#127479;',
+  'germany':'&#127465;&#127466;','de':'&#127465;&#127466;',
+  'czech republic':'&#127464;&#127487;','cz':'&#127464;&#127487;','czechia':'&#127464;&#127487;',
+  'slovakia':'&#127480;&#127472;','sk':'&#127480;&#127472;',
+  'italy':'&#127470;&#127481;','japan':'&#127471;&#127477;','spain':'&#127466;&#127480;',
+  'south korea':'&#127472;&#127479;','korea':'&#127472;&#127479;','canada':'&#127464;&#127462;',
+  'australia':'&#127462;&#127482;','india':'&#127470;&#127475;','china':'&#127464;&#127475;',
+  'sweden':'&#127480;&#127466;','denmark':'&#127465;&#127472;','norway':'&#127475;&#127476;',
+  'russia':'&#127479;&#127482;','poland':'&#127477;&#127473;','hungary':'&#127469;&#127482;',
+  'ireland':'&#127470;&#127466;','belgium':'&#127463;&#127466;','netherlands':'&#127475;&#127473;',
+  'new zealand':'&#127475;&#127487;','brazil':'&#127463;&#127479;','mexico':'&#127474;&#127485;',
+  'argentina':'&#127462;&#127479;','austria':'&#127462;&#127481;','switzerland':'&#127464;&#127469;',
+  'finland':'&#127467;&#127470;','turkey':'&#127481;&#127479;','romania':'&#127479;&#127476;',
+  'portugal':'&#127477;&#127481;','thailand':'&#127481;&#127469;','south africa':'&#127487;&#127462;'
+};
+
+function openMapPanel() {
+  var counts = {};
+  all.forEach(function(m) {
+    var c = (m.country || '').trim();
+    if (!c) return;
+    c.split(/[,\/]/).forEach(function(part) {
+      var p = part.trim();
+      if (p) counts[p] = (counts[p] || 0) + 1;
+    });
+  });
+  var sorted = Object.entries(counts).sort(function(a, b) { return b[1] - a[1]; });
+  var maxCnt = sorted.length ? sorted[0][1] : 1;
+  var total = sorted.reduce(function(s, e) { return s + e[1]; }, 0);
+  var h = '<div class="map-total">' + sorted.length + ' krajin | ' + total + ' filmov celkovo</div><div class="map-grid">';
+  sorted.forEach(function(e) {
+    var name = e[0], cnt = e[1];
+    var key = name.toLowerCase();
+    var flag = COUNTRY_FLAGS[key] || '&#127988;';
+    var pct = Math.round(cnt / maxCnt * 100);
+    h += '<div class="map-country" data-country="' + esc(name) + '"><span class="map-flag">' + flag + '</span>' +
+      '<div style="flex:1;min-width:0"><div class="map-cname">' + esc(name) + '</div>' +
+      '<div class="map-bar" style="width:' + pct + '%"></div></div>' +
+      '<span class="map-ccnt">' + cnt + '</span></div>';
+  });
+  h += '</div>';
+  document.getElementById('mapContent').innerHTML = h;
+  document.getElementById('mapOv').classList.remove('hidden');
+  document.getElementById('mapContent').addEventListener('click', function(e) {
+    var card = e.target.closest('.map-country');
+    if (!card) return;
+    document.getElementById('mapOv').classList.add('hidden');
+    fpState.country = card.dataset.country;
+    updateFpBadge();
+    updateFpPills();
+    applyFilters();
+    toast('Filter: ' + card.dataset.country);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnMap = document.getElementById('btnMap');
+  if (btnMap) btnMap.addEventListener('click', openMapPanel);
+  var mapClose = document.getElementById('mapClose');
+  if (mapClose) mapClose.addEventListener('click', function() { document.getElementById('mapOv').classList.add('hidden'); });
+  var mapOv = document.getElementById('mapOv');
+  if (mapOv) mapOv.addEventListener('click', function(e) { if (e.target === mapOv) mapOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Timeline
+   ══════════════════════════════════════════════════════════ */
+function openTimeline() {
+  var byYear = {};
+  all.forEach(function(m) {
+    var y = m.year || 0;
+    if (y < 1900) return;
+    if (!byYear[y]) byYear[y] = [];
+    byYear[y].push(m);
+  });
+  var years = Object.keys(byYear).map(Number).sort(function(a, b) { return a - b; });
+  var h = '<div class="tl-scroll"><div class="tl-track">';
+  years.forEach(function(y) {
+    var ms = byYear[y];
+    var isDecade = y % 10 === 0;
+    h += '<div class="tl-year">';
+    h += '<div class="tl-posters">';
+    var show = ms.slice(0, 5);
+    show.forEach(function(m) {
+      if (m.poster_thumb && m.poster_thumb.length > 10) {
+        h += '<img class="tl-poster" src="' + esc(m.poster_thumb) + '" data-id="' + m.id + '" title="' + esc(m.title || '') + '" loading="lazy">';
+      }
+    });
+    if (ms.length > 5) h += '<div class="tl-cnt">+' + (ms.length - 5) + '</div>';
+    h += '</div>';
+    h += '<div class="tl-label' + (isDecade ? ' tl-decade' : '') + '">' + y + '</div>';
+    h += '<div class="tl-cnt">' + ms.length + '</div>';
+    h += '</div>';
+  });
+  h += '</div></div>';
+  document.getElementById('timelineContent').innerHTML = h;
+  document.getElementById('timelineOv').classList.remove('hidden');
+  document.getElementById('timelineContent').addEventListener('click', function(e) {
+    var poster = e.target.closest('.tl-poster');
+    if (poster && poster.dataset.id) {
+      document.getElementById('timelineOv').classList.add('hidden');
+      openDet(parseInt(poster.dataset.id, 10));
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnTl = document.getElementById('btnTimeline');
+  if (btnTl) btnTl.addEventListener('click', openTimeline);
+  var tlClose = document.getElementById('timelineClose');
+  if (tlClose) tlClose.addEventListener('click', function() { document.getElementById('timelineOv').classList.add('hidden'); });
+  var tlOv = document.getElementById('timelineOv');
+  if (tlOv) tlOv.addEventListener('click', function(e) { if (e.target === tlOv) tlOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Decade Overview
+   ══════════════════════════════════════════════════════════ */
+function openDecadePanel() {
+  var byDecade = {};
+  all.forEach(function(m) {
+    var y = m.year || 0;
+    if (y < 1900) return;
+    var dec = Math.floor(y / 10) * 10;
+    if (!byDecade[dec]) byDecade[dec] = [];
+    byDecade[dec].push(m);
+  });
+  var decades = Object.keys(byDecade).map(Number).sort(function(a, b) { return b - a; });
+  var h = '';
+  decades.forEach(function(dec) {
+    var ms = byDecade[dec];
+    var genreCnt = {};
+    var dirCnt = {};
+    ms.forEach(function(m) {
+      (m.genres || []).forEach(function(g) { genreCnt[g] = (genreCnt[g] || 0) + 1; });
+      if (m.director) dirCnt[m.director] = (dirCnt[m.director] || 0) + 1;
+    });
+    var topGenre = Object.entries(genreCnt).sort(function(a, b) { return b[1] - a[1]; })[0];
+    var topDir = Object.entries(dirCnt).sort(function(a, b) { return b[1] - a[1]; })[0];
+    h += '<div class="dec-group">';
+    h += '<div class="dec-hdr"><span class="dec-title">' + dec + 's</span>';
+    h += '<span class="dec-stat">' + ms.length + ' filmov</span>';
+    if (topGenre) h += '<span class="dec-genre">' + esc(topGenre[0]) + '</span>';
+    if (topDir) h += '<span class="dec-stat">Top: ' + esc(topDir[0]) + '</span>';
+    h += '</div>';
+    h += '<div class="dec-scroll">';
+    ms.sort(function(a, b) { return (a.year || 0) - (b.year || 0); });
+    ms.forEach(function(m) {
+      h += '<div class="dec-card" data-id="' + m.id + '">';
+      if (m.poster_thumb && m.poster_thumb.length > 10) {
+        h += '<img class="dec-poster" src="' + esc(m.poster_thumb) + '" alt="" loading="lazy">';
+      } else {
+        h += '<div class="dec-ph">' + esc((m.title || '').substring(0, 15)) + '</div>';
+      }
+      h += '<div class="dec-name">' + esc(m.title || '') + '</div></div>';
+    });
+    h += '</div></div>';
+  });
+  document.getElementById('decadeContent').innerHTML = h;
+  document.getElementById('decadeOv').classList.remove('hidden');
+  document.getElementById('decadeContent').addEventListener('click', function(e) {
+    var card = e.target.closest('.dec-card');
+    if (card && card.dataset.id) {
+      document.getElementById('decadeOv').classList.add('hidden');
+      openDet(parseInt(card.dataset.id, 10));
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btnDec = document.getElementById('btnDecade');
+  if (btnDec) btnDec.addEventListener('click', openDecadePanel);
+  var decClose = document.getElementById('decadeClose');
+  if (decClose) decClose.addEventListener('click', function() { document.getElementById('decadeOv').classList.add('hidden'); });
+  var decOv = document.getElementById('decadeOv');
+  if (decOv) decOv.addEventListener('click', function(e) { if (e.target === decOv) decOv.classList.add('hidden'); });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Quick Add
+   ══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  var settBtn = document.getElementById('settBtnQuickAdd');
+  var ov = document.getElementById('quickAddOv');
+  var panel = document.getElementById('quickAddPanel');
+  var inp = document.getElementById('quickAddInp');
+  var btn = document.getElementById('quickAddSearch');
+  var results = document.getElementById('quickAddResults');
+  var status = document.getElementById('quickAddStatus');
+  var close = document.getElementById('quickAddClose');
+
+  if (!settBtn) return;
+
+  settBtn.addEventListener('click', function() {
+    document.getElementById('settOv').classList.add('hidden');
+    ov.classList.remove('hidden');
+    inp.value = ''; results.innerHTML = ''; status.textContent = '';
+    setTimeout(function() { inp.focus(); }, 100);
+  });
+
+  if (close) close.addEventListener('click', function() { ov.classList.add('hidden'); });
+  if (ov) ov.addEventListener('click', function(e) { if (e.target === ov) ov.classList.add('hidden'); });
+
+  function qaSearch() {
+    var q = (inp.value || '').trim();
+    if (!q) return;
+    status.textContent = 'Hladam...';
+    results.innerHTML = '';
+    var key = tmdbKey;
+    fetch('https://api.themoviedb.org/3/search/movie?api_key=' + key + '&query=' + encodeURIComponent(q) + '&language=sk-SK')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        status.textContent = '';
+        if (!data.results || !data.results.length) { status.textContent = 'Nic nenajdene'; return; }
+        var h = '';
+        data.results.slice(0, 8).forEach(function(r) {
+          var poster = r.poster_path ? 'https://image.tmdb.org/t/p/w92' + r.poster_path : '';
+          var yr = (r.release_date || '').substring(0, 4);
+          var exists = all.some(function(m) { return m.tmdb_id === r.id || m.id === r.id; });
+          h += '<div class="qa-card">';
+          h += poster ? '<img class="qa-poster" src="' + esc(poster) + '" loading="lazy">' : '<div class="qa-poster" style="background:var(--card2)"></div>';
+          h += '<div class="qa-info"><div class="qa-title">' + esc(r.title || '') + '</div>';
+          h += '<div class="qa-meta">' + yr + ' | TMDB:' + r.id + '</div></div>';
+          h += '<button class="qa-add" data-tmdb="' + r.id + '"' + (exists ? ' disabled title="Uz existuje"' : '') + '>' + (exists ? 'Existuje' : '+ Pridat') + '</button>';
+          h += '</div>';
+        });
+        results.innerHTML = h;
+      })
+      .catch(function() { status.textContent = 'Chyba pri hladani'; });
+  }
+
+  btn.addEventListener('click', qaSearch);
+  inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') qaSearch(); });
+
+  results.addEventListener('click', function(e) {
+    var addBtn = e.target.closest('.qa-add');
+    if (!addBtn || addBtn.disabled) return;
+    var tmdbId = parseInt(addBtn.dataset.tmdb, 10);
+    addBtn.disabled = true;
+    addBtn.textContent = '...';
+    var key = tmdbKey;
+    fetch('https://api.themoviedb.org/3/movie/' + tmdbId + '?api_key=' + key + '&language=sk-SK&append_to_response=credits,videos')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var maxNum = all.reduce(function(mx, m) { return Math.max(mx, m.num || 0); }, 0);
+        var genres = (d.genres || []).map(function(g) { return g.name; });
+        var dir = '';
+        if (d.credits && d.credits.crew) {
+          var dc = d.credits.crew.find(function(c) { return c.job === 'Director'; });
+          if (dc) dir = dc.name;
+        }
+        var movie = {
+          id: d.id,
+          tmdb_id: d.id,
+          num: maxNum + 1,
+          title: d.title || '',
+          year: parseInt((d.release_date || '').substring(0, 4)) || 0,
+          director: dir,
+          genres: genres,
+          country: (d.production_countries || []).map(function(c) { return c.name; }).join(', '),
+          duration: d.runtime || 0,
+          poster_thumb: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : '',
+          _tags: []
+        };
+        liveCache[movie.id] = {
+          pct: d.vote_average ? Math.round(d.vote_average * 10) : null,
+          posterUrl: movie.poster_thumb,
+          backdrop: d.backdrop_path ? 'https://image.tmdb.org/t/p/w780' + d.backdrop_path : '',
+          overview: d.overview || '',
+          trailer: '',
+          cast: d.credits && d.credits.cast ? d.credits.cast.slice(0, 10).map(function(c) { return c.name; }).join(', ') : '',
+          countries: movie.country
+        };
+        if (d.videos && d.videos.results) {
+          var tr = d.videos.results.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; });
+          if (tr) liveCache[movie.id].trailer = tr.key;
+        }
+        all.push(movie);
+        safeSave(SK, JSON.stringify(all));
+        safeSave(LK, JSON.stringify(liveCache));
+        buildFuse();
+        renderAll();
+        scheduleAutoPush('quick-add');
+        addBtn.textContent = 'Pridany';
+        toast(movie.title + ' pridany');
+      })
+      .catch(function() { addBtn.textContent = 'Chyba'; addBtn.disabled = false; });
+  });
+});
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Drag & Drop Reorder
+   ══════════════════════════════════════════════════════════ */
+var dragSrcId = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  var ml = document.getElementById('mlist');
+  if (!ml) return;
+
+  ml.addEventListener('dragstart', function(e) {
+    if (bulkMode || posterWall) return;
+    var card = e.target.closest('[data-id]');
+    if (!card) return;
+    dragSrcId = parseInt(card.dataset.id, 10);
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(dragSrcId));
+  });
+
+  ml.addEventListener('dragover', function(e) {
+    if (dragSrcId === null) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    var card = e.target.closest('[data-id]');
+    ml.querySelectorAll('.drag-over').forEach(function(c) { c.classList.remove('drag-over'); });
+    if (card) card.classList.add('drag-over');
+  });
+
+  ml.addEventListener('dragleave', function(e) {
+    var card = e.target.closest('[data-id]');
+    if (card) card.classList.remove('drag-over');
+  });
+
+  ml.addEventListener('drop', function(e) {
+    e.preventDefault();
+    ml.querySelectorAll('.drag-over,.dragging').forEach(function(c) { c.classList.remove('drag-over', 'dragging'); });
+    var card = e.target.closest('[data-id]');
+    if (!card || dragSrcId === null) { dragSrcId = null; return; }
+    var targetId = parseInt(card.dataset.id, 10);
+    if (dragSrcId === targetId) { dragSrcId = null; return; }
+    var srcIdx = all.findIndex(function(m) { return m.id === dragSrcId; });
+    var tgtIdx = all.findIndex(function(m) { return m.id === targetId; });
+    if (srcIdx < 0 || tgtIdx < 0) { dragSrcId = null; return; }
+    var item = all.splice(srcIdx, 1)[0];
+    all.splice(tgtIdx, 0, item);
+    all.forEach(function(m, i) { m.num = i + 1; });
+    safeSave(SK, JSON.stringify(all));
+    renderAll();
+    scheduleAutoPush('drag-reorder');
+    toast('Poradie zmenene');
+    dragSrcId = null;
+  });
+
+  ml.addEventListener('dragend', function() {
+    ml.querySelectorAll('.drag-over,.dragging').forEach(function(c) { c.classList.remove('drag-over', 'dragging'); });
+    dragSrcId = null;
+  });
+});
+
+(function patchCards() {
+  var origAppend = appendCards;
+  appendCards = function(list, ml) {
+    origAppend(list, ml);
+    if (!posterWall) {
+      ml.querySelectorAll('[data-id]:not([draggable])').forEach(function(c) {
+        c.setAttribute('draggable', 'true');
+      });
+    }
+  };
+})();
+
+
+/* ══════════════════════════════════════════════════════════
+   MODULE: Share / QR
+   ══════════════════════════════════════════════════════════ */
+function openSharePanel(movieId) {
+  var m = all.find(function(x) { return x.id === movieId; });
+  if (!m) return;
+  var c = liveCache[m.id] || {};
+  var tmdbUrl = m.tmdb_id ? 'https://www.themoviedb.org/movie/' + m.tmdb_id : '';
+  var text = m.title + ' (' + (m.year || '?') + ')';
+  if (m.director) text += '\nReziser: ' + m.director;
+  if (m.genres && m.genres.length) text += '\nZanre: ' + m.genres.join(', ');
+  var pct = getMoviePct(m);
+  if (pct != null) text += '\nHodnotenie: ' + pct + '%';
+  if (tmdbUrl) text += '\n' + tmdbUrl;
+
+  var h = '<div class="share-text">' + esc(text).replace(/\n/g, '<br>') + '</div>';
+  h += '<div class="share-btns">';
+  if (navigator.share) {
+    h += '<button class="share-btn primary" id="shareNative">Zdielat</button>';
+  }
+  h += '<button class="share-btn" id="shareCopy">Kopirovat text</button>';
+  if (tmdbUrl) h += '<button class="share-btn" id="shareTmdb">Otvorit TMDB</button>';
+  h += '</div>';
+
+  document.getElementById('shareContent').innerHTML = h;
+  document.getElementById('shareOv').classList.remove('hidden');
+
+  var nativeBtn = document.getElementById('shareNative');
+  if (nativeBtn) nativeBtn.addEventListener('click', function() {
+    navigator.share({ title: m.title, text: text, url: tmdbUrl || undefined }).catch(function() {});
+  });
+
+  var copyBtn = document.getElementById('shareCopy');
+  if (copyBtn) copyBtn.addEventListener('click', function() {
+    navigator.clipboard.writeText(text).then(function() {
+      copyBtn.textContent = 'Skopirovane!';
+      setTimeout(function() { copyBtn.textContent = 'Kopirovat text'; }, 2000);
+    });
+  });
+
+  var tmdbBtn = document.getElementById('shareTmdb');
+  if (tmdbBtn) tmdbBtn.addEventListener('click', function() {
+    window.open(tmdbUrl, '_blank');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var shareBtn = document.getElementById('btnShare');
+  if (shareBtn) shareBtn.addEventListener('click', function() {
+    if (curId) openSharePanel(curId);
+  });
+  var shareClose = document.getElementById('shareClose');
+  if (shareClose) shareClose.addEventListener('click', function() { document.getElementById('shareOv').classList.add('hidden'); });
+  var shareOv = document.getElementById('shareOv');
+  if (shareOv) shareOv.addEventListener('click', function(e) { if (e.target === shareOv) shareOv.classList.add('hidden'); });
+});
 
 })();

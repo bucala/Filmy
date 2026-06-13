@@ -1,11 +1,11 @@
 /* ══ Filmová Databáza — sw.js  ══
    Strategy:
-   - Shell (index.html, app.js, style.css, data.js, manifest, icon) → Cache-First
-   - data.json  → Network-First (always try fresh, fallback to cache)
-   - CDN libs   → Cache-First (immutable versioned URLs)
+   - Shell (same-origin)  → Network-First (always fresh, fallback to cache)
+   - data.json            → Network-First
+   - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260530-1242";
+const CACHE = "filmy-20260613-0842";
 
 const SHELL  = [
   "./",
@@ -19,11 +19,20 @@ const SHELL  = [
   "https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"
 ];
 
-/* ── Install: pre-cache shell ── */
+/* ── Install: pre-cache shell (bypass HTTP cache) ── */
 self.addEventListener("install", function(e){
   e.waitUntil(
     caches.open(CACHE)
-      .then(function(c){ return c.addAll(SHELL); })
+      .then(function(c){
+        return Promise.all(
+          SHELL.map(function(url){
+            return fetch(url, {cache:"no-store"}).then(function(res){
+              if(!res.ok) throw new Error("Failed to fetch "+url);
+              return c.put(url, res);
+            });
+          })
+        );
+      })
       .then(function(){ return self.skipWaiting(); })
   );
 });
@@ -44,32 +53,49 @@ self.addEventListener("activate", function(e){
 self.addEventListener("fetch", function(e){
   var url = e.request.url;
 
-  /* data.json — Network-First */
-  if(url.includes("data.json")){
+  /* API routes — Network-Only (never cache) */
+  if(url.includes("/api/")){
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
+  /* GitHub API / raw — Network-Only (never cache auth/sync traffic) */
+  if(url.includes("api.github.com") || url.includes("raw.githubusercontent.com")){
+    return;
+  }
+
+  /* TMDB images — passthrough (don't intercept cross-origin opaque responses) */
+  if(url.includes("image.tmdb.org")){
+    return;
+  }
+
+  /* CDN libs — Cache-First (versioned, immutable) */
+  if(url.includes("cdn.jsdelivr.net") || url.includes("cdnjs.cloudflare.com") ||
+     url.includes("fonts.googleapis.com") || url.includes("fonts.gstatic.com")){
     e.respondWith(
-      fetch(e.request)
-        .then(function(res){
+      caches.match(e.request).then(function(cached){
+        if(cached) return cached;
+        return fetch(e.request).then(function(res){
+          if(!res || res.status !== 200) return res;
           var clone = res.clone();
           caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
           return res;
-        })
-        .catch(function(){
-          return caches.match(e.request);
-        })
+        });
+      })
     );
     return;
   }
 
-  /* Everything else — Cache-First */
+  /* Same-origin (shell + data.json) — Network-First */
   e.respondWith(
-    caches.match(e.request).then(function(cached){
-      if(cached) return cached;
-      return fetch(e.request).then(function(res){
-        if(!res || res.status !== 200 || res.type === "opaque") return res;
+    fetch(e.request).then(function(res){
+      if(res.ok){
         var clone = res.clone();
         caches.open(CACHE).then(function(c){ c.put(e.request, clone); });
-        return res;
-      });
+      }
+      return res;
+    }).catch(function(){
+      return caches.match(e.request);
     })
   );
 });
