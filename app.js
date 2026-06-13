@@ -4235,7 +4235,14 @@ function toggleBulkMode() {
 
 function updateBulkCnt() {
   var el = document.getElementById('bulkCnt');
-  if (el) el.textContent = bulkSel.size || '0';
+  if (el) el.textContent = bulkSel.size + ' vybraných';
+  var cb = document.getElementById('bulkSelAllCb');
+  if (cb) {
+    var ml = document.getElementById('mlist');
+    var total = ml ? ml.querySelectorAll('[data-id]').length : 0;
+    cb.checked = total > 0 && bulkSel.size >= total;
+    cb.indeterminate = bulkSel.size > 0 && bulkSel.size < total;
+  }
 }
 
 function bulkToggleCard(card) {
@@ -4257,15 +4264,15 @@ document.addEventListener('DOMContentLoaded', function() {
     bulkToggleCard(card);
   }, true);
 
-  var bulkSelAllBtn = document.getElementById('bulkSelAll');
-  if (bulkSelAllBtn) bulkSelAllBtn.addEventListener('click', function() {
+  var bulkSelAllCb = document.getElementById('bulkSelAllCb');
+  if (bulkSelAllCb) bulkSelAllCb.addEventListener('change', function() {
     var ml = document.getElementById('mlist');
     var cards = ml.querySelectorAll('[data-id]');
-    var allSelected = bulkSel.size >= cards.length;
+    var shouldSelect = bulkSelAllCb.checked;
     cards.forEach(function(c) {
       var id = parseInt(c.dataset.id, 10);
-      if (allSelected) { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
-      else { bulkSel.add(id); c.classList.add('bulk-sel'); }
+      if (shouldSelect) { bulkSel.add(id); c.classList.add('bulk-sel'); }
+      else { bulkSel.delete(id); c.classList.remove('bulk-sel'); }
     });
     updateBulkCnt();
   });
