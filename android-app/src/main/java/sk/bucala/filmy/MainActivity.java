@@ -8,6 +8,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import sk.bucala.filmy.BuildConfig;
 
 public class MainActivity extends Activity {
     private WebView webView;
