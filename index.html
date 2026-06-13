@@ -403,6 +403,47 @@
     <div class="sett-toggle" id="playerProtoToggle" style="margin-bottom:8px">
       <button class="ttab" data-proto="mpc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><polygon points="5 3 19 12 5 21 5 3"/></svg>MPC-HC</button>
       <button class="ttab" data-proto="vlc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><polygon points="5 3 19 12 5 21 5 3"/></svg>VLC</button>
+      <button class="ttab" data-proto="portable"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Portable</button>
+    </div>
+
+    <div id="portableSettingsWrap" style="display:none;margin-bottom:10px;border:1px solid rgba(212,169,67,.2);border-radius:8px;padding:10px;background:rgba(212,169,67,.04)">
+      <div class="sett-grp-title" style="margin-bottom:6px">Portable prehrávač — výber</div>
+      <div class="sett-toggle" id="portableTypeToggle" style="margin-bottom:8px">
+        <button class="ttab" data-ptype="mpc"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg>MPC-HC portable</button>
+        <button class="ttab" data-ptype="vlc"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polygon points="5 3 19 12 5 21 5 3"/></svg>VLC portable</button>
+      </div>
+      <div class="sett-btn-hint" style="margin-bottom:6px">Cesta k MPC-HC portable exe:</div>
+      <div class="sett-key-row">
+        <input class="sett-key-inp" id="portableMpcInp" type="text" placeholder="W:\MPC-portable\mpc-hc64.exe" autocomplete="off">
+        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="portableMpcSave">OK</button>
+      </div>
+      <div class="sett-btn-hint" style="margin-bottom:6px;margin-top:8px">Cesta k VLC portable exe:</div>
+      <div class="sett-key-row">
+        <input class="sett-key-inp" id="portableVlcInp" type="text" placeholder="W:\vlc-portable\vlc-portable.exe" autocomplete="off">
+        <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="portableVlcSave">OK</button>
+      </div>
+      <div class="sett-key-st" id="portablePathSt" style="margin-top:4px"></div>
+      <div class="sett-btn-hint" style="margin-top:10px">
+        <b style="color:var(--gold)">Ako to funguje:</b><br>
+        Kliknutím na Prehráť sa cesta k filmu skopíruje do schránky a otvorí sa portable exe.<br>
+        Vyžaduje registráciu <code>portable://</code> handlera:
+      </div>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <button class="sett-btn secondary" id="portableDownloadReg" style="font-size:11px;padding:6px 10px">
+          <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+          <span class="sett-btn-label">Stiahnuť register-portable.reg</span>
+        </button>
+        <button class="sett-btn secondary" id="portableDownloadBat" style="font-size:11px;padding:6px 10px">
+          <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+          <span class="sett-btn-label">Stiahnuť launch.bat</span>
+        </button>
+      </div>
+      <div class="sett-btn-hint" style="margin-top:6px;font-size:10px">
+        1. Stiahni oba súbory<br>
+        2. Ulož bat do <code>W:\Portable-Handler\launch.bat</code><br>
+        3. Spusti <code>register-portable.reg</code> ako správca<br>
+        4. Hotovo — Portable režim bude fungovať
+      </div>
     </div>
     <div class="sett-btn-hint" style="margin-bottom:10px;font-size:10px">
       <b>PC:</b> Otvorí film cez vybraný prehrávač (mpc:// alebo vlc://) + skopíruje cestu do schránky<br>
@@ -739,7 +780,7 @@
 <!-- Film database — baked-in movie data with base64 poster thumbnails -->
 
 <!-- Portable player handler module -->
-<!-- portable-handler.js removed — never called from app.js -->
+<script src="portable-handler.js" defer></script>
 
 <!-- Application logic -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" defer></script>
