@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -17,12 +18,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
+    private static final String TAG = "Filmy";
     private WebView webView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        enableFullscreen();
+        enableFullscreenSafely();
 
         webView = new WebView(this);
         webView.setLayoutParams(new ViewGroup.LayoutParams(
@@ -94,11 +96,19 @@ public class MainActivity extends Activity {
         );
     }
 
+    private void enableFullscreenSafely() {
+        try {
+            enableFullscreen();
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Fullscreen mode could not be applied", e);
+        }
+    }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            enableFullscreen();
+            enableFullscreenSafely();
         }
     }
 
