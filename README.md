@@ -177,11 +177,27 @@ GitHub Action `.github/workflows/bump-sw-cache.yml` automaticky bumps SW cache v
 
 ---
 
-## Licencia
+## 🤖 Android aplikácia
 
-MIT — pozri [LICENSE](LICENSE)
+Repo obsahuje Android Studio projekt v module `android-app`.
+
+### Lokálne cez Android Studio
+
+1. Otvor koreň repozitára `Filmy` v Android Studio.
+2. Počkaj na Gradle sync.
+3. Spusti konfiguráciu `android-app` alebo task `:android-app:assembleDebug`.
+
+Gradle pred buildom automaticky skopíruje web appku (`index.html`, `app.js`, `style.css`, `data.json`, manifest a ikony) do Android assets a spustí ju vo WebView.
+
+### GitHub Actions
+
+Workflow **Android APK** zostaví debug APK pri PR, pushi do `Perplexity` / `main`, alebo manuálne cez **Run workflow** v GitHub Actions.
+
+Výsledný APK je v artifacte `filmy-debug-apk`.
 
 ---
+
+## 📋 Changelog
 
 <p align="center">
   <sub>Vytvoril Marcel Bucala</sub>
