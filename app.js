@@ -626,6 +626,7 @@ function openDet(id){
   var heroSrc=backdropSrc||m.poster_thumb;
   ["detBlur","detCover"].forEach(eid=>{
     const el=document.getElementById(eid);
+    if(!el)return;
     el.style.display=hp?"block":"none"; if(hp)el.src=heroSrc;
   });
   if(backdropSrc){
@@ -2831,7 +2832,8 @@ function ghPush() {
     watchedDates: watchedDates
   };
 
-  var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+  var jsonStr = JSON.stringify(payload, null, 2);
+  var encoded = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, function(_, p1) { return String.fromCharCode(parseInt(p1, 16)); }));
   const baseUrl = `https://api.github.com/repos/${GH_REPO}`;
   var hdrs    = ghHeaders();
 
@@ -2927,7 +2929,10 @@ function ghPush() {
     });
 }
 
+var _ghPullRunning = false;
 function ghPull() {
+  if (_ghPullRunning) return;
+  _ghPullRunning = true;
   ghPullProgress(10);
   ghSetStatus('Načítavam z GitHubu…', 'info');
 
@@ -3032,6 +3037,7 @@ function ghPull() {
       ghPullProgress(100);
       ghSetStatus('✓ Načítané ' + ts2 + ' · ' + all.length + ' filmov', 'ok');
       toast('Databáza načítaná z GitHubu!');
+      _ghPullRunning = false;
     })
     .catch(function(e) {
       if (e.message.indexOf('404') >= 0) {
@@ -3050,6 +3056,7 @@ function ghPull() {
       } else {
         ghSetStatus(`Chyba: ${e.message}`, 'err');
       }
+      _ghPullRunning = false;
     });
   };
   ghPullAttempt(0);
@@ -3703,8 +3710,6 @@ window.addEventListener('resize',adjustScrnBody);
 window.addEventListener('load',adjustScrnBody);
 
 
-/* extractPostersFromPdf (~140 lines) removed — never called. Restore from git history if needed. */
-function extractPostersFromPdf(){}
 
 
 /* ══════════════════════════════════════════════════════════════════
@@ -4349,7 +4354,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var bulkWatched = document.getElementById('bulkWatched');
   if (bulkWatched) bulkWatched.addEventListener('click', function() {
-    bulkSel.forEach(function(id) { watched.add(id); watchedDates[id] = Date.now(); });
+    bulkSel.forEach(function(id) { watched.add(id); watchedDates[id] = new Date().toISOString(); });
     safeSave(VK, JSON.stringify(Array.from(watched)));
     safeSave(VDK, JSON.stringify(watchedDates));
     toast(bulkSel.size + ' filmov oznacenych ako videne');
