@@ -1,9 +1,16 @@
 .idea/misc.xml
 
-Filmy/
+/Filmy/
 patch_d2.py
 patch_filmy.py
 .venv/
 *.bak
 .vercel
 .env*
+
+# Android / Gradle
+.gradle/
+build/
+android-app/build/
+android-app/src/main/assets/web/
+local.properties
