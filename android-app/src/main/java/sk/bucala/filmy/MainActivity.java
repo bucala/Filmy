@@ -69,13 +69,24 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                // Custom schemes (vlc://, mpc://, intent://, portable://) → launch via Intent
+                // Custom schemes (vlc://, smb://, intent://, portable://) → launch via Intent
                 try {
                     Intent intent;
                     if (scheme.equals("intent")) {
                         intent = Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME);
                     } else {
-                        intent = new Intent(Intent.ACTION_VIEW, uri);
+                        intent = new Intent(Intent.ACTION_VIEW);
+                        String path = uri.getPath();
+                        boolean isVideo = path != null && (
+                            path.endsWith(".mkv") || path.endsWith(".mp4") ||
+                            path.endsWith(".avi") || path.endsWith(".m4v") ||
+                            path.endsWith(".mov") || path.endsWith(".wmv") ||
+                            path.endsWith(".ts")  || path.endsWith(".webm"));
+                        if (isVideo) {
+                            intent.setDataAndType(uri, "video/*");
+                        } else {
+                            intent.setData(uri);
+                        }
                     }
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

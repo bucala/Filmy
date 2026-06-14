@@ -1970,19 +1970,20 @@ toast(_modeLabel);
       var base=smbBase||'smb://DESKTOP-EGOG348/Movies/';
       if(base[base.length-1]!=='/')base+='/';
       var smbPath=base+'test-handler.mkv';
-      if(proto==='native'){
-        testUrl=smbPath;
-      } else if(smbUrlMode==='raw'){
-        testUrl=smbPath;
+      if(_isAndroid && (proto==='native' || smbUrlMode==='raw')){
+        var smbHost=smbPath.replace(/^smb:\/\//,'');
+        testUrl='intent://'+encodeURI(smbHost)+'#Intent;scheme=smb;type=video/*;end';
       } else if(_isAndroid){
         testUrl='vlc://'+smbPath;
+      } else if(proto==='native' || smbUrlMode==='raw'){
+        testUrl=smbPath;
       } else {
         var server=smbPath.replace(/^smb:\/\//,'');
         testUrl=proto+'://'+encodeURI(server);
       }
     } else {
       if(proto==='native'){
-        testUrl='file:///W/Movies/test-handler.mkv';
+        testUrl=_isAndroid?'intent://W/Movies/test-handler.mkv#Intent;scheme=file;type=video/*;end':'file:///W/Movies/test-handler.mkv';
       } else {
         testUrl=proto+'://W/Movies/test-handler.mkv';
       }
@@ -3907,16 +3908,16 @@ function playMovie(id){
 
   if(_isAndroid){
     if(pathMode==='smb'){
-      if(playerProto==='native'){
-        window.location.href='intent://'+path+'#Intent;type=video/*;end';
-      } else if(smbUrlMode==='raw'){
-        window.location.href=path;
+      if(playerProto==='native' || smbUrlMode==='raw'){
+        var smbHost=path.replace(/^smb:\/\//,'');
+        window.location.href='intent://'+encodeURI(smbHost)+'#Intent;scheme=smb;type=video/*;end';
       } else {
         window.location.href='vlc://'+path;
       }
     } else {
       if(playerProto==='native'){
-        window.location.href='intent://'+path+'#Intent;scheme=file;type=video/*;end';
+        var fileFwd=path.replace(/\\/g,'/');
+        window.location.href='intent://'+encodeURI(fileFwd)+'#Intent;scheme=file;type=video/*;end';
       } else {
         window.location.href='vlc://'+path;
       }
