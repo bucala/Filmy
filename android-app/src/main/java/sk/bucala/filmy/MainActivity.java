@@ -1,8 +1,11 @@
 package sk.bucala.filmy;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +16,11 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final String TAG = "Filmy";
@@ -52,7 +57,37 @@ public class MainActivity extends Activity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                String scheme = uri.getScheme();
+                if (scheme == null) return false;
+
+                // Let WebView handle standard web URLs
+                if (scheme.equals("http") || scheme.equals("https") || scheme.equals("file")) {
+                    return false;
+                }
+
+                // Custom schemes (vlc://, mpc://, intent://, portable://) → launch via Intent
+                try {
+                    Intent intent;
+                    if (scheme.equals("intent")) {
+                        intent = Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME);
+                    } else {
+                        intent = new Intent(Intent.ACTION_VIEW, uri);
+                    }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(MainActivity.this,
+                        "Žiadna appka pre " + scheme + ":// — nainštaluj VLC", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Log.w(TAG, "Failed to handle URL: " + uri, e);
+                }
+                return true;
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
         webView.loadUrl("file:///android_asset/web/index.html");
     }
