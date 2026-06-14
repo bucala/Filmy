@@ -477,6 +477,15 @@
     </div>
     <div class="sett-key-st" id="localPathSt"></div>
     <div class="sett-key-st" id="smbPathSt"></div>
+    <div class="sett-grp-title" id="smbUrlModeTitle" style="margin-top:12px">Formát SMB URL</div>
+    <div class="sett-toggle" id="smbUrlModeToggle">
+      <button class="ttab" data-smbmode="proto">S protokolom (vlc://smb://…)</button>
+      <button class="ttab" data-smbmode="raw">Priame SMB (smb://…)</button>
+    </div>
+    <div class="sett-btn-hint" id="smbUrlModeHint" style="margin-top:4px">
+      <b>S protokolom:</b> Otvorí priamo v prehrávači (vlc://smb://..., mpc://smb://...)<br>
+      <b>Priame SMB:</b> Pošle len smb:// cestu — OS vyberie prehrávač
+    </div>
     <div id="playPathPreview" style="margin-top:10px;padding:8px 10px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4caf50;word-break:break-all;line-height:1.5"></div>
     <button class="sett-btn secondary" id="testHandlerBtn" style="margin-top:8px">
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
