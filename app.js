@@ -1911,6 +1911,38 @@ toast(_modeLabel);
     toast('SMB základ uložený');
   });
 
+  // SMB URL mode toggle (proto vs raw)
+  (function(){
+    var _smbModeWrap = document.getElementById('smbUrlModeToggle');
+    var _smbModeTitle = document.getElementById('smbUrlModeTitle');
+    var _smbModeHint = document.getElementById('smbUrlModeHint');
+    function _showSmbMode(vis){
+      var d = vis ? '' : 'none';
+      if(_smbModeWrap) _smbModeWrap.style.display = vis ? 'flex' : 'none';
+      if(_smbModeTitle) _smbModeTitle.style.display = d;
+      if(_smbModeHint) _smbModeHint.style.display = d;
+    }
+    _showSmbMode(pathMode==='smb');
+    if(_smbModeWrap){
+      _smbModeWrap.querySelectorAll('.ttab').forEach(function(btn){
+        btn.className = btn.dataset.smbmode===smbUrlMode ? 'ttab on' : 'ttab';
+        btn.addEventListener('click', function(){
+          smbUrlMode = this.dataset.smbmode;
+          localStorage.setItem(SMB_URL_MODE_KEY, smbUrlMode);
+          _smbModeWrap.querySelectorAll('.ttab').forEach(function(b){b.className='ttab';});
+          this.className='ttab on';
+          toast(smbUrlMode==='proto' ? 'SMB: s protokolom (vlc://smb://…)' : 'SMB: priame (smb://…)');
+          updatePathPreview();
+        });
+      });
+    }
+    // Show/hide on pathMode change
+    var _origPathBtns = document.querySelectorAll('#pathModeToggle .ttab');
+    _origPathBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){ _showSmbMode(pathMode==='smb'); });
+    });
+  })();
+
   // Samostatný listener pre localPathSave
   var localSaveBtn = document.getElementById('localPathSave');
   if (localSaveBtn) localSaveBtn.addEventListener('click', function(){
@@ -1940,6 +1972,8 @@ toast(_modeLabel);
       if(base[base.length-1]!=='/')base+='/';
       var smbPath=base+'test-handler.mkv';
       if(proto==='native'){
+        testUrl=smbPath;
+      } else if(smbUrlMode==='raw'){
         testUrl=smbPath;
       } else if(_isAndroid){
         testUrl='vlc://'+smbPath;
@@ -3735,8 +3769,10 @@ var PLAYER_PROTO_KEY = 'mdb_player_proto';
 var playerProto = localStorage.getItem(PLAYER_PROTO_KEY) || 'mpc';
 
 var PATH_MODE_KEY = 'mdb_path_mode';
+var SMB_URL_MODE_KEY = 'mdb_smb_url_mode';
 var smbBase    = localStorage.getItem(SMB_KEY) || 'smb://DESKTOP-EGOG348/Movies/';
 var pathMode   = localStorage.getItem(PATH_MODE_KEY) || 'smb'; // 'local' or 'smb'
+var smbUrlMode = localStorage.getItem(SMB_URL_MODE_KEY) || 'proto'; // 'proto' or 'raw'
 
 // SMB mapping: local drive letter → SMB share
 // W:\Movies\ → smb://DESKTOP-EGOG348/Movies/
@@ -3814,15 +3850,19 @@ function updatePathPreview(){
     var protoUrl;
     if(proto==='native'){
       protoUrl=smbPath;
+    } else if(smbUrlMode==='raw'){
+      protoUrl=smbPath;
     } else if(_isAndroid){
       protoUrl='vlc://'+smbPath;
     } else {
       protoUrl=proto+'://'+encodeURI(server);
     }
     var uncPath='\\\\'+server.replace(/\//g,'\\');
+    var modeLabel=smbUrlMode==='raw'?'Priame SMB (OS vyberie prehrávač)':proto==='native'?'Natívny':'Protokol '+proto.toUpperCase();
     el.innerHTML='<b style="color:#81c784">Aktívna cesta:</b> '+smbPath.replace(/</g,'&lt;')+'<br>'+
-      '<b style="color:#81c784">Protokol:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
-      (_isAndroid?'<b style="color:#81c784">Android:</b> VLC priamo cez SMB':'<b style="color:#81c784">Handler otvorí:</b> '+uncPath.replace(/</g,'&lt;'));
+      '<b style="color:#81c784">URL:</b> <code>'+protoUrl.replace(/</g,'&lt;')+'</code><br>'+
+      '<b style="color:#81c784">Režim:</b> '+modeLabel+
+      (_isAndroid?'':' · <b style="color:#81c784">UNC:</b> '+uncPath.replace(/</g,'&lt;'));
   } else {
     var localBase='W:\\Movies\\';
     for(var k in smbMap){localBase=k;break;}
@@ -3851,14 +3891,14 @@ function playMovie(id){
 
   if(_isAndroid){
     if(pathMode==='smb'){
-      // SMB: always use vlc://smb://server/share/file.mkv (VLC Android handles this)
       if(playerProto==='native'){
         window.location.href='intent://'+path+'#Intent;type=video/*;end';
+      } else if(smbUrlMode==='raw'){
+        window.location.href=path;
       } else {
         window.location.href='vlc://'+path;
       }
     } else {
-      // Local: use Intent to open file with default or VLC player
       if(playerProto==='native'){
         window.location.href='intent://'+path+'#Intent;scheme=file;type=video/*;end';
       } else {
@@ -3900,14 +3940,20 @@ function playMovie(id){
   }
 
   // MPC / VLC protocol handler
-  var protoPath=path.replace(/\\/g,'/');
-  if(pathMode==='smb'){
-    if(protoPath.indexOf('smb://')==0) protoPath=protoPath.substring(6);
-  }
   var proto=playerProto||'mpc';
-  window.location.href=proto+'://'+encodeURI(protoPath);
+  var launchUrl;
+  if(pathMode==='smb' && smbUrlMode==='raw'){
+    launchUrl=path;
+  } else {
+    var protoPath=path.replace(/\\/g,'/');
+    if(pathMode==='smb'){
+      if(protoPath.indexOf('smb://')==0) protoPath=protoPath.substring(6);
+    }
+    launchUrl=proto+'://'+encodeURI(protoPath);
+  }
+  window.location.href=launchUrl;
 
-  var label=proto.toUpperCase();
+  var label=smbUrlMode==='raw'?'SMB':proto.toUpperCase();
   setTimeout(function(){
     toast('Cesta skopírovaná. Ak sa '+label+' neotvoril, skontroluj registráciu '+proto+':// handlera.');
   },800);
