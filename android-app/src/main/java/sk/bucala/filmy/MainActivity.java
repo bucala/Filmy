@@ -76,16 +76,21 @@ public class MainActivity extends Activity {
                         intent = Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME);
                     } else {
                         intent = new Intent(Intent.ACTION_VIEW);
-                        String path = uri.getPath();
+                        Uri dataUri = uri;
+                        if (scheme.equals("smb") || scheme.equals("vlc")) {
+                            String decoded = Uri.decode(uri.toString());
+                            dataUri = Uri.parse(decoded);
+                        }
+                        String path = dataUri.getPath();
                         boolean isVideo = path != null && (
                             path.endsWith(".mkv") || path.endsWith(".mp4") ||
                             path.endsWith(".avi") || path.endsWith(".m4v") ||
                             path.endsWith(".mov") || path.endsWith(".wmv") ||
                             path.endsWith(".ts")  || path.endsWith(".webm"));
                         if (isVideo) {
-                            intent.setDataAndType(uri, "video/*");
+                            intent.setDataAndType(dataUri, "video/*");
                         } else {
-                            intent.setData(uri);
+                            intent.setData(dataUri);
                         }
                     }
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

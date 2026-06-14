@@ -1971,8 +1971,7 @@ toast(_modeLabel);
       if(base[base.length-1]!=='/')base+='/';
       var smbPath=base+'test-handler.mkv';
       if(_isAndroid && (proto==='native' || smbUrlMode==='raw')){
-        var smbHost=smbPath.replace(/^smb:\/\//,'');
-        testUrl='intent://'+encodeURI(smbHost)+'#Intent;scheme=smb;type=video/*;end';
+        testUrl=smbPath;
       } else if(_isAndroid){
         testUrl='vlc://'+smbPath;
       } else if(proto==='native' || smbUrlMode==='raw'){
@@ -1983,7 +1982,7 @@ toast(_modeLabel);
       }
     } else {
       if(proto==='native'){
-        testUrl=_isAndroid?'intent://W/Movies/test-handler.mkv#Intent;scheme=file;type=video/*;end':'file:///W/Movies/test-handler.mkv';
+        testUrl=_isAndroid?'file:///W/Movies/test-handler.mkv':'file:///W/Movies/test-handler.mkv';
       } else {
         testUrl=proto+'://W/Movies/test-handler.mkv';
       }
@@ -3909,15 +3908,13 @@ function playMovie(id){
   if(_isAndroid){
     if(pathMode==='smb'){
       if(playerProto==='native' || smbUrlMode==='raw'){
-        var smbHost=path.replace(/^smb:\/\//,'');
-        window.location.href='intent://'+encodeURI(smbHost)+'#Intent;scheme=smb;type=video/*;end';
+        window.location.href=path;
       } else {
         window.location.href='vlc://'+path;
       }
     } else {
       if(playerProto==='native'){
-        var fileFwd=path.replace(/\\/g,'/');
-        window.location.href='intent://'+encodeURI(fileFwd)+'#Intent;scheme=file;type=video/*;end';
+        window.location.href='file:///'+path.replace(/\\/g,'/');
       } else {
         window.location.href='vlc://'+path;
       }
