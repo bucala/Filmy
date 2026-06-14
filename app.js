@@ -707,8 +707,7 @@ function openDet(id){
   document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){openDet(parseInt(c.dataset.sid));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
-    var _playMode = _isMobile ? (pathMode==='smb' ? 'VLC·SMB' : 'VLC') : (playerProto==='native'?'Natívny':playerProto==='portable'?'Portable':playerProto.toUpperCase());
-    playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + _playMode;
+    playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + getPlayModeLabel();
     playBtn.onclick=function(){
       var _m=all.find(function(x){return x.id===id;})||m;
       playMovie(_m.id);
@@ -1764,10 +1763,9 @@ document.addEventListener("DOMContentLoaded",function(){
       document.querySelectorAll('#playerProtoToggle .ttab').forEach(function(b){b.className='ttab';});
       this.className='ttab on';
       if(_portWrap) _portWrap.style.display = playerProto==='portable' ? 'block' : 'none';
-      var _protoLabel=playerProto==='portable'?'Portable':playerProto==='native'?'Natívny':playerProto.toUpperCase();
-      toast('Prehrávač: ' + _protoLabel);
+      toast('Prehrávač: ' + getPlayModeLabel());
       var _pb2=document.getElementById('playMovieBtn');
-      if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+_protoLabel;}
+      if(_pb2){var _l2=_pb2.querySelector('.sett-btn-label');if(_l2)_l2.textContent='Prehráť · '+getPlayModeLabel();}
       updatePathPreview();
     });
   });
@@ -1875,8 +1873,7 @@ toast(_modeLabel);
         if (_pb) {
           var _lbl = _pb.querySelector('.sett-btn-label');
           if (_lbl) {
-            var _pm = _isMobile ? (pathMode==='smb' ? 'SMB' : 'Lokálne') : (pathMode==='smb' ? 'SMB' : playerProto.toUpperCase());
-            _lbl.textContent = 'Prehráť · ' + _pm;
+            _lbl.textContent = 'Prehráť · ' + getPlayModeLabel();
           }
           var _mc = all.find(function(x){return x.id===curId;});
           if (_mc) _pb.onclick = function(){ playMovie(_mc.id); };
@@ -1932,6 +1929,8 @@ toast(_modeLabel);
           _smbModeWrap.querySelectorAll('.ttab').forEach(function(b){b.className='ttab';});
           this.className='ttab on';
           toast(smbUrlMode==='proto' ? 'SMB: s protokolom (vlc://smb://…)' : 'SMB: priame (smb://…)');
+          var _pb3=document.getElementById('playMovieBtn');
+          if(_pb3){var _l3=_pb3.querySelector('.sett-btn-label');if(_l3)_l3.textContent='Prehráť · '+getPlayModeLabel();}
           updatePathPreview();
         });
       });
@@ -3800,22 +3799,31 @@ function buildMovieFilename(m) {
   return (m.year || '0000') + ' - ' + title + '.mkv';
 }
 
+function normalizeSlashes(s) {
+  return s.replace(/\\/g, '/').replace(/\/{2,}/g, '/');
+}
+
 function localPathToSmb(localPath) {
-  // Convert W:\Movies\file.mkv → smb://DESKTOP-EGOG348/Movies/file.mkv
-  var p = localPath.replace(/\\/g, '/');
-  // Try each mapping
+  var p = normalizeSlashes(localPath);
   for (var local in smbMap) {
-    var localNorm = local.replace(/\\/g, '/');
+    var localNorm = normalizeSlashes(local);
+    if (localNorm[localNorm.length-1] !== '/') localNorm += '/';
     if (p.indexOf(localNorm) === 0 || p.toLowerCase().indexOf(localNorm.toLowerCase()) === 0) {
-      return smbMap[local] + p.substring(localNorm.length);
+      var smbVal = smbMap[local];
+      if (smbVal[smbVal.length-1] !== '/') smbVal += '/';
+      return smbVal + p.substring(localNorm.length);
     }
   }
-  // Fallback: replace drive letter with smbBase
-  var driveMatch = p.match(/^([A-Z]):\//i);
+  var driveMatch = p.match(/^([A-Za-z]):\//);
   if (driveMatch) {
     var base = smbBase;
     if (base[base.length-1] !== '/') base += '/';
-    return base + p.substring(3); // skip "W:/"
+    var afterDrive = p.substring(3);
+    var baseDir = base.replace(/^smb:\/\/[^/]+\//, '');
+    if (baseDir && afterDrive.indexOf(baseDir) === 0) {
+      afterDrive = afterDrive.substring(baseDir.length);
+    }
+    return base + afterDrive;
   }
   return p;
 }
@@ -3836,6 +3844,14 @@ function getMoviePath(m) {
 var _isAndroid=/android/i.test(navigator.userAgent);
 var _isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
 var _isMobile=_isAndroid||_isiOS;
+
+function getPlayModeLabel() {
+  if (pathMode === 'smb' && smbUrlMode === 'raw') return 'Priame SMB';
+  if (_isMobile) return pathMode === 'smb' ? 'VLC·SMB' : 'VLC';
+  if (playerProto === 'native') return 'Natívny';
+  if (playerProto === 'portable') return 'Portable';
+  return playerProto.toUpperCase();
+}
 
 function updatePathPreview(){
   var el=document.getElementById('playPathPreview');
