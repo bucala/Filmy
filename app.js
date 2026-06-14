@@ -507,7 +507,7 @@ function renderList(list){
     if(em)em.style.display="flex"; ml.style.display="none"; if(nr)nr.style.display="none";
     return;
   }
-  em.style.display="none";
+  if(em)em.style.display="none";
   if(!list.length){
     ml.style.display="none"; if(nr)nr.style.display="flex";
     var q=(document.getElementById("srchInp")||{}).value||"";
@@ -678,12 +678,12 @@ function openDet(id){
     <div class="sec">Trailer &amp; Linky</div>
     <div class="tr-row">
       <button class="btn-trailer" id="btnTr"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-1px;margin-right:3px"><polygon points="6,3 20,12 6,21"/></svg>YouTube Trailer</button>
-      <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank">TMDB</a>
-      ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank">★ IMDB</a>`:
-               '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" style="display:none">★ IMDB</a>'}
-      ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank">ČSFD</a>`:
-               '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" style="display:none">ČSFD</a>'}
-      <a class="btn-jw" href="https://www.justwatch.com/sk/vyh%C4%BEad%C3%A1va%C5%A5?q=${encodeURIComponent(m.title)}" target="_blank"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Kde pozerať</a>
+      <a class="btn-tmdb" id="btnTmdb" href="${esc(tmdbUrl)}" target="_blank" rel="noopener noreferrer">TMDB</a>
+      ${imdbUrl?`<a class="btn-imdb" id="btnImdb" href="${esc(imdbUrl)}" target="_blank" rel="noopener noreferrer">★ IMDB</a>`:
+               '<a class="btn-imdb" id="btnImdb" href="#" target="_blank" rel="noopener noreferrer" style="display:none">★ IMDB</a>'}
+      ${csfdUrl?`<a class="btn-csfd" id="btnCsfd" href="${esc(csfdUrl)}" target="_blank" rel="noopener noreferrer">ČSFD</a>`:
+               '<a class="btn-csfd" id="btnCsfd" href="#" target="_blank" rel="noopener noreferrer" style="display:none">ČSFD</a>'}
+      <a class="btn-jw" href="https://www.justwatch.com/sk/vyh%C4%BEad%C3%A1va%C5%A5?q=${encodeURIComponent(m.title)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Kde pozerať</a>
       <button class="btn-match" id="btnMatch" title="Ručné TMDB párovanie">&#x2699; Párovanie</button>
     </div>
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
@@ -1635,42 +1635,6 @@ function exportJson(){
   toast('JSON záloha stiahnutá!');
 }
 
-function findDuplicates(){
-  var seen={},dupes=[];
-  all.forEach(function(m){
-    var key=(m.title||'').toLowerCase().trim()+'|'+(m.year||0);
-    if(seen[key])dupes.push({original:seen[key],duplicate:m});
-    else seen[key]=m;
-  });
-  if(!dupes.length){toast('Žiadne duplikáty');return;}
-  closeSett();
-  var html='<div class="dup-header">Nájdených '+dupes.length+' duplikátov</div>';
-  dupes.forEach(function(d,i){
-    html+='<div class="dup-pair" data-idx="'+i+'">'
-      +'<div class="dup-item"><span class="dup-num">#'+d.original.num+'</span> '+esc(d.original.title)+' ('+d.original.year+')</div>'
-      +'<div class="dup-vs">vs</div>'
-      +'<div class="dup-item"><span class="dup-num">#'+d.duplicate.num+'</span> '+esc(d.duplicate.title)+' ('+d.duplicate.year+')</div>'
-      +'<button class="dup-rm" data-rmid="'+d.duplicate.id+'">Odstrániť #'+d.duplicate.num+'</button>'
-      +'</div>';
-  });
-  var sb=document.getElementById("statBody");
-  sb.innerHTML=html;
-  document.getElementById("mainSc").classList.add("hidden");
-  document.getElementById("statSc").classList.remove("hidden");
-  sb.addEventListener('click',function handler(e){
-    var btn=e.target.closest('.dup-rm');
-    if(!btn)return;
-    var rmId=parseInt(btn.dataset.rmid,10);
-    all=all.filter(function(m){return m.id!==rmId;});
-    favs.delete(rmId);wl.delete(rmId);watched.delete(rmId);delete watchedDates[rmId];delete liveCache[rmId];
-    btn.closest('.dup-pair').remove();
-    var toSave=all.map(function(m){var c=Object.assign({},m);if(c.poster_thumb&&c.poster_thumb.indexOf("data:")===0)c.poster_thumb="";return c;});
-    safeSave(SK,JSON.stringify(toSave));safeSave(FK,JSON.stringify(Array.from(favs)));safeSave(WK,JSON.stringify(Array.from(wl)));
-    saveLiveCache();buildFuse();renderAll();
-    toast('Film #'+btn.dataset.rmid+' odstránený');
-    if(!sb.querySelector('.dup-pair')){toast('Všetky duplikáty vyriešené');closeStat();}
-  });
-}
 
 
 
@@ -4294,19 +4258,25 @@ document.addEventListener('visibilitychange', function() {
 /* ══════════════════════════════════════════════════════════
    MODULE: Duplicate Detection
    ══════════════════════════════════════════════════════════ */
-function levenshtein(a, b) {
+function levenshtein(a, b, maxDist) {
   var m = a.length, n = b.length;
   if (!m) return n; if (!n) return m;
-  var d = [];
-  for (var i = 0; i <= m; i++) d[i] = [i];
-  for (var j = 0; j <= n; j++) d[0][j] = j;
-  for (i = 1; i <= m; i++) {
+  if (Math.abs(m - n) > (maxDist || Infinity)) return Math.abs(m - n);
+  if (m < n) { var t = a; a = b; b = t; t = m; m = n; n = t; }
+  var prev = [], curr = [];
+  for (var j = 0; j <= n; j++) prev[j] = j;
+  for (var i = 1; i <= m; i++) {
+    curr[0] = i;
+    var rowMin = i;
     for (j = 1; j <= n; j++) {
-      d[i][j] = a[i-1] === b[j-1] ? d[i-1][j-1]
-        : Math.min(d[i-1][j-1], d[i-1][j], d[i][j-1]) + 1;
+      curr[j] = a[i-1] === b[j-1] ? prev[j-1]
+        : Math.min(prev[j-1], prev[j], curr[j-1]) + 1;
+      if (curr[j] < rowMin) rowMin = curr[j];
     }
+    if (maxDist && rowMin > maxDist) return maxDist + 1;
+    var tmp = prev; prev = curr; curr = tmp;
   }
-  return d[m][n];
+  return prev[n];
 }
 
 function findDuplicates() {
@@ -4325,7 +4295,7 @@ function findDuplicates() {
       var dup = false;
       if (tidi && tidj && tidi === tidj && i !== j) dup = true;
       if (!dup && ti === tj && ti.length > 0) dup = true;
-      if (!dup && yi === yj && yi > 0 && ti.length > 2 && tj.length > 2 && levenshtein(ti, tj) <= 2) dup = true;
+      if (!dup && yi === yj && yi > 0 && ti.length > 2 && tj.length > 2 && levenshtein(ti, tj, 2) <= 2) dup = true;
       if (dup) { group.push(all[j]); seen.add(j); }
     }
     if (group.length > 1) { groups.push(group); seen.add(i); }
@@ -4462,7 +4432,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var bulkWatched = document.getElementById('bulkWatched');
   if (bulkWatched) bulkWatched.addEventListener('click', function() {
-    bulkSel.forEach(function(id) { watched.add(id); watchedDates[id] = new Date().toISOString(); });
+    bulkSel.forEach(function(id) { watched.add(id); watchedDates[id] = new Date().toISOString().slice(0,10); });
     safeSave(VK, JSON.stringify(Array.from(watched)));
     safeSave(VDK, JSON.stringify(watchedDates));
     toast(bulkSel.size + ' filmov oznacenych ako videne');
@@ -4745,10 +4715,11 @@ document.addEventListener('DOMContentLoaded', function() {
           var dc = d.credits.crew.find(function(c) { return c.job === 'Director'; });
           if (dc) dir = dc.name;
         }
+        var newId = maxNum + 1;
         var movie = {
-          id: d.id,
+          id: newId,
           tmdb_id: d.id,
-          num: maxNum + 1,
+          num: newId,
           title: d.title || '',
           year: parseInt((d.release_date || '').substring(0, 4)) || 0,
           director: dir,

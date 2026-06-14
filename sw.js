@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260614-1149";
+const CACHE = "filmy-20260614-1950";
 
 const SHELL  = [
   "./",
@@ -98,7 +98,12 @@ self.addEventListener("fetch", function(e){
       }
       return res;
     }).catch(function(){
-      return caches.match(e.request);
+      return caches.match(e.request).then(function(cached){
+        if(cached) return cached;
+        if(e.request.mode === "navigate"){
+          return caches.match("./index.html");
+        }
+      });
     })
   );
 });
