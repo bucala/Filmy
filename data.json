@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-27T14:20:27.960Z",
+  "updated": "2026-06-27T14:39:01.704Z",
   "movies": [
     {
       "id": 1,
@@ -47564,7 +47564,7 @@
       "duration": "129 min",
       "cast": "Jaafar Jackson, Colman Domingo, Nia Long, Juliano Krue Valdi, Miles Teller",
       "description": "Michael podrobně mapuje kariéru budoucího Krále popu od jeho prvních kroků v rodinné skupině Jackson Five, kde od začátku prokazoval největší talent, i když byl nejmladším členem kapely. Stále populárnější skupinu vede pevnou rukou jeho táta Joe, možná až příliš pevnou pro křehkého Michaela. Když se o Jackson Five začnou zajímat hudební producenti, všichni si okamžitě uvědomí, že Michael je nejcennějším členem skupiny. Ti nejodvážnější z nich dokonce začínají mluvit o tom, jak by jeho kariéře pr",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/ca6OchygvvMPPevtxvsFe23vDjv.jpg",
       "rating": 0,
       "tmdbId": 936075,
       "moods": [],
@@ -47590,7 +47590,7 @@
       "duration": "91 min",
       "cast": "Mark Wahlberg, Michelle Dockery, Topher Grace, Leah Remini (hlas), Maaz Ali (hlas)",
       "description": "Americký maršál doprovází vládního svědka k soudu poté, co je obviněn ze zapletení s mafiánským bossem, aby zjistil, že pilot, který je převáží, je zároveň nájemný vrah vyslaný, aby informátora zavraždil. Poté, co ho zkrotí, jsou nuceni letět společně poté, co zjistí, že se je pokoušejí zlikvidovat i další.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/q0bCG4NX32iIEsRFZqRtuvzNCyZ.jpg",
       "rating": 0,
       "tmdbId": 1126166,
       "moods": [],
@@ -47619,7 +47619,7 @@
       "duration": "102 min",
       "cast": "Chris Pratt (hlas), Anya Taylor-Joy (hlas), Charlie Day (hlas), Jack Black (hlas), Donald Glover (hlas)",
       "description": "Poté, co Mario a Luigi zmařili Bowserův předchozí plán oženit se s princeznou Peach, čelí nyní nové hrozbě v podobě Bowsera Jr., který je odhodlán osvobodit svého otce ze zajetí a obnovit rodinné dědictví. Spolu se starými i novými společníky putují bratři napříč hvězdami, aby zastavili tažení mladého dědice.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/l2qjc6s6fUeDTpW7kyUnlTjJtaa.jpg",
       "rating": 0,
       "tmdbId": 1226863,
       "moods": [],
@@ -61591,6 +61591,30 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/4EAAwpylq313qrDqpCxulUrXBNF.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/931285",
       "imdbUrl": "https://www.imdb.com/title/tt17490712/"
+    },
+    "1750": {
+      "pct": 87,
+      "ytKey": "k-YAcjaLuSI",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/ca6OchygvvMPPevtxvsFe23vDjv.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/ufSwlnECLoUbBjPrFqEQcWBzHwc.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/936075",
+      "imdbUrl": "https://www.imdb.com/title/tt11378946/"
+    },
+    "1751": {
+      "pct": 59,
+      "ytKey": "uaodj8Myt3A",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/q0bCG4NX32iIEsRFZqRtuvzNCyZ.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/hwlyY7LJdEFbCPaGNXiskKKmJ5X.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1126166",
+      "imdbUrl": "https://www.imdb.com/title/tt10078772/"
+    },
+    "1752": {
+      "pct": 82,
+      "ytKey": "En5QZmL5R1s",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/l2qjc6s6fUeDTpW7kyUnlTjJtaa.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/9Z2uDYXqJrlmePznQQJhL6d92Rq.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1226863",
+      "imdbUrl": "https://www.imdb.com/title/tt28650488/"
     }
   },
   "favourites": [],
