@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app.js'
+      - 'src/**/*.js'
       - 'style.css'
       - 'index.html'
       - 'data.js'
@@ -26,10 +26,10 @@ jobs:
 
       - name: Validate source files
         run: |
-          node --check app.js
+          for f in src/*.js src/lib/*.js; do node --check "$f"; done
           node --check sw.js
           node -e "const fs=require('fs'); JSON.parse(fs.readFileSync('data.json','utf8')); JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));"
-          ! grep -R -n -E '^(<<<<<<<|=======|>>>>>>>)' app.js sw.js data.json index.html style.css manifest.webmanifest
+          ! grep -R -n -E '^(<<<<<<<|=======|>>>>>>>)' src sw.js data.json index.html style.css manifest.webmanifest
 
       - name: Bump SW cache version
         run: |
