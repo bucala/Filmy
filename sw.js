@@ -5,14 +5,24 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260614-1951";
+const CACHE = "filmy-20260629-2010";
 
 const SHELL  = [
   "./",
   "./index.html",
   "./style.css",
   "./data.js",
-  "./app.js",
+  "./src/main.js",
+  "./src/state.js",
+  "./src/ui.js",
+  "./src/storage.js",
+  "./src/render.js",
+  "./src/players.js",
+  "./src/sync.js",
+  "./src/settings.js",
+  "./src/lib/text.js",
+  "./src/lib/parse.js",
+  "./src/lib/sync-helpers.js",
   "./portable-handler.js",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",

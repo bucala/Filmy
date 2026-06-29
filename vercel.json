@@ -19,12 +19,6 @@
       ]
     },
     {
-      "source": "/app.js",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
-      ]
-    },
-    {
       "source": "/portable-handler.js",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
@@ -44,6 +38,18 @@
     },
     {
       "source": "/data.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/data-live.json",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/src/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
       ]

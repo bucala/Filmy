@@ -1,0 +1,18 @@
+{
+  "name": "filmy",
+  "version": "7.0.0",
+  "private": true,
+  "description": "Marcelova Filmová Databáza — PWA filmová databáza",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
+    "vitest": "^2.1.4"
+  }
+}

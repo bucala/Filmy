@@ -519,7 +519,8 @@
         <span class="slider"></span>
       </label>
     </div>
-    <div class="sett-btn-hint">Potrebuješ <a href="https://github.com/settings/tokens/new?scopes=repo&description=FilmDB" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">GitHub PAT token</a> s právom <code>repo</code>.</div>
+    <div class="sett-btn-hint">Odporúčané: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">fine-grained token</a> obmedzený len na repozitár <code>bucala/Filmy</code>, oprávnenie <b>Contents: Read and write</b> a krátka expirácia (napr. 30–90 dní).</div>
+    <div class="sett-btn-hint" style="color:#e0a030;border-left:2px solid #e0a030;padding-left:8px;margin-top:4px">⚠ Token sa ukladá v prehliadači (localStorage). Nepoužívaj classic token so širokým scope <code>repo</code> ani token bez expirácie — pri kompromitácii by mal prístup k všetkým tvojim repozitárom.</div>
     <div class="sett-key-row" style="margin-top:6px">
       <input class="sett-key-inp" id="ghTokenInp" type="password" placeholder="ghp_... Personal Access Token" autocomplete="new-password">
       <button class="sett-icon-btn" style="background:var(--gold);color:#0a0a0f;border-color:var(--gold)" id="ghTokenSave">OK</button>
@@ -795,6 +796,6 @@
 
 <!-- Application logic -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js" integrity="sha384-PCSoOZTpbkikBEtd/+uV3WNdc676i9KUf01KOA8CnJotvlx8rRrETbDuwdjqTYvt" crossorigin="anonymous" defer></script>
-<script src="app.js" defer></script>
+<script type="module" src="src/main.js"></script>
 </body>
 </html>

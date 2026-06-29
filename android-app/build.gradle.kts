@@ -15,11 +15,21 @@ android {
         versionCode = 1
         versionName = "1.0.0"
     }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Serves bundled assets over https://appassets.androidplatform.net so the
+    // PWA's native ES modules load with correct MIME/CORS inside the WebView.
+    implementation("androidx.webkit:webkit:1.11.0")
 }
 
 val webAssetFiles = listOf(
     "index.html",
-    "app.js",
     "portable-handler.js",
     "style.css",
     "data.js",
@@ -36,6 +46,8 @@ val syncWebAssets = tasks.register<Sync>("syncWebAssets") {
     into(layout.projectDirectory.dir("src/main/assets/web"))
     from(rootProject.projectDir) {
         include(webAssetFiles)
+        // ES module entry + split modules + pure libs (path preserved → web/src/**)
+        include("src/**/*.js")
     }
 }
 

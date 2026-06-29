@@ -17,14 +17,20 @@ import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import androidx.webkit.WebViewAssetLoader;
+
 public class MainActivity extends Activity {
     private static final String TAG = "Filmy";
+    private static final String APP_URL =
+            "https://appassets.androidplatform.net/assets/web/index.html";
     private WebView webView;
+    private WebViewAssetLoader assetLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,14 +63,23 @@ public class MainActivity extends Activity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
 
+        assetLoader = new WebViewAssetLoader.Builder()
+                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                .build();
+
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                return assetLoader.shouldInterceptRequest(request.getUrl());
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 String scheme = uri.getScheme();
                 if (scheme == null) return false;
 
-                // Let WebView handle standard web URLs
+                // Let WebView handle standard web URLs (incl. the appassets host)
                 if (scheme.equals("http") || scheme.equals("https") || scheme.equals("file")) {
                     return false;
                 }
@@ -105,7 +120,7 @@ public class MainActivity extends Activity {
             }
         });
         webView.setWebChromeClient(new WebChromeClient());
-        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.loadUrl(APP_URL);
     }
 
     private void enableFullscreen() {
