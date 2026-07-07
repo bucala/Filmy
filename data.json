@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-06-29T17:55:26.959Z",
+  "updated": "2026-07-07T21:15:15.343Z",
   "movies": [
     {
       "id": 1,
@@ -47629,6 +47629,87 @@
       "_localPath": "W:\\Movies\\2026 - Super Mario galakticky film.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1733305-super-mario-galakticky-film/prehled/",
       "_pctCsfd": 59
+    },
+    {
+      "id": 1753,
+      "num": 1753,
+      "title": "Béé team na stopě",
+      "year": 2026,
+      "director": "Kyle Balda",
+      "genres": [
+        "Komédia",
+        "Kriminálny",
+        "Mysteriózny",
+        "Rodinný"
+      ],
+      "country": "United Kingdom",
+      "duration": "114 min",
+      "cast": "Hugh Jackman, Julia Louis-Dreyfus (hlas), Emma Thompson, Nicholas Braun, Chris O'Dowd (hlas)",
+      "description": "V této vtipné, novátorské detektivce je George pastýř, který každou noc čte svým milovaným ovcím detektivní romány v domnění, že jim stejně nemohou rozumět. Když však záhadná událost naruší život na farmě, ovce si uvědomí, že se samy musí stát detektivy. Při sledování stop a vyšetřování lidských podezřelých dokazují, že i ovce mohou být brilantními řešiteli zločinů.",
+      "poster_thumb": "",
+      "rating": 0,
+      "tmdbId": 1301421,
+      "moods": [],
+      "_yt": "pyZI5oM6hWk",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1301421",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - Bee team na stope.mkv",
+      "_rtScore": 95,
+      "_csfdUrl": "https://www.csfd.cz/film/1755980-bee-team-na-stope/prehled/",
+      "_pctCsfd": 75
+    },
+    {
+      "id": 1754,
+      "num": 1754,
+      "title": "Ďábel nosí Pradu 2",
+      "year": 2026,
+      "director": "David Frankel",
+      "genres": [
+        "Komédia",
+        "Dráma"
+      ],
+      "country": "United States",
+      "duration": "120 min",
+      "cast": "Meryl Streep, Anne Hathaway, Emily Blunt, Stanley Tucci, Kenneth Branagh",
+      "description": "Téměř 20 let po svém ikonickém ztvárnění postav Mirandy, Andy, Emily a Nigela se Meryl Streep, Anne Hathaway, Emily Blunt a Stanley Tucci vrací do módních ulic New Yorku a elegantních kanceláří časopisu Runway v netrpělivě očekávaném pokračování fenoménu z roku 2006, který zasáhl, ovlinil a definoval celou generaci.",
+      "poster_thumb": "",
+      "rating": 0,
+      "tmdbId": 1314481,
+      "moods": [],
+      "_yt": "iX-zG4kutcY",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1314481",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - Dabel nosi Pradu 2.mkv",
+      "_rtScore": 77,
+      "_csfdUrl": "https://www.csfd.cz/film/1617612-dabel-nosi-pradu-2/prehled/",
+      "_pctCsfd": 62
+    },
+    {
+      "id": 1755,
+      "num": 1755,
+      "title": "Enola Holmesová 3",
+      "year": 2026,
+      "director": "Philip Barantini",
+      "genres": [
+        "Dobrodružný",
+        "Kriminálny",
+        "Mysteriózny"
+      ],
+      "country": "United States",
+      "duration": "108 min",
+      "cast": "Millie Bobby Brown, Henry Cavill, Helena Bonham Carter, Louis Partridge, Himesh Patel",
+      "description": "Enola Holmesová vyráží na Maltu, kde se má vdávat. Sherlock ale zničehonic zmizí a Enola musí místo svatby řešit nebezpečný případ.",
+      "poster_thumb": "",
+      "rating": 0,
+      "tmdbId": 1202033,
+      "moods": [],
+      "_yt": "JNSUtGlhHKU",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1202033",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - Enola Holmesova 3.mkv",
+      "_rtScore": 68,
+      "_csfdUrl": "https://www.csfd.cz/film/1691342-enola-holmesova-3/prehled/",
+      "_pctCsfd": 47
     }
   ],
   "favourites": [],
