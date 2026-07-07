@@ -1,14 +1,18 @@
 package sk.bucala.filmy;
 
 import android.app.Activity;
+import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -18,6 +22,7 @@ import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -42,7 +47,12 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
         ));
+        // D-pad navigation: the WebView must be focusable so TV remotes can
+        // move focus into the web content.
+        webView.setFocusable(true);
+        webView.setFocusableInTouchMode(true);
         setContentView(webView);
+        webView.requestFocus();
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -71,6 +81,16 @@ public class MainActivity extends Activity {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 return assetLoader.shouldInterceptRequest(request.getUrl());
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                // Tell the web layer to switch on D-pad/focus mode when on a TV.
+                if (isTvDevice()) {
+                    view.evaluateJavascript(
+                        "window.__ANDROID_TV__=true;if(window.__enableTvMode)window.__enableTvMode();",
+                        null);
+                }
             }
 
             @Override
@@ -176,6 +196,53 @@ public class MainActivity extends Activity {
         if (hasFocus) {
             enableFullscreenSafely();
         }
+    }
+
+    private boolean isTvDevice() {
+        UiModeManager ui = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        if (ui != null && ui.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+            return true;
+        }
+        PackageManager pm = getPackageManager();
+        return pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+                || pm.hasSystemFeature(PackageManager.FEATURE_TELEVISION);
+    }
+
+    // Forward TV remote keys the WebView doesn't surface as JS key events.
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // On TV, Back should close the topmost open overlay first (an SPA has no
+        // browser history), and only exit the app when nothing is open.
+        if (keyCode == KeyEvent.KEYCODE_BACK && isTvDevice() && webView != null) {
+            webView.evaluateJavascript("(window.__tvBack&&window.__tvBack())||false",
+                new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String consumed) {
+                        if (!"true".equals(consumed)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (webView != null && webView.canGoBack()) webView.goBack();
+                                    else finish();
+                                }
+                            });
+                        }
+                    }
+                });
+            return true;
+        }
+
+        String action = null;
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_GUIDE:   action = "guide"; break;
+            case KeyEvent.KEYCODE_INFO:    action = "info";  break;
+            case KeyEvent.KEYCODE_MENU:    action = "menu";  break;
+        }
+        if (action != null && webView != null) {
+            webView.evaluateJavascript("window.__tvKey&&window.__tvKey('" + action + "')", null);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @SuppressWarnings("deprecation")

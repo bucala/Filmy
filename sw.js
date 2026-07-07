@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260629-2010";
+const CACHE = "filmy-20260707-1600";
 
 const SHELL  = [
   "./",
@@ -20,6 +20,7 @@ const SHELL  = [
   "./src/players.js",
   "./src/sync.js",
   "./src/settings.js",
+  "./src/tv.js",
   "./src/lib/text.js",
   "./src/lib/parse.js",
   "./src/lib/sync-helpers.js",

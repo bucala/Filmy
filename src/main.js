@@ -6,6 +6,7 @@ import './render.js';
 import './players.js';
 import './sync.js';
 import './settings.js';
+import './tv.js';
 import { esc, levenshtein } from './lib/text.js';
 import { parseCsfdPercent, parseCsvLine } from './lib/parse.js';
 
@@ -701,6 +702,7 @@ S.toast(_modeLabel);
   S.initFp();
   S.initSortCycle();
   S.initKeyboard();
+  S.initTv();
   document.getElementById('btnRnd').addEventListener('click', S.openRandomMovie);
   document.getElementById('btnWatched').addEventListener('click', S.cycleWatchedMode);
   S.initGhSync();
