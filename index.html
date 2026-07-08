@@ -17,7 +17,9 @@
 <meta property="og:description" content="Osobná filmová databáza s 1700+ filmami, TMDB hodnoteniami a štatistikami.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="icon-512.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <link rel="manifest" id="pwaManifest" href="manifest.webmanifest">
 
 <!-- CDN: PDF.js, Fuse.js, Chart.js -->
@@ -147,7 +149,7 @@
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;justify-content:center">
         <button class="estate-btn primary" id="emptyBtnPull"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;flex-shrink:0"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/></svg>Načítať z GitHubu</button>
       </div>
-      <div id="emptyPullStatus" style="margin-top:12px;font-size:11px;color:var(--gold);min-height:18px;font-family:'JetBrains Mono',monospace"></div>
+      <div id="emptyPullStatus" style="margin-top:12px;font-size:11px;color:var(--gold);min-height:18px;font-family:var(--font-mono)"></div>
     </div>
 
     <div id="mlist" class="mlist" style="display:none"></div>
@@ -212,55 +214,41 @@
   <!-- ════ VZHĽAD / SKIN ════════════════════════════════════════ -->
   <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.5-.62 1.5-1.5 0-.39-.15-.75-.38-1.02-.22-.26-.37-.61-.37-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.52-4.48-9.5-10-9.5z"/></svg>Vzhľad / Skin</div>
   <div class="skin-grid" id="skinGrid">
-    <div class="skin-chip" data-skin="dark" style="background:#0f0f14">
-      <div class="skin-dot" style="background:#d4a943;border-color:#7a5818"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#d4a943">DARK</div>
-        <div class="skin-desc" style="color:#a08858">Tmavo &middot; zlatá</div>
-      </div>
-    </div>
-    <div class="skin-chip" data-skin="slate" style="background:#141c26">
-      <div class="skin-dot" style="background:#5aabff;border-color:#1a4a7a"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#5aabff">SLATE</div>
-        <div class="skin-desc" style="color:#7a9ec0">Tmavo &middot; modrá</div>
-      </div>
-    </div>
-    <div class="skin-chip" data-skin="crimson" style="background:#1c1010">
-      <div class="skin-dot" style="background:#e85555;border-color:#7a2020"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#e85555">CRIMSON</div>
-        <div class="skin-desc" style="color:#aa8080">Tmavo &middot; červená</div>
-      </div>
-    </div>
-    <div class="skin-chip" data-skin="forest" style="background:#101810">
-      <div class="skin-dot" style="background:#6ac840;border-color:#285010"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#6ac840">FOREST</div>
-        <div class="skin-desc" style="color:#78a860">Tmavo &middot; zelená</div>
-      </div>
-    </div>
-    <div class="skin-chip" data-skin="linen" style="background:#eee8dc">
-      <div class="skin-dot" style="background:#7a5c18;border-color:#c8a870"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#5a4418">LINEN <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-left:3px"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></div>
-        <div class="skin-desc" style="color:#7a6040">Svetlo &middot; hnedá</div>
-      </div>
-    </div>
-    <div class="skin-chip" data-skin="paper" style="background:#e4ecf4">
-      <div class="skin-dot" style="background:#1a4e7c;border-color:#7aaace"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#1a4060">PAPER <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-left:3px"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg></div>
-        <div class="skin-desc" style="color:#345878">Svetlo &middot; modrá</div>
-      </div>
-    </div>
-    <div class="skin-chip skin-chip-auto" data-skin="auto" style="background:linear-gradient(135deg,#0f0f14 50%,#f8f4ec 50%)">
-      <div class="skin-dot" style="background:linear-gradient(135deg,#d4a943 50%,#7a5c18 50%);border-color:#888"></div>
-      <div class="skin-info">
-        <div class="skin-name" style="color:#b0b0b0">AUTO <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-left:3px"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div>
-        <div class="skin-desc" style="color:#888">Podla systemu</div>
-      </div>
-    </div>
+    <button type="button" class="skin-chip" data-skin="dark" aria-label="Dark skin">
+      <span class="skin-prev"><span class="sp" style="background:#131316"></span><span class="sp" style="background:#201f25"></span><span class="sp sp-acc" style="background:#d4a943"></span></span>
+      <span class="skin-info"><span class="skin-name">Dark</span><span class="skin-desc">Tmavá &middot; zlatá</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="skin-chip" data-skin="slate" aria-label="Slate skin">
+      <span class="skin-prev"><span class="sp" style="background:#0e131a"></span><span class="sp" style="background:#1a222e"></span><span class="sp sp-acc" style="background:#5aabff"></span></span>
+      <span class="skin-info"><span class="skin-name">Slate</span><span class="skin-desc">Tmavá &middot; modrá</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="skin-chip" data-skin="crimson" aria-label="Crimson skin">
+      <span class="skin-prev"><span class="sp" style="background:#150e0e"></span><span class="sp" style="background:#241818"></span><span class="sp sp-acc" style="background:#e85555"></span></span>
+      <span class="skin-info"><span class="skin-name">Crimson</span><span class="skin-desc">Tmavá &middot; červená</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="skin-chip" data-skin="forest" aria-label="Forest skin">
+      <span class="skin-prev"><span class="sp" style="background:#0d130c"></span><span class="sp" style="background:#192217"></span><span class="sp sp-acc" style="background:#6ac840"></span></span>
+      <span class="skin-info"><span class="skin-name">Forest</span><span class="skin-desc">Tmavá &middot; zelená</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="skin-chip" data-skin="linen" aria-label="Linen skin (light)">
+      <span class="skin-prev"><span class="sp" style="background:#f7f2e8"></span><span class="sp" style="background:#ece4d4"></span><span class="sp sp-acc" style="background:#7a5c18"></span></span>
+      <span class="skin-info"><span class="skin-name">Linen <span class="skin-mode">Light</span></span><span class="skin-desc">Svetlá &middot; hnedá</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="skin-chip" data-skin="paper" aria-label="Paper skin (light)">
+      <span class="skin-prev"><span class="sp" style="background:#f4f7fb"></span><span class="sp" style="background:#e2eaf3"></span><span class="sp sp-acc" style="background:#1a4e7c"></span></span>
+      <span class="skin-info"><span class="skin-name">Paper <span class="skin-mode">Light</span></span><span class="skin-desc">Svetlá &middot; modrá</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
+    <button type="button" class="skin-chip skin-chip-auto" data-skin="auto" aria-label="Auto skin (follows system)">
+      <span class="skin-prev"><span class="sp" style="background:#131316"></span><span class="sp" style="background:#f4f7fb"></span><span class="sp sp-acc" style="background:linear-gradient(135deg,#d4a943 50%,#1a4e7c 50%)"></span></span>
+      <span class="skin-info"><span class="skin-name">Auto <span class="skin-mode">Sys</span></span><span class="skin-desc">Podľa systému</span></span>
+      <span class="skin-check" aria-hidden="true"></span>
+    </button>
   </div>
 
   <!-- ════ FARBA AKCENTU (custom override) ═══════════════════════ -->
@@ -487,7 +475,7 @@
       <b>S protokolom:</b> Otvorí priamo v prehrávači (vlc://smb://..., mpc://smb://...)<br>
       <b>Priame SMB:</b> Pošle len smb:// cestu — OS vyberie prehrávač
     </div>
-    <div id="playPathPreview" style="margin-top:10px;padding:8px 10px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4caf50;word-break:break-all;line-height:1.5"></div>
+    <div id="playPathPreview" style="margin-top:10px;padding:8px 10px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);border-radius:6px;font-family:var(--font-mono);font-size:10px;color:#4caf50;word-break:break-all;line-height:1.5"></div>
     <button class="sett-btn secondary" id="testHandlerBtn" style="margin-top:8px">
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
       <span class="sett-btn-label">Otestovať handler</span>

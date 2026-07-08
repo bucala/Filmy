@@ -25,9 +25,18 @@ S.savePrefs = function savePrefs(){try{localStorage.setItem(S.PK,JSON.stringify(
 S.updateSortDirBtn = function updateSortDirBtn(){S.syncSortPill();};
 
 S.applyAccentColor = function applyAccentColor(gold, gold2) {
-  document.documentElement.style.setProperty('--gold',  gold);
-  document.documentElement.style.setProperty('--gold2', gold2);
-  document.documentElement.style.setProperty('--gold-dim', hexDim(gold));
+  var root = document.documentElement.style;
+  root.setProperty('--gold',  gold);
+  root.setProperty('--gold2', gold2);
+  root.setProperty('--gold-dim', hexDim(gold));
+  // Keep rgba() tints and on-primary text contrast in sync with the accent.
+  var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(gold);
+  if (m) {
+    var r = parseInt(m[1],16), g = parseInt(m[2],16), b = parseInt(m[3],16);
+    root.setProperty('--gold-rgb', r + ',' + g + ',' + b);
+    var lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+    root.setProperty('--on-primary', lum > 0.55 ? '#141114' : '#ffffff');
+  }
   try { localStorage.setItem(S.ACCENT_KEY, JSON.stringify({gold:gold,gold2:gold2})); } catch(e) {}
   document.querySelectorAll('.color-swatch').forEach(function(s) {
     s.classList.toggle('active', s.dataset.gold === gold);
