@@ -535,37 +535,39 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 
 /* Skin-aware icon accent */
 
-/* Modern MD3 skin selector — compact preview cards in a 2-col grid */
-.skin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 2px}
-@media(max-width:380px){.skin-grid{grid-template-columns:1fr}}
-.skin-chip{position:relative;display:flex;align-items:center;gap:11px;
-  padding:10px 12px;width:100%;text-align:left;
-  background:var(--surface-1);border:1px solid var(--outline-variant);
-  border-radius:var(--r-md);cursor:pointer;overflow:hidden;
-  transition:border-color .15s,background .15s,box-shadow .15s}
+/* ── Skin selector — minimal Material theme tiles ── */
+.skin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 2px}
+@media(max-width:400px){.skin-grid{grid-template-columns:1fr}}
+.skin-chip{position:relative;display:flex;align-items:center;gap:12px;
+  padding:12px 14px;width:100%;text-align:left;
+  background:var(--surface-1);border:1.5px solid var(--outline-variant);
+  border-radius:var(--r-lg);cursor:pointer;overflow:hidden;
+  transition:border-color .15s,background .15s}
 .skin-chip::before{content:"";position:absolute;inset:0;background:var(--primary);
   opacity:0;transition:opacity .15s;pointer-events:none}
 @media(hover:hover){.skin-chip:hover::before{opacity:.06}
   .skin-chip:hover{border-color:var(--outline)}}
-.skin-chip.active{border-color:var(--primary);border-width:2px;
-  background:rgba(var(--gold-rgb),.12)}
-.skin-prev{display:flex;flex-shrink:0;border-radius:var(--r-full);overflow:hidden;
-  box-shadow:0 0 0 1px var(--outline-variant)}
-.skin-prev .sp{width:14px;height:26px}
-.skin-prev .sp-acc{width:16px}
-.skin-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:1px}
-.skin-name{font-family:var(--font);font-size:13px;font-weight:600;
-  color:var(--on-surface);letter-spacing:.1px;display:flex;align-items:center;gap:6px}
-.skin-mode{font-size:8px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+.skin-chip.active{border-color:var(--primary);background:var(--surface-2)}
+.skin-chip.active::before{opacity:.1}
+/* round theme coin — shows surface + accent palette at a glance */
+.skin-prev{display:flex;flex-shrink:0;width:38px;height:38px;border-radius:var(--r-full);
+  overflow:hidden;box-shadow:0 0 0 1px var(--outline-variant),var(--el1)}
+.skin-prev .sp{flex:1;height:100%}
+.skin-prev .sp-acc{flex:1.15}
+.skin-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.skin-name{font-family:var(--font);font-size:14px;font-weight:600;
+  color:var(--on-surface);letter-spacing:.1px;display:flex;align-items:center;gap:7px}
+.skin-mode{font-size:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
   color:var(--on-primary-container);background:var(--primary-container);
-  border-radius:var(--r-full);padding:1px 6px}
+  border-radius:var(--r-full);padding:2px 7px;line-height:1}
 .skin-desc{font-family:var(--font);font-size:11px;color:var(--on-surface-variant)}
-.skin-check{flex-shrink:0;width:20px;height:20px;border-radius:var(--r-full);
-  display:flex;align-items:center;justify-content:center;opacity:0;
-  background:var(--primary);transition:opacity .15s}
+.skin-check{position:absolute;top:8px;right:8px;flex-shrink:0;width:20px;height:20px;
+  border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.6);background:var(--primary);
+  transition:opacity .15s,transform .15s}
 .skin-check::after{content:"";width:5px;height:9px;margin-top:-2px;
   border:solid var(--on-primary);border-width:0 2px 2px 0;transform:rotate(45deg)}
-.skin-chip.active .skin-check{opacity:1}
+.skin-chip.active .skin-check{opacity:1;transform:scale(1)}
 
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(10px);
   background:var(--card);border:1px solid var(--border2);border-radius:12px;
@@ -1173,23 +1175,31 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 .switch input:checked + .slider{background:var(--primary)}
 .switch input:checked + .slider:before{background:var(--on-primary)}
 
-/* ══ Focus indicator — robust, never clipped ══
-   Uses an INSET outline (negative offset). An inset outline stays within the
-   element's own box, so ancestor overflow:hidden / scroll containers (the
-   settings panel, the movie list) can no longer clip it — this fixes the
-   cut-off focus ring on skin rows and cards. Outline paints above content, so
-   it stays visible over posters too. */
+/* ══ Focus / selection indicator (MD3) ══
+   Material 3 signals focus & selection with an accent STATE-LAYER tint plus a
+   thin ring — never a heavy solid border. The keyboard/D-pad focus ring sits
+   OUTSIDE the element with a small gap (outline-offset:2px). Surfaces that live
+   inside scroll containers (cards, list rows, settings skin chips) would clip
+   an outward ring, so those use an INSET ring + tint instead. */
 :focus{outline:none}
-:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
-.mcard:focus-visible,.mlist.grid .mcard:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;box-shadow:var(--el2)}
-.color-swatch:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+:focus:not(:focus-visible){outline:none}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
-/* ══ Android TV / D-pad — always-visible focus, no cursor, no clipping ══ */
+/* Text fields express focus through their own container border, no extra ring */
+input:focus-visible,textarea:focus-visible,.srch-inp:focus-visible{outline:none}
+
+/* Clip-prone surfaces: inset ring + accent state-layer tint (MD3 selected look) */
+.mcard:focus-visible,.mlist.grid .mcard:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;box-shadow:var(--el2)}
+.skin-chip:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.lcard:focus-visible{outline:none;background:rgba(var(--gold-rgb),.12)!important;box-shadow:inset 3px 0 0 var(--primary)}
+
+/* ══ Android TV / D-pad — always-visible focus (no :focus-visible), no cursor ══ */
 html.tv,html.tv *{cursor:none!important}
-html.tv :focus{outline:3px solid var(--primary);outline-offset:-3px}
-html.tv .mcard:focus,html.tv .mlist.grid .mcard:focus{outline:3px solid var(--primary);outline-offset:-3px;box-shadow:var(--el3);z-index:2;position:relative}
-html.tv .pwcard:focus{outline:3px solid var(--primary);outline-offset:-3px;box-shadow:0 6px 20px rgba(0,0,0,.5);z-index:2;position:relative}
+html.tv :focus{outline:2px solid var(--primary);outline-offset:2px}
+html.tv input:focus,html.tv textarea:focus,html.tv .srch-inp:focus{outline:none}
+html.tv .mcard:focus,html.tv .mlist.grid .mcard:focus{outline:2px solid var(--primary);outline-offset:-2px;box-shadow:var(--el3);z-index:2;position:relative}
+html.tv .skin-chip:focus{outline:2px solid var(--primary);outline-offset:-2px}
+html.tv .pwcard:focus{outline:2px solid var(--primary);outline-offset:2px;z-index:2;position:relative}
 html.tv .lcard:focus{outline:none;background:rgba(var(--gold-rgb),.14)!important;box-shadow:inset 3px 0 0 var(--primary);z-index:2;position:relative}
-html.tv .color-swatch:focus{outline:3px solid var(--primary);outline-offset:2px}
 html.tv{font-size:16px}
 html.tv .mlist{scroll-padding:80px 0}

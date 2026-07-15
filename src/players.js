@@ -157,6 +157,8 @@ S.playMovie = function playMovie(id){
     var protoPath=path.replace(/\\/g,'/');
     if(S.pathMode==='smb'){
       if(protoPath.indexOf('smb://')==0) protoPath=protoPath.substring(6);
+    } else {
+      protoPath=protoPath.replace(/^([A-Za-z]):/,'$1');
     }
     launchUrl=proto+'://'+encodeURI(protoPath);
   }
