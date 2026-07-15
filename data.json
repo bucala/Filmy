@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-07T21:17:36.834Z",
+  "updated": "2026-07-15T16:56:10.055Z",
   "movies": [
     {
       "id": 1,
@@ -47710,6 +47710,24 @@
       "_rtScore": 68,
       "_csfdUrl": "https://www.csfd.cz/film/1691342-enola-holmesova-3/prehled/",
       "_pctCsfd": 47
+    },
+    {
+      "id": 1756,
+      "num": 1756,
+      "title": "Pasažier",
+      "year": 2026,
+      "director": "André Øvredal",
+      "cast": "Lou Llobell, Jacob Scipio, Melissa Leo, Joseph Lopez, Tony Doupe, Bonni Dichone, Devielle Johnson, Jessica Cruz, Miles Fowler, Alan Trong",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "country": "US",
+      "duration": "94 min",
+      "description": "Mladý pár, ktorý očakáva narodenie potomka, chce predtým, než budú traja, zažiť ešte jedno poriadne dobrodružstvo. Požičajú si karavan a vyrazia na bezstarostnú jazdu po americkom vidieku. Pohoda trvá do okamihu, kým uprostred noci neuvidia čerstvú haváriu a nezastavia, aby jej účastníkom pomohli. Chlapcovi za volantom, už pomôcť nedokážu. Na mieste nehody sa však nachádza ešte niečo. Niečo zlovestné, čo zostáva skryté. Aspoň nateraz. V kempe, kde strávia nasledujúcu noc, im vyrozprávajú legendu",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/219NwCRLY779sESCFc6QISb76tQ.jpg",
+      "rating": 0,
+      "tmdbId": 1368314
     }
   ],
   "favourites": [],
