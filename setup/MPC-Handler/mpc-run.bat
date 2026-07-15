@@ -2,7 +2,9 @@
 :: MPC-HC Protocol Handler — strips mpc:// prefix, restores drive letter, launches MPC-HC
 :: Accepts both "W/Movies/x" and "W:/Movies/x" forms; always hands MPC a backslash path.
 set "HANDLER_URL=%~1"
-powershell -NoProfile -WindowStyle Hidden -Command ^
+set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+if not exist "%PS%" set "PS=powershell.exe"
+"%PS%" -NoProfile -WindowStyle Hidden -Command ^
   "$p = $env:HANDLER_URL -replace '(?i)^mpc://', '';" ^
   "$p = $p -replace '/$', '';" ^
   "$p = [uri]::UnescapeDataString($p);" ^

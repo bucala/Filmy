@@ -8,7 +8,11 @@ echo RAW argument: %1
 echo Stripped arg:  %~1
 echo.
 set "HANDLER_URL=%~1"
-powershell -NoProfile -Command ^
+set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+if not exist "%PS%" set "PS=powershell.exe"
+echo Using PowerShell: %PS%
+echo.
+"%PS%" -NoProfile -Command ^
   "$path = $env:HANDLER_URL;" ^
   "Write-Host 'URL from env:' $path;" ^
   "$path = $path -replace '(?i)^mpc://', '';" ^

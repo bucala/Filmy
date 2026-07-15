@@ -1,7 +1,9 @@
 @echo off
 :: VLC Protocol Handler — strips vlc:// prefix, restores drive letter, launches VLC
 set "HANDLER_URL=%~1"
-powershell -NoProfile -WindowStyle Hidden -Command ^
+set "PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
+if not exist "%PS%" set "PS=powershell.exe"
+"%PS%" -NoProfile -WindowStyle Hidden -Command ^
   "$p = $env:HANDLER_URL -replace '(?i)^vlc://', '';" ^
   "$p = $p -replace '/$', '';" ^
   "$p = [uri]::UnescapeDataString($p);" ^
