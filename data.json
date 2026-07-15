@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-15T16:56:19.454Z",
+  "updated": "2026-07-15T17:05:40.365Z",
   "movies": [
     {
       "id": 1,
@@ -47727,7 +47727,9 @@
       "description": "Mladý pár, ktorý očakáva narodenie potomka, chce predtým, než budú traja, zažiť ešte jedno poriadne dobrodružstvo. Požičajú si karavan a vyrazia na bezstarostnú jazdu po americkom vidieku. Pohoda trvá do okamihu, kým uprostred noci neuvidia čerstvú haváriu a nezastavia, aby jej účastníkom pomohli. Chlapcovi za volantom, už pomôcť nedokážu. Na mieste nehody sa však nachádza ešte niečo. Niečo zlovestné, čo zostáva skryté. Aspoň nateraz. V kempe, kde strávia nasledujúcu noc, im vyrozprávajú legendu",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/219NwCRLY779sESCFc6QISb76tQ.jpg",
       "rating": 0,
-      "tmdbId": 1368314
+      "tmdbId": 1368314,
+      "_csfdUrl": "https://www.csfd.cz/film/1794759-pasazer/prehled/",
+      "_pctCsfd": 57
     }
   ],
   "favourites": [],
