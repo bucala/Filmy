@@ -19,8 +19,11 @@ powershell -NoProfile -Command ^
   "$path = $path -replace '/', '\'; Write-Host 'Slashes to backslash:' $path;" ^
   "if ($path -match '^[A-Za-z]([:\\]|$)') { $path = $path.Substring(0,1) + ':\' + ($path.Substring(1) -replace '^[:\\]+', ''); Write-Host 'Drive restored:' $path } elseif ($path -match '^[A-Za-z]{2,}') { $path = '\\' + $path; Write-Host 'UNC path:' $path };" ^
   "Write-Host ''; Write-Host 'FINAL PATH:' $path;" ^
-  "Write-Host ''; Write-Host 'Launching MPC-HC...';" ^
-  "try { Start-Process 'C:\Program Files (x86)\K-Lite Codec Pack\MPC-HC64\mpc-hc64.exe' -ArgumentList \"`\"$path`\"\" ; Write-Host 'OK - MPC-HC launched' } catch { Write-Host 'ERROR:' $_.Exception.Message }"
+  "Write-Host 'File exists:' (Test-Path $path);" ^
+  "$exe = @('C:\Program Files (x86)\K-Lite Codec Pack\MPC-HC64\mpc-hc64.exe','C:\Program Files\K-Lite Codec Pack\MPC-HC64\mpc-hc64.exe','C:\Program Files\MPC-HC\mpc-hc64.exe','C:\Program Files (x86)\MPC-HC\mpc-hc.exe','C:\Program Files\MPC-HC\mpc-hc.exe','C:\Program Files\MPC-BE x64\mpc-be64.exe','C:\Program Files (x86)\MPC-BE\mpc-be.exe') | Where-Object { Test-Path $_ } | Select-Object -First 1;" ^
+  "Write-Host 'Player found:' $exe;" ^
+  "Write-Host ''; Write-Host 'Launching player...';" ^
+  "try { if ($exe) { Start-Process $exe -ArgumentList \"`\"$path`\"\" } else { Write-Host 'No MPC found - opening with default association'; Start-Process $path } ; Write-Host 'OK - launched' } catch { Write-Host 'ERROR:' $_.Exception.Message }"
 echo.
 echo ============================================
 pause
