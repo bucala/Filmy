@@ -9,6 +9,13 @@
    Focus visibility is handled purely in CSS via :focus-visible + .tv rules. */
 import { S } from './state.js';
 
+/* ── Long-press state (Enter held 1.5 s → quick-action overlay) ── */
+var _lpCard = null, _lpTimer = null, _lpFired = false;
+function clearLp() {
+  if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; }
+  _lpCard = null; _lpFired = false;
+}
+
 var FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),' +
   'textarea:not([disabled]),[tabindex]:not([tabindex="-1"]),[data-id]';
@@ -45,6 +52,8 @@ function visibleFocusable(scope) {
 
 /* Topmost open overlay, else the main screen. */
 function activeScope() {
+  var tvAct = document.getElementById('tvActOv');
+  if (tvAct && !tvAct.classList.contains('hidden')) return tvAct;
   var ovs = document.querySelectorAll('.m-ov:not(.hidden), .tr-ov:not(.hidden)');
   if (ovs.length) return ovs[ovs.length - 1];
   var sett = document.getElementById('settPanel');
@@ -96,12 +105,20 @@ function onKey(e) {
   var typing = (tag === 'input' && !/^(button|checkbox|radio|submit|range)$/.test(t.type || 'text')) || tag === 'textarea';
   var key = e.key;
 
-  // OK / Enter on a card (non-native focusable) -> synthesize a click.
+  // Enter on a card: short press → open detail; hold 1.5 s → quick-action menu.
   if (key === 'Enter') {
     if (t && t.hasAttribute && t.hasAttribute('data-id') &&
         !t.matches('button,a,input,select,textarea')) {
       e.preventDefault();
-      t.click();
+      if (_lpCard !== t) { clearLp(); _lpCard = t; }
+      if (!_lpTimer) {
+        _lpTimer = setTimeout(function () {
+          _lpFired = true;
+          var card = _lpCard;
+          _lpCard = null; _lpTimer = null;
+          showCardActions(card);
+        }, 1500);
+      }
     }
     return;
   }
@@ -196,6 +213,8 @@ window.__enableTvMode = function () { applyTvMode(); };
 /* Back/OK from the TV remote: close the topmost open overlay and report
    whether anything was closed, so native only exits when nothing is open. */
 window.__tvBack = function () {
+  var tvAct = document.getElementById('tvActOv');
+  if (tvAct && !tvAct.classList.contains('hidden')) { hideCardActions(); return true; }
   var ovs = document.querySelectorAll('.m-ov:not(.hidden), .tr-ov:not(.hidden)');
   if (ovs.length) {
     var top = ovs[ovs.length - 1];
@@ -235,8 +254,67 @@ window.__tvKey = function (name) {
   }
 };
 
+/* ── Quick-action overlay (long-press on card) ── */
+function showCardActions(card) {
+  var id = parseInt(card.dataset.id, 10);
+  var ov = document.getElementById('tvActOv');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'tvActOv';
+    document.body.appendChild(ov);
+  }
+  var isFav = S.favs && S.favs.has(id);
+  ov.className = 'tv-act-ov';
+  ov.innerHTML =
+    '<div class="tv-act-menu">' +
+    '<button id="tvActPlay" class="tv-act-btn" aria-label="Prehráť">' +
+      '<svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true"><polygon points="6,3 20,12 6,21"/></svg>' +
+      '<span>Prehráť</span>' +
+    '</button>' +
+    '<button id="tvActFav" class="tv-act-btn" aria-label="' + (isFav ? 'Odstrániť z obľúbených' : 'Pridať do obľúbených') + '">' +
+      (isFav ? S.STAR_ON : S.STAR_OFF) +
+      '<span>' + (isFav ? 'Odstrániť' : 'Obľúbené') + '</span>' +
+    '</button>' +
+    '</div>';
+  _lastFocus = card;
+  document.getElementById('tvActPlay').onclick = function () {
+    hideCardActions(); if (S.playMovie) S.playMovie(id);
+  };
+  document.getElementById('tvActFav').onclick = function () {
+    if (S.togFav) S.togFav(id, null); hideCardActions();
+  };
+  ov.addEventListener('click', function (e) {
+    if (e.target === ov) hideCardActions();
+  }, { once: true });
+  setTimeout(function () { focusEl(document.getElementById('tvActPlay')); }, 50);
+}
+
+function hideCardActions() {
+  var ov = document.getElementById('tvActOv');
+  if (!ov) return;
+  ov.className = 'tv-act-ov hidden';
+  if (_lastFocus && document.contains(_lastFocus) && isVisible(_lastFocus)) focusEl(_lastFocus);
+}
+
+/* Release Enter: short press → click card; long press already handled by timeout. */
+function onKeyUp(e) {
+  if (!S._tvOn) return;
+  var key = e.key;
+  if (key === 'Escape') { hideCardActions(); clearLp(); return; }
+  if (key === 'Enter') {
+    if (_lpCard && !_lpFired) {
+      var card = _lpCard;
+      clearLp();
+      card.click();
+    } else {
+      clearLp();
+    }
+  }
+}
+
 S.initTv = function initTv() {
   document.addEventListener('keydown', onKey, true); // capture: run before app handlers
+  document.addEventListener('keyup', onKeyUp, true);
   observeModals();
   if (detectTv()) applyTvMode();
 };

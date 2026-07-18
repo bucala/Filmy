@@ -253,13 +253,13 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .gbar-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
 
 .dec-c span{color:var(--gold);font-weight:700}
-.sett-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.sett-overlay.hidden,.sett-panel.hidden{display:none}
-.sett-panel{-webkit-user-select:none;user-select:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border2);border-radius:20px 20px 0 0;z-index:501;padding:0 16px calc(40px + env(safe-area-inset-bottom,0px));max-height:86svh;overflow-y:auto;overscroll-behavior:contain}
+.sett-overlay{display:none!important}
+.sett-panel{-webkit-user-select:none;user-select:none;position:fixed;inset:0;background:var(--bg);border:none;border-radius:0;z-index:501;padding:0 16px env(safe-area-inset-bottom,0px);overflow-y:auto;overscroll-behavior:contain}
+.sett-panel.hidden{display:none}
 
 /* ── Handle & title ─────────────────────────────────────────────── */
-.sett-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 14px}
-.sett-title{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;font-weight:800;letter-spacing:1.2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sett-handle{display:none}
+.sett-title{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;font-weight:800;letter-spacing:1.2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px;margin-top:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .sett-title svg{color:var(--gold);flex-shrink:0}
 .sett-title span{line-height:1.15}
 .sett-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:10px;border-bottom:1px solid var(--border);scrollbar-width:none}
@@ -1203,3 +1203,12 @@ html.tv .pwcard:focus{outline:2px solid var(--primary);outline-offset:2px;z-inde
 html.tv .lcard:focus{outline:none;background:rgba(var(--gold-rgb),.14)!important;box-shadow:inset 3px 0 0 var(--primary);z-index:2;position:relative}
 html.tv{font-size:16px}
 html.tv .mlist{scroll-padding:80px 0}
+
+/* ── TV quick-action overlay (long-press on card) ── */
+.tv-act-ov{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.tv-act-ov.hidden{display:none}
+.tv-act-menu{display:flex;gap:24px;padding:32px 40px;background:var(--card2);border-radius:var(--r-lg);border:1px solid var(--border2);box-shadow:var(--el4)}
+.tv-act-btn{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 32px;background:var(--card);border:2px solid var(--border2);border-radius:var(--r-md);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;transition:border-color .12s,background .12s,transform .1s;min-width:120px}
+.tv-act-btn:hover,.tv-act-btn:focus{border-color:var(--gold);background:rgba(var(--gold-rgb),.1);outline:none;transform:scale(1.04)}
+.tv-act-btn svg{color:var(--gold)}
+html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold-rgb),.14);outline:2px solid var(--primary);outline-offset:2px;box-shadow:var(--el3)}
