@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-15T17:05:46.951Z",
+  "updated": "2026-07-20T19:20:23.766Z",
   "movies": [
     {
       "id": 1,
@@ -47730,6 +47730,23 @@
       "tmdbId": 1368314,
       "_csfdUrl": "https://www.csfd.cz/film/1794759-pasazer/prehled/",
       "_pctCsfd": 57
+    },
+    {
+      "id": 1757,
+      "num": 1757,
+      "title": "Scary Movie",
+      "year": 2026,
+      "director": "Michael Tiddes",
+      "cast": "Marlon Wayans, Shawn Wayans, Anna Faris, Regina Hall, Damon Wayans Jr., Gregg Wayans, Kim Wayans, Benny Zielke, Cameron Scott Roberts, Cheri Oteri",
+      "genres": [
+        "Komédia"
+      ],
+      "country": "US",
+      "duration": "95 min",
+      "description": "Je to už neuveriteľných 26 rokov, odkedy nemilosrdný vrah Ghostface prvýkrát naháňal štvoricu tínedžerov, ktorí boli príliš mimo na to, aby sa dali jednoducho zlikvidovať. Prežili civilizačné choroby,  krízu stredného aj bližšie nešpecifikované pohromy a dnes sú späť, aby si podali všetko, čo v hororovom žánri za posledné roky vzniklo. Či už ide o duchárske historky, krvavé sekačky alebo ambiciózne remaky, nikto si nemôže byť istý. Po rokoch bizarných experimentov a návratov na plátno sú opäť tu",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/v0zpM586W8zzQVqlq5CTlBUpmqT.jpg",
+      "rating": 0,
+      "tmdbId": 1273221
     }
   ],
   "favourites": [],
