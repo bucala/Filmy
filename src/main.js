@@ -427,6 +427,34 @@ S.toast(_modeLabel);
   var _eClearAll=document.getElementById("settBtnClearAll");if(_eClearAll)_eClearAll.addEventListener("click",S.clearAllData);
   var _eAdmin=document.getElementById("settBtnAdmin");if(_eAdmin)_eAdmin.addEventListener("click",S.openAdmin);
 
+  // Admin tab: debug mode
+  var _dmt=document.getElementById('debugModeTog');
+  if(_dmt) _dmt.addEventListener('change',function(){S.setDebugMode(this.checked);});
+
+  // Admin tab: manuálna oprava filmu
+  var _afSel=document.getElementById('adminFixMovieSel');
+  if(_afSel) _afSel.addEventListener('change',function(){S.adminFixLoadMovie(parseInt(this.value,10));});
+  var _afSave=document.getElementById('adminFixSaveBtn');
+  if(_afSave) _afSave.addEventListener('click',S.adminFixSave);
+  var _afTmdb=document.getElementById('adminFixTmdbBtn');
+  if(_afTmdb) _afTmdb.addEventListener('click',function(){
+    var sel=document.getElementById('adminFixMovieSel');
+    if(sel&&sel.value) S.openMatchPanel(parseInt(sel.value,10));
+  });
+
+  // Admin tab: automatické párovanie ciest
+  var _apBtn=document.getElementById('adminAutoPairBtn');
+  var _apInp=document.getElementById('adminAutoPairInp');
+  if(_apBtn&&_apInp){
+    _apBtn.addEventListener('click',function(){_apInp.click();});
+    _apInp.addEventListener('change',function(){
+      if(this.files&&this.files.length) S.adminAutoPairScan(this.files);
+      this.value='';
+    });
+  }
+  var _apApply=document.getElementById('adminAutoPairApplyBtn');
+  if(_apApply) _apApply.addEventListener('click',S.adminAutoPairApply);
+
   // Uložiť všetky nastavenia
   var _eSaveAll = document.getElementById('settBtnSaveAll');
   if (_eSaveAll) _eSaveAll.addEventListener('click', function() {
@@ -797,8 +825,9 @@ S.initKeyboard = function initKeyboard() {
       return;
     }
 
-    // ← → navigate films in detail view
-    if (!document.getElementById('detSc').classList.contains('hidden') && !inInput) {
+    // ← → navigate films in detail view (desktop keyboard only — on TV,
+    // Left/Right move focus between the detail card's own buttons instead)
+    if (!S._tvOn && !document.getElementById('detSc').classList.contains('hidden') && !inInput) {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault();
         if (!S.curId || !S.filt.length) return;

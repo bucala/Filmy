@@ -1,6 +1,6 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
-import { esc } from './lib/text.js';
+import { esc, removeDiacritics, buildMovieFilename, levenshtein } from './lib/text.js';
 import { parseEMDB } from './lib/parse.js';
 
 S.fetchLiveData = function fetchLiveData(id){
@@ -366,6 +366,11 @@ S.openSett = function openSett(){
   document.querySelectorAll('#ratingSrcToggle .ttab').forEach(function(b){
     b.className=(b.dataset.src===S.ratingSource)?'ttab on':'ttab';
   });
+  // Sync admin tab: debug mode + per-movie fix selector
+  var _dmt=document.getElementById('debugModeTog');
+  if(_dmt) _dmt.checked=S.debugMode;
+  S.updateDebugInfo();
+  S.adminFixPopulateSelect();
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 };
@@ -1214,4 +1219,201 @@ S.exportCollage = function exportCollage(){
     img.onerror=function(){loaded++;if(loaded>=movies.length)img.onload();};
     img.src=m.poster_thumb;
   });
+};
+
+/* ═══════════════ Admin: debug mode ═══════════════ */
+S.setDebugMode = function setDebugMode(on){
+  S.debugMode=!!on;
+  try{localStorage.setItem(S.DEBUG_MODE_KEY,S.debugMode?'1':'0');}catch(e){}
+  S.updateDebugInfo();
+};
+
+S.updateDebugInfo = function updateDebugInfo(){
+  var box=document.getElementById('debugInfoBox');
+  if(!box)return;
+  if(!S.debugMode){box.classList.add('hidden');return;}
+  box.classList.remove('hidden');
+  var localBase=Object.keys(S.smbMap||{})[0]||'–';
+  var lines=[
+    'TV mód: '+(S._tvOn?'áno':'nie'),
+    'Režim ciest: '+S.pathMode,
+    'Prehrávač: '+S.playerProto,
+    'Lokálny základ: '+localBase,
+    'SMB základ: '+(S.smbBase||'–'),
+    'Filmov: '+S.all.length,
+    'User-Agent: '+navigator.userAgent
+  ];
+  box.textContent=lines.join('\n');
+};
+
+/* ═══════════════ Admin: manuálna oprava filmu (cesta / IMDB / ČSFD) ═══════════════ */
+S.adminFixPopulateSelect = function adminFixPopulateSelect(){
+  var sel=document.getElementById('adminFixMovieSel');
+  if(!sel)return;
+  var prev=sel.value;
+  var sorted=S.all.slice().sort(function(a,b){return (a.title||'').localeCompare(b.title||'');});
+  sel.innerHTML=sorted.map(function(m){
+    return '<option value="'+m.id+'">'+esc(m.title)+' ('+(m.year||'?')+')</option>';
+  }).join('');
+  if(prev&&sorted.some(function(m){return String(m.id)===prev;})) sel.value=prev;
+  if(sel.value) S.adminFixLoadMovie(parseInt(sel.value,10));
+};
+
+S.adminFixLoadMovie = function adminFixLoadMovie(id){
+  var m=S.all.find(function(x){return x.id===id;});
+  if(!m)return;
+  var pathInp=document.getElementById('adminFixPathInp');
+  var imdbInp=document.getElementById('adminFixImdbInp');
+  var csfdInp=document.getElementById('adminFixCsfdInp');
+  if(pathInp) pathInp.value=m._localPath||'';
+  if(imdbInp){var c=S.liveCache[id];imdbInp.value=(c&&c.imdbUrl)||'';}
+  if(csfdInp) csfdInp.value=m._csfdUrl||'';
+  var st=document.getElementById('adminFixSt');
+  if(st){st.textContent='';st.className='sett-key-st';}
+};
+
+S.adminFixSave = function adminFixSave(){
+  var sel=document.getElementById('adminFixMovieSel');
+  if(!sel||!sel.value)return;
+  var id=parseInt(sel.value,10);
+  var m=S.all.find(function(x){return x.id===id;});
+  if(!m)return;
+  var pathInp=document.getElementById('adminFixPathInp');
+  var imdbInp=document.getElementById('adminFixImdbInp');
+  var csfdInp=document.getElementById('adminFixCsfdInp');
+  if(pathInp) m._localPath=pathInp.value.trim();
+  if(csfdInp){var cv=csfdInp.value.trim();if(cv)m._csfdUrl=cv;else delete m._csfdUrl;}
+  if(imdbInp){
+    var iv=imdbInp.value.trim();
+    if(!S.liveCache[id]) S.liveCache[id]={};
+    if(iv) S.liveCache[id].imdbUrl=iv; else delete S.liveCache[id].imdbUrl;
+    S.saveLiveCache();
+  }
+  S.saveAllData();
+  S.scheduleAutoPush('admin-fix');
+  if(S.curId===id) S.openDet(id);
+  var st=document.getElementById('adminFixSt');
+  if(st){st.textContent='✓ Uložené';st.className='sett-key-st ok';}
+  S.toast('Zmeny uložené');
+};
+
+/* ═══════════════ Admin: automatické párovanie ciest v priečinku ═══════════════ */
+function normName(s){
+  return removeDiacritics(String(s||'')).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+
+function renderAutoPairResults(results,fileCount){
+  var box=document.getElementById('adminAutoPairResults');
+  var applyBtn=document.getElementById('adminAutoPairApplyBtn');
+  var st=document.getElementById('adminAutoPairSt');
+  if(!box)return;
+  var withMatch=results.filter(function(r){return r.file;});
+  if(st) st.textContent=fileCount+' súborov v priečinku · '+withMatch.length+' návrhov, '+(results.length-withMatch.length)+' nenájdených';
+  if(!results.length){
+    box.innerHTML='<div class="sett-btn-hint">Všetky filmy už majú správne priradenú cestu.</div>';
+    if(applyBtn) applyBtn.classList.add('hidden');
+    return;
+  }
+  box.innerHTML=results.map(function(r,idx){
+    if(!r.file){
+      return '<div class="sett-row" style="align-items:flex-start;opacity:.6">'+
+        '<span style="flex:1;font-size:11px"><b>'+esc(r.movie.title)+'</b> ('+(r.movie.year||'?')+')<br>'+
+        '<span style="color:#e06060">&rarr; súbor nenájdený</span></span></div>';
+    }
+    var label=r.type==='exact'?'presná zhoda':'približná zhoda';
+    return '<label class="sett-row" style="align-items:flex-start;cursor:pointer">'+
+      '<input type="checkbox" class="autopair-chk" data-idx="'+idx+'" checked style="margin-top:3px">'+
+      '<span style="flex:1;font-size:11px">'+
+        '<b>'+esc(r.movie.title)+'</b> ('+(r.movie.year||'?')+')<br>'+
+        '<span style="color:var(--text3)">&rarr; '+esc(r.file.name)+' <i>('+label+')</i></span>'+
+      '</span></label>';
+  }).join('');
+  if(applyBtn) applyBtn.classList.remove('hidden');
+}
+
+S.adminAutoPairScan = function adminAutoPairScan(fileList){
+  var files=[];
+  for(var i=0;i<fileList.length;i++){
+    var f=fileList[i];
+    if(/\.(mkv|mp4|avi|mov|m4v|wmv|ts)$/i.test(f.name)) files.push(f);
+  }
+  var usedIdx={};
+  var results=[];
+  var unresolved=[];
+
+  S.all.forEach(function(m){
+    var currentName=(m._localPath?m._localPath.replace(/^.*[\\/]/,''):buildMovieFilename(m)).toLowerCase();
+    for(var i=0;i<files.length;i++){
+      if(usedIdx[i]) continue;
+      if(files[i].name.toLowerCase()===currentName){usedIdx[i]=true;return;} // already correctly paired
+    }
+    var expected=buildMovieFilename(m).toLowerCase();
+    if(expected!==currentName){
+      for(var j=0;j<files.length;j++){
+        if(usedIdx[j]) continue;
+        if(files[j].name.toLowerCase()===expected){
+          usedIdx[j]=true;results.push({movie:m,file:files[j],type:'exact'});return;
+        }
+      }
+    }
+    unresolved.push(m);
+  });
+
+  unresolved.forEach(function(m){
+    var mTitle=normName(m.title);
+    var mYear=String(m.year||'');
+    var bestI=-1,bestScore=Infinity;
+    for(var i=0;i<files.length;i++){
+      if(usedIdx[i]) continue;
+      var base=files[i].name.replace(/\.[^.]+$/,'');
+      var fYear=(base.match(/\b(19|20)\d{2}\b/)||[])[0]||'';
+      var fName=normName(base.replace(/\b(19|20)\d{2}\b/,''));
+      if(mYear&&fYear&&mYear!==fYear) continue;
+      // Release-style names ("Title.2020.1080p.BluRay...") contain the full
+      // normalized title plus extra tags — a plain edit-distance check would
+      // reject these purely due to length, so a substring hit always wins.
+      var contains=mTitle.length>2&&fName.length>2&&(fName.indexOf(mTitle)!==-1||mTitle.indexOf(fName)!==-1);
+      var dist=levenshtein(mTitle,fName,12);
+      var thresh=Math.max(3,Math.round(Math.max(mTitle.length,fName.length)*0.3));
+      if(!contains&&dist>thresh) continue;
+      var score=contains?0:dist;
+      if(score<bestScore){bestScore=score;bestI=i;}
+    }
+    if(bestI>=0){usedIdx[bestI]=true;results.push({movie:m,file:files[bestI],type:'fuzzy'});}
+    else results.push({movie:m,file:null,type:'none'});
+  });
+
+  S._autoPairResults=results;
+  renderAutoPairResults(results,files.length);
+};
+
+S.adminAutoPairApply = function adminAutoPairApply(){
+  var results=S._autoPairResults||[];
+  if(!results.length)return;
+  var boxes=document.querySelectorAll('.autopair-chk');
+  var localBase=Object.keys(S.smbMap||{})[0]||'W:\\Movies\\';
+  localBase=localBase.replace(/\//g,'\\');
+  if(localBase[localBase.length-1]!=='\\') localBase+='\\';
+  var applied=0;
+  boxes.forEach(function(chk){
+    if(!chk.checked) return;
+    var idx=parseInt(chk.dataset.idx,10);
+    var r=results[idx];
+    if(!r||!r.file) return;
+    r.movie._localPath=localBase+r.file.name;
+    applied++;
+  });
+  if(applied){
+    S.saveAllData();
+    S.scheduleAutoPush('auto-pair');
+    S.renderList(S.filt);
+  }
+  S.toast('Spárovaných '+applied+' filmov');
+  var box=document.getElementById('adminAutoPairResults');
+  if(box) box.innerHTML='';
+  var applyBtn=document.getElementById('adminAutoPairApplyBtn');
+  if(applyBtn) applyBtn.classList.add('hidden');
+  var st=document.getElementById('adminAutoPairSt');
+  if(st) st.textContent='Uložené: '+applied+' filmov';
+  S._autoPairResults=null;
 };

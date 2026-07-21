@@ -130,3 +130,5 @@ S.COUNTRY_FLAGS = {
   'portugal':'&#127477;&#127481;','thailand':'&#127481;&#127469;','south africa':'&#127487;&#127462;'
 };
 S.dragSrcId = null;
+S.DEBUG_MODE_KEY = 'mdb_debug_mode';
+S.debugMode = localStorage.getItem(S.DEBUG_MODE_KEY) === '1';

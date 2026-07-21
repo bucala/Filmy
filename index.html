@@ -188,7 +188,7 @@
     <button class="sett-tab" type="button" data-tab="sync">Sync</button>
     <button class="sett-tab" type="button" data-tab="playback">Prehrávanie</button>
     <button class="sett-tab" type="button" data-tab="tools">Nástroje</button>
-    <button class="sett-tab danger" type="button" data-tab="danger">Nebezpečné</button>
+    <button class="sett-tab" type="button" data-tab="admin">Admin</button>
   </div>
 
   <div class="sett-tab-panel active" data-panel="appearance">
@@ -561,7 +561,64 @@
 
   </div>
 
-  <div class="sett-tab-panel" data-panel="danger">
+  <div class="sett-tab-panel" data-panel="admin">
+    <!-- ─── Debug mód ────────────────────────────────────────────── -->
+    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 2l1.5 3M15 2l-1.5 3"/><line x1="2" y1="13" x2="4" y2="13"/><line x1="20" y1="13" x2="22" y2="13"/><line x1="2" y1="17" x2="4" y2="17"/><line x1="20" y1="17" x2="22" y2="17"/></svg>Debug mód</div>
+    <div class="sett-grp">
+    <div class="sett-row">
+      <span class="sett-lbl">Zapnúť debug mód</span>
+      <label class="switch">
+        <input type="checkbox" id="debugModeTog">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="sett-btn-hint">Zobrazí diagnostické info (TV mód, cesty, prehrávač) a podrobné logovanie prehrávania do konzoly.</div>
+    <div id="debugInfoBox" class="sett-key-st hidden" style="margin-top:8px;font-family:var(--font-mono);white-space:pre-line"></div>
+    </div>
+
+    <!-- ─── Ručná oprava filmu ───────────────────────────────────── -->
+    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Ručná oprava filmu</div>
+    <div class="sett-grp">
+    <label class="sett-lbl" for="adminFixMovieSel" style="display:block;margin-bottom:6px">Vyber film</label>
+    <select class="sett-sel" id="adminFixMovieSel" style="width:100%"></select>
+    <div class="sett-sub-row" style="margin-top:10px">
+      <label class="sett-lbl" style="font-size:10px">Lokálna cesta k súboru:</label>
+      <input class="sett-key-inp" id="adminFixPathInp" type="text" placeholder="W:\Movies\2024 - Nazov.mkv" autocomplete="off" style="width:100%">
+    </div>
+    <div class="sett-sub-row" style="margin-top:8px">
+      <label class="sett-lbl" style="font-size:10px">IMDB URL:</label>
+      <input class="sett-key-inp" id="adminFixImdbInp" type="text" placeholder="https://www.imdb.com/title/tt.../" autocomplete="off" style="width:100%">
+    </div>
+    <div class="sett-sub-row" style="margin-top:8px">
+      <label class="sett-lbl" style="font-size:10px">ČSFD URL:</label>
+      <input class="sett-key-inp" id="adminFixCsfdInp" type="text" placeholder="https://www.csfd.cz/film/..." autocomplete="off" style="width:100%">
+    </div>
+    <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+      <button class="sett-btn primary" id="adminFixSaveBtn" style="flex:1">
+        <span class="sett-btn-label">Uložiť zmeny</span>
+      </button>
+      <button class="sett-btn secondary" id="adminFixTmdbBtn" style="flex:1">
+        <span class="sett-btn-label">&#x2699; Spárovať TMDB</span>
+      </button>
+    </div>
+    <div class="sett-key-st" id="adminFixSt" style="margin-top:6px"></div>
+    </div>
+
+    <!-- ─── Automatické párovanie ciest ──────────────────────────── -->
+    <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>Automatické párovanie ciest</div>
+    <div class="sett-grp">
+    <div class="sett-btn-hint">Vyber priečinok <code>W:\Movies\</code> — aplikácia porovná názvy súborov s filmami a navrhne priradenie lokálnej cesty.</div>
+    <button class="sett-btn secondary" id="adminAutoPairBtn" style="margin-top:8px">
+      <span class="sett-btn-label">Vybrať priečinok a spárovať</span>
+    </button>
+    <input type="file" id="adminAutoPairInp" webkitdirectory multiple style="display:none">
+    <div class="sett-key-st" id="adminAutoPairSt" style="margin-top:6px"></div>
+    <div id="adminAutoPairResults" style="margin-top:8px;max-height:260px;overflow-y:auto"></div>
+    <button class="sett-btn success hidden" id="adminAutoPairApplyBtn" style="margin-top:8px">
+      <span class="sett-btn-label">Potvrdiť a uložiť vybrané</span>
+    </button>
+    </div>
+
     <!-- ─── Nebezpečná zóna ──────────────────────────────────────── -->
     <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Nebezpečná zóna</div>
     <div class="sett-grp">

@@ -301,6 +301,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-key-inp:focus{border-color:var(--gold)}
 .sett-key-inp::placeholder{color:var(--text3)}
 .sett-key-st{font-family:var(--font-mono);font-size:10px;min-height:14px;margin-bottom:6px;padding:0 2px}
+.sett-key-st.hidden{display:none}
 .sett-key-st.ok{color:#22cc88}.sett-key-st.err{color:#e05555}
 
 /* ── Unified icon button (eye, delete) ─────────────────────────── */
@@ -1192,6 +1193,7 @@ input:focus-visible,textarea:focus-visible,.srch-inp:focus-visible{outline:none}
 .mcard:focus-visible,.mlist.grid .mcard:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;box-shadow:var(--el2)}
 .skin-chip:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
 .lcard:focus-visible{outline:none;background:rgba(var(--gold-rgb),.12)!important;box-shadow:inset 3px 0 0 var(--primary)}
+.sim-card:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;border-radius:8px}
 
 /* ══ Android TV / D-pad — always-visible focus (no :focus-visible), no cursor ══ */
 html.tv,html.tv *{cursor:none!important}
@@ -1201,6 +1203,7 @@ html.tv .mcard:focus,html.tv .mlist.grid .mcard:focus{outline:2px solid var(--pr
 html.tv .skin-chip:focus{outline:2px solid var(--primary);outline-offset:-2px}
 html.tv .pwcard:focus{outline:2px solid var(--primary);outline-offset:2px;z-index:2;position:relative}
 html.tv .lcard:focus{outline:none;background:rgba(var(--gold-rgb),.14)!important;box-shadow:inset 3px 0 0 var(--primary);z-index:2;position:relative}
+html.tv .sim-card:focus{outline:2px solid var(--primary);outline-offset:-2px;border-radius:8px;z-index:2;position:relative}
 html.tv{font-size:16px}
 html.tv .mlist{scroll-padding:80px 0}
 

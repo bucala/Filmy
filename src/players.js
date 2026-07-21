@@ -98,6 +98,7 @@ S.playMovie = function playMovie(id){
   var m=S.all.find(function(x){return x.id===id;});
   if(!m)return;
   var path=S.getMoviePath(m);
+  if(S.debugMode) console.log('[Filmy debug] playMovie',{id:m.id,title:m.title,localPath:m._localPath||null,resolvedPath:path,pathMode:S.pathMode,playerProto:S.playerProto,isAndroid:S._isAndroid});
   if(!path){S.toast('Cesta k súboru nie je nastavená.');return;}
 
   if(S._isAndroid){

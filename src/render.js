@@ -343,7 +343,7 @@ S.openDet = function openDet(id){
   const fav=S.favs.has(id);
   const genres=(m.genres||[]).map(g=>`<span class="dg-tag">${esc(g)}</span>`).join("");
   const items=[];
-  if(m.director)items.push(["Režíser",'<a class="det-person-link" data-person="'+esc(m.director)+'">'+esc(m.director)+'</a>']);
+  if(m.director)items.push(["Režíser",'<a class="det-person-link" data-person="'+esc(m.director)+'" tabindex="0" role="button">'+esc(m.director)+'</a>']);
   items.push(["Rok",esc(String(m.year||"–"))],["Dĺžka",esc(String(m.duration||"–"))],["Krajina",esc(String(m.country||"–"))],["#",esc(String(m.num))]);
   const tmdbUrl=(cached&&cached.tmdbUrl)||`https://www.themoviedb.org/search?query=${encodeURIComponent(m.title)}`;
   const imdbUrl=(cached&&cached.imdbUrl)||null;
@@ -390,11 +390,11 @@ S.openDet = function openDet(id){
     ${m.description&&m.description.trim()?`<div class="sec">Popis</div><div class="det-desc">${esc(m.description)}</div>`:""}
     <div class="sec">Detaily</div>
     <div class="det-grid">${items.map(it=>`<div class="det-item"><div class="det-item-l">${it[0]}</div><div class="det-item-v">${it[1]}</div></div>`).join("")}</div>
-    ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${m.cast.split(',').map(function(a){var n=a.trim();return n?'<a class="det-person-link" data-person="'+esc(n)+'">'+esc(n)+'</a>':'';}).filter(Boolean).join(', ')}</div>`:""}
+    ${m.cast&&m.cast.trim()?`<div class="sec">Obsadenie</div><div class="det-cast">${m.cast.split(',').map(function(a){var n=a.trim();return n?'<a class="det-person-link" data-person="'+esc(n)+'" tabindex="0" role="button">'+esc(n)+'</a>':'';}).filter(Boolean).join(', ')}</div>`:""}
     <div class="sec">Tagy</div>
     <div class="det-tags" id="detTags">
       ${(m._tags||[]).map(function(t){return '<span class="det-tag">'+esc(t)+'<button class="det-tag-x" data-tag="'+esc(t)+'">&times;</button></span>';}).join('')}
-      <span class="det-tag-add" id="detTagAdd">+ pridať</span>
+      <span class="det-tag-add" id="detTagAdd" tabindex="0" role="button">+ pridať</span>
     </div>
     ${S.buildSimilarHtml(m)}`;
 
@@ -863,7 +863,7 @@ S.buildSimilarHtml = function buildSimilarHtml(movie){
     const poster=m.poster_thumb&&m.poster_thumb.length>10
       ?`<img class="sim-poster" src="${m.poster_thumb}" alt="" loading="lazy">`
       :'<div class="sim-poster-ph">🎬</div>';
-    return `<div class="sim-card" data-sid="${m.id}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
+    return `<div class="sim-card" data-sid="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title)}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
   }).join("");
   return `<div class="sec">PODOBNÉ FILMY</div><div class="similar-row" id="simRow">${cards}</div>`;
 };

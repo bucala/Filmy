@@ -75,15 +75,27 @@ function focusEl(el) {
   try { el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' }); } catch (e) {}
 }
 
+/* Segmented toggle rows (.sett-toggle) are a single unit for vertical nav —
+   Up/Down should always land on the row's active member and never stop on a
+   sibling tab, or a sibling could end up permanently unreachable depending on
+   which member last had focus. Left/Right still moves between members. */
+function groupOf(el) {
+  return el.closest('.sett-toggle');
+}
+
 /* Pick the nearest focusable element in a direction from the current one. */
 function pick(dir, cur, cands) {
-  var cr = cur.getBoundingClientRect();
+  var vertical = (dir === 'up' || dir === 'down');
+  var curGroup = groupOf(cur);
+  var cr = curGroup ? curGroup.getBoundingClientRect() : cur.getBoundingClientRect();
   var cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
-  var best = null, bestScore = Infinity;
+  var best = null, bestScore = Infinity, bestGroup = null;
   for (var i = 0; i < cands.length; i++) {
     var el = cands[i];
     if (el === cur) continue;
-    var r = el.getBoundingClientRect();
+    var elGroup = groupOf(el);
+    if (vertical && elGroup && elGroup === curGroup) continue; // same row — not a vertical target
+    var r = (vertical && elGroup) ? elGroup.getBoundingClientRect() : el.getBoundingClientRect();
     var x = r.left + r.width / 2, y = r.top + r.height / 2;
     var dx = x - cx, dy = y - cy;
     var primary, cross;
@@ -93,7 +105,12 @@ function pick(dir, cur, cands) {
     else { if (dy >= -1) continue; primary = -dy; cross = Math.abs(dx); }
     // Weight cross-axis so we prefer elements aligned with the travel direction.
     var score = primary + cross * 2;
-    if (score < bestScore) { bestScore = score; best = el; }
+    if (score < bestScore) { bestScore = score; best = el; bestGroup = elGroup; }
+  }
+  // Entering a toggle group vertically always lands on its active member.
+  if (best && vertical && bestGroup) {
+    var onBtn = bestGroup.querySelector('.ttab.on') || bestGroup.querySelector('.ttab');
+    if (onBtn && cands.indexOf(onBtn) !== -1) best = onBtn;
   }
   return best;
 }
@@ -119,6 +136,15 @@ function onKey(e) {
           showCardActions(card);
         }, 1500);
       }
+      return;
+    }
+    // Non-native focusable stops (person links, similar-film cards, tag-add)
+    // expose role="button" — activate them directly, browsers only do this
+    // automatically for real <button>/<a href> elements.
+    if (t && t.getAttribute && t.getAttribute('role') === 'button' &&
+        !t.matches('button,a[href],input,select,textarea')) {
+      e.preventDefault();
+      t.click();
     }
     return;
   }
@@ -129,9 +155,6 @@ function onKey(e) {
 
   var dir = key === 'ArrowUp' ? 'up' : key === 'ArrowDown' ? 'down' : key === 'ArrowLeft' ? 'left' : 'right';
   var scope = activeScope();
-
-  // In detail view, Left/Right switches films (handled by initKeyboard) — defer.
-  if (scope.id === 'detSc' && (dir === 'left' || dir === 'right')) return;
 
   var cands = visibleFocusable(scope);
   if (!cands.length) return;
