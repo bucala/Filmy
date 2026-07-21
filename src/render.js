@@ -2,6 +2,10 @@
 import { S } from './state.js';
 import { esc } from './lib/text.js';
 
+function prefersReducedMotion(){
+  return typeof window!=='undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 S.fpActiveCount = function fpActiveCount(){var n=0;if(S.fpState.yearFrom>0)n++;if(S.fpState.yearTo>0)n++;if(S.fpState.minRating>0)n++;if(S.fpState.country)n++;if(S.fpState.genres.length>0)n++;if(S.fpState.tag)n++;return n;};
 
 S.renderAll = function renderAll(){
@@ -436,12 +440,46 @@ S.openDet = function openDet(id){
     };
   });
   document.getElementById("mainSc").classList.add("hidden");
-  document.getElementById("detSc").classList.remove("hidden");
+  var detEl=document.getElementById("detSc");
+  var wasHidden=detEl.classList.contains("hidden");
+  if(wasHidden && !prefersReducedMotion()){
+    // Start from the offscreen/faded state, then release it a couple of
+    // frames later so the browser actually paints the start state first —
+    // otherwise the enter transition gets skipped straight to its end value.
+    detEl.classList.add("det-anim-init");
+    detEl.classList.remove("hidden");
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ detEl.classList.remove("det-anim-init"); });
+    });
+  } else {
+    // Already open (e.g. similar-film click, tag edit refresh) — just swap
+    // content in place, no re-entrance animation.
+    detEl.classList.remove("hidden");
+  }
   document.getElementById("detBody").scrollTop=0;
   if(!cached)S.fetchLiveData(id);
 };
 
-S.closeDet = function closeDet(){document.getElementById("detSc").classList.add("hidden");document.getElementById("mainSc").classList.remove("hidden");};
+S.closeDet = function closeDet(){
+  var detEl=document.getElementById("detSc");
+  var mainEl=document.getElementById("mainSc");
+  if(detEl.classList.contains("hidden")){ mainEl.classList.remove("hidden"); return; }
+  if(prefersReducedMotion()){
+    detEl.classList.add("hidden");
+    mainEl.classList.remove("hidden");
+    return;
+  }
+  var done=false;
+  function finish(){
+    if(done)return; done=true;
+    detEl.classList.add("hidden");
+    detEl.classList.remove("det-anim-init");
+    mainEl.classList.remove("hidden");
+  }
+  detEl.addEventListener("transitionend",finish,{once:true});
+  setTimeout(finish,260);
+  detEl.classList.add("det-anim-init");
+};
 
 S.openTrailer = function openTrailer(id){
   var m=S.all.find(function(x){return x.id===id;});if(!m)return;

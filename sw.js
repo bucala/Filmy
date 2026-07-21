@@ -7,6 +7,25 @@
 
 const CACHE = "filmy-20260721-2244";
 
+/* Runtime cache for TMDB posters/backdrops — separate from CACHE so it
+   survives shell version bumps (posters rarely change; losing them on every
+   deploy would defeat offline viewing). Capped so it can't grow unbounded
+   across a 1700+ movie library. */
+const POSTER_CACHE = "filmy-posters-v1";
+const POSTER_CACHE_MAX = 300;
+
+/* Cache API keys() returns entries in insertion order, so trimming from the
+   front gives simple LRU-ish eviction without extra bookkeeping. */
+function trimPosterCache(){
+  caches.open(POSTER_CACHE).then(function(cache){
+    cache.keys().then(function(keys){
+      if(keys.length > POSTER_CACHE_MAX){
+        cache.delete(keys[0]).then(trimPosterCache);
+      }
+    });
+  });
+}
+
 const SHELL  = [
   "./",
   "./index.html",
@@ -51,12 +70,12 @@ self.addEventListener("install", function(e){
   );
 });
 
-/* ── Activate: delete old caches ── */
+/* ── Activate: delete old caches, but keep the poster runtime cache ── */
 self.addEventListener("activate", function(e){
   e.waitUntil(
     caches.keys().then(function(keys){
       return Promise.all(
-        keys.filter(function(k){ return k !== CACHE; })
+        keys.filter(function(k){ return k !== CACHE && k !== POSTER_CACHE; })
             .map(function(k){ return caches.delete(k); })
       );
     }).then(function(){ return self.clients.claim(); })
@@ -78,8 +97,26 @@ self.addEventListener("fetch", function(e){
     return;
   }
 
-  /* TMDB images — passthrough (don't intercept cross-origin opaque responses) */
+  /* TMDB images — Cache-First against the capped runtime cache, so posters
+     and backdrops keep showing offline instead of breaking. Opaque no-cors
+     responses (status 0) are cacheable and playable back as <img src>. */
   if(url.includes("image.tmdb.org")){
+    e.respondWith(
+      caches.open(POSTER_CACHE).then(function(cache){
+        return cache.match(e.request).then(function(cached){
+          if(cached){
+            /* Serve the cached copy instantly, refresh it in the background. */
+            fetch(e.request).then(function(res){ return cache.put(e.request, res); }).catch(function(){});
+            return cached;
+          }
+          return fetch(e.request).then(function(res){
+            cache.put(e.request, res.clone());
+            trimPosterCache();
+            return res;
+          });
+        });
+      })
+    );
     return;
   }
 

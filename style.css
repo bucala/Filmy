@@ -807,6 +807,17 @@ input,textarea,.tmdb-inp,select{
 /* detSc, statSc still need full screen — keep position:fixed;inset:0 for them */
 #detSc,#statSc{position:fixed;inset:0;z-index:50}
 
+/* Detail screen open/close — MD3 emphasized motion. .det-anim-init is the
+   "closed" visual state; the transition that plays is whichever rule is
+   active on the state being entered (browsers animate using the new
+   computed transition), so this one class + a base rule gives a decelerate
+   curve on enter and an accelerate curve on exit for free. */
+#detSc{transition:opacity .28s cubic-bezier(.05,.7,.1,1),transform .28s cubic-bezier(.05,.7,.1,1)}
+#detSc.det-anim-init{opacity:0;transform:translateY(20px) scale(.98);transition:opacity .22s cubic-bezier(.3,0,.8,.15),transform .22s cubic-bezier(.3,0,.8,.15)}
+@media(prefers-reduced-motion:reduce){
+  #detSc,#detSc.det-anim-init{transition:none}
+}
+
 /* ══════════════════════════════════════════════════════════════════
    SETTINGS — clear visual grouping
    ══════════════════════════════════════════════════════════════════ */
