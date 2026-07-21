@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-20T19:21:11.403Z",
+  "updated": "2026-07-21T22:54:54.055Z",
   "movies": [
     {
       "id": 1,
@@ -6741,7 +6741,7 @@
       "_yt": "1m5gxQh5jeo",
       "_tmdbUrl": "https://www.themoviedb.org/movie/598",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2002 - Mesto bohu.m3u",
+      "_localPath": "W:\\\\Movies\\\\2002 - Mesto bohu.mkv",
       "_rtScore": 91,
       "_pctImdb": 86
     },
@@ -7846,7 +7846,7 @@
       "_yt": "rJrdbpjUaQ8",
       "_tmdbUrl": "https://www.themoviedb.org/movie/435",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2004 - Den Pote.m3u",
+      "_localPath": "W:\\\\Movies\\\\2004 - Den Pote.mkv",
       "_rtScore": 45,
       "_pctImdb": 65,
       "_csfdUrl": "https://www.csfd.cz/film/107279-den-pote/",
@@ -13627,7 +13627,7 @@
       "_yt": "Sazl_ENTWXE",
       "_tmdbUrl": "https://www.themoviedb.org/movie/27205",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2010 - Pocatek.m3u",
+      "_localPath": "W:\\\\Movies\\\\2010 - Pocatek.mkv",
       "_rtScore": 87,
       "_pctImdb": 88,
       "_csfdUrl": "https://www.csfd.cz/film/254156-pocatek/",
@@ -16297,7 +16297,7 @@
       "_yt": "UFPqyNvNzvU",
       "_tmdbUrl": "https://www.themoviedb.org/movie/146238",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2012 - Muz na hrane.mkv",
+      "_localPath": "W:\\\\Movies\\\\2013 - Hra na hrane.mkv",
       "_rtScore": 8,
       "_pctImdb": 56
     },
@@ -24788,7 +24788,7 @@
       "_yt": "07Y4_6PD0Z4",
       "_tmdbUrl": "https://www.themoviedb.org/movie/493551",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2018 - Operace Eichmann.m3u",
+      "_localPath": "W:\\\\Movies\\\\2018 - Operace Eichmann.mkv",
       "_rtScore": 60,
       "_pctImdb": 66,
       "_csfdUrl": "https://www.csfd.cz/film/602653-operace-eichmann/",
@@ -29023,7 +29023,7 @@
       "_yt": "D13jD6Hab5E",
       "_tmdbUrl": "https://www.themoviedb.org/movie/529203",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2020 - Croodsovi - Novy vek.m3u",
+      "_localPath": "W:\\\\Movies\\\\2020 - Croodsovi - Novy vek.mkv",
       "_rtScore": 76,
       "_csfdUrl": "https://www.csfd.cz/film/363349-croodsovi-novy-vek/",
       "_pctCsfd": 72
@@ -30561,7 +30561,7 @@
       "_yt": "SwnrcDpfr0g",
       "_tmdbUrl": "https://www.themoviedb.org/movie/577922",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2020 - Tenet.m3u",
+      "_localPath": "W:\\\\Movies\\\\2020 - Tenet.mkv",
       "_rtScore": 70,
       "_csfdUrl": "https://www.csfd.cz/film/693159-tenet/",
       "_pctCsfd": 73
@@ -43121,7 +43121,7 @@
       "_yt": "49LSZHorN1o",
       "_tmdbUrl": "https://www.themoviedb.org/movie/598",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2002 - Mesto bohu.m3u",
+      "_localPath": "W:\\\\Movies\\\\2002 - Mesto bohov.mkv",
       "_rtScore": 91,
       "_pctImdb": 86
     },
@@ -44538,7 +44538,7 @@
       "_yt": "a60hJy5M8l0",
       "_tmdbUrl": "https://www.themoviedb.org/movie/950387",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2025 - Minecraft Film.m3u",
+      "_localPath": "W:\\\\Movies\\\\2025 - Minecraft Film.mkv",
       "_rtScore": 48,
       "_csfdUrl": "https://www.csfd.cz/film/377071-minecraft-film/",
       "_pctCsfd": 54
@@ -47729,7 +47729,8 @@
       "rating": 0,
       "tmdbId": 1368314,
       "_csfdUrl": "https://www.csfd.cz/film/1794759-pasazer/prehled/",
-      "_pctCsfd": 57
+      "_pctCsfd": 57,
+      "_localPath": "W:\\\\Movies\\\\2026 - Pasazer.mkv"
     },
     {
       "id": 1757,
@@ -47746,7 +47747,9 @@
       "description": "Je to už neuveriteľných 26 rokov, odkedy nemilosrdný vrah Ghostface prvýkrát naháňal štvoricu tínedžerov, ktorí boli príliš mimo na to, aby sa dali jednoducho zlikvidovať. Prežili civilizačné choroby,  krízu stredného aj bližšie nešpecifikované pohromy a dnes sú späť, aby si podali všetko, čo v hororovom žánri za posledné roky vzniklo. Či už ide o duchárske historky, krvavé sekačky alebo ambiciózne remaky, nikto si nemôže byť istý. Po rokoch bizarných experimentov a návratov na plátno sú opäť tu",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/v0zpM586W8zzQVqlq5CTlBUpmqT.jpg",
       "rating": 0,
-      "tmdbId": 1273221
+      "tmdbId": 1273221,
+      "_localPath": "W:\\Movies\\Scary Movie\\2026 - Scary Movie.mkv",
+      "_csfdUrl": "https://www.csfd.cz/film/1513455-scary-movie/prehled/"
     }
   ],
   "favourites": [],
