@@ -214,6 +214,13 @@
       <option value="dur">Podľa dĺžky</option>
     </select>
   </div>
+  <div class="sett-row" style="display:flex;align-items:center;gap:10px">
+    <span class="sett-lbl" style="flex:1">Zobraziť "Naposledy pridané"</span>
+    <label class="switch">
+      <input type="checkbox" id="showRecentTog" aria-label="Zobraziť rad Naposledy pridané na hlavnej obrazovke">
+      <span class="slider"></span>
+    </label>
+  </div>
 
   <!-- ════ VZHĽAD / SKIN ════════════════════════════════════════ -->
   <div class="sett-sec"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12" r="1.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.5-.62 1.5-1.5 0-.39-.15-.75-.38-1.02-.22-.26-.37-.61-.37-1 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.52-4.48-9.5-10-9.5z"/></svg>Vzhľad / Skin</div>
@@ -597,6 +604,14 @@
       <label class="sett-lbl" style="font-size:10px">ČSFD URL:</label>
       <input class="sett-key-inp" id="adminFixCsfdInp" type="text" placeholder="https://www.csfd.cz/film/..." autocomplete="off" style="width:100%">
     </div>
+    <div class="sett-sub-row" style="margin-top:8px">
+      <label class="sett-lbl" style="font-size:10px">ČSFD hodnotenie (%):</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input class="sett-key-inp" id="adminFixCsfdPctInp" type="number" min="0" max="100" placeholder="napr. 78" style="flex:1;min-width:80px">
+        <button class="sett-btn secondary" id="adminFixCsfdFetchBtn" type="button" style="flex:1;min-width:150px" title="Načítať hodnotenie z ČSFD URL vyššie">&#x2B07; Načítať z URL</button>
+      </div>
+      <div class="sett-key-st" id="adminFixCsfdSt" style="margin-top:4px"></div>
+    </div>
     <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
       <button class="sett-btn primary" id="adminFixSaveBtn" style="flex:1">
         <span class="sett-btn-label">Uložiť zmeny</span>
@@ -743,6 +758,13 @@
     <span class="fp-lbl">Min. %</span>
     <input class="fp-slider" id="fpRatingSlider" type="range" min="0" max="100" step="5" value="0" title="Minimálne percento TMDB" aria-label="Minimálne percento TMDB">
     <span class="fp-val" id="fpRatingVal">0%</span>
+  </div>
+
+  <div class="fp-sec">MIN. HODNOTENIE ČSFD</div>
+  <div class="fp-row">
+    <span class="fp-lbl">Min. %</span>
+    <input class="fp-slider" id="fpCsfdSlider" type="range" min="0" max="100" step="5" value="0" title="Minimálne percento ČSFD" aria-label="Minimálne percento ČSFD">
+    <span class="fp-val" id="fpCsfdVal">0%</span>
   </div>
 
   <div class="fp-sec">KRAJINA</div>
