@@ -8,6 +8,7 @@
      menu -> settings
    Focus visibility is handled purely in CSS via :focus-visible + .tv rules. */
 import { S } from './state.js';
+import { nearestInDirection } from './lib/nav.js';
 
 /* ── Long-press state (Enter held 1.5 s → quick-action overlay) ── */
 var _lpCard = null, _lpTimer = null, _lpFired = false;
@@ -89,26 +90,20 @@ function pick(dir, cur, cands) {
   var curGroup = groupOf(cur);
   var cr = curGroup ? curGroup.getBoundingClientRect() : cur.getBoundingClientRect();
   var cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
-  var best = null, bestScore = Infinity, bestGroup = null;
+  var points = [];
   for (var i = 0; i < cands.length; i++) {
     var el = cands[i];
     if (el === cur) continue;
     var elGroup = groupOf(el);
     if (vertical && elGroup && elGroup === curGroup) continue; // same row — not a vertical target
     var r = (vertical && elGroup) ? elGroup.getBoundingClientRect() : el.getBoundingClientRect();
-    var x = r.left + r.width / 2, y = r.top + r.height / 2;
-    var dx = x - cx, dy = y - cy;
-    var primary, cross;
-    if (dir === 'right') { if (dx <= 1) continue; primary = dx; cross = Math.abs(dy); }
-    else if (dir === 'left') { if (dx >= -1) continue; primary = -dx; cross = Math.abs(dy); }
-    else if (dir === 'down') { if (dy <= 1) continue; primary = dy; cross = Math.abs(dx); }
-    else { if (dy >= -1) continue; primary = -dy; cross = Math.abs(dx); }
-    // Weight cross-axis so we prefer elements aligned with the travel direction.
-    var score = primary + cross * 2;
-    if (score < bestScore) { bestScore = score; best = el; bestGroup = elGroup; }
+    points.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, el: el, group: elGroup });
   }
+  var winner = nearestInDirection(dir, cx, cy, points);
+  if (!winner) return null;
+  var best = winner.el, bestGroup = winner.group;
   // Entering a toggle group vertically always lands on its active member.
-  if (best && vertical && bestGroup) {
+  if (vertical && bestGroup) {
     var onBtn = bestGroup.querySelector('.ttab.on') || bestGroup.querySelector('.ttab');
     if (onBtn && cands.indexOf(onBtn) !== -1) best = onBtn;
   }

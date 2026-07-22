@@ -1,43 +1,13 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
-import { buildMovieFilename, normalizeSlashes } from './lib/text.js';
+import { localPathToSmb as localPathToSmbPure, getMoviePath as getMoviePathPure } from './lib/paths.js';
 
 S.localPathToSmb = function localPathToSmb(localPath) {
-  var p = normalizeSlashes(localPath);
-  for (var local in S.smbMap) {
-    var localNorm = normalizeSlashes(local);
-    if (localNorm[localNorm.length-1] !== '/') localNorm += '/';
-    if (p.indexOf(localNorm) === 0 || p.toLowerCase().indexOf(localNorm.toLowerCase()) === 0) {
-      var smbVal = S.smbMap[local];
-      if (smbVal[smbVal.length-1] !== '/') smbVal += '/';
-      return smbVal + p.substring(localNorm.length);
-    }
-  }
-  var driveMatch = p.match(/^([A-Za-z]):\//);
-  if (driveMatch) {
-    var base = S.smbBase;
-    if (base[base.length-1] !== '/') base += '/';
-    var afterDrive = p.substring(3);
-    var baseDir = base.replace(/^smb:\/\/[^/]+\//, '');
-    if (baseDir && afterDrive.indexOf(baseDir) === 0) {
-      afterDrive = afterDrive.substring(baseDir.length);
-    }
-    return base + afterDrive;
-  }
-  return p;
+  return localPathToSmbPure(localPath, S.smbMap, S.smbBase);
 };
 
 S.getMoviePath = function getMoviePath(m) {
-  var rawPath = m._localPath || '';
-  if (!rawPath) {
-    rawPath = 'W:/Movies/' + buildMovieFilename(m);
-  } else {
-    rawPath = rawPath.replace(/\\/g, '/');
-  }
-  if (S.pathMode === 'smb') {
-    return S.localPathToSmb(rawPath);
-  }
-  return rawPath;
+  return getMoviePathPure(m, { pathMode: S.pathMode, smbMap: S.smbMap, smbBase: S.smbBase });
 };
 
 S.getPlayModeLabel = function getPlayModeLabel() {

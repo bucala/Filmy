@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esc, hexDim, removeDiacritics, normalizeSlashes, buildMovieFilename, levenshtein } from '../src/lib/text.js';
+import { esc, hexDim, removeDiacritics, normalizeSlashes, buildMovieFilename, levenshtein, tmdbSrcset } from '../src/lib/text.js';
 
 describe('esc', () => {
   it('escapes HTML-sensitive characters', () => {
@@ -42,6 +42,22 @@ describe('buildMovieFilename', () => {
   });
   it('uses 0000 when year is missing', () => {
     expect(buildMovieFilename({ title: 'Test' })).toBe('0000 - Test.mkv');
+  });
+});
+
+describe('tmdbSrcset', () => {
+  it('builds a multi-size srcset from a w<N>-sized TMDB URL', () => {
+    expect(tmdbSrcset('https://image.tmdb.org/t/p/w342/abc123.jpg')).toBe(
+      'https://image.tmdb.org/t/p/w92/abc123.jpg 92w, https://image.tmdb.org/t/p/w154/abc123.jpg 154w, ' +
+      'https://image.tmdb.org/t/p/w185/abc123.jpg 185w, https://image.tmdb.org/t/p/w342/abc123.jpg 342w, ' +
+      'https://image.tmdb.org/t/p/w500/abc123.jpg 500w'
+    );
+  });
+  it('returns an empty string for non-TMDB or size-less URLs', () => {
+    expect(tmdbSrcset('data:image/jpeg;base64,XXXX')).toBe('');
+    expect(tmdbSrcset('https://image.tmdb.org/t/p/original/abc123.jpg')).toBe('');
+    expect(tmdbSrcset('')).toBe('');
+    expect(tmdbSrcset(undefined)).toBe('');
   });
 });
 

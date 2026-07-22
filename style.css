@@ -17,6 +17,20 @@
    9000       : .m-ov (modal overlay)
    9999       : body::before (theme background layer)
    ══════════════════════════════════════════════════════ */
+
+/* Global reduced-motion kill-switch — collapses every transition/animation
+   in the app to effectively instant, for users who have this OS/browser
+   preference set. Covers detail-screen transitions, skeleton shimmer, and
+   any future CSS animation without needing a per-component override. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    transition-duration:.001ms!important;
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    scroll-behavior:auto!important;
+  }
+}
+
 :root{
   /* ── Typography — Material 3 · Roboto everywhere ── */
   --font:'Roboto','Roboto Flex',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -101,6 +115,9 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .hdr-btn-sett{background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
   color:var(--on-primary);box-shadow:0 2px 12px rgba(var(--gold-rgb),.35)}
 .hdr-btn-sett:hover{box-shadow:0 4px 18px rgba(var(--gold-rgb),.5)}
+
+.hdr-btn-install{background:var(--card2);color:var(--text2);border:1px solid var(--border2)}
+.hdr-btn-install:hover{color:var(--gold);border-color:var(--gold)}
 
 /* ── Row 2 ──────────────────────────────────────────────────────── */
 .hdr-row2{display:flex;align-items:stretch;
@@ -776,6 +793,11 @@ input,textarea,.tmdb-inp,select{
 
 /* When header is taller (e.g. with batchBar shown), adjust via JS */
 
+/* Home rows — "Continue watching" / "Recently added" strips shown only
+   on the default, unfiltered browsing view. Reuses .sec/.similar-row/.sim-*
+   from the detail screen's "similar films" feature. */
+.home-rows{flex-shrink:0;padding:8px 9px 0}
+
 /* mlist inside scrnBody — proper flex scroll */
 .mlist{
   flex:1;min-height:0;
@@ -814,9 +836,6 @@ input,textarea,.tmdb-inp,select{
    curve on enter and an accelerate curve on exit for free. */
 #detSc{transition:opacity .28s cubic-bezier(.05,.7,.1,1),transform .28s cubic-bezier(.05,.7,.1,1)}
 #detSc.det-anim-init{opacity:0;transform:translateY(20px) scale(.98);transition:opacity .22s cubic-bezier(.3,0,.8,.15),transform .22s cubic-bezier(.3,0,.8,.15)}
-@media(prefers-reduced-motion:reduce){
-  #detSc,#detSc.det-anim-init{transition:none}
-}
 
 /* ══════════════════════════════════════════════════════════════════
    SETTINGS — clear visual grouping

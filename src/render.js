@@ -1,6 +1,6 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
-import { esc } from './lib/text.js';
+import { esc, tmdbSrcset } from './lib/text.js';
 
 function prefersReducedMotion(){
   return typeof window!=='undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -44,6 +44,37 @@ S.setGenre = function setGenre(g,el){
 
 S.buildFuse = function buildFuse(){
   S.fuseInst=new Fuse(S.all,S.FUSE_OPTS);
+};
+
+/* Builds one horizontal-scroll poster row (reuses the detail screen's
+   "similar films" card markup: data-id makes each card a TV D-pad stop
+   for free, via tv.js's [data-id] rule). */
+S.buildHomeRow = function buildHomeRow(title,movies,rowId){
+  const cards=movies.map(m=>{
+    const poster=m.poster_thumb&&m.poster_thumb.length>10
+      ?`<img class="sim-poster" src="${m.poster_thumb}" srcset="${tmdbSrcset(m.poster_thumb)}" sizes="76px" alt="" loading="lazy">`
+      :'<div class="sim-poster-ph">🎬</div>';
+    return `<div class="sim-card" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title)}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
+  }).join("");
+  return `<div class="sec">${esc(title)}</div><div class="similar-row" id="${rowId}">${cards}</div>`;
+};
+
+/* "Continue watching" (watchlist minus already-watched) and "Recently
+   added" (highest movie numbers) rows, shown only on the default,
+   unfiltered browsing view — see applyFilters(). */
+S.buildHomeRows = function buildHomeRows(){
+  const el=document.getElementById("homeRows");
+  if(!el)return;
+  const continuing=S.all.filter(m=>S.wl.has(m.id)&&!S.watched.has(m.id)).slice(0,12);
+  const recent=S.all.slice().sort((a,b)=>(b.num||0)-(a.num||0)).slice(0,12);
+  let html="";
+  if(continuing.length)html+=S.buildHomeRow("POKRAČOVAŤ V SLEDOVANÍ",continuing,"homeContinueRow");
+  if(recent.length)html+=S.buildHomeRow("NAPOSLEDY PRIDANÉ",recent,"homeRecentRow");
+  el.innerHTML=html;
+  el.style.display=html?"block":"none";
+  el.querySelectorAll(".sim-card").forEach(c=>{
+    c.onclick=function(){S.openDet(parseInt(c.dataset.id,10));};
+  });
 };
 
 S.applyFilters = function applyFilters(){
@@ -107,6 +138,8 @@ S.applyFilters = function applyFilters(){
   S.renderList(list);
   const fpN=S.fpActiveCount();
   const modeActive=q||S.favMode||S.wlMode||S.watchedMode||fpN>0;
+  const hr=document.getElementById("homeRows");
+  if(hr){if(modeActive){hr.style.display="none";}else{S.buildHomeRows();}}
   let label=modeActive?`${list.length} z ${S.all.length} filmov`:`${S.all.length} filmov`;
   if(S.wlMode&&!q&&!fpN)label=`Watchlist: ${list.length} filmov`;
   if(S.favMode&&!q&&!fpN)label=`Obľúbené: ${list.length} filmov`;
@@ -285,12 +318,12 @@ S.cardHTML = function cardHTML(m){
   const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
   if(S.posterWall){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
-    return `<div class="pwcard" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}</div>`;
+    return `<div class="pwcard" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${m.poster_thumb}" srcset="${tmdbSrcset(m.poster_thumb)}" sizes="(max-width:520px) 33vw, (max-width:1000px) 140px, 160px" alt="${esc(m.title||'')}" loading="lazy">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}</div>`;
   }
   if(S.grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${m.poster_thumb}" srcset="${tmdbSrcset(m.poster_thumb)}" sizes="128px" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${S.FILM_ICO}</div>`;
     return `<div class="mcard" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title||'')} (${m.year||''})">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
@@ -341,7 +374,12 @@ S.openDet = function openDet(id){
     if(blurEl)blurEl.style.display="none";
   }
   const ins=document.getElementById("detInset"); ins.style.display=hp?"block":"none";
-  if(hp)document.getElementById("detInsetImg").src=m.poster_thumb;
+  if(hp){
+    const insImg=document.getElementById("detInsetImg");
+    insImg.src=m.poster_thumb;
+    insImg.srcset=tmdbSrcset(m.poster_thumb);
+    insImg.sizes="100px";
+  }
   document.getElementById("detBg").style.display=hp?"none":"block";
 
   const fav=S.favs.has(id);
@@ -899,7 +937,7 @@ S.buildSimilarHtml = function buildSimilarHtml(movie){
   if(!similar.length)return "";
   const cards=similar.map(m=>{
     const poster=m.poster_thumb&&m.poster_thumb.length>10
-      ?`<img class="sim-poster" src="${m.poster_thumb}" alt="" loading="lazy">`
+      ?`<img class="sim-poster" src="${m.poster_thumb}" srcset="${tmdbSrcset(m.poster_thumb)}" sizes="76px" alt="" loading="lazy">`
       :'<div class="sim-poster-ph">🎬</div>';
     return `<div class="sim-card" data-sid="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title)}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
   }).join("");

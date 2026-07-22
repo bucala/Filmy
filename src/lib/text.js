@@ -31,6 +31,17 @@ export function buildMovieFilename(m) {
   return (m.year || '0000') + ' - ' + title + '.mkv';
 }
 
+/* Builds a responsive srcset from a TMDB "w<N>/<path>" poster/backdrop
+   URL, letting the browser pick the best-fitting size instead of always
+   downloading whatever fixed size happens to be stored. Returns '' for
+   non-TMDB URLs (data: URIs, "original" size, empty/missing posters). */
+export function tmdbSrcset(url) {
+  var m = /^(https:\/\/image\.tmdb\.org\/t\/p\/)w\d+(\/.+)$/.exec(url || '');
+  if (!m) return '';
+  var base = m[1], path = m[2];
+  return [92, 154, 185, 342, 500].map(function (w) { return base + 'w' + w + path + ' ' + w + 'w'; }).join(', ');
+}
+
 export function normalizeSlashes(s) {
   return s.replace(/\\/g, '/').replace(/\/{2,}/g, '/');
 }

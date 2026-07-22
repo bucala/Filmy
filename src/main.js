@@ -10,7 +10,7 @@ import './tv.js';
 import { esc, levenshtein } from './lib/text.js';
 import { parseCsfdPercent, parseCsvLine } from './lib/parse.js';
 
-console.log("[FilmDB] v" + S.APP_VERSION + " loaded ✅");
+if (S.debugMode) console.log("[FilmDB] v" + S.APP_VERSION + " loaded ✅");
 
 S.loadScript = function loadScript(url){
   if(S._scriptCache[url])return S._scriptCache[url];
@@ -358,7 +358,7 @@ S.toast(_modeLabel);
       }
     }
     if(stEl){stEl.textContent='Posielam: '+testUrl;stEl.className='sett-key-st ok';}
-    console.log('[FilmDB] Test handler URL:',testUrl);
+    if (S.debugMode) console.log('[FilmDB] Test handler URL:',testUrl);
     window.location.href=testUrl;
     setTimeout(function(){
       if(stEl){stEl.innerHTML='Odoslané: <code>'+esc(testUrl)+'</code><br>Ak sa prehrávač neotvoril, handler nie je správne zaregistrovaný.';stEl.className='sett-key-st';}
@@ -380,6 +380,28 @@ S.toast(_modeLabel);
     S.settSetView(S.VIEW_MODES[(ni+1)%S.VIEW_MODES.length]);
   });
   var _ebtnSet=document.getElementById("btnSett");if(_ebtnSet)_ebtnSet.addEventListener("click",S.openSett);
+
+  // Custom "Install app" button — hidden until the browser tells us install
+  // is possible, then triggers the native prompt instead of a URL bar icon.
+  var _btnInstall=document.getElementById("btnInstall");
+  var _deferredInstallPrompt=null;
+  window.addEventListener("beforeinstallprompt",function(e){
+    e.preventDefault();
+    _deferredInstallPrompt=e;
+    if(_btnInstall)_btnInstall.classList.remove("hidden");
+  });
+  if(_btnInstall)_btnInstall.addEventListener("click",function(){
+    if(!_deferredInstallPrompt)return;
+    _deferredInstallPrompt.prompt();
+    _deferredInstallPrompt.userChoice.finally(function(){
+      _deferredInstallPrompt=null;
+      if(_btnInstall)_btnInstall.classList.add("hidden");
+    });
+  });
+  window.addEventListener("appinstalled",function(){
+    if(_btnInstall)_btnInstall.classList.add("hidden");
+    _deferredInstallPrompt=null;
+  });
   document.getElementById("btnStat").addEventListener("click",S.showStats);
   document.getElementById("btnFav").addEventListener("click",function(){
     S.favMode=!S.favMode;S.wlMode=false;
