@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-21T22:54:54.055Z",
+  "updated": "2026-07-22T10:26:05.052Z",
   "movies": [
     {
       "id": 1,
@@ -47749,7 +47749,8 @@
       "rating": 0,
       "tmdbId": 1273221,
       "_localPath": "W:\\Movies\\Scary Movie\\2026 - Scary Movie.mkv",
-      "_csfdUrl": "https://www.csfd.cz/film/1513455-scary-movie/prehled/"
+      "_csfdUrl": "https://www.csfd.cz/film/1513455-scary-movie/prehled/",
+      "_pctCsfd": 50
     }
   ],
   "favourites": [],
