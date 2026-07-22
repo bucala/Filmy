@@ -6,7 +6,7 @@ function prefersReducedMotion(){
   return typeof window!=='undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-S.fpActiveCount = function fpActiveCount(){var n=0;if(S.fpState.yearFrom>0)n++;if(S.fpState.yearTo>0)n++;if(S.fpState.minRating>0)n++;if(S.fpState.country)n++;if(S.fpState.genres.length>0)n++;if(S.fpState.tag)n++;return n;};
+S.fpActiveCount = function fpActiveCount(){var n=0;if(S.fpState.yearFrom>0)n++;if(S.fpState.yearTo>0)n++;if(S.fpState.minRating>0)n++;if(S.fpState.minRatingCsfd>0)n++;if(S.fpState.country)n++;if(S.fpState.genres.length>0)n++;if(S.fpState.tag)n++;return n;};
 
 S.renderAll = function renderAll(){
   S.buildChips();
@@ -66,10 +66,12 @@ S.buildHomeRows = function buildHomeRows(){
   const el=document.getElementById("homeRows");
   if(!el)return;
   const continuing=S.all.filter(m=>S.wl.has(m.id)&&!S.watched.has(m.id)).slice(0,12);
-  const recent=S.all.slice().sort((a,b)=>(b.num||0)-(a.num||0)).slice(0,12);
   let html="";
   if(continuing.length)html+=S.buildHomeRow("POKRAČOVAŤ V SLEDOVANÍ",continuing,"homeContinueRow");
-  if(recent.length)html+=S.buildHomeRow("NAPOSLEDY PRIDANÉ",recent,"homeRecentRow");
+  if(S.prefs.showRecent){
+    const recent=S.all.slice().sort((a,b)=>(b.num||0)-(a.num||0)).slice(0,12);
+    if(recent.length)html+=S.buildHomeRow("NAPOSLEDY PRIDANÉ",recent,"homeRecentRow");
+  }
   el.innerHTML=html;
   el.style.display=html?"block":"none";
   el.querySelectorAll(".sim-card").forEach(c=>{
@@ -95,6 +97,9 @@ S.applyFilters = function applyFilters(){
     if(S.fpState.minRating>0){
       const pct=S.getMoviePct(m);
       if(pct===null||pct<S.fpState.minRating)return false;
+    }
+    if(S.fpState.minRatingCsfd>0){
+      if(m._pctCsfd==null||m._pctCsfd<S.fpState.minRatingCsfd)return false;
     }
     if(S.fpState.country){
       if(!(m.country||"").toLowerCase().includes(S.fpState.country.toLowerCase()))return false;
@@ -755,6 +760,8 @@ S.openFp = function openFp() {
   document.getElementById('fpYearTo').value      = S.fpState.yearTo   || '';
   document.getElementById('fpRatingSlider').value = S.fpState.minRating;
   document.getElementById('fpRatingVal').textContent = S.fpState.minRating + '%';
+  document.getElementById('fpCsfdSlider').value = S.fpState.minRatingCsfd;
+  document.getElementById('fpCsfdVal').textContent = S.fpState.minRatingCsfd + '%';
   var tagInp=document.getElementById('fpTag');if(tagInp)tagInp.value=S.fpState.tag||'';
 
   overlay.classList.add('open');
@@ -772,6 +779,7 @@ S.applyFp = function applyFp() {
   S.fpState.yearFrom  = parseInt(document.getElementById('fpYearFrom').value)  || 0;
   S.fpState.yearTo    = parseInt(document.getElementById('fpYearTo').value)    || 0;
   S.fpState.minRating = parseInt(document.getElementById('fpRatingSlider').value) || 0;
+  S.fpState.minRatingCsfd = parseInt(document.getElementById('fpCsfdSlider').value) || 0;
   S.fpState.country   = document.getElementById('fpCountry').value;
   S.fpState.tag       = (document.getElementById('fpTag')||{}).value||'';
   // genres already updated live via chip clicks
@@ -791,12 +799,14 @@ S.applyFp = function applyFp() {
 };
 
 S.resetFp = function resetFp() {
-  S.fpState = { yearFrom:0, yearTo:0, minRating:0, country:'', genres:[], tag:'' };
+  S.fpState = { yearFrom:0, yearTo:0, minRating:0, minRatingCsfd:0, country:'', genres:[], tag:'' };
   S.genre   = '';
   document.getElementById('fpYearFrom').value     = '';
   document.getElementById('fpYearTo').value       = '';
   document.getElementById('fpRatingSlider').value = 0;
   document.getElementById('fpRatingVal').textContent = '0%';
+  document.getElementById('fpCsfdSlider').value   = 0;
+  document.getElementById('fpCsfdVal').textContent = '0%';
   document.getElementById('fpCountry').value      = '';
   var tagInp=document.getElementById('fpTag');if(tagInp)tagInp.value='';
   document.querySelectorAll('.fp-genre-chip').forEach(function(c) { c.classList.remove('on'); });
@@ -839,6 +849,9 @@ S.updateFpPills = function updateFpPills() {
   if (S.fpState.minRating > 0) {
     pill('⭐ min ' + S.fpState.minRating + '%', function() { S.fpState.minRating=0; S.updateFpBadge(); S.updateFpPills(); S.applyFilters(); });
   }
+  if (S.fpState.minRatingCsfd > 0) {
+    pill('ČSFD min ' + S.fpState.minRatingCsfd + '%', function() { S.fpState.minRatingCsfd=0; S.updateFpBadge(); S.updateFpPills(); S.applyFilters(); });
+  }
   if (S.fpState.country) {
     pill('🌍 ' + S.fpState.country, function() { S.fpState.country=''; S.updateFpBadge(); S.updateFpPills(); S.applyFilters(); });
   }
@@ -865,6 +878,9 @@ S.initFp = function initFp() {
   document.getElementById('fpReset').addEventListener('click', S.resetFp);
   document.getElementById('fpRatingSlider').addEventListener('input', function() {
     document.getElementById('fpRatingVal').textContent = this.value + '%';
+  });
+  document.getElementById('fpCsfdSlider').addEventListener('input', function() {
+    document.getElementById('fpCsfdVal').textContent = this.value + '%';
   });
 };
 

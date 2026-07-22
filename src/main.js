@@ -429,6 +429,16 @@ S.toast(_modeLabel);
   var _ettabLi=document.getElementById("ttabList");if(_ettabLi)_ettabLi.addEventListener("click",function(){S.settSetView("list");});
   var _ettabGr=document.getElementById("ttabGrid");if(_ettabGr)_ettabGr.addEventListener("click",function(){S.settSetView("grid");});
   document.getElementById("settSortSel").addEventListener("change",function(){S.settSetSort(this.value);});
+  var _srt=document.getElementById('showRecentTog');
+  if(_srt){
+    _srt.checked = S.prefs.showRecent === true;
+    _srt.addEventListener('change',function(){
+      S.prefs.showRecent = this.checked;
+      S.savePrefs();
+      S.applyFilters();
+      S.toast('Naposledy pridané: '+(this.checked?'zapnuté':'vypnuté'));
+    });
+  }
   var _etmdbSa=document.getElementById("tmdbSaveKey");if(_etmdbSa)_etmdbSa.addEventListener("click",function(){var k=document.getElementById("tmdbKeyInp").value.trim();S.tmdbKey=k;localStorage.setItem("tmdb_key",k);S.keyStatus("tmdbKeySt",k);S.toast(k?"TMDB k\u013E\u00FA\u010D ulo\u017Een\u00FD":"TMDB k\u013E\u00FA\u010D vymazan\u00FD");});
   document.getElementById("settBtnPdf").addEventListener("click",S.impPdf);
   var _eBatch=document.getElementById("settBtnBatch");if(_eBatch)_eBatch.addEventListener("click",S.settStartBatch);
@@ -463,6 +473,8 @@ S.toast(_modeLabel);
     var sel=document.getElementById('adminFixMovieSel');
     if(sel&&sel.value) S.openMatchPanel(parseInt(sel.value,10));
   });
+  var _afCsfdFetch=document.getElementById('adminFixCsfdFetchBtn');
+  if(_afCsfdFetch) _afCsfdFetch.addEventListener('click',S.adminFixCsfdFetch);
 
   // Admin tab: automatické párovanie ciest
   var _apBtn=document.getElementById('adminAutoPairBtn');

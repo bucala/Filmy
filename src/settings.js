@@ -537,9 +537,9 @@ S.clearAllData = function clearAllData(){
     localStorage.setItem('mdb_empty','1');
   }catch(e){}
   S.liveCache={};S.favs=new Set();S.wl=new Set();S.watched=new Set();S.watchedDates={};
-  S.genre='';S.fpState={yearFrom:0,yearTo:0,minRating:0,country:'',genres:[]};
+  S.genre='';S.fpState={yearFrom:0,yearTo:0,minRating:0,minRatingCsfd:0,country:'',genres:[]};
   S.favMode=false;S.wlMode=false;S.watchedMode=false;
-  S.prefs={view:'list',sort:'num',sortDir:'desc'};
+  S.prefs={view:'list',sort:'num',sortDir:'desc',showRecent:false};
   S.all=[];S.filt=[];S.closeSett();
   S.fuseInst=null; // reset Fuse index on clear
   var ml=document.getElementById('mlist');if(ml)ml.style.display='none';
@@ -1265,11 +1265,15 @@ S.adminFixLoadMovie = function adminFixLoadMovie(id){
   var pathInp=document.getElementById('adminFixPathInp');
   var imdbInp=document.getElementById('adminFixImdbInp');
   var csfdInp=document.getElementById('adminFixCsfdInp');
+  var csfdPctInp=document.getElementById('adminFixCsfdPctInp');
   if(pathInp) pathInp.value=m._localPath||'';
   if(imdbInp){var c=S.liveCache[id];imdbInp.value=(c&&c.imdbUrl)||'';}
   if(csfdInp) csfdInp.value=m._csfdUrl||'';
+  if(csfdPctInp) csfdPctInp.value=m._pctCsfd!=null?m._pctCsfd:'';
   var st=document.getElementById('adminFixSt');
   if(st){st.textContent='';st.className='sett-key-st';}
+  var cst=document.getElementById('adminFixCsfdSt');
+  if(cst){cst.textContent='';cst.className='sett-key-st';}
 };
 
 S.adminFixSave = function adminFixSave(){
@@ -1281,8 +1285,14 @@ S.adminFixSave = function adminFixSave(){
   var pathInp=document.getElementById('adminFixPathInp');
   var imdbInp=document.getElementById('adminFixImdbInp');
   var csfdInp=document.getElementById('adminFixCsfdInp');
+  var csfdPctInp=document.getElementById('adminFixCsfdPctInp');
   if(pathInp) m._localPath=pathInp.value.trim();
   if(csfdInp){var cv=csfdInp.value.trim();if(cv)m._csfdUrl=cv;else delete m._csfdUrl;}
+  if(csfdPctInp){
+    var pv=csfdPctInp.value.trim();
+    if(pv===''){delete m._pctCsfd;}
+    else{var pct=Math.max(0,Math.min(100,parseInt(pv,10)));if(!isNaN(pct))m._pctCsfd=pct;}
+  }
   if(imdbInp){
     var iv=imdbInp.value.trim();
     if(!S.liveCache[id]) S.liveCache[id]={};
@@ -1292,9 +1302,33 @@ S.adminFixSave = function adminFixSave(){
   S.saveAllData();
   S.scheduleAutoPush('admin-fix');
   if(S.curId===id) S.openDet(id);
+  S.renderAll();
   var st=document.getElementById('adminFixSt');
   if(st){st.textContent='✓ Uložené';st.className='sett-key-st ok';}
   S.toast('Zmeny uložené');
+};
+
+/* Auto-fill the ČSFD % field by scraping the rating off the ČSFD URL above it. */
+S.adminFixCsfdFetch = function adminFixCsfdFetch(){
+  var urlInp=document.getElementById('adminFixCsfdInp');
+  var pctInp=document.getElementById('adminFixCsfdPctInp');
+  var cst=document.getElementById('adminFixCsfdSt');
+  var url=urlInp?urlInp.value.trim():'';
+  if(!url){if(cst){cst.textContent='Najprv zadaj ČSFD URL vyššie.';cst.className='sett-key-st err';}return;}
+  if(cst){cst.textContent='Načítavam z ČSFD...';cst.className='sett-key-st';}
+  fetch('/api/csfd?url='+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d.rating!=null){
+        if(pctInp)pctInp.value=d.rating;
+        if(cst){cst.textContent='✓ Načítané: '+d.rating+'%';cst.className='sett-key-st ok';}
+      } else {
+        if(cst){cst.textContent='Hodnotenie sa na stránke nenašlo.';cst.className='sett-key-st err';}
+      }
+    })
+    .catch(function(){
+      if(cst){cst.textContent='Chyba načítania stránky.';cst.className='sett-key-st err';}
+    });
 };
 
 /* ═══════════════ Admin: automatické párovanie ciest v priečinku ═══════════════ */
