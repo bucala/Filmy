@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win",
+    "build:win": "electron-builder --win --publish never",
     "build:linux": "electron-builder --linux"
   },
   "build": {
@@ -46,9 +46,15 @@
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "../icon-512.png",
-      "uninstallerIcon": "../icon-512.png"
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Filmy",
+      "artifactName": "${productName}-${version}-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-Portable.${ext}"
     },
     "linux": {
       "target": [

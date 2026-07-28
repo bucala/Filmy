@@ -1257,7 +1257,7 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
 @media (min-width:1100px) and (pointer:fine){
   /* Action buttons become a vertical MD3 navigation rail under the header */
   .hdr-row2-left{
-    position:fixed;left:0;top:88px;bottom:0;width:80px;z-index:45;
+    position:fixed;left:0;top:50px;bottom:0;width:80px;z-index:45;
     flex-direction:column;align-items:center;justify-content:flex-start;
     gap:10px;padding:14px 0;
     background:var(--card);border-right:1px solid var(--border);
@@ -1272,12 +1272,19 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
     box-shadow:0 1px 3px rgba(0,0,0,.35)}
   .hdr-row2-left .bulk-cnt{font-size:11px}
 
-  /* Row 2 keeps only the sort/filter/view cluster, pushed right */
+  /* Row 2 leaves the layout flow: its sort cluster is overlaid on row 1,
+     right of the search box — the empty band under the header disappears.
+     adjustScrnBody() measures the shrunken header and moves content up. */
+  .hdr-row2{position:absolute;top:0;left:auto;right:96px;z-index:2;
+    height:49px;min-height:0;border-top:none;
+    align-items:center;justify-content:flex-end}
   .hdr-row2-div{display:none}
-  .hdr-row2{justify-content:flex-end}
-  .hdr-row2-right{flex:1;justify-content:flex-end}
+  .hdr-row2-right{position:static;background:transparent;padding:0;
+    flex:0;justify-content:flex-end}
+  .hdr-srch{margin-right:320px}
 
-  /* Content area makes room for the rail */
-  .scrn-body{left:80px}
+  /* Content area makes room for the rail and starts right below row 1
+     (JS adjustScrnBody refines the top offset from the real header height) */
+  .scrn-body{left:80px;top:50px}
 }
 
