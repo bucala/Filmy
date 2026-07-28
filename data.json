@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-22T10:26:05.052Z",
+  "updated": "2026-07-28T14:03:41.523Z",
   "movies": [
     {
       "id": 1,
@@ -47751,6 +47751,63 @@
       "_localPath": "W:\\Movies\\Scary Movie\\2026 - Scary Movie.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1513455-scary-movie/prehled/",
       "_pctCsfd": 50
+    },
+    {
+      "id": 1758,
+      "num": 1758,
+      "title": "Star Wars: Mandalorian a Grogu",
+      "year": 2026,
+      "director": "Jon Favreau",
+      "cast": "Pedro Pascal, Jeremy Allen White, Sigourney Weaver, Brendan Wayne, Lateef Crowder, Steve Blum, Jonny Coyne, Matthew Willig, Martin Scorsese, Hemky Madera",
+      "genres": [
+        "Akčný",
+        "Dobrodružný",
+        "Science Fiction"
+      ],
+      "country": "US",
+      "duration": "132 min",
+      "description": "Zlé impérium padlo a jeho bojovníci zostali roztrúsení po celej galaxii. Novo vzniknutá republika sa snaží chrániť všetko, za čo povstalci bojovali, a preto si na pomoc prizvala legendárneho mandalorianskeho lovca odmien Dina Djarina a jeho mladého učňa Groga.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/fGgjOHVRzmRNvpq3ppllw1Y0Y8i.jpg",
+      "rating": 0,
+      "tmdbId": 1228710
+    },
+    {
+      "id": 1759,
+      "num": 1759,
+      "title": "Vládcovia vesmíru",
+      "year": 2026,
+      "director": "Travis Knight",
+      "cast": "Nicholas Galitzine, Camila Mendes, Idris Elba, Jared Leto, Alison Brieová, Jóhannes Haukur Jóhannesson, Jon Xue Zhang, Sam C. Wilson, James Purefoy, Charlotte Riley",
+      "genres": [
+        "Akčný",
+        "Fantasy",
+        "Science Fiction"
+      ],
+      "country": "US",
+      "duration": "132 min",
+      "description": "Nudný život kancelárskeho outsidera Adama sa obráti hore nohami, keď objaví legendárny Meč moci a zistí, že jeho skutočným domovom je magická planéta Eternia. Ako stratený princ vrhnutý do sveta, kde sa futuristická technológia stretáva s prastarou mágiou, musí Adam čeliť armádam zákerného Skeletora. V sprievode drsných rebelov a s dávkou nečakaného humoru vyráža na akčnú adrenalínovú jazdu naprieč fantastickou krajinou, počas ktorej musí ovládnuť silu meča, prijať svoj osud a transformovať sa n",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/6LwZYQbRKjAo099vN1cEdCNA6I7.jpg",
+      "rating": 0,
+      "tmdbId": 454639
+    },
+    {
+      "id": 1760,
+      "num": 1760,
+      "title": "Supergirl",
+      "year": 2026,
+      "director": "Craig Gillespie",
+      "cast": "Milly Alcock, Eve Ridley, Matthias Schoenaerts, Jason Momoa, David Krumholtz, Emily Beecham, David Corenswet, Kadiff Kirwan, Thalissa Teixeira, Ferdinand Kingsley",
+      "genres": [
+        "Akčný",
+        "Dobrodružný",
+        "Science Fiction"
+      ],
+      "country": "US",
+      "duration": "110 min",
+      "description": "Keď nemilosrdný protivník zaútočí príliš blízko domova, drzá a nekonvenčná Kara ZorEl alias Supergirl musí neochotne spolupracovať s nečakanou posilou na epickej medzihviezdnej ceste za pomstou a spravodlivosťou.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/niSvU02l2BONH9ivubV6K1a5QiK.jpg",
+      "rating": 0,
+      "tmdbId": 1081003
     }
   ],
   "favourites": [],
