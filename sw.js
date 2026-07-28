@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20260728-1750";
+const CACHE = "filmy-20260728-2134";
 
 /* Runtime cache for TMDB posters/backdrops — separate from CACHE so it
    survives shell version bumps (posters rarely change; losing them on every
