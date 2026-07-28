@@ -149,7 +149,10 @@ document.addEventListener("DOMContentLoaded",function(){
   // vlc:// registry handlers are not needed inside the desktop app.
   (function(){
     var st=document.getElementById('winPlayersSt');
-    if(!st||!window.filmyNative||typeof window.filmyNative.detectPlayers!=='function')return;
+    if(!window.filmyNative||typeof window.filmyNative.detectPlayers!=='function')return;
+    var embBtn=document.getElementById('protoEmbedded');
+    if(embBtn)embBtn.style.display='';
+    if(!st)return;
     st.style.display='block';
     st.textContent='Detegujem nainštalované prehrávače...';
     window.filmyNative.detectPlayers().then(function(d){
@@ -401,6 +404,10 @@ S.toast(_modeLabel);
   // Custom "Install app" button — hidden until the browser tells us install
   // is possible, then triggers the native prompt instead of a URL bar icon.
   var _btnInstall=document.getElementById("btnInstall");
+  // Windows desktop (Electron): PWA install prompt is irrelevant — the app
+  // is already installed. Keep the button hidden and skip the wiring.
+  var _hideInstall=!!window.filmyNative;
+  if(_hideInstall&&_btnInstall)_btnInstall.classList.add("hidden");
   var _deferredInstallPrompt=null;
   window.addEventListener("beforeinstallprompt",function(e){
     e.preventDefault();

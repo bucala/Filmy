@@ -18,6 +18,7 @@
       "main.js",
       "preload.js",
       "players-win.js",
+      "embed-win.js",
       {
         "from": "..",
         "to": "web",
@@ -67,5 +68,8 @@
   "devDependencies": {
     "electron": "^35.7.5",
     "electron-builder": "^26.0.0"
+  },
+  "dependencies": {
+    "koffi": "^3.1.2"
   }
 }

@@ -12,6 +12,7 @@
    400–401    : .fp-overlay / .fp-panel (filter panel)
    500–501    : .sett-overlay / .sett-panel (settings)
    600        : #adminPanelSc (admin screen)
+   1500       : .embed-ov (embedded MPC overlay, Windows desktop only)
    2000       : .toast (notifications)
    3000       : .tr-ov (trailer overlay)
    8000       : .batch-bar (TMDB progress bar — needs to cover everything)
@@ -1287,4 +1288,31 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
      (JS adjustScrnBody refines the top offset from the real header height) */
   .scrn-body{left:80px;top:50px}
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   EMBEDDED MPC OVERLAY (Windows desktop only)
+   The MPC-HC/BE window is reparented into the app window and positioned
+   by the main process exactly over .embed-area — the area itself stays
+   transparent so the video paints through; the rest dims the app.
+   ══════════════════════════════════════════════════════════════════ */
+.embed-ov{position:fixed;inset:0;z-index:1500;
+  background:rgba(4,4,10,.96);
+  display:flex;flex-direction:column;
+  padding:10px 16px 12px;box-sizing:border-box}
+.embed-top{display:flex;align-items:center;gap:12px;flex-shrink:0;
+  min-height:40px}
+.embed-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-family:var(--font-display);font-size:14px;letter-spacing:1.5px;
+  color:var(--text);text-transform:uppercase}
+.embed-close{flex-shrink:0;width:38px;height:38px;border-radius:50%;
+  background:var(--card2);border:1px solid var(--border2);
+  color:var(--text2);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,color .15s}
+.embed-close:hover{border-color:var(--gold);color:var(--gold)}
+.embed-area{flex:1;min-height:0;margin:8px 0;
+  border:1px solid rgba(var(--gold-rgb),.35);border-radius:8px;
+  /* transparent interior — the MPC child window paints here */}
+.embed-hint{flex-shrink:0;text-align:center;
+  font-size:11px;color:var(--text3);letter-spacing:.3px}
 

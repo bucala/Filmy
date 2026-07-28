@@ -15,6 +15,7 @@ S.getPlayModeLabel = function getPlayModeLabel() {
   if (S._isMobile) return S.pathMode === 'smb' ? 'VLC·SMB' : 'VLC';
   if (S.playerProto === 'native') return 'Natívny';
   if (S.playerProto === 'portable') return 'Portable';
+  if (S.playerProto === 'embedded') return 'Vnorené MPC';
   return S.playerProto.toUpperCase();
 };
 
@@ -89,6 +90,14 @@ S.playMovie = function playMovie(id){
     return;
   }
 
+  // Windows desktop (Electron) — embedded MPC: the player window is
+  // reparented into the app window over a fullscreen overlay.
+  if (S.playerProto === 'embedded' && window.filmyNative
+      && typeof window.filmyNative.embedPlay === 'function') {
+    S.openEmbedded(m, path);
+    return;
+  }
+
   // Windows desktop (Electron) — launch the installed player directly via
   // the native bridge instead of relying on registered mpc:///vlc://
   // protocol handlers. VLC gets smb:// as-is, MPC gets a UNC path (both
@@ -137,6 +146,7 @@ S.playMovie = function playMovie(id){
 
   // MPC / VLC protocol handler
   var proto=S.playerProto||'mpc';
+  if(proto==='embedded')proto='mpc'; // embedded requires the desktop bridge; fall back
   var launchUrl;
   if(S.pathMode==='smb' && S.smbUrlMode==='raw'){
     launchUrl=path;
@@ -179,5 +189,78 @@ S.copyMoviePath = function copyMoviePath(id) {
   } else {
     // Fallback
     prompt('Cesta k súboru:', path);
+  }
+};
+
+/* ── Embedded MPC overlay (Windows desktop only) ─────────────────────
+   Opens a fullscreen overlay, then reports the video-area rect (device
+   pixels) to the main process, which reparents the MPC window over it. */
+
+S._embedTimer = null;
+S._embedResize = null;
+S._embedKey = null;
+
+S._embedRect = function _embedRect() {
+  var area = document.getElementById('embedArea');
+  if (!area) return null;
+  var r = area.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  return {
+    x: Math.round(r.left * dpr),
+    y: Math.round(r.top * dpr),
+    width: Math.round(r.width * dpr),
+    height: Math.round(r.height * dpr)
+  };
+};
+
+S.openEmbedded = function openEmbedded(m, path) {
+  var ov = document.getElementById('embedOv');
+  if (!ov) return;
+  var title = document.getElementById('embedTitle');
+  if (title) title.textContent = m.title || '';
+  ov.classList.remove('hidden');
+  // Two frames: ensure the overlay is laid out before measuring the rect.
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      window.filmyNative.embedPlay({ player: 'mpc', path: path, rect: S._embedRect() })
+        .then(function (res) {
+          if (!res || !res.ok) {
+            S.toast((res && res.error) || 'MPC sa nepodarilo vnoriť.');
+            S.closeEmbedded(false);
+          }
+        })
+        .catch(function () {
+          S.toast('Chyba natívneho mosta.');
+          S.closeEmbedded(false);
+        });
+    });
+  });
+  S._embedResize = function () {
+    if (ov.classList.contains('hidden')) return;
+    window.filmyNative.embedMove({ rect: S._embedRect() }).catch(function () {});
+  };
+  window.addEventListener('resize', S._embedResize);
+  S._embedKey = function (e) {
+    if (e.key === 'Escape') S.closeEmbedded(true);
+  };
+  document.addEventListener('keydown', S._embedKey);
+  var closeBtn = document.getElementById('embedClose');
+  if (closeBtn) closeBtn.onclick = function () { S.closeEmbedded(true); };
+  // If the user quits MPC directly, close the overlay as well.
+  S._embedTimer = setInterval(function () {
+    window.filmyNative.embedStatus().then(function (playing) {
+      if (!playing) S.closeEmbedded(false);
+    }).catch(function () {});
+  }, 2000);
+};
+
+S.closeEmbedded = function closeEmbedded(notifyNative) {
+  var ov = document.getElementById('embedOv');
+  if (ov) ov.classList.add('hidden');
+  if (S._embedTimer) { clearInterval(S._embedTimer); S._embedTimer = null; }
+  if (S._embedResize) { window.removeEventListener('resize', S._embedResize); S._embedResize = null; }
+  if (S._embedKey) { document.removeEventListener('keydown', S._embedKey); S._embedKey = null; }
+  if (notifyNative && window.filmyNative && typeof window.filmyNative.embedStop === 'function') {
+    window.filmyNative.embedStop().catch(function () {});
   }
 };

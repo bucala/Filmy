@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
 const playersWin = require('./players-win');
+const embedWin = require('./embed-win');
 
 const PROD_URL = 'https://filmy-iota.vercel.app';
 const LOCAL_SCHEME = 'app';
@@ -74,6 +75,40 @@ function registerIpc() {
     if (!p || p.length > 1024 || /[\r\n]/.test(p)) return { ok: false, error: 'Neplatná cesta.' };
     return playersWin.launchPlayer({ player: player, path: p });
   });
+
+  /* Embedded MPC — reparent the player window into the app window */
+  function validRect(r) {
+    return r && ['x', 'y', 'width', 'height'].every(function (k) {
+      return typeof r[k] === 'number' && isFinite(r[k]) && r[k] >= -100;
+    }) && r.width >= 100 && r.height >= 100 && r.width <= 16384 && r.height <= 16384;
+  }
+  function parentHandle() {
+    if (!mainWindow) return null;
+    try {
+      return Number(mainWindow.getNativeWindowHandle().readBigUInt64LE(0));
+    } catch (e) { return null; }
+  }
+  ipcMain.handle('filmy:embed-play', function (event, opts) {
+    if (process.platform !== 'win32') return { ok: false, error: 'Vnorené prehrávanie je len pre Windows.' };
+    if (!opts || typeof opts !== 'object') return { ok: false, error: 'Neplatná požiadavka.' };
+    if (String(opts.player || '') !== 'mpc') return { ok: false, error: 'Vnoriť možno len MPC.' };
+    var p = String(opts.path || '');
+    if (!p || p.length > 1024 || /[\r\n]/.test(p)) return { ok: false, error: 'Neplatná cesta.' };
+    if (!validRect(opts.rect)) return { ok: false, error: 'Neplatná oblasť videa.' };
+    var ph = parentHandle();
+    if (!ph) return { ok: false, error: 'Okno aplikácie nie je pripravené.' };
+    return embedWin.play({ path: p, rect: opts.rect, parentHandle: ph });
+  });
+  ipcMain.handle('filmy:embed-move', function (event, opts) {
+    if (!opts || !validRect(opts.rect)) return { ok: false };
+    return embedWin.move(opts.rect);
+  });
+  ipcMain.handle('filmy:embed-stop', function () {
+    return embedWin.stop();
+  });
+  ipcMain.handle('filmy:embed-status', function () {
+    return embedWin.status();
+  });
 }
 
 /* ── Window state persistence ── */
@@ -144,6 +179,7 @@ function createWindow() {
   });
 
   mainWindow.on('closed', function () {
+    embedWin.stop(); // do not leave an orphaned embedded MPC behind
     mainWindow = null;
   });
 }
@@ -228,6 +264,10 @@ function buildMenu() {
     }
   ]);
 }
+
+app.on('before-quit', function () {
+  embedWin.stop();
+});
 
 app.on('window-all-closed', function () {
   app.quit();
