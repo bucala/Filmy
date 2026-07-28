@@ -1299,6 +1299,7 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
   background:rgba(4,4,10,.96);
   display:flex;flex-direction:column;
   padding:10px 16px 12px;box-sizing:border-box}
+.embed-ov.hidden{display:none}
 .embed-top{display:flex;align-items:center;gap:12px;flex-shrink:0;
   min-height:40px}
 .embed-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
