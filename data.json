@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-28T14:09:05.051Z",
+  "updated": "2026-07-28T14:09:36.846Z",
   "movies": [
     {
       "id": 1,
@@ -3043,7 +3043,7 @@
       "duration": "128 min",
       "cast": "Michael Douglas, Sean Penn, Deborah Kara Unger, James Rebhorn, Peter Donat",
       "description": "After a wealthy San Francisco banker is given an opportunity to participate in a mysterious game, his life is turned upside down as he begins to question if it might really be a concealed conspiracy to destroy him.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/v9Fr3uof92ZqHt4lLqPA9syK6oA.jpg",
       "rating": 0,
       "tmdbId": 922171,
       "moods": [],
