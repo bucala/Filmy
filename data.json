@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-28T14:03:41.523Z",
+  "updated": "2026-07-28T14:09:05.051Z",
   "movies": [
     {
       "id": 1,
@@ -47769,7 +47769,10 @@
       "description": "Zlé impérium padlo a jeho bojovníci zostali roztrúsení po celej galaxii. Novo vzniknutá republika sa snaží chrániť všetko, za čo povstalci bojovali, a preto si na pomoc prizvala legendárneho mandalorianskeho lovca odmien Dina Djarina a jeho mladého učňa Groga.",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/fGgjOHVRzmRNvpq3ppllw1Y0Y8i.jpg",
       "rating": 0,
-      "tmdbId": 1228710
+      "tmdbId": 1228710,
+      "_localPath": "W:\\Movies\\Star Wars\\2026 - Mandalorian a Grogu.mkv",
+      "_csfdUrl": "https://www.csfd.cz/film/1481226-mandalorian-a-grogu/prehled/",
+      "_pctCsfd": 71
     },
     {
       "id": 1759,
@@ -47788,7 +47791,10 @@
       "description": "Nudný život kancelárskeho outsidera Adama sa obráti hore nohami, keď objaví legendárny Meč moci a zistí, že jeho skutočným domovom je magická planéta Eternia. Ako stratený princ vrhnutý do sveta, kde sa futuristická technológia stretáva s prastarou mágiou, musí Adam čeliť armádam zákerného Skeletora. V sprievode drsných rebelov a s dávkou nečakaného humoru vyráža na akčnú adrenalínovú jazdu naprieč fantastickou krajinou, počas ktorej musí ovládnuť silu meča, prijať svoj osud a transformovať sa n",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/6LwZYQbRKjAo099vN1cEdCNA6I7.jpg",
       "rating": 0,
-      "tmdbId": 454639
+      "tmdbId": 454639,
+      "_localPath": "W:\\Movies\\2026 - Vladci vesmiru.mkv",
+      "_csfdUrl": "https://www.csfd.cz/film/512398-vladci-vesmiru/prehled/",
+      "_pctCsfd": 65
     },
     {
       "id": 1760,
@@ -47807,7 +47813,10 @@
       "description": "Keď nemilosrdný protivník zaútočí príliš blízko domova, drzá a nekonvenčná Kara ZorEl alias Supergirl musí neochotne spolupracovať s nečakanou posilou na epickej medzihviezdnej ceste za pomstou a spravodlivosťou.",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/niSvU02l2BONH9ivubV6K1a5QiK.jpg",
       "rating": 0,
-      "tmdbId": 1081003
+      "tmdbId": 1081003,
+      "_localPath": "W:\\Movies\\2026 - Supergirl.mkv",
+      "_csfdUrl": "https://www.csfd.cz/film/1519610-supergirl/prehled/",
+      "_pctCsfd": 60
     }
   ],
   "favourites": [],
