@@ -1,6 +1,6 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
-import { localPathToSmb as localPathToSmbPure, getMoviePath as getMoviePathPure } from './lib/paths.js';
+import { localPathToSmb as localPathToSmbPure, getMoviePath as getMoviePathPure, smbToUnc as smbToUncPure } from './lib/paths.js';
 
 S.localPathToSmb = function localPathToSmb(localPath) {
   return localPathToSmbPure(localPath, S.smbMap, S.smbBase);
@@ -89,11 +89,27 @@ S.playMovie = function playMovie(id){
     return;
   }
 
-  // PC — clipboard gets Windows backslash path, protocol gets forward-slash path
-  var clipPath=path.replace(/\//g,'\\');
-  if(S.pathMode==='smb'&&clipPath.indexOf('smb:\\\\')==0){
-    clipPath='\\\\'+clipPath.substring(6);
+  // Windows desktop (Electron) — launch the installed player directly via
+  // the native bridge instead of relying on registered mpc:///vlc://
+  // protocol handlers. VLC gets smb:// as-is, MPC gets a UNC path (both
+  // conversions happen in the main process). Clipboard keeps the UNC path.
+  if (window.filmyNative && typeof window.filmyNative.launchPlayer === 'function'
+      && (S.playerProto === 'mpc' || S.playerProto === 'vlc')) {
+    S.copyToClip(smbToUncPure(path));
+    window.filmyNative.launchPlayer({ player: S.playerProto, path: path })
+      .then(function (res) {
+        if (res && res.ok) {
+          S.toast('Spúšťam ' + (res.label || S.playerProto.toUpperCase()) + '...');
+        } else {
+          S.toast((res && res.error) || 'Prehrávač sa nepodarilo spustiť.');
+        }
+      })
+      .catch(function () { S.toast('Chyba natívneho mosta.'); });
+    return;
   }
+
+  // PC — clipboard gets Windows backslash path, protocol gets forward-slash path
+  var clipPath=smbToUncPure(path);
   S.copyToClip(clipPath);
 
   // Native mode — open via file:// protocol (OS default player)

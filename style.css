@@ -6,6 +6,7 @@
    2          : .hdr-row2-right, other header sub-elements
    5          : .det-inset (poster overlay), misc
    10         : .det-back (back button)
+   45         : .hdr-row2-left as desktop nav rail (wide screens only)
    50         : #detSc, #statSc (detail & stats screens)
    100        : .hdr (header bar)
    400–401    : .fp-overlay / .fp-panel (filter panel)
@@ -1245,3 +1246,38 @@ html.tv .mlist{scroll-padding:80px 0}
 .tv-act-btn:hover,.tv-act-btn:focus{border-color:var(--gold);background:rgba(var(--gold-rgb),.1);outline:none;transform:scale(1.04)}
 .tv-act-btn svg{color:var(--gold)}
 html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold-rgb),.14);outline:2px solid var(--primary);outline-offset:2px;box-shadow:var(--el3)}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   DESKTOP / WIDE-SCREEN MD3 ADAPTIVE LAYOUT (Now-in-Android case study:
+   mobile bottom bars become a left navigation rail on tablet/desktop)
+   Applies only on wide viewports with a precise pointer — phones,
+   tablets and TVs (touch / D-pad) keep the mobile top-bar layout.
+   ══════════════════════════════════════════════════════════════════ */
+@media (min-width:1100px) and (pointer:fine){
+  /* Action buttons become a vertical MD3 navigation rail under the header */
+  .hdr-row2-left{
+    position:fixed;left:0;top:88px;bottom:0;width:80px;z-index:45;
+    flex-direction:column;align-items:center;justify-content:flex-start;
+    gap:10px;padding:14px 0;
+    background:var(--card);border-right:1px solid var(--border);
+    overflow-y:auto;overflow-x:hidden;
+    scrollbar-width:none;-ms-overflow-style:none}
+  .hdr-row2-left::-webkit-scrollbar{display:none}
+
+  /* Rail destinations — MD3 sized icon targets */
+  .hdr-row2-left .hdr-act{width:48px;height:48px;border-radius:var(--r-full)}
+  .hdr-row2-left .hdr-act.active{
+    background:rgba(var(--gold-rgb),.18);
+    box-shadow:0 1px 3px rgba(0,0,0,.35)}
+  .hdr-row2-left .bulk-cnt{font-size:11px}
+
+  /* Row 2 keeps only the sort/filter/view cluster, pushed right */
+  .hdr-row2-div{display:none}
+  .hdr-row2{justify-content:flex-end}
+  .hdr-row2-right{flex:1;justify-content:flex-end}
+
+  /* Content area makes room for the rail */
+  .scrn-body{left:80px}
+}
+

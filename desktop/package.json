@@ -17,20 +17,31 @@
     "files": [
       "main.js",
       "preload.js",
-      "../index.html",
-      "../style.css",
-      "../app.js",
-      "../data.js",
-      "../data.json",
-      "../sw.js",
-      "../manifest.webmanifest",
-      "../favicon.svg",
-      "../icon-192.png",
-      "../icon-512.png",
-      "../apple-touch-icon.png"
+      "players-win.js",
+      {
+        "from": "..",
+        "to": "web",
+        "filter": [
+          "index.html",
+          "style.css",
+          "sw.js",
+          "manifest.webmanifest",
+          "favicon.svg",
+          "icon-192.png",
+          "icon-512.png",
+          "apple-touch-icon.png",
+          "portable-handler.js",
+          "data.js",
+          "data.json",
+          "src/**/*.js"
+        ]
+      }
     ],
     "win": {
-      "target": ["nsis", "portable"],
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "../icon-512.png"
     },
     "nsis": {
@@ -40,13 +51,15 @@
       "uninstallerIcon": "../icon-512.png"
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "icon": "../icon-512.png",
       "category": "Utility"
     }
   },
   "devDependencies": {
-    "electron": "^35.0.0",
+    "electron": "^35.7.5",
     "electron-builder": "^26.0.0"
   }
 }

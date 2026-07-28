@@ -1,5 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { localPathToSmb, getMoviePath } from '../src/lib/paths.js';
+import { localPathToSmb, getMoviePath, smbToUnc } from '../src/lib/paths.js';
+
+describe('smbToUnc', () => {
+  it('converts an smb:// URL to a Windows UNC path', () => {
+    expect(smbToUnc('smb://DESKTOP-EGOG348/Movies/2026 - Film.mkv'))
+      .toBe('\\\\DESKTOP-EGOG348\\Movies\\2026 - Film.mkv');
+  });
+  it('converts forward slashes in local paths to backslashes', () => {
+    expect(smbToUnc('W:/Movies/Film.mkv')).toBe('W:\\Movies\\Film.mkv');
+  });
+  it('passes through empty input', () => {
+    expect(smbToUnc('')).toBe('');
+    expect(smbToUnc(null)).toBe('');
+  });
+});
 
 describe('localPathToSmb', () => {
   it('rewrites a path using an explicit local->smb mapping', () => {

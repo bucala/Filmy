@@ -144,6 +144,23 @@ document.addEventListener("DOMContentLoaded",function(){
   });
   if(_portWrap) _portWrap.style.display = S.playerProto==='portable' ? 'block' : 'none';
 
+  // Windows desktop (Electron) — show which installed players the native
+  // bridge detected; playback then launches them directly, so the mpc:///
+  // vlc:// registry handlers are not needed inside the desktop app.
+  (function(){
+    var st=document.getElementById('winPlayersSt');
+    if(!st||!window.filmyNative||typeof window.filmyNative.detectPlayers!=='function')return;
+    st.style.display='block';
+    st.textContent='Detegujem nainštalované prehrávače...';
+    window.filmyNative.detectPlayers().then(function(d){
+      if(!d)return;
+      S._winPlayers=d;
+      function line(name,exe){return (exe?'✓ ':'✗ ')+name+(exe?'':' (nenájdený)');}
+      st.innerHTML='<b style="color:#81c784">Windows appka</b> — prehrávanie ide priamo cez nainštalované prehrávače (reg handlery nie sú potrebné):<br>'+
+        line('VLC',d.vlc)+' &nbsp;·&nbsp; '+line('MPC-HC',d.mpcHc)+' &nbsp;·&nbsp; '+line('MPC-BE',d.mpcBe);
+    }).catch(function(){st.textContent='';});
+  })();
+
   // Portable settings wiring
   (function(){
     var ptToggle = document.getElementById('portableTypeToggle');

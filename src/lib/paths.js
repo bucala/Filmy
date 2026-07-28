@@ -4,6 +4,19 @@
    without needing a browser environment. */
 import { buildMovieFilename, normalizeSlashes } from './text.js';
 
+/* Converts an smb://server/share/path URL to a Windows UNC path
+   (\\server\share\path). Non-SMB input is returned with backslashes only.
+   Used for MPC-HC/BE launches and clipboard copies on Windows.
+   NOTE: keep in sync with the copy in desktop/players-win.js (CommonJS
+   main process cannot import this ES module). */
+export function smbToUnc(p) {
+  var s = String(p || '');
+  if (s.indexOf('smb://') === 0) {
+    return '\\\\' + s.substring(6).replace(/\//g, '\\');
+  }
+  return s.replace(/\//g, '\\');
+}
+
 /* Rewrites a local Windows/UNC-ish path to its SMB equivalent using an
    explicit local->smb map first, falling back to a drive-letter swap
    against smbBase when no mapping matches. */
