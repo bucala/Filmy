@@ -24,6 +24,7 @@ S.updatePathPreview = function updatePathPreview(){
   if(!el)return;
   var sample='2026 - Tom Clancys Jack Ryan.mkv';
   var proto=S.playerProto||'mpc';
+  if(proto==='embedded')proto='mpc'; // embedded uses MPC directly, no protocol handler
   if(S.pathMode==='smb'){
     var base=S.smbBase||'smb://DESKTOP-EGOG348/Movies/';
     if(base[base.length-1]!=='/')base+='/';

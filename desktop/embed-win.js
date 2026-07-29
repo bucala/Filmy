@@ -24,13 +24,17 @@ const WM_CLOSE = 0x0010;
 
 let koffi = null;
 let user32 = null;
+let kernel32 = null;
 let WndEnumProc = null;
+let loadError = null;
 try {
   koffi = require('koffi');
   user32 = koffi.load('user32.dll');
+  kernel32 = koffi.load('kernel32.dll');
   WndEnumProc = koffi.proto('bool __stdcall WndEnumProc(void *hwnd, intptr_t lParam)');
 } catch (e) {
   // koffi unavailable (not installed / wrong arch) — play() reports it.
+  loadError = String((e && e.message) || e);
 }
 
 let fns = null;
@@ -41,6 +45,7 @@ function api() {
     GetWindowThreadProcessId: user32.func('uint32_t __stdcall GetWindowThreadProcessId(void *hwnd, _Out_ uint32_t *pid)'),
     IsWindowVisible: user32.func('bool __stdcall IsWindowVisible(void *hwnd)'),
     IsWindow: user32.func('bool __stdcall IsWindow(void *hwnd)'),
+    GetParent: user32.func('void *__stdcall GetParent(void *hwnd)'),
     SetParent: user32.func('void *__stdcall SetParent(void *child, void *newParent)'),
     GetWindowLongPtr: user32.func('intptr_t __stdcall GetWindowLongPtrW(void *hwnd, int nIndex)'),
     SetWindowLongPtr: user32.func('intptr_t __stdcall SetWindowLongPtrW(void *hwnd, int nIndex, intptr_t newLong)'),
@@ -49,6 +54,16 @@ function api() {
     PostMessage: user32.func('bool __stdcall PostMessageW(void *hwnd, uint32_t msg, void *wParam, void *lParam)')
   };
   return fns;
+}
+
+// Must be called immediately after the Win32 call being diagnosed — any
+// other FFI call in between would reset the thread-local error code.
+let getLastErrorFn = null;
+function lastErr() {
+  try {
+    if (!getLastErrorFn) getLastErrorFn = kernel32.func('uint32_t __stdcall GetLastError()');
+    return getLastErrorFn();
+  } catch (e) { return -1; }
 }
 
 // Finds the visible top-level window belonging to the given process id.
@@ -76,7 +91,13 @@ let current = null; // { pid, hwnd, child }
 //         parentHandle (HWND as number) }
 // -> { ok, label?, exe?, error? }
 async function play(opts) {
-  if (!user32) return { ok: false, error: 'Chýba balík koffi — v desktop/ spusti: npm install.' };
+  if (!user32) {
+    return {
+      ok: false,
+      error: 'Chýba koffi alebo sa nepodarilo načítať user32.dll' +
+        (loadError ? (' (' + loadError + ')') : '') + ' — v desktop/ spusti: npm install.'
+    };
+  }
   var f = api();
   var parentHandle = opts && opts.parentHandle;
   var rect = (opts && opts.rect) || null;
@@ -103,15 +124,22 @@ async function play(opts) {
     return { ok: false, error: String((e && e.message) || e) };
   }
   child.on('error', function () { /* handled via timeout below */ });
+  var exitedEarly = false;
+  child.once('exit', function () { exitedEarly = true; });
 
   // Wait for the player to create its top-level window (up to ~15 s).
   var hwnd = null;
-  for (var i = 0; i < 60 && !hwnd; i++) {
+  for (var i = 0; i < 60 && !hwnd && !exitedEarly; i++) {
     await sleep(250);
     hwnd = findWindowByPid(child.pid);
   }
   if (!hwnd) {
+    if (exitedEarly) {
+      console.error('[embed-win] child exited before showing a window (pid ' + child.pid + ') — MPC možno poslal film do inej už bežiacej instancie.');
+      return { ok: false, error: 'MPC sa ukončil hneď po spustení — zrejme bežala iná jeho instancia. Zavri všetky okná MPC a skús znova.' };
+    }
     try { child.kill(); } catch (e) { /* already gone */ }
+    console.error('[embed-win] timed out waiting for a window from pid ' + child.pid);
     return { ok: false, error: 'Okno prehrávača sa neobjavilo (timeout).' };
   }
 
