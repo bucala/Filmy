@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-28T14:09:36.846Z",
+  "updated": "2026-08-06T16:55:39.408Z",
   "movies": [
     {
       "id": 1,
@@ -47817,6 +47817,42 @@
       "_localPath": "W:\\Movies\\2026 - Supergirl.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1519610-supergirl/prehled/",
       "_pctCsfd": 60
+    },
+    {
+      "id": 1761,
+      "num": 1761,
+      "title": "Posadnutosť",
+      "year": 2026,
+      "director": "Curry Barker",
+      "cast": "Michael Johnston, Inde Navarrette, Cooper Tomlinson, Megan Lawless, Andy Richter, Haley Fitzgerald, Darin Toonder, Anthony Pavone, Justice, Anthony Casabianca",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "country": "US, GB",
+      "duration": "109 min",
+      "description": "Bear je obyčajný mladý chalan, ktorého láska ku kolegyni Nikki je rovnako intenzívna ako jeho plachosť a neschopnosť pozvať ju na rande. Zúfalí ľudia robia zúfalé veci, a tak si Bear v pochybnom starožitníctve kúpi pofidérnu hračku, ktorá mu podľa návodu môže splniť jedno želanie. A to akékoľvek. Mladík o tom svojom nemusí dlho premýšľať. Chce, aby ho Nikki milovala. Výsledok sa dostaví prakticky okamžite. Nikki je do Beara zamilovaná. Vášnivo a šialene. Až tak šialene, že je to nebezpečné a Bea",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/BR5fCCA56cGGrYAK9524jCdSP4.jpg",
+      "rating": 0,
+      "tmdbId": 1339713
+    },
+    {
+      "id": 1762,
+      "num": 1762,
+      "title": "Deň odhalenia",
+      "year": 2026,
+      "director": "Steven Spielberg",
+      "cast": "Emily Blunt, Josh O'Connor, Colin Firth, Colman Domingo, Eve Hewson, Wyatt Russell, Elizabeth Marvel, Henry Lloyd-Hughes, Courtney Grace, Jeremy Shamos",
+      "genres": [
+        "Science Fiction",
+        "Thriller"
+      ],
+      "country": "US",
+      "duration": "145 min",
+      "description": "Deň odhalenia má byť dňom, keď sa ľudstvo konečne dozvie pravdu. O čom? To zatiaľ tuší len zopár jedincov, medzi nimi aj dátový analytik Daniel, ktorý má byť tým, kto všetko zverejní. V ceste mu však stojí tím ľudí, ktorí sa nezastavia pred ničím.  Ich poslaním je tomuto úniku informácií zabrániť – za každú cenu. Majú na to celý rad dobrých aj zlých dôvodov. Medzi tie lepšie patrí fakt, že odhalenie pravdy by mohlo úplne rozvrátiť svetový poriadok a spôsobiť nenapraviteľné škody. Okrem Daniela s",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/7bYf4D0l42xJSKm4FQbb3AgFndh.jpg",
+      "rating": 0,
+      "tmdbId": 1275779
     }
   ],
   "favourites": [],
