@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-07-28T14:09:36.857Z",
+  "updated": "2026-08-06T16:55:39.425Z",
   "liveCache": {
     "1": {
       "pct": 74,
@@ -3474,14 +3474,6 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/34069",
       "imdbUrl": "https://www.imdb.com/title/tt0381940/"
     },
-    "437": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/272544",
-      "imdbUrl": "https://www.imdb.com/title/tt1894548/"
-    },
     "438": {
       "pct": 74,
       "ytKey": "LX6kVRsdXW4",
@@ -4050,14 +4042,6 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/22972",
       "imdbUrl": "https://www.imdb.com/title/tt0947810/"
     },
-    "509": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/389255",
-      "imdbUrl": "https://www.imdb.com/title/tt1686637/"
-    },
     "510": {
       "pct": 53,
       "ytKey": "-82qd_rCzOs",
@@ -4482,14 +4466,6 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/70667",
       "imdbUrl": "https://www.imdb.com/title/tt1613750/"
     },
-    "563": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/929074",
-      "imdbUrl": "https://www.imdb.com/title/tt2141661/"
-    },
     "564": {
       "pct": 70,
       "ytKey": "hm0uQPCliQw",
@@ -4593,14 +4569,6 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/uBHeAB2Ug9ELBzkMyls8CUjzn4i.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/64635",
       "imdbUrl": "https://www.imdb.com/title/tt1386703/"
-    },
-    "577": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/1391793",
-      "imdbUrl": "https://www.imdb.com/title/tt3378460/"
     },
     "578": {
       "pct": 71,
@@ -6794,14 +6762,6 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/339877",
       "imdbUrl": "https://www.imdb.com/title/tt3262342/"
     },
-    "852": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/1196548",
-      "imdbUrl": null
-    },
     "853": {
       "pct": 70,
       "ytKey": "dhmW8oE6pAg",
@@ -8658,22 +8618,6 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/746034",
       "imdbUrl": "https://www.imdb.com/title/tt13192538/"
     },
-    "1085": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": "https://image.tmdb.org/t/p/w1280/nihDfRzsvFhBXB0w3fQLLj0yuKJ.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/650266",
-      "imdbUrl": null
-    },
-    "1086": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": "https://image.tmdb.org/t/p/w1280/7sz1kny3Cle8ouOtmwKB7QDzRzz.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/738309",
-      "imdbUrl": "https://www.imdb.com/title/tt14244554/"
-    },
     "1087": {
       "pct": 71,
       "ytKey": null,
@@ -10513,14 +10457,6 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/fwrqW8Lp5VQuppFrODd4iJ8LySE.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/335787",
       "imdbUrl": "https://www.imdb.com/title/tt1464335/"
-    },
-    "1318": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/1044319",
-      "imdbUrl": null
     },
     "1319": {
       "pct": 64,
@@ -13674,14 +13610,6 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/1245993",
       "imdbUrl": "https://www.imdb.com/title/tt1493274/"
     },
-    "1714": {
-      "pct": null,
-      "ytKey": null,
-      "posterUrl": null,
-      "backdropUrl": null,
-      "tmdbUrl": "https://www.themoviedb.org/movie/1259178",
-      "imdbUrl": null
-    },
     "1715": {
       "pct": 92,
       "ytKey": "owbuJoOTGcY",
@@ -14045,6 +13973,20 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/wZJTidyAi53smx6x4LBFgfQolRU.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/1081003",
       "imdbUrl": "https://www.imdb.com/title/tt8814476/"
+    },
+    "1761": {
+      "pct": 82,
+      "ytKey": "60mAStDmBAI",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/rZfmzpixLKLR3Hg2u0WgC7XLFl8.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1339713",
+      "imdbUrl": "https://www.imdb.com/title/tt37287335/"
+    },
+    "1762": {
+      "pct": 74,
+      "ytKey": "voJbnLQ3UTs",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1275779",
+      "imdbUrl": "https://www.imdb.com/title/tt15047880/"
     }
   }
 }
