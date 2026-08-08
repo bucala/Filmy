@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-08T08:14:06.427Z",
+  "updated": "2026-08-08T08:14:53.223Z",
   "movies": [
     {
       "id": 1,
@@ -47855,7 +47855,10 @@
       "description": "Deň odhalenia má byť dňom, keď sa ľudstvo konečne dozvie pravdu. O čom? To zatiaľ tuší len zopár jedincov, medzi nimi aj dátový analytik Daniel, ktorý má byť tým, kto všetko zverejní. V ceste mu však stojí tím ľudí, ktorí sa nezastavia pred ničím.  Ich poslaním je tomuto úniku informácií zabrániť – za každú cenu. Majú na to celý rad dobrých aj zlých dôvodov. Medzi tie lepšie patrí fakt, že odhalenie pravdy by mohlo úplne rozvrátiť svetový poriadok a spôsobiť nenapraviteľné škody. Okrem Daniela s",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/7bYf4D0l42xJSKm4FQbb3AgFndh.jpg",
       "rating": 0,
-      "tmdbId": 1275779
+      "tmdbId": 1275779,
+      "_localPath": "W:\\Movies\\2026 - Den odhaleni.mkv",
+      "_csfdUrl": "https://www.csfd.cz/film/1531416-den-odhaleni/prehled/",
+      "_pctCsfd": 61
     }
   ],
   "favourites": [],
