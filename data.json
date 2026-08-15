@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-15T12:17:50.918Z",
+  "updated": "2026-08-15T12:22:56.159Z",
   "movies": [
     {
       "id": 1,
@@ -46606,11 +46606,11 @@
         "Dráma",
         "Thriller"
       ],
-      "country": "United States",
+      "country": "GB, US, CA",
       "duration": "116 min",
-      "cast": "Jude Law, Nicholas Hoult, Tye Sheridan, Jurnee Smollett, Alison Oliver",
-      "description": "Série odvážných bankovních loupeží za bílého dne a přepadení pancéřových vozů po dobu více než jednoho roku zanechává orgány činné v trestním řízení bezradné a veřejnost na severozápadě Pacifiku v panice. Jak se útoky stávají stále násilnějšími, agent FBI Terry Husk (Jude Law) nabývá přesvědčení, že loupeže jsou dílem domácích teroristů, kteří plánují použít lup k financování ozbrojeného povstání proti americké vládě. Snímek The Order, natočený podle skutečné události, sleduje Huska a jeho tým v",
-      "poster_thumb": "",
+      "cast": "Jude Law, Nicholas Hoult, Tye Sheridan, Jurnee Smollett, Alison Oliver, Odessa Young, Sebastian Pigott, George Tchortov, Victor Slezak, Phillip Forest Lewitski",
+      "description": "Séria násilných lúpeží v severozápadnom Pacifiku zavedie skúseného agenta FBI Terryho Huska do sprisahania bielych rasistov s cieľom zvrhnúť federálnu vládu.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/r3BPhDb45sy87kNV41Q1TwCL6BS.jpg",
       "rating": 0,
       "tmdbId": 1082195,
       "moods": [],
