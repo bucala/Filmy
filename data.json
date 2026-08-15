@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-08T08:18:45.534Z",
+  "updated": "2026-08-15T12:17:26.011Z",
   "movies": [
     {
       "id": 1,
@@ -36300,17 +36300,17 @@
       "num": 1327,
       "title": "Ztracené město",
       "year": 2022,
-      "director": "Aaron Nee, Adam Nee",
+      "director": "Aaron Nee",
       "genres": [
         "Akčný",
         "Dobrodružný",
         "Komédia"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "112 min",
-      "cast": "Sandra Bullock, Channing Tatum, Daniel Radcliffe, Da'Vine Joy Randolph, Brad Pitt",
-      "description": "Spisovatelka Loretta Sageová píše úspěšné romány, které se odehrávají na těch nejexotičtějších místech. Že prakticky nevystrčí paty ze svého bytu, je vedlejší. Dalším paradoxem je fakt, že jejího dvorního hrdinu, okouzlujícího dobrodruha Dashe, ztělesňuje na obálkách jejích knížek velmi nepraktický ňouma Alan. Je sice sexy, ale k ničemu, a to ho dost trápí. Rád by udělal něco hrdinského. Dostane příležitost, když lehce šílený miliardář spisovatelku unese přímo před jeho očima. Tenhle člověk si t",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/gSeabq46383p2Q3sPzPSADfVflJ.jpg",
+      "cast": "Sandra Bullock, Channing Tatum, Daniel Radcliffe, Da'Vine Joy Randolph, Brad Pitt, Oscar Nuñez, Patti Harrison, Bowen Yang, Stephen Lang, Joan Pringle",
+      "description": "Autorka populárnych romanticko-dobrodružných noviel a model, podľa je predlohou obálok jej  knižiek, sa vinou série nešťastných náhod ocitnú uprostred amazonského pralesa. Jedna vec je o dobrodružstve písať, druhá vec je ho zažiť.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/zr1SbPoRCWdX5I4Kn3eMZVmLyAg.jpg",
       "rating": 0,
       "tmdbId": 752623,
       "moods": [],
