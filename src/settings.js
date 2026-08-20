@@ -1,7 +1,7 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
 import { esc, removeDiacritics, buildMovieFilename, levenshtein } from './lib/text.js';
-import { parseEMDB } from './lib/parse.js';
+import { parseEMDB, parseEmdbCsv } from './lib/parse.js';
 
 S.fetchLiveData = function fetchLiveData(id){
   var m=S.all.find(function(x){return x.id===id;});if(!m||!S.tmdbKey)return;
@@ -928,15 +928,35 @@ S.impPdfUpdate = function impPdfUpdate(){
   document.getElementById("fileInpUpdate").click();
 };
 
+/* Auto-detect text encoding from a BOM and decode. EMDB's per-movie CSV
+   export is UTF-16LE; ZIP/PDF paths never call this. Falls back to UTF-8
+   (also correct for plain ASCII) when no BOM is present. */
+function decodeTextAuto(buf){
+  var bytes=new Uint8Array(buf);
+  if(bytes[0]===0xFF&&bytes[1]===0xFE) return new TextDecoder('utf-16le').decode(buf.slice(2));
+  if(bytes[0]===0xFE&&bytes[1]===0xFF) return new TextDecoder('utf-16be').decode(buf.slice(2));
+  if(bytes[0]===0xEF&&bytes[1]===0xBB&&bytes[2]===0xBF) return new TextDecoder('utf-8').decode(buf.slice(3));
+  return new TextDecoder('utf-8').decode(buf);
+}
+
 S.handleFileUpdate = function handleFileUpdate(){
   var file=document.getElementById("fileInpUpdate").files[0];if(!file)return;
   document.getElementById("fileInpUpdate").value="";S.closeSett();
   S.showMod("Aktualizujem dáta","Porovnávam s existujúcou databázou...");S.setP(2,"Čítam súbor...");
-  
+
   var isZip = file.name.toLowerCase().endsWith('.zip');
+  var isCsv = file.name.toLowerCase().endsWith('.csv');
   var parsePromise;
-  
-  if (isZip) {
+
+  if (isCsv) {
+    // Single/selected-movie export from EMDB's own "export to CSV" — sparse
+    // fields only (num/title/year/country/genres/localPath), merged below
+    // exactly like a ZIP/PDF update.
+    parsePromise = file.arrayBuffer().then(function(ab){
+      S.setP(30,"Čítam CSV...");
+      return parseEmdbCsv(decodeTextAuto(ab));
+    });
+  } else if (isZip) {
     parsePromise = S.loadJSZip().then(function(){return file.arrayBuffer();}).then(function(ab){ return S.parseEMDBZip(ab, S.setP); });
   } else {
     // Legacy PDF
