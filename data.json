@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-20T18:12:27.805Z",
+  "updated": "2026-08-20T18:13:33.761Z",
   "movies": [
     {
       "id": 1,
@@ -22360,15 +22360,15 @@
     {
       "id": 808,
       "num": 808,
-      "title": "free",
-      "year": 0,
+      "title": "Křižovatka smrti 3: Tentokráte v Paříži",
+      "year": 2007,
       "director": "Brett Ratner",
       "genres": [
         "Akčný",
         "Komédia",
         "Kriminálny"
       ],
-      "country": "US, DE, FR",
+      "country": "United States",
       "duration": "87 min",
       "cast": "Jackie Chan, Chris Tucker, Hiroyuki Sanada, Max von Sydow, Yvan Attal, Roman Polanski, 张静初, Philip Baker Hall, Noémie Lenoir, 工藤夕貴",
       "description": "V srdci samotného Paríža leží jedno z najväčších tajomstiev čínskych Triád – najmocnejšieho a najznámejšieho kriminálneho syndikátu na svete. Veľvyslanec Han objavil pravú identitu jednej z najnebezpečnejších osôb v širokom okruhu zločincov, ktorú bol pevne rozhodnutý zverejniť. To sa ale nepodarilo, pretože bol umlčaný jedným z triádskych zabijakov. Triády by urobili čokoľvek, aby ich tajomstvo zostalo ukryté pred svetom, a preto tu je len jediná nádej na ich zastavenie. To leto sa losangelský ",
@@ -22379,7 +22379,7 @@
       "_yt": null,
       "_tmdbUrl": null,
       "_imdbUrl": null,
-      "_localPath": "",
+      "_localPath": "W:\\Movies\\2007 - Krizovatka smrti 3.mkv",
       "_pctImdb": 71
     },
     {
@@ -25332,15 +25332,15 @@
     {
       "id": 916,
       "num": 916,
-      "title": "free",
-      "year": 0,
+      "title": "Mortal Kombat",
+      "year": 2021,
       "director": "Simon McQuoid",
       "genres": [
         "Akčný",
-        "Fantasy",
+        "Rozprávka",
         "Dobrodružný"
       ],
-      "country": "US",
+      "country": "Australia",
       "duration": "110 min",
       "cast": "Lewis Tan, Jessica McNamee, Mehcad Brooks, Josh Lawson, Ludi Lin, Max Huang, Tadanobu Asano, Chin Han, Hiroyuki Sanada, Joe Taslim",
       "description": "Cole Young je bojovník MMA. Nevie však nič o tetovaní draka, s ktorým sa narodil, o svojom dedičstve, ani o tom, prečo cisár Vonkajšieho sveta Shang Tsung vyslal svojho najlepšieho bojovníka Sub-Zera, aby Colea chytil. V strachu o svoju rodinu prijme Cole radu veliteľa špeciálnych jednotiek Jaxa a vydá sa hľadať Sonyu Blade. Vďaka tomu sa dostane do chrámu Lorda Raidena, ochrancu Zeme, ktorý dušiam s dračím znamením poskytuje útočisko. Cole uňho začne trénovať so skúsenými bojovníkmi Liu Kangom,",
@@ -25351,7 +25351,7 @@
       "_yt": null,
       "_tmdbUrl": null,
       "_imdbUrl": null,
-      "_localPath": "",
+      "_localPath": "W:\\Movies\\2021 - Mortal Kombat.mkv",
       "_pctImdb": 71
     },
     {
