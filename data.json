@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-20T18:16:08.859Z",
+  "updated": "2026-08-20T18:16:38.196Z",
   "movies": [
     {
       "id": 1,
@@ -22380,7 +22380,9 @@
       "_tmdbUrl": null,
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2007 - Krizovatka smrti 3.mkv",
-      "_pctImdb": 71
+      "_pctImdb": 71,
+      "_csfdUrl": "https://www.csfd.cz/film/116935-krizovatka-smrti-3-tentokrate-v-parizi/prehled/",
+      "_pctCsfd": 61
     },
     {
       "id": 809,
