@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-20T18:13:33.761Z",
+  "updated": "2026-08-20T18:15:44.722Z",
   "movies": [
     {
       "id": 1,
@@ -25352,7 +25352,9 @@
       "_tmdbUrl": null,
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2021 - Mortal Kombat.mkv",
-      "_pctImdb": 71
+      "_pctImdb": 71,
+      "_csfdUrl": "https://www.csfd.cz/film/207852-mortal-kombat/prehled/",
+      "_pctCsfd": 58
     },
     {
       "id": 917,
