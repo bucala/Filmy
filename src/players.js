@@ -1,6 +1,6 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
-import { localPathToSmb as localPathToSmbPure, getMoviePath as getMoviePathPure, smbToUnc as smbToUncPure } from './lib/paths.js';
+import { localPathToSmb as localPathToSmbPure, getMoviePath as getMoviePathPure, smbToUnc as smbToUncPure, buildAndroidLaunchUrl } from './lib/paths.js';
 
 S.localPathToSmb = function localPathToSmb(localPath) {
   return localPathToSmbPure(localPath, S.smbMap, S.smbBase);
@@ -10,8 +10,16 @@ S.getMoviePath = function getMoviePath(m) {
   return getMoviePathPure(m, { pathMode: S.pathMode, smbMap: S.smbMap, smbBase: S.smbBase });
 };
 
+S.buildAndroidLaunchUrl = buildAndroidLaunchUrl;
+
+S.ANDROID_PLAYER_LABELS = { vlc: 'VLC', mxplayer: 'MX Player', other: 'Systémový výber' };
+
 S.getPlayModeLabel = function getPlayModeLabel() {
   if (S.pathMode === 'smb' && S.smbUrlMode === 'raw') return 'Priame SMB';
+  if (S._isAndroid) {
+    var lbl = S.ANDROID_PLAYER_LABELS[S.androidPlayer] || 'VLC';
+    return S.pathMode === 'smb' ? lbl + '·SMB' : lbl;
+  }
   if (S._isMobile) return S.pathMode === 'smb' ? 'VLC·SMB' : 'VLC';
   if (S.playerProto === 'native') return 'Natívny';
   if (S.playerProto === 'portable') return 'Portable';
@@ -36,7 +44,7 @@ S.updatePathPreview = function updatePathPreview(){
     } else if(S.smbUrlMode==='raw'){
       protoUrl=smbPath;
     } else if(S._isAndroid){
-      protoUrl='vlc://'+smbPath;
+      protoUrl=buildAndroidLaunchUrl(smbPath, S.androidPlayer);
     } else {
       protoUrl=proto+'://'+encodeURI(server);
     }
@@ -78,16 +86,21 @@ S.playMovie = function playMovie(id){
       if(S.playerProto==='native' || S.smbUrlMode==='raw'){
         window.location.href=path;
       } else {
-        window.location.href='vlc://'+path;
+        window.location.href=buildAndroidLaunchUrl(path, S.androidPlayer);
       }
     } else {
       if(S.playerProto==='native'){
         window.location.href='file:///'+path.replace(/\\/g,'/');
       } else {
-        window.location.href='vlc://'+path;
+        window.location.href=buildAndroidLaunchUrl(path.replace(/\\/g,'/'), S.androidPlayer);
       }
     }
-    S.toast('Spúšťam prehrávač...');
+    if(S.androidPlayer==='other'){
+      S.copyToClip(path);
+      S.toast('Cesta skopírovaná. Otváram cez systémový výber appky...');
+    } else {
+      S.toast('Spúšťam '+(S.ANDROID_PLAYER_LABELS[S.androidPlayer]||'VLC')+'...');
+    }
     return;
   }
 

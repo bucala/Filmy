@@ -144,6 +144,24 @@ document.addEventListener("DOMContentLoaded",function(){
   });
   if(_portWrap) _portWrap.style.display = S.playerProto==='portable' ? 'block' : 'none';
 
+  // Android player toggle (VLC / MX Player / Iný) — only shown on Android.
+  document.querySelectorAll('#androidPlayerToggle .ttab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      S.androidPlayer = this.dataset.aproto;
+      localStorage.setItem(S.ANDROID_PLAYER_KEY, S.androidPlayer);
+      document.querySelectorAll('#androidPlayerToggle .ttab').forEach(function(b){b.className='ttab';});
+      this.className='ttab on';
+      S.toast('Prehrávač: ' + S.getPlayModeLabel());
+      var _pb3=document.getElementById('playMovieBtn');
+      if(_pb3){var _l3=_pb3.querySelector('.sett-btn-label');if(_l3)_l3.textContent='Prehráť · '+S.getPlayModeLabel();}
+      S.updatePathPreview();
+    });
+  });
+
+  // SMB sources: add a new named source
+  var _smbSrcAdd = document.getElementById('smbSrcAddBtn');
+  if (_smbSrcAdd) _smbSrcAdd.addEventListener('click', S.addSmbSource);
+
   // Windows desktop (Electron) — show which installed players the native
   // bridge detected; playback then launches them directly, so the mpc:///
   // vlc:// registry handlers are not needed inside the desktop app.
@@ -363,7 +381,7 @@ S.toast(_modeLabel);
       if(S._isAndroid && (proto==='native' || S.smbUrlMode==='raw')){
         testUrl=smbPath;
       } else if(S._isAndroid){
-        testUrl='vlc://'+smbPath;
+        testUrl=S.buildAndroidLaunchUrl(smbPath, S.androidPlayer);
       } else if(proto==='native' || S.smbUrlMode==='raw'){
         testUrl=smbPath;
       } else {
@@ -912,6 +930,14 @@ window.addEventListener('load',S.adjustScrnBody);
 try { S.smbMap = JSON.parse(localStorage.getItem(S.SMB_MAP_KEY) || '{}'); } catch(e) { S.smbMap = {}; }
 
 if (!S.smbMap || typeof S.smbMap !== 'object' || !Object.keys(S.smbMap).length) S.smbMap = {"W:\\\\Movies\\\\":"smb://DESKTOP-EGOG348/Movies/"};
+
+try { S.smbSources = JSON.parse(localStorage.getItem(S.SMB_SOURCES_KEY) || '[]'); } catch(e) { S.smbSources = []; }
+if (!Array.isArray(S.smbSources)) S.smbSources = [];
+if (!S.smbSources.length) {
+  // Backward compat: seed the list from the single smbBase existing installs already have.
+  S.smbSources = [{ name: 'Predvolený', url: S.smbBase }];
+  localStorage.setItem(S.SMB_SOURCES_KEY, JSON.stringify(S.smbSources));
+}
 
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'hidden' && S.autoPushTimer) {

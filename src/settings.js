@@ -371,6 +371,13 @@ S.openSett = function openSett(){
   if(_dmt) _dmt.checked=S.debugMode;
   S.updateDebugInfo();
   S.adminFixPopulateSelect();
+  S.renderSmbSources();
+  // Android-only player picker — hidden on PC/iOS where it doesn't apply.
+  var _apw = document.getElementById('androidPlayerWrap');
+  if (_apw) _apw.style.display = S._isAndroid ? 'block' : 'none';
+  document.querySelectorAll('#androidPlayerToggle .ttab').forEach(function(b){
+    b.className = 'ttab' + (b.dataset.aproto === S.androidPlayer ? ' on' : '');
+  });
   document.getElementById("settOverlay").classList.remove("hidden");
   document.getElementById("settPanel").classList.remove("hidden");
 };
@@ -378,6 +385,85 @@ S.openSett = function openSett(){
 S.closeSett = function closeSett() {
   document.getElementById("settOverlay").classList.add("hidden");
   document.getElementById("settPanel").classList.add("hidden");
+};
+
+/* ═══════════════ SMB zdroje (multiple remembered SMB shares) ═══════════════
+   S.smbSources is a named list of { name, url } pairs the user can add and
+   switch between. The "default" entry (marked with a star) is written into
+   the EXISTING S.smbBase/localStorage[SMB_KEY] — every other SMB-consuming
+   code path (getMoviePath, localPathToSmb, playMovie, ...) keeps working
+   completely unchanged, since they only ever read S.smbBase. */
+S.renderSmbSources = function renderSmbSources(){
+  var box = document.getElementById('smbSourcesList');
+  if(!box) return;
+  box.innerHTML = '';
+  if(!S.smbSources.length){
+    box.innerHTML = '<div class="sett-btn-hint">Žiadne uložené zdroje.</div>';
+    return;
+  }
+  S.smbSources.forEach(function(src, i){
+    var isDefault = src.url === S.smbBase;
+    var row = document.createElement('div');
+    row.className = 'smb-src-row';
+
+    var star = document.createElement('button');
+    star.type = 'button';
+    star.className = 'smb-src-star' + (isDefault ? ' on' : '');
+    star.title = 'Nastaviť ako predvolený';
+    star.innerHTML = isDefault ? '&#9733;' : '&#9734;';
+    star.addEventListener('click', function(){ S.setDefaultSmbSource(i); });
+
+    var info = document.createElement('div');
+    info.className = 'smb-src-info';
+    info.innerHTML = '<div class="smb-src-name">'+esc(src.name)+'</div><div class="smb-src-url">'+esc(src.url)+'</div>';
+
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'smb-src-del';
+    del.title = 'Odstrániť';
+    del.innerHTML = '&#10005;';
+    del.addEventListener('click', function(){ S.removeSmbSource(i); });
+
+    row.appendChild(star); row.appendChild(info); row.appendChild(del);
+    box.appendChild(row);
+  });
+};
+
+S.addSmbSource = function addSmbSource(){
+  var nameInp = document.getElementById('smbSrcNameInp');
+  var urlInp = document.getElementById('smbSrcUrlInp');
+  var name = (nameInp.value||'').trim();
+  var url = (urlInp.value||'').trim();
+  if(!url){ S.toast('Zadaj SMB adresu.'); return; }
+  if(url.indexOf('smb://')!==0){ S.toast('Adresa musí začínať smb://'); return; }
+  if(url[url.length-1]!=='/') url+='/';
+  if(!name) name = url.replace(/^smb:\/\//,'').replace(/\/$/,'');
+  S.smbSources.push({name:name, url:url});
+  localStorage.setItem(S.SMB_SOURCES_KEY, JSON.stringify(S.smbSources));
+  nameInp.value=''; urlInp.value='';
+  S.renderSmbSources();
+  S.toast('Zdroj pridaný: '+name);
+};
+
+S.setDefaultSmbSource = function setDefaultSmbSource(idx){
+  var src = S.smbSources[idx];
+  if(!src) return;
+  S.smbBase = src.url;
+  localStorage.setItem(S.SMB_KEY, S.smbBase);
+  var smbInp = document.getElementById('smbPathInp');
+  if(smbInp) smbInp.value = S.smbBase;
+  S.renderSmbSources();
+  S.updatePathPreview();
+  S.toast('Predvolený zdroj: '+src.name);
+};
+
+S.removeSmbSource = function removeSmbSource(idx){
+  var src = S.smbSources[idx];
+  if(!src) return;
+  if(S.smbSources.length<=1){ S.toast('Musí zostať aspoň jeden zdroj.'); return; }
+  S.smbSources.splice(idx,1);
+  localStorage.setItem(S.SMB_SOURCES_KEY, JSON.stringify(S.smbSources));
+  S.renderSmbSources();
 };
 
 S.activateSettingsTab = function activateSettingsTab(tabKey){

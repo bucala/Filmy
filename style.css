@@ -323,6 +323,18 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .sett-key-st.hidden{display:none}
 .sett-key-st.ok{color:#22cc88}.sett-key-st.err{color:#e05555}
 
+/* ── SMB sources list ───────────────────────────────────────────── */
+.smb-src-row{display:flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border2);
+  border-radius:10px;padding:7px 10px;margin-bottom:5px}
+.smb-src-star{background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;line-height:1;
+  padding:2px;flex-shrink:0;transition:color .15s}
+.smb-src-star.on,.smb-src-star:hover{color:var(--gold)}
+.smb-src-info{flex:1;min-width:0}
+.smb-src-name{font-size:11px;font-weight:700;color:var(--text)}
+.smb-src-url{font-family:var(--font-mono);font-size:10px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.smb-src-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;padding:2px 4px;flex-shrink:0;transition:color .15s}
+.smb-src-del:hover{color:#e05555}
+
 /* ── Unified icon button (eye, delete) ─────────────────────────── */
 .sett-icon-btn{background:var(--card2);border:1px solid var(--border2);border-radius:10px;
   padding:0 12px;height:38px;cursor:pointer;color:var(--text2);font-size:15px;
