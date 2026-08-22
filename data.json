@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T14:10:23.581Z",
+  "updated": "2026-08-22T14:11:25.613Z",
   "movies": [
     {
       "id": 1,
@@ -47908,7 +47908,7 @@
         "Komédia",
         "Dobrodružný;W:\\Movies\\2026 - Toy Story 5.mkv"
       ],
-      "_localPath": "1764;Neznámy;Toy Story 5: Příběh hraček;2026;United States;Animovaný, Rodinný, Komédia, Dobrodružný;W:\\Movies\\2026 - Toy Story 5.mkv",
+      "_localPath": "Toy Story 5: Příběh hraček",
       "director": "",
       "cast": "",
       "duration": "",
@@ -47917,7 +47917,9 @@
       "rating": 0,
       "tmdbId": null,
       "moods": [],
-      "id": 1764
+      "id": 1764,
+      "_csfdUrl": "https://www.csfd.cz/film/1506017-toy-story-5-pribeh-hracek/prehled/",
+      "_pctCsfd": 81
     }
   ],
   "favourites": [],
