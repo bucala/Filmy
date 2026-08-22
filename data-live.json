@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T14:13:05.328Z",
+  "updated": "2026-08-22T14:13:50.128Z",
   "liveCache": {
     "1": {
       "pct": 74,
@@ -14005,7 +14005,12 @@
       "posterUrl": "https://image.tmdb.org/t/p/w185/11YRubYZy9rEmxt3MsJ6CD2Q5dr.jpg"
     },
     "1764": {
-      "imdbUrl": "https://www.imdb.com/title/tt29355505/?ref_=ext_shr_lnk"
+      "pct": 81,
+      "ytKey": "LYg185xevh4",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/8sSKdEmlmqF4kJUd28SqthXC4yZ.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1084244",
+      "imdbUrl": "https://www.imdb.com/title/tt29355505/",
+      "posterUrl": "https://image.tmdb.org/t/p/w185/dDvfeGz0jsLjfg1pfHZuDqQFK6O.jpg"
     }
   }
 }
