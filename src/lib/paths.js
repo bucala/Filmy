@@ -61,3 +61,41 @@ export function getMoviePath(movie, opts) {
   }
   return rawPath;
 }
+
+/* MX Player Pro's package name, for explicit-package launches — see
+   buildAndroidLaunchUrl(). MX Player's own documented Intent contract is
+   ACTION_VIEW + video/* + an explicit package, not a custom scheme trick. */
+export var MXPLAYER_PACKAGE = 'com.mxtech.videoplayer.pro';
+
+/* Builds the URL handed to window.location.href to launch an external
+   player on Android, honouring the user's chosen player (S.androidPlayer):
+   - 'vlc'      → vlc://<path>. VLC's own deep-link convention: VLC strips
+     the vlc:// prefix and opens the remainder (e.g. smb://...) itself.
+     Proven to work; kept as the default so existing installs don't regress.
+   - 'mxplayer' → an intent:// URI (Android's own "intent scheme" format,
+     already handled by MainActivity's shouldOverrideUrlLoading) that
+     explicitly targets MX Player Pro by package and carries the ORIGINAL
+     scheme (smb/file/...) as a clean, unmangled data URI — unlike the vlc://
+     trick, MX Player never sees a corrupted double-scheme URI. Whether MX
+     Player can actually stream an smb:// path isn't publicly documented;
+     if not, the "Iný / Kopírovať cestu" choice is the fallback.
+   - anything else ('other') → the raw path as-is, letting Android resolve
+     it via a normal implicit ACTION_VIEW (system chooser / default app) —
+     no scheme mangling, so any player that does register for the path's
+     native scheme can pick it up. */
+export function buildAndroidLaunchUrl(path, androidPlayer) {
+  var p = String(path || '');
+  if (!p) return '';
+  if (androidPlayer === 'mxplayer') {
+    var m = p.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):\/\/(.*)$/);
+    var scheme = m ? m[1] : 'smb';
+    var rest = m ? m[2] : p;
+    return 'intent://' + encodeURI(rest) +
+      '#Intent;scheme=' + scheme + ';package=' + MXPLAYER_PACKAGE +
+      ';action=android.intent.action.VIEW;type=video/*;end';
+  }
+  if (!androidPlayer || androidPlayer === 'vlc') {
+    return 'vlc://' + encodeURI(p);
+  }
+  return encodeURI(p);
+}

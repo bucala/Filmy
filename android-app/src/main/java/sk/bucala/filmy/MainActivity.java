@@ -131,10 +131,17 @@ public class MainActivity extends Activity {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 } catch (ActivityNotFoundException e) {
-                    Toast.makeText(MainActivity.this,
-                        "Žiadna appka pre " + scheme + ":// — nainštaluj VLC", Toast.LENGTH_LONG).show();
+                    // scheme is "intent" for explicit-package launches (e.g. MX Player) —
+                    // in that case the target package itself isn't installed, not "no
+                    // app for this scheme", so the message shouldn't assume VLC.
+                    String msg = scheme.equals("intent")
+                        ? "Vybraná appka nie je nainštalovaná."
+                        : "Žiadna appka pre " + scheme + ":// nie je nainštalovaná.";
+                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     Log.w(TAG, "Failed to handle URL: " + uri, e);
+                    Toast.makeText(MainActivity.this,
+                        "Prehrávač sa nepodarilo spustiť.", Toast.LENGTH_LONG).show();
                 }
                 return true;
             }

@@ -4,6 +4,19 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Package visibility (Android 11+): the explicit-package player launches
+         (MX Player) and the video/* chooser fallback need these declared, or
+         PackageManager may not resolve them on newer Android versions. -->
+    <queries>
+        <package android:name="org.videolan.vlc" />
+        <package android:name="com.mxtech.videoplayer.pro" />
+        <package android:name="com.mxtech.videoplayer.ad" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="video/*" />
+        </intent>
+    </queries>
+
     <!-- TV: don't require a touchscreen so Google TV accepts the app, and mark
          leanback as supported-but-not-required so phones/tablets still qualify. -->
     <uses-feature
