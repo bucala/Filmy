@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T20:11:28.532Z",
+  "updated": "2026-08-22T20:12:00.096Z",
   "movies": [
     {
       "id": 1,
@@ -41215,17 +41215,17 @@
       "year": 2017,
       "director": "Alex Kurtzman",
       "genres": [
-        "Rozprávka",
+        "Fantasy",
         "Thriller",
         "Akčný",
         "Dobrodružný",
-        "Horor"
+        "Horror"
       ],
-      "country": "United States",
+      "country": "US",
       "duration": "110 min",
-      "cast": "Tom Cruise, Annabelle Wallis, Sofia Boutella, Jake Johnson, Courtney B. Vance",
-      "description": "Když ležíte celá století od hlavy až po paty zafačovaní gázou a zavření ve zdobené rakvi, musí ve vás nečekaná svoboda probudit touhu udělat něco mimořádného. Princezna Ahmanet by chtěla zničit celý svět. Dokáže ji tajná organizace zvaná Prodigium zastavit?",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/te6wSUeDHg1QGtEJDpKIflJ3k0d.jpg",
+      "cast": "Tom Cruise, Annabelle Wallis, Sofia Boutella, Jake Johnson, Courtney B. Vance, Russell Crowe, Marwan Kenzari, Neil Maskell, Javier Botet, Andrew Brooke",
+      "description": "Pred dvetisíc rokmi v Egypte sa veľmi ambiciózna princezná Ahmanet (Sofia Boutella) chystá na prevzatie vlády v krajine po svojom otcovi a pre naplnenie svojho cieľa sa neváha spojiť s temnými silami a vykonávať veci, z ktorých tuhne krv v žilách. Za svoje činy bola potrestaná mumifikáciou zaživa a pochovaná tak, aby ju nikto nenašiel. O dvetisíc rokov neskôr sa v mieste jej večného odpočinku ocitli dobrodruh Nick Morton a archeologička Jenny Halsey.  Lenže lietadlo prevážajúce múmiu prekliatej ",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/5VZDUmTiyzQSpSQxoYXHSCvlm0s.jpg",
       "rating": 0,
       "tmdbId": 282035,
       "moods": [],
