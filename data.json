@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T14:13:05.296Z",
+  "updated": "2026-08-22T14:13:50.098Z",
   "movies": [
     {
       "id": 1,
@@ -47901,21 +47901,21 @@
       "num": 1764,
       "title": "1764;Neznámy;Toy Story 5: Příběh hraček;2026;United States;Animovaný, Rodinný, Komédia, Dobrodružný;W:\\Movies\\2026 - Toy Story 5.mkv",
       "year": 1764,
-      "country": "1764;Neznámy;Toy Story 5: Příběh hraček;2026;United States;Animovaný, Rodinný, Komédia, Dobrodružný;W:\\Movies\\2026 - Toy Story 5.mkv",
+      "country": "US",
       "genres": [
-        "1764;Neznámy;Toy Story 5: Příběh hraček;2026;United States;Animovaný",
+        "Animovaný",
         "Rodinný",
         "Komédia",
-        "Dobrodružný;W:\\Movies\\2026 - Toy Story 5.mkv"
+        "Dobrodružný"
       ],
       "_localPath": "Toy Story 5: Příběh hraček",
-      "director": "",
-      "cast": "",
-      "duration": "",
-      "description": "",
-      "poster_thumb": "",
+      "director": "Andrew Stanton",
+      "cast": "Joan Cusack, Tom Hanks, Tim Allen, Conan O'Brien, Scarlett Spears, Greta Lee, Shelby Rabara, Mykal-Michelle Harris, Craig Robinson, Jay Hernandez",
+      "duration": "102 min",
+      "description": "Obľúbená partia hračiek sa vracia v novom dobrodružstve, ktoré im prináša výzvu relevantnú pre dnešný svet. Woody, Buzz Lightyear, Jessie a Forky zistia, že svet detskej izby už nie je len o fantázii a klasických hrách. Do ich života vstupuje moderná technológia – inteligentný tablet v tvare žaby s prezývkou Froglet – a s ňou aj úplne nový poriadok. Kým predtým stačilo súťažiť o pozornosť dieťaťa medzi plyšovými zvieratkami a plastovými hrdinami, teraz sa hračky musia vyrovnať s konkurenciou dig",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/dDvfeGz0jsLjfg1pfHZuDqQFK6O.jpg",
       "rating": 0,
-      "tmdbId": null,
+      "tmdbId": 1084244,
       "moods": [],
       "id": 1764,
       "_csfdUrl": "https://www.csfd.cz/film/1506017-toy-story-5-pribeh-hracek/prehled/",
