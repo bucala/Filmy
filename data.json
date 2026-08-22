@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T14:11:36.321Z",
+  "updated": "2026-08-22T14:13:05.296Z",
   "movies": [
     {
       "id": 1,
@@ -47876,22 +47876,22 @@
       "num": 1763,
       "title": "1763;Neznámy;Mimoni a monstra;2026;United States;Dobrodružný, Animovaný, Komédia, Rodinný, Rozprávka;W:\\Movies\\2026 - Mimoni a monstra.mkv",
       "year": 1763,
-      "country": "1763;Neznámy;Mimoni a monstra;2026;United States;Dobrodružný, Animovaný, Komédia, Rodinný, Rozprávka;W:\\Movies\\2026 - Mimoni a monstra.mkv",
+      "country": "US",
       "genres": [
-        "1763;Neznámy;Mimoni a monstra;2026;United States;Dobrodružný",
+        "Dobrodružný",
         "Animovaný",
         "Komédia",
         "Rodinný",
-        "Rozprávka;W:\\Movies\\2026 - Mimoni a monstra.mkv"
+        "Fantasy"
       ],
       "_localPath": "Mimoni a monstra",
-      "director": "",
-      "cast": "",
-      "duration": "",
-      "description": "",
-      "poster_thumb": "",
+      "director": "Pierre Coffin",
+      "cast": "Pierre Coffin, Trey Parker, Christoph Waltz, Allison Janney, Jesse Eisenberg, Jeff Bridges, Zoey Deutch, Bobby Moynihan, Phil LaMarr, George Lucas",
+      "duration": "90 min",
+      "description": "Hoci sú to poriadni babráci, patria k  najobľúbenejšie a najúspešnejším filmovým postavám všetkých čias. Kto? Predsa Mimoni! V ich novom filme zistíte, že práve oni stáli pri zrode zlatej éry Hollywoodu. To ste tiež nevedeli, však? Životným poslaním Mimoňov je nájsť toho najväčšieho zloducha pod slnkom a oddane mu slúžiť až do roztrhania tela – väčšinou toho jeho. Mimoni sú totiž magnetom na katastrofy, ktoré dopadnú tragicky výlučne pre ich okolie. S každým šéfom, ktorého nešťastnou náhodou pri",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/11YRubYZy9rEmxt3MsJ6CD2Q5dr.jpg",
       "rating": 0,
-      "tmdbId": null,
+      "tmdbId": 1315772,
       "moods": [],
       "id": 1763,
       "_csfdUrl": "https://www.csfd.cz/film/1620007-mimoni-a-monstra/prehled/",
