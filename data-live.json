@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T14:07:50.049Z",
+  "updated": "2026-08-22T14:10:23.615Z",
   "liveCache": {
     "1": {
       "pct": 74,
@@ -13995,6 +13995,9 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/flxau5Iu7bChQHsESqvGZ3FQRaI.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/1275779",
       "imdbUrl": "https://www.imdb.com/title/tt15047880/"
+    },
+    "1763": {
+      "imdbUrl": "https://www.imdb.com/title/tt32890033/?ref_=ext_shr_lnk"
     }
   }
 }
