@@ -81,6 +81,8 @@ function restoreRenderer(saved) {
 const GWL_STYLE = -16;
 const WS_POPUP = 0x80000000;
 const WS_CHILD = 0x40000000;
+const WS_CLIPSIBLINGS = 0x04000000;
+const WS_CLIPCHILDREN = 0x02000000;
 const WS_CAPTION = 0x00C00000;
 const WS_THICKFRAME = 0x00040000;
 const SWP_NOZORDER = 0x0004;
@@ -130,9 +132,45 @@ function api() {
     SetActiveWindow: user32.func('void *__stdcall SetActiveWindow(void *hwnd)'),
     SetFocus: user32.func('void *__stdcall SetFocus(void *hwnd)'),
     BringWindowToTop: user32.func('bool __stdcall BringWindowToTop(void *hwnd)'),
-    RedrawWindow: user32.func('bool __stdcall RedrawWindow(void *hwnd, void *rcUpdate, void *hrgnUpdate, uint32_t flags)')
+    RedrawWindow: user32.func('bool __stdcall RedrawWindow(void *hwnd, void *rcUpdate, void *hrgnUpdate, uint32_t flags)'),
+    FindWindowEx: user32.func('void *__stdcall FindWindowExW(void *hwndParent, void *hwndChildAfter, str16 lpszClass, str16 lpszWindow)')
   };
   return fns;
+}
+
+// Chromium (Electron's renderer) repaints its own full client area on every
+// composited frame and — by long-documented default behavior — draws over
+// any foreign child window placed inside it (chromium crbug.com/587535).
+// That, not the DirectShow renderer, is what actually produces "audio
+// plays, video stays black": MPC renders correctly into its own HWND, but
+// Chromium's GPU process then paints over that HWND's screen area on the
+// very next composited frame. WS_CLIPCHILDREN on the host window keeps its
+// own repaints from touching the embedded child's area; WS_CLIPSIBLINGS on
+// Chromium's own "Intermediate D3D Window" (the child window its GPU
+// process actually renders the page into) stops that window's repaints
+// from painting over sibling windows, i.e. MPC. This exact pair of style
+// changes is the fix Streamlabs documented for shipping native window
+// embedding in their own Electron app (electron/electron#10547).
+function fixElectronClipping(hostHandle) {
+  var f = api();
+  try {
+    var hostStyle = Number(f.GetWindowLongPtr(hostHandle, GWL_STYLE));
+    if ((hostStyle & WS_CLIPCHILDREN) === 0) {
+      f.SetWindowLongPtr(hostHandle, GWL_STYLE, (hostStyle | WS_CLIPCHILDREN) >>> 0);
+    }
+    var d3dWnd = f.FindWindowEx(hostHandle, null, 'Intermediate D3D Window', null);
+    if (d3dWnd) {
+      var d3dStyle = Number(f.GetWindowLongPtr(d3dWnd, GWL_STYLE));
+      if ((d3dStyle & WS_CLIPSIBLINGS) === 0) {
+        f.SetWindowLongPtr(d3dWnd, GWL_STYLE, (d3dStyle | WS_CLIPSIBLINGS) >>> 0);
+      }
+      console.log('[embed-win] WS_CLIPSIBLINGS applied to Chromium\'s Intermediate D3D Window');
+    } else {
+      console.log('[embed-win] no "Intermediate D3D Window" child found under the host window (GPU compositing off?) — skipped WS_CLIPSIBLINGS');
+    }
+  } catch (e) {
+    console.error('[embed-win] fixElectronClipping failed (non-fatal):', e);
+  }
 }
 
 // Must be called immediately after the Win32 call being diagnosed — any
@@ -254,6 +292,8 @@ async function play(opts) {
         error: 'Vnorenie okna zlyhalo (GetParent nesúhlasí, Win32 chyba ' + setParentErrCode + '). Skontroluj, či appka aj MPC bežia v rovnakom režime (žiadny z nich ako správca).'
       };
     }
+
+    fixElectronClipping(parentHandle);
 
     if (rect) {
       f.SetWindowPos(hwnd, null, rect.x, rect.y, rect.width, rect.height,
