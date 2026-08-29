@@ -21,6 +21,11 @@ const SWP_FRAMECHANGED = 0x0020;
 const SWP_SHOWWINDOW = 0x0040;
 const SW_SHOW = 5;
 const WM_CLOSE = 0x0010;
+const RDW_INVALIDATE = 0x0001;
+const RDW_ERASE = 0x0004;
+const RDW_ALLCHILDREN = 0x0080;
+const RDW_UPDATENOW = 0x0100;
+const RDW_REPAINT_ALL = RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW;
 
 let koffi = null;
 let user32 = null;
@@ -51,7 +56,13 @@ function api() {
     SetWindowLongPtr: user32.func('intptr_t __stdcall SetWindowLongPtrW(void *hwnd, int nIndex, intptr_t newLong)'),
     SetWindowPos: user32.func('bool __stdcall SetWindowPos(void *hwnd, void *insertAfter, int x, int y, int cx, int cy, uint32_t flags)'),
     ShowWindow: user32.func('bool __stdcall ShowWindow(void *hwnd, int nCmdShow)'),
-    PostMessage: user32.func('bool __stdcall PostMessageW(void *hwnd, uint32_t msg, void *wParam, void *lParam)')
+    PostMessage: user32.func('bool __stdcall PostMessageW(void *hwnd, uint32_t msg, void *wParam, void *lParam)'),
+    GetCurrentThreadId: kernel32.func('uint32_t __stdcall GetCurrentThreadId()'),
+    AttachThreadInput: user32.func('bool __stdcall AttachThreadInput(uint32_t idAttach, uint32_t idAttachTo, bool fAttach)'),
+    SetActiveWindow: user32.func('void *__stdcall SetActiveWindow(void *hwnd)'),
+    SetFocus: user32.func('void *__stdcall SetFocus(void *hwnd)'),
+    BringWindowToTop: user32.func('bool __stdcall BringWindowToTop(void *hwnd)'),
+    RedrawWindow: user32.func('bool __stdcall RedrawWindow(void *hwnd, void *rcUpdate, void *hrgnUpdate, uint32_t flags)')
   };
   return fns;
 }
@@ -144,23 +155,81 @@ async function play(opts) {
   }
 
   try {
-    // Make it a chromeless child of the app window: clear WS_POPUP and the
-    // caption/thick frame, set WS_CHILD, then reparent and place it.
+    // Reparent first, then verify with GetParent — SetParent can silently
+    // no-op (e.g. UIPI/integrity-level mismatch) without throwing in FFI.
+    var prevParent = f.SetParent(hwnd, parentHandle);
+    var setParentErrCode = prevParent ? 0 : lastErr();
+    var actualParent = f.GetParent(hwnd);
+    var reparented = !!actualParent && Number(actualParent) === Number(parentHandle);
+    if (!reparented) {
+      console.error('[embed-win] SetParent did not take effect, Win32 error', setParentErrCode);
+      try { child.kill(); } catch (e2) { /* already gone */ }
+      return {
+        ok: false,
+        error: 'SetParent zlyhalo (Win32 chyba ' + setParentErrCode + '). Skontroluj, či appka aj MPC bežia v rovnakom režime (žiadny z nich ako správca).'
+      };
+    }
+
+    // Chromeless: clear WS_POPUP and the caption/thick frame, set WS_CHILD.
     var style = Number(f.GetWindowLongPtr(hwnd, GWL_STYLE));
     style = (style & ~WS_CAPTION & ~WS_THICKFRAME & ~WS_POPUP) | WS_CHILD;
     f.SetWindowLongPtr(hwnd, GWL_STYLE, style >>> 0);
-    f.SetParent(hwnd, parentHandle);
     if (rect) {
       f.SetWindowPos(hwnd, null, rect.x, rect.y, rect.width, rect.height,
         SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
     }
     f.ShowWindow(hwnd, SW_SHOW);
+
+    // A reparented window that never gets real activation/focus stays in a
+    // "background" state that many players treat as not actually visible:
+    // hardware video renderers skip presenting frames (audio keeps playing
+    // since that pipeline is separate) and the toolbar/OSD never runs its
+    // first layout+paint. SetFocus/SetActiveWindow are no-ops across a
+    // process boundary unless the calling thread's input is attached to the
+    // target thread's — hence AttachThreadInput.
+    //
+    // Deliberately stays attached for the life of the embedded session
+    // (detached only in stop()): MSDN notes that detaching restores each
+    // thread's *pre-attach* input state, which would immediately undo the
+    // SetFocus/SetActiveWindow below and leave MPC unable to receive
+    // keyboard input again.
+    var mpcTid = 0;
+    try {
+      var pidOut = [0];
+      mpcTid = f.GetWindowThreadProcessId(hwnd, pidOut);
+      var myTid = f.GetCurrentThreadId();
+      var attached = f.AttachThreadInput(myTid, mpcTid, true);
+      f.SetActiveWindow(hwnd);
+      f.SetFocus(hwnd);
+      f.BringWindowToTop(hwnd);
+      f.RedrawWindow(hwnd, null, null, RDW_REPAINT_ALL);
+      console.log('[embed-win] activation: mpcTid=' + mpcTid + ' myTid=' + myTid + ' attached=' + attached);
+    } catch (e) {
+      console.error('[embed-win] activation step failed (non-fatal):', e);
+    }
+
+    // MPC re-applies its own saved window placement shortly after showing,
+    // which can undo the styling/position/focus above — reassert a couple
+    // of times as things settle (codec/network load, renderer init).
+    [350, 1200].forEach(function (delay) {
+      setTimeout(function () {
+        try {
+          if (!f.IsWindow(hwnd)) return;
+          if (rect) {
+            f.SetWindowPos(hwnd, null, rect.x, rect.y, rect.width, rect.height,
+              SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+          }
+          f.RedrawWindow(hwnd, null, null, RDW_REPAINT_ALL);
+        } catch (e) { /* best effort */ }
+      }, delay);
+    });
   } catch (e) {
+    console.error('[embed-win] reparent threw', e);
     try { child.kill(); } catch (e2) { /* already gone */ }
     return { ok: false, error: 'Vnorenie okna zlyhalo: ' + String((e && e.message) || e) };
   }
 
-  current = { pid: child.pid, hwnd: hwnd, child: child };
+  current = { pid: child.pid, hwnd: hwnd, child: child, mpcTid: mpcTid };
   child.on('exit', function () {
     if (current && current.pid === child.pid) current = null;
   });
@@ -185,6 +254,12 @@ function stop() {
   if (!current) return { ok: true };
   var c = current;
   current = null;
+  try {
+    if (user32 && c.mpcTid) {
+      var f = api();
+      f.AttachThreadInput(f.GetCurrentThreadId(), c.mpcTid, false);
+    }
+  } catch (e) { /* best effort — thread may already be gone */ }
   try {
     if (user32 && api().IsWindow(c.hwnd)) {
       api().PostMessage(c.hwnd, WM_CLOSE, null, null);

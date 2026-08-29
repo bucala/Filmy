@@ -97,7 +97,11 @@ function registerIpc() {
     if (!validRect(opts.rect)) return { ok: false, error: 'Neplatná oblasť videa.' };
     var ph = parentHandle();
     if (!ph) return { ok: false, error: 'Okno aplikácie nie je pripravené.' };
-    return embedWin.play({ path: p, rect: opts.rect, parentHandle: ph });
+    console.log('[main] embed-play', p, opts.rect);
+    return embedWin.play({ path: p, rect: opts.rect, parentHandle: ph }).then(function (res) {
+      console.log('[main] embed-play result', res);
+      return res;
+    });
   });
   ipcMain.handle('filmy:embed-move', function (event, opts) {
     if (!opts || !validRect(opts.rect)) return { ok: false };
@@ -160,6 +164,10 @@ function createWindow() {
 
   mainWindow.once('ready-to-show', function () {
     mainWindow.show();
+    // Page-side console.log/error (players.js, main.js) only show up here —
+    // main-process diagnostics (embed-win.js) print to the terminal running
+    // `npm start` instead. F12 / Ctrl+Shift+I toggle this in packaged builds.
+    if (!app.isPackaged) mainWindow.webContents.openDevTools({ mode: 'detach' });
   });
 
   ['resize', 'move', 'maximize', 'unmaximize', 'close'].forEach(function (evt) {
