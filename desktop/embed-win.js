@@ -155,25 +155,33 @@ async function play(opts) {
   }
 
   try {
-    // Reparent first, then verify with GetParent — SetParent can silently
-    // no-op (e.g. UIPI/integrity-level mismatch) without throwing in FFI.
-    var prevParent = f.SetParent(hwnd, parentHandle);
-    var setParentErrCode = prevParent ? 0 : lastErr();
-    var actualParent = f.GetParent(hwnd);
-    var reparented = !!actualParent && Number(actualParent) === Number(parentHandle);
-    if (!reparented) {
-      console.error('[embed-win] SetParent did not take effect, Win32 error', setParentErrCode);
-      try { child.kill(); } catch (e2) { /* already gone */ }
-      return {
-        ok: false,
-        error: 'SetParent zlyhalo (Win32 chyba ' + setParentErrCode + '). Skontroluj, či appka aj MPC bežia v rovnakom režime (žiadny z nich ako správca).'
-      };
-    }
-
-    // Chromeless: clear WS_POPUP and the caption/thick frame, set WS_CHILD.
+    // Per SetParent's own MSDN remarks: when adopting a former top-level
+    // ("child of the desktop") window, WS_POPUP must be cleared and
+    // WS_CHILD set BEFORE calling SetParent — doing it after only assigns
+    // an *owner*, not a true parent. GetParent() is documented to reliably
+    // report the true parent only for WS_CHILD windows (it falls back to
+    // reporting the *owner* for WS_POPUP windows, and simply fails/returns
+    // NULL for a plain WS_OVERLAPPEDWINDOW like MPC's, regardless of what
+    // SetParent already did) — so verifying via GetParent only makes sense
+    // once WS_CHILD is actually set.
     var style = Number(f.GetWindowLongPtr(hwnd, GWL_STYLE));
     style = (style & ~WS_CAPTION & ~WS_THICKFRAME & ~WS_POPUP) | WS_CHILD;
     f.SetWindowLongPtr(hwnd, GWL_STYLE, style >>> 0);
+
+    f.SetParent(hwnd, parentHandle);
+    var setParentErrCode = lastErr();
+    var actualParent = f.GetParent(hwnd);
+    var reparented = actualParent !== null && actualParent !== undefined && Number(actualParent) === Number(parentHandle);
+    if (!reparented) {
+      console.error('[embed-win] GetParent mismatch after SetParent+WS_CHILD. actualParent=', actualParent,
+        'expected=', parentHandle, 'GetLastError after SetParent=', setParentErrCode);
+      try { child.kill(); } catch (e2) { /* already gone */ }
+      return {
+        ok: false,
+        error: 'Vnorenie okna zlyhalo (GetParent nesúhlasí, Win32 chyba ' + setParentErrCode + '). Skontroluj, či appka aj MPC bežia v rovnakom režime (žiadny z nich ako správca).'
+      };
+    }
+
     if (rect) {
       f.SetWindowPos(hwnd, null, rect.x, rect.y, rect.width, rect.height,
         SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
