@@ -7,8 +7,76 @@
 // Legal note: same as players-win.js — the user's own installed player is
 // merely launched via CLI and its window reparented; no bundling, linking,
 // or modification of the player.
-const { spawn } = require('child_process');
+const { spawn, execFile } = require('child_process');
 const playersWin = require('./players-win');
+
+// MPC-HC stores its DirectShow video renderer choice as a DWORD here; the
+// enum values are confirmed straight from MPC-HC's own source
+// (AppSettings.h: VIDRNDT_DS_*). The custom-presenter renderers (EVR Custom
+// Presenter, madVR, Sync, MPC Video Renderer) each own an independent
+// D3D11/DXGI swap chain tied to the window that existed when they
+// initialized — reparenting that window elsewhere leaves the swap chain
+// presenting into a surface nobody composites, which is exactly the
+// "audio plays, video stays black" symptom seen while embedded. Plain EVR
+// is a conventional DXVA-friendly windowed renderer that doesn't have this
+// problem. The switch only touches the registry when the *current* choice
+// is one of the fragile ones, and only for MPC-HC (MPC-BE's renderer enum
+// hasn't been verified against its own source, so it's left untouched).
+const MPC_HC_REG_KEY = 'HKCU\\Software\\MPC-HC\\MPC-HC\\Settings';
+const MPC_HC_REG_VALUE = 'DSVidRen';
+const VIDRNDT_DS_EVR = 10;
+const MPC_HC_FRAGILE_RENDERERS = [11, 12, 13, 14]; // EVR-CP, madVR, Sync, MPCVR
+
+// Reads a REG_DWORD via the built-in reg.exe (no new FFI surface for this;
+// -> number, or null if the value/key doesn't exist or reg.exe failed).
+function regQueryDword(key, name) {
+  return new Promise(function (resolve) {
+    execFile('reg', ['query', key, '/v', name], { windowsHide: true, timeout: 4000 }, function (err, stdout) {
+      if (err) return resolve(null);
+      var m = /REG_DWORD\s+0x([0-9a-fA-F]+)/.exec(String(stdout));
+      resolve(m ? parseInt(m[1], 16) : null);
+    });
+  });
+}
+
+function regSetDword(key, name, value) {
+  return new Promise(function (resolve) {
+    execFile('reg', ['add', key, '/v', name, '/t', 'REG_DWORD', '/d', String(value), '/f'],
+      { windowsHide: true, timeout: 4000 }, function (err) {
+        resolve(!err);
+      });
+  });
+}
+
+// Best-effort: switches MPC-HC to EVR before spawning it if (and only if)
+// its currently-configured renderer is one of the fragile ones.
+// -> { switched, savedValue } to remember for restoreRenderer().
+async function maybeSwitchRenderer(label) {
+  if (label !== 'MPC-HC') return { switched: false };
+  try {
+    var currentRenderer = await regQueryDword(MPC_HC_REG_KEY, MPC_HC_REG_VALUE);
+    if (currentRenderer === null || MPC_HC_FRAGILE_RENDERERS.indexOf(currentRenderer) === -1) {
+      return { switched: false };
+    }
+    var ok = await regSetDword(MPC_HC_REG_KEY, MPC_HC_REG_VALUE, VIDRNDT_DS_EVR);
+    if (!ok) return { switched: false };
+    console.log('[embed-win] switched MPC-HC renderer ' + currentRenderer + ' -> EVR (10) for embedded playback');
+    return { switched: true, savedValue: currentRenderer };
+  } catch (e) {
+    console.error('[embed-win] renderer switch check failed (non-fatal):', e);
+    return { switched: false };
+  }
+}
+
+// Restores whatever renderer MPC-HC had configured before maybeSwitchRenderer
+// changed it. Fire-and-forget from stop() — this is cleanup best-effort, not
+// something worth delaying app shutdown for.
+function restoreRenderer(saved) {
+  if (!saved || !saved.switched) return;
+  regSetDword(MPC_HC_REG_KEY, MPC_HC_REG_VALUE, saved.savedValue).then(function (ok) {
+    console.log('[embed-win] restored MPC-HC renderer to ' + saved.savedValue + (ok ? '' : ' (failed)'));
+  });
+}
 
 const GWL_STYLE = -16;
 const WS_POPUP = 0x80000000;
@@ -128,10 +196,13 @@ async function play(opts) {
   var arg = filePath;
   if (filePath.indexOf('smb://') === 0) arg = playersWin.smbToUnc(filePath);
 
+  var rendererSave = await maybeSwitchRenderer(label);
+
   var child;
   try {
     child = spawn(exe, [arg, '/new', '/play'], { stdio: 'ignore', windowsHide: false });
   } catch (e) {
+    restoreRenderer(rendererSave);
     return { ok: false, error: String((e && e.message) || e) };
   }
   child.on('error', function () { /* handled via timeout below */ });
@@ -145,6 +216,7 @@ async function play(opts) {
     hwnd = findWindowByPid(child.pid);
   }
   if (!hwnd) {
+    restoreRenderer(rendererSave);
     if (exitedEarly) {
       console.error('[embed-win] child exited before showing a window (pid ' + child.pid + ') — MPC možno poslal film do inej už bežiacej instancie.');
       return { ok: false, error: 'MPC sa ukončil hneď po spustení — zrejme bežala iná jeho instancia. Zavri všetky okná MPC a skús znova.' };
@@ -176,6 +248,7 @@ async function play(opts) {
       console.error('[embed-win] GetParent mismatch after SetParent+WS_CHILD. actualParent=', actualParent,
         'expected=', parentHandle, 'GetLastError after SetParent=', setParentErrCode);
       try { child.kill(); } catch (e2) { /* already gone */ }
+      restoreRenderer(rendererSave);
       return {
         ok: false,
         error: 'Vnorenie okna zlyhalo (GetParent nesúhlasí, Win32 chyba ' + setParentErrCode + '). Skontroluj, či appka aj MPC bežia v rovnakom režime (žiadny z nich ako správca).'
@@ -234,10 +307,11 @@ async function play(opts) {
   } catch (e) {
     console.error('[embed-win] reparent threw', e);
     try { child.kill(); } catch (e2) { /* already gone */ }
+    restoreRenderer(rendererSave);
     return { ok: false, error: 'Vnorenie okna zlyhalo: ' + String((e && e.message) || e) };
   }
 
-  current = { pid: child.pid, hwnd: hwnd, child: child, mpcTid: mpcTid };
+  current = { pid: child.pid, hwnd: hwnd, child: child, mpcTid: mpcTid, rendererSave: rendererSave };
   child.on('exit', function () {
     if (current && current.pid === child.pid) current = null;
   });
@@ -268,6 +342,7 @@ function stop() {
       f.AttachThreadInput(f.GetCurrentThreadId(), c.mpcTid, false);
     }
   } catch (e) { /* best effort — thread may already be gone */ }
+  restoreRenderer(c.rendererSave);
   try {
     if (user32 && api().IsWindow(c.hwnd)) {
       api().PostMessage(c.hwnd, WM_CLOSE, null, null);
