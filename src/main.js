@@ -409,7 +409,16 @@ S.toast(_modeLabel);
   S.initColorPicker();
   S.updatePathPreview();
   
-  document.getElementById("srchInp").addEventListener("input",function(){document.getElementById("srchClr").style.display=this.value?"block":"none";S.applyFilters();});
+  var _srchDebounceTo=null;
+  document.getElementById("srchInp").addEventListener("input",function(){
+    document.getElementById("srchClr").style.display=this.value?"block":"none";
+    // Debounce only the filter/Fuse pass — it re-scans the whole library
+    // (incl. a fuzzy Fuse.js search) and is too costly to run on every
+    // keystroke on weak Android devices. The clear-button toggle above
+    // stays instant since it's a trivial DOM write.
+    if(_srchDebounceTo)clearTimeout(_srchDebounceTo);
+    _srchDebounceTo=setTimeout(S.applyFilters,180);
+  });
   document.getElementById("srchClr").addEventListener("click",function(){document.getElementById("srchInp").value="";this.style.display="none";S.applyFilters();});
   /* sortSel.change handled by initSortCycle */
   var _eviewTo=document.getElementById("viewTog");if(_eviewTo)_eviewTo.addEventListener("click",function(){

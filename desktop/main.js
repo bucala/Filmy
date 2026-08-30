@@ -63,6 +63,21 @@ function registerLocalProtocol() {
 }
 
 /* ── IPC: native player bridge ── */
+// A movie path reaching this bridge may only be one of the shapes the app
+// itself ever produces (see src/lib/paths.js getMoviePath()): a local drive
+// path, a UNC path, or an smb:// URL — never a bare command-like string.
+// This also blocks CLI-flag-style values (a leading "-"/"--") from reaching
+// VLC/MPC-HC's own argument parser, which would otherwise treat them as
+// switches instead of a filename.
+function isSafeMoviePath(p) {
+  if (!p || p.length > 1024 || /[\r\n]/.test(p)) return false;
+  if (p.charCodeAt(0) === 45 /* '-' */) return false;
+  var isSmb = /^smb:\/\//i.test(p);
+  var isWinPath = /^[A-Za-z]:[\\/]/.test(p) || /^\\\\[^\\/]+[\\/]/.test(p) || /^\/\/[^/]+\//.test(p);
+  if (!isSmb && !isWinPath) return false;
+  return true;
+}
+
 function registerIpc() {
   ipcMain.handle('filmy:detect-players', function () {
     return playersWin.detectPlayers();
@@ -72,7 +87,7 @@ function registerIpc() {
     var player = String(opts.player || '');
     var p = String(opts.path || '');
     if (player !== 'mpc' && player !== 'vlc') return { ok: false, error: 'Neznámy prehrávač.' };
-    if (!p || p.length > 1024 || /[\r\n]/.test(p)) return { ok: false, error: 'Neplatná cesta.' };
+    if (!isSafeMoviePath(p)) return { ok: false, error: 'Neplatná cesta.' };
     return playersWin.launchPlayer({ player: player, path: p });
   });
 
@@ -93,7 +108,7 @@ function registerIpc() {
     if (!opts || typeof opts !== 'object') return { ok: false, error: 'Neplatná požiadavka.' };
     if (String(opts.player || '') !== 'mpc') return { ok: false, error: 'Vnoriť možno len MPC.' };
     var p = String(opts.path || '');
-    if (!p || p.length > 1024 || /[\r\n]/.test(p)) return { ok: false, error: 'Neplatná cesta.' };
+    if (!isSafeMoviePath(p)) return { ok: false, error: 'Neplatná cesta.' };
     if (!validRect(opts.rect)) return { ok: false, error: 'Neplatná oblasť videa.' };
     var ph = parentHandle();
     if (!ph) return { ok: false, error: 'Okno aplikácie nie je pripravené.' };

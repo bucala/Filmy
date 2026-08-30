@@ -17,9 +17,9 @@
   "shortcuts": [],
   "signing": {
     "keystore": "./android.keystore",
-    "keystorePassword": "filmy123",
+    "keystorePassword": "UNUSED_LEGACY_CONFIG",
     "alias": "filmy",
-    "keyPassword": "filmy123"
+    "keyPassword": "UNUSED_LEGACY_CONFIG"
   },
   "generatorApp": "bubblewrap-cli",
   "fallbackType": "customtabs",

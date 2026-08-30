@@ -10,7 +10,9 @@ android {
 
     defaultConfig {
         applicationId = "sk.bucala.filmy"
-        minSdk = 26
+        // 24 (Android 7.0) is the floor: no code path here needs API 26+,
+        // and it covers older unsupported devices (e.g. Xiaomi Mi Pad 3).
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"

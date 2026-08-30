@@ -57,7 +57,7 @@ S.FUSE_OPTS = {
     {name:"description",weight:0.05}
   ]
 };
-S.PAGE_SIZE = 40;
+S.PAGE_SIZE = 24; // smaller initial batch = faster first paint / lower initial RAM on weak devices; only changes how often appendCards() runs while scrolling, not what's shown
 S.curPage = 0;
 S.chartInstances = {};
 S.VIEW_MODES = ['list','grid','posterwall'];

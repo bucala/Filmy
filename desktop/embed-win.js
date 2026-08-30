@@ -85,6 +85,8 @@ const WS_CLIPSIBLINGS = 0x04000000;
 const WS_CLIPCHILDREN = 0x02000000;
 const WS_CAPTION = 0x00C00000;
 const WS_THICKFRAME = 0x00040000;
+const SWP_NOSIZE = 0x0001;
+const SWP_NOMOVE = 0x0002;
 const SWP_NOZORDER = 0x0004;
 const SWP_NOACTIVATE = 0x0010;
 const SWP_FRAMECHANGED = 0x0020;
@@ -96,6 +98,10 @@ const RDW_ERASE = 0x0004;
 const RDW_ALLCHILDREN = 0x0080;
 const RDW_UPDATENOW = 0x0100;
 const RDW_REPAINT_ALL = RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW;
+// A no-op-otherwise SetWindowPos call that only forces the GWL_STYLE cache
+// to refresh (see fixElectronClipping) — SetWindowLongPtr's own MSDN
+// remarks say frame-style changes need exactly this to take effect.
+const SWP_STYLE_REFRESH = SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED;
 
 let koffi = null;
 let user32 = null;
@@ -157,12 +163,18 @@ function fixElectronClipping(hostHandle) {
     var hostStyle = Number(f.GetWindowLongPtr(hostHandle, GWL_STYLE));
     if ((hostStyle & WS_CLIPCHILDREN) === 0) {
       f.SetWindowLongPtr(hostHandle, GWL_STYLE, (hostStyle | WS_CLIPCHILDREN) >>> 0);
+      // SetWindowLongPtr's own MSDN remarks: frame-style changes are cached
+      // and won't take effect until a SetWindowPos call with
+      // SWP_FRAMECHANGED forces the cache to refresh — a no-op-otherwise
+      // SetWindowPos (no move/resize/z-order/activation) does just that.
+      f.SetWindowPos(hostHandle, null, 0, 0, 0, 0, SWP_STYLE_REFRESH);
     }
     var d3dWnd = f.FindWindowEx(hostHandle, null, 'Intermediate D3D Window', null);
     if (d3dWnd) {
       var d3dStyle = Number(f.GetWindowLongPtr(d3dWnd, GWL_STYLE));
       if ((d3dStyle & WS_CLIPSIBLINGS) === 0) {
         f.SetWindowLongPtr(d3dWnd, GWL_STYLE, (d3dStyle | WS_CLIPSIBLINGS) >>> 0);
+        f.SetWindowPos(d3dWnd, null, 0, 0, 0, 0, SWP_STYLE_REFRESH);
       }
       console.log('[embed-win] WS_CLIPSIBLINGS applied to Chromium\'s Intermediate D3D Window');
     } else {
