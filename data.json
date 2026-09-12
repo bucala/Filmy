@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-12T19:06:01.266Z",
+  "updated": "2026-09-12T20:17:26.543Z",
   "movies": [
     {
       "id": 1,
@@ -4891,17 +4891,17 @@
       "num": 178,
       "title": "Vůle přežít",
       "year": 1998,
-      "director": "",
+      "director": "Stuart Burkin",
       "genres": [
-        "Dokumentárny"
+        "Dráma"
       ],
-      "country": "United States",
-      "duration": "96 min",
-      "cast": "",
+      "country": "US",
+      "duration": "100 min",
+      "cast": "Mary McCormack, John Slattery, Jeffrey DeMunn, Wil Horneff, James Van Der Beek, Evan Handler, Frederick Weller, Bill Raymond, Josh Lucas, Michael P. Moran",
       "description": "Místní šerif se rozhodne pustit se do boje proti farmářům, kteří začali pěstovat marihuanu, jen aby se uživili. Příběh zdůrazňuje nelehkou situaci na venkově. Jak lehko se člověk vzdá svých zásad, když je k tomu osudem donucen..",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/6OItrKbjICG0aEpCBJYoeLckSuV.jpg",
       "rating": 0,
-      "tmdbId": null,
+      "tmdbId": 107946,
       "moods": [],
       "_yt": null,
       "_tmdbUrl": null,
