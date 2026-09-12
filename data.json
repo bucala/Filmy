@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-12T19:05:08.020Z",
+  "updated": "2026-09-12T19:06:01.266Z",
   "movies": [
     {
       "id": 1,
@@ -12037,11 +12037,11 @@
         "Thriller",
         "Mysteriózny"
       ],
-      "country": "United States",
-      "duration": "146 min",
-      "cast": "Tom Hanks, Ewan McGregor, Ayelet Zurer, Stellan Skarsgård, Pierfrancesco Favino",
-      "description": "Když Robert Langdon objeví důkazy o znovuobnovení starověkého tajného bratrstva známého jako Ilumináti – nejmocnější tajné organizace v historii – také čelí smrtelnému nebezpečí, které ohrožuje nejnenáviděnějšího nepřítele této tajné organizace: katolickou církev. Když se Langdon dozví, že hodiny na nezastavitelné časované bombě, kterou představují Ilumináti, pořád tikají, odlétá do Říma, kde spojí své síly s Vittorií Vetra, krásnou a záhadnou italskou vědkyní. Langdon a Vetra se vydávají na nep",
-      "poster_thumb": "",
+      "country": "IT, US",
+      "duration": "140 min",
+      "cast": "Tom Hanks, Ewan McGregor, Ayelet Zurer, Stellan Skarsgård, Pierfrancesco Favino, Nikolaj Lie Kaas, Armin Mueller-Stahl, Thure Lindhardt, David Pasquesi, Cosimo Fusco",
+      "description": "Robert Langdon objaví dôkazy o znovuobnovení starovekého tajného bratstva známeho ako Ilumináti - najmocnejšej tajnej organizácie v historií a zároveň musí čeliť smrteľnému nebezpečenstvu, ktoré ohrozuje najnenávidenejšieho nepriateľa tejto tajnej organizácie: katolícku cirkev. Keď sa Langdon dozvie, že hodiny na nezastaviteľnej časovanej bombe, ktorú predstavujú Ilumináti, stále tikajú, odlieta do Ríma, kde spoja svoje sily s Vittoriou Vetra, krásnou a záhadnou talianskou vedkyňou. Langdon a Ve",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/zCwpyJqAnoQf4MIZKG3kvsy8F8A.jpg",
       "rating": 0,
       "tmdbId": 13448,
       "moods": [],
