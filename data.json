@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-12T16:24:59.866Z",
+  "updated": "2026-09-12T19:04:13.677Z",
   "movies": [
     {
       "id": 1,
@@ -12613,16 +12613,16 @@
       "num": 456,
       "title": "[REC]²",
       "year": 2009,
-      "director": "Paco Plaza, Jaume Balagueró",
+      "director": "Paco Plaza",
       "genres": [
         "Thriller",
-        "Horor"
+        "Horror"
       ],
-      "country": "Spain",
-      "duration": "84 min",
-      "cast": "Manuela Velasco, Jonathan D. Mellor, Óscar Zafra, Ariel Casas, Alejandro Casaseca",
-      "description": "Adrenalinový nářez plný hrůzy a násilí! Po nečekaném hitu Rec, přichází pokračování, které si s předchozím dílem rozhodně nezadá! Do karanténou izolovaného domu, plného krvelačných bestií, vstupuje zvláštní jednotka, která má vše vyčistit a posbírat vzorky pro výzkum. Uvnitř ale čeká krvavé peklo, z nějž není úniku!",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/vIoBgFBJuqcIzudkFyagJuCxHZ7.jpg",
+      "country": "ES",
+      "duration": "85 min",
+      "cast": "Manuela Velasco, Jonathan D. Mellor, Óscar Zafra, Ariel Casas, Alejandro Casaseca, Pablo Rosso, Rafa Parra, Pau Poch, Andrea Ros, Àlex Batllori",
+      "description": "Smrť čaká... Adrenalínová jazda plná hrôzy a násilia!\r Do karanténou izolovaného domu plného krvilačných beštií vstupuje špeciálna jednotka, ktorá má všetko vyčistiť a zozbierať vzorky pre výskum. Vnútri však čaká krvavé peklo, z ktorého niet úniku.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/9C7GrP6g29hklOqtGE0eEUbsPeC.jpg",
       "rating": 0,
       "tmdbId": 10664,
       "moods": [],
