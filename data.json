@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-12T16:23:42.674Z",
+  "updated": "2026-09-12T16:24:29.328Z",
   "movies": [
     {
       "id": 1,
@@ -6703,15 +6703,20 @@
       "num": 243,
       "title": "Free",
       "year": 1966,
-      "director": "Antoni Padrós",
-      "genres": [],
+      "director": "Conrad Miles",
+      "genres": [
+        "Fantasy",
+        "Science Fiction",
+        "Dráma",
+        "Komédia"
+      ],
       "country": "United States",
-      "duration": "7 min",
-      "cast": "Silvia Gubern, Àngel Jové, Eduard Arranz, Robert Llimós, J.M. Segimon",
+      "duration": "3 min",
+      "cast": "Jessy Leigh, Abby Brown, Michael Wendt, Ryan Kelly",
       "description": "Short film by Antoni Padrós",
       "poster_thumb": "https://image.tmdb.org/t/p/w300/xI5BkObQm7UtYEFTw7ZmiDGF7gT.jpg",
       "rating": 0,
-      "tmdbId": 15347,
+      "tmdbId": 963502,
       "moods": [],
       "_yt": null,
       "_tmdbUrl": null,
