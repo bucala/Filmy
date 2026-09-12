@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-08-22T20:12:12.866Z",
+  "updated": "2026-09-12T14:38:20.650Z",
   "movies": [
     {
       "id": 1,
@@ -47920,6 +47920,26 @@
       "id": 1764,
       "_csfdUrl": "https://www.csfd.cz/film/1506017-toy-story-5-pribeh-hracek/prehled/",
       "_pctCsfd": 81
+    },
+    {
+      "id": 1765,
+      "num": 1765,
+      "title": "Odvážná Vaiana",
+      "year": 2026,
+      "director": "Thomas Kail",
+      "cast": "Catherine Lagaʻaia, Dwayne Johnson, Rena Owen, John Tui, Frankie Adams, Jemaine Clement, Emma Puahi-Shapazian, Amaya Masoli, Sam Puefua, Sione Milford",
+      "genres": [
+        "Rodinný",
+        "Fantasy",
+        "Komédia",
+        "Dobrodružný"
+      ],
+      "country": "US",
+      "duration": "115 min",
+      "description": "Dospievajúca Vaiana odpovedá na volanie oceánu a po prvýkrát sa vydáva na nezabudnuteľnú cestu za útes svojho ostrova Motunui s neslávne známym polobohom Mauim, aby obnovila prosperitu svojho ľudu.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/gaet1xQ2nxrG0V1Ep9T20ZMNEIC.jpg",
+      "rating": 0,
+      "tmdbId": 1108427
     }
   ],
   "favourites": [],
