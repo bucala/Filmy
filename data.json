@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-14T15:27:27.238Z",
+  "updated": "2026-09-14T15:30:10.930Z",
   "movies": [
     {
       "id": 1,
@@ -48003,7 +48003,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1101383",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Konec Oak Street.mkv",
-      "_rtScore": 86
+      "_rtScore": 86,
+      "_csfdUrl": "https://www.csfd.cz/film/1508810-konec-oak-street/prehled/",
+      "_pctCsfd": 64
     }
   ],
   "favourites": [],
