@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-14T15:32:00.394Z",
+  "updated": "2026-09-14T22:40:46.119Z",
   "movies": [
     {
       "id": 1,
@@ -47989,19 +47989,19 @@
       "year": 2026,
       "director": "David Robert Mitchell",
       "genres": [
-        "Scifi",
+        "Science Fiction",
         "Mysteriózny",
         "Thriller"
       ],
-      "country": "United States",
-      "duration": "99 min",
-      "cast": "Anne Hathaway, Ewan McGregor, Maisy Stella, Christian Convery, Jordan Alexa Davis",
-      "description": "Po záhadné kosmické události je Oak Street vytržena z poklidného předměstí a přenesena na neznámé místo. Rodina Plattových brzy zjišťuje, že jejich přežití závisí na jediné věci – držet při sobě. V prostředí, které se proměnilo k nepoznání, musí společně čelit nejistotě, strachu i nečekaným výzvám a najít cestu, jak obstát v novém, zcela cizím světě.",
-      "poster_thumb": "",
+      "country": "US, CA, AU",
+      "duration": "100 min",
+      "cast": "Anne Hathawayová, Ewan McGregor, Maisy Stella, Christian Convery, Jordan Alexa Davis, P.J. Byrne, Hudson Meek, Anne Gee Byrd, Emily Kuroda, Simms May",
+      "description": "Keď mysteriózna anomália vytrhne ulicu Oak Street z pokojného predmestia, rodina Plattovcov sa ocitá v chaose. Rýchlo pochopia, že jedinou nádejou, ako uniknúť pravekému nebezpečenstvu, je držať spolu. Podarí sa im prežiť v neznámom svete a nájsť cestu domov?",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/oyS9pgKy5jAeMtCNT78rzKX6o0C.jpg",
       "rating": 0,
       "tmdbId": 1101383,
       "moods": [],
-      "_yt": "sEXd0IgJtoE",
+      "_yt": "u4tgctWuHc0",
       "_tmdbUrl": "https://www.themoviedb.org/movie/1101383",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Konec Oak Street.mkv",
