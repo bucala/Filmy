@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-14T15:30:45.784Z",
+  "updated": "2026-09-14T15:31:50.144Z",
   "movies": [
     {
       "id": 1,
@@ -47978,7 +47978,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1612018",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Jackass - Nejlepsi a posledni.mkv",
-      "_rtScore": 87
+      "_rtScore": 87,
+      "_csfdUrl": "https://www.csfd.cz/film/1797358-jackass-best-and-last/prehled/",
+      "_pctCsfd": 53
     },
     {
       "id": 1767,
