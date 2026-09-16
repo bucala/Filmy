@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-16T21:05:53.284Z",
+  "updated": "2026-09-16T21:09:18.200Z",
   "movies": [
     {
       "id": 1,
@@ -47960,27 +47960,27 @@
       "num": 1766,
       "title": "Jackass: Best and Last",
       "year": 2026,
-      "director": "Dan Trachtenberg",
+      "director": "Jeff Tremaine",
       "genres": [
         "Akčný",
-        "Science Fiction",
-        "Dobrodružný"
+        "Komédia",
+        "Dokumentárny"
       ],
-      "country": "US",
-      "duration": "107 min",
-      "cast": "Elle Fanning, Dimitrius Schuster-Koloamatangi, Ravi Narayan, Michael Homick, Stefan Grube, Reuben De Jong, Cameron Brown, Alison Wright, Matt Duffer, Ross Duffer",
-      "description": "V ďalekej budúcnosti na vzdialenej planéte mladý Predátor, vyhnanec zo svojho klanu, nájde nečakaného spojenca v Thii a vydávajú sa na zradnú cestu v hľadaní svojho najväčšieho nepriateľa. Predator: Nebezpečná zóna je americký sci-fi akčný film zo série Predátor. Je to siedmy film v hlavnej sérii a deviaty v celkovej sérii, pričom obsahuje aj prvky zo série Votrelec.",
+      "country": "United States",
+      "duration": "95 min",
+      "cast": "Johnny Knoxville, Steve-O, Chris Pontius, Jason 'Wee Man' Acuña, Dave England",
+      "description": "Pátý a poslední díl série Jackass, ve kterém se parta vydává na svou poslední šílenou výpravu.",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/4Yz2NCsyjdaH4a6Rys1CXKJ5xi2.jpg",
       "rating": 0,
-      "tmdbId": 1242898,
+      "tmdbId": 1612018,
       "moods": [],
-      "_yt": "sNwzFhGwA94",
+      "_yt": "qBZPCE0jr6M",
       "_tmdbUrl": "https://www.themoviedb.org/movie/1612018",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2026 - Jackass - Nejlepsi a posledni.mkv",
+      "_localPath": "W:\\Movies\\2025 - Predator Badlands.mkv",
       "_rtScore": 87,
-      "_csfdUrl": "https://www.csfd.cz/film/1797358-jackass-best-and-last/prehled/",
-      "_pctCsfd": 53
+      "_csfdUrl": "https://www.csfd.cz/film/1483868-predator-nebezpecne-uzemi/prehled/",
+      "_pctCsfd": 74
     },
     {
       "id": 1767,
