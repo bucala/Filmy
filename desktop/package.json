@@ -38,6 +38,10 @@
         ]
       }
     ],
+    "asarUnpack": [
+      "node_modules/koffi/**/*",
+      "node_modules/@koromix/koffi-*/**/*"
+    ],
     "win": {
       "target": [
         "nsis",

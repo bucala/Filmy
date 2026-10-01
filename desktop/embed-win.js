@@ -365,7 +365,12 @@ async function play(opts) {
 
   current = { pid: child.pid, hwnd: hwnd, child: child, mpcTid: mpcTid, rendererSave: rendererSave };
   child.on('exit', function () {
-    if (current && current.pid === child.pid) current = null;
+    // Route through stop() (not a bare current=null) so a crash or a close
+    // from MPC's own titlebar/taskbar still restores the DirectShow renderer
+    // and detaches thread input — see status()'s matching fix below for why
+    // skipping that cleanup leaves the renderer switch permanently stuck.
+    // The pid check guards against a stale exit firing after a newer play().
+    if (current && current.pid === child.pid) stop();
   });
   return { ok: true, label: label, exe: exe };
 }
@@ -414,7 +419,13 @@ function status() {
   try {
     if (user32 && api().IsWindow(current.hwnd)) return true;
   } catch (e) { /* fall through */ }
-  current = null;
+  // The window is gone (closed via its own titlebar/taskbar, crashed, etc.)
+  // but the process-exit handler in play() may not have fired yet, or may
+  // never fire if the process lingers. Route through stop() instead of a
+  // bare current=null so the renderer-restore + thread-input-detach cleanup
+  // still runs — otherwise this path permanently leaves MPC-HC's registry
+  // renderer switched to EVR with no way to recover it automatically.
+  stop();
   return false;
 }
 

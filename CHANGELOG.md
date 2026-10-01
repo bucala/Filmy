@@ -6,6 +6,27 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 
 ---
 
+## [Unreleased]
+
+### Pridané
+- **Vnorené prehrávanie v MPC-HC/BE** — natívne vnorenie okna prehrávača priamo do desktop appky cez Win32 `SetParent` (koffi FFI), s fullscreen overlay UI (`desktop/embed-win.js`)
+- **CI workflow** — `npm ci && npm run lint && npm test` na každý push/PR (`.github/workflows/ci.yml`)
+
+### Opravené
+- **Bezpečnosť (XSS)** — escapovanie `poster_thumb` a `director` polí pri vykresľovaní (uložené XSS cez neescapovaný HTML atribút/`innerHTML`)
+- **Bezpečnosť (Electron IPC)** — validácia cesty k súboru (`isSafeMoviePath`) pred spustením prehrávača z renderer procesu
+- **Bezpečnosť (protokol handler)** — `mpc://`/`vlc://` handlery (`setup/MPC-Handler`, `setup/VLC-Handler`) už nikdy nespustia neoverenú cestu z URL, keď prehrávač nie je nájdený v známych cestách ani v `PATH` — predtým šlo o spustenie ľubovoľného kódu cez vlastnú URL schému
+- **Vnorené prehrávanie — obnova rendereru** — `embed-win.js` teraz pri zatvorení/crashi MPC vždy obnoví pôvodný DirectShow renderer namiesto trvalej zmeny v registri
+- **desktop balík** — natívna binárka `koffi` je teraz vyňatá z `asar` archívu (`asarUnpack`), inak by nefungovala v zabalenej (installer) appke
+- **Android inštalácia** — `minSdk` znížený z 26 na 24 (opravuje zlyhanie inštalácie na starších zariadeniach ako Xiaomi Mi Pad 3)
+- **Android výkon** — debounce vyhľadávania (180 ms) a nižšia `PAGE_SIZE` (40 → 24) pre plynulejší chod na slabších zariadeniach
+
+### Zmenené
+- **android/BUILD.md** — kompletne prepísaný, dokumentuje aktuálny natívny WebView shell (nie zastaraný Bubblewrap/TWA postup)
+- **android/twa-manifest.json** — odstránené heslo v plain texte z historického (nepoužívaného) konfiguračného súboru
+
+---
+
 ## [7.0.0] — 2026-06-13
 
 ### Pridané

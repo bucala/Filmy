@@ -872,7 +872,7 @@ S.openMatchPanel = function openMatchPanel(id){
   S.matchPendingData=null;
   var info=document.getElementById('matchMovieInfo');
   var poster=m.poster_thumb&&m.poster_thumb.length>10?'<img src="'+esc(m.poster_thumb)+'" alt="">':'';
-  info.innerHTML=poster+'<div><div class="mmi-text"><b>#'+m.num+'</b> '+esc(m.title)+'</div><div class="mmi-sub">'+(m.year||'?')+' · '+(m.director||'–')+'</div></div>';
+  info.innerHTML=poster+'<div><div class="mmi-text"><b>#'+m.num+'</b> '+esc(m.title)+'</div><div class="mmi-sub">'+(m.year||'?')+' · '+esc(m.director||'–')+'</div></div>';
   document.getElementById('matchSearchInp').value=m.title;
   document.getElementById('matchStatus').textContent='';
   document.getElementById('matchResults').innerHTML='';
