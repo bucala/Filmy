@@ -21,6 +21,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Vnorené prehrávanie — obnova rendereru** — `embed-win.js` teraz pri zatvorení/crashi MPC vždy obnoví pôvodný DirectShow renderer namiesto trvalej zmeny v registri
 - **desktop balík** — natívna binárka `koffi` je teraz vyňatá z `asar` archívu (`asarUnpack`), inak by nefungovala v zabalenej (installer) appke
 - **Android inštalácia** — `minSdk` znížený z 26 na 24 (opravuje zlyhanie inštalácie na starších zariadeniach ako Xiaomi Mi Pad 3)
+- **Android CI**: `setup-android@v3` explicitne inštaluje iba `platform-tools`, nie odstránený balík `tools`; opravené zlyhanie prípravy SDK ešte pred spustením Gradlu
 - **Android výkon** — debounce vyhľadávania (180 ms) a nižšia `PAGE_SIZE` (40 → 24) pre plynulejší chod na slabších zariadeniach
 - **Vyhľadávanie a fokus**: dokončenie IME zadávania spustí vyhľadávanie, Enter ho vykoná okamžite a vymazanie/reset zruší čakajúcu úlohu; návrat z detailu aj prázdna kolekcia zachovajú použiteľný fokus
 - **Posterwall a svetlé témy**: opravené prekrývanie riadkov plagátov na úzkych obrazovkách a zvýšený kontrast tlmeného textu v témach Linen a Paper

@@ -75,7 +75,9 @@ root Gradle files, or the tracked web asset files (`index.html`,
 
 1. Checkout the repo.
 2. Set up JDK 17 (Temurin) via `actions/setup-java`.
-3. Set up the Android SDK via `android-actions/setup-android`.
+3. Set up the Android SDK via `android-actions/setup-android` with
+   `packages: "platform-tools"` to avoid requesting the removed legacy
+   `tools` package.
 4. Install `platforms;android-35` and `build-tools;35.0.0` via
    `sdkmanager`.
 5. Set up Gradle 8.10.2 via `gradle/actions/setup-gradle`.
