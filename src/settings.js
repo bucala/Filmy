@@ -491,12 +491,13 @@ S.settSetView = function settSetView(v){
   if (vt) {
     vt.innerHTML = S.VIEW_ICONS[v]||S.VIEW_ICONS.list;
     vt.title = S.VIEW_TITLES[v]||'';
+    vt.setAttribute('aria-label', vt.title);
   }
   var tl = document.getElementById('ttabList');
   var tg = document.getElementById('ttabGrid');
   if (tl) tl.className = 'ttab' + (v==='list' ? ' on' : '');
   if (tg) tg.className = 'ttab' + (v==='grid' ? ' on' : '');
-  S.prefs.view = v; S.savePrefs(); S.renderList(S.filt);
+  S.prefs.view = v; S.savePrefs(); S.updateViewLabel(); S.renderList(S.filt);
 };
 
 S.settSetSort = function settSetSort(v){S.prefs.sort=v;S.savePrefs();document.getElementById("sortSel").value=v;S.syncSortPill();S.applyFilters();};

@@ -16,7 +16,7 @@
 
 <p align="center">
   <img alt="PWA" src="https://img.shields.io/badge/PWA-ready-5A0FC8?style=flat-square&logo=pwa&logoColor=white">
-  <img alt="Vanilla JS" src="https://img.shields.io/badge/Vanilla_JS-zero_deps-F7DF1E?style=flat-square&logo=javascript&logoColor=black">
+  <img alt="Vanilla JS" src="https://img.shields.io/badge/Vanilla_JS-no_framework-F7DF1E?style=flat-square&logo=javascript&logoColor=black">
   <img alt="Offline" src="https://img.shields.io/badge/offline-first-43a047?style=flat-square">
   <img alt="Android" src="https://img.shields.io/badge/Android-APK-3DDC84?style=flat-square&logo=android&logoColor=white">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-Electron-357EC7?style=flat-square&logo=electron&logoColor=white">
@@ -34,7 +34,7 @@
 3.  Hotovo — databáza sa stiahne automaticky
 ```
 
-> **Offline:** po prvom načítaní funguje aj bez internetu — Service Worker všetko cachuje.
+> **Offline:** po úspešnom prvom načítaní a aktivácii Service Workera funguje knižnica aj vyhľadávanie bez internetu. Postery sú dostupné, ak už boli načítané a zostali v cache. Sync, nové metadáta a trailery vyžadujú internet.
 
 ---
 
@@ -48,8 +48,8 @@
 | Režim | Popis |
 |-------|-------|
 | **Zoznam** | Kompaktné riadky — číslo, názov, rok, žánre, hodnotenie |
-| **Grid** | Karty s posterom, režisérom a žánrami — 2‑stĺpcový layout |
-| **Posterwall** | Hustá stena posterov — 6+ stĺpcov, čistý vizuál |
+| **Grid** | Responzívne karty s posterom, režisérom a žánrami; počet stĺpcov podľa šírky obrazovky |
+| **Posterwall** | Stena plagátov s metadátami pri hoveri alebo fokuse; na zariadeniach bez hoveru viditeľný overlay |
 
 </td>
 <td width="50%">
@@ -67,7 +67,9 @@
 <td>
 
 ### Vyhľadávanie a filtre
-- **Fuzzy search** (Fuse.js) — názov, režisér, rok
+- **Presné zhody najprv**: názov, režisér, rok, žánre a vlastné tagy v aktuálne filtrovanej kolekcii
+- **Fuzzy search** (Fuse.js): ak chýbajú presné zhody, hľadá aj v opise filmu
+- **Odozva pri písaní**: 180 ms debounce, Enter hľadá okamžite, vymazanie/reset ruší čakajúcu úlohu; podpora IME zadávania
 - **Pokročilý filter** — rok, min. hodnotenie, krajina, žánre, tagy
 - **Radenie** — číslo, rok, názov (A→Z), hodnotenie (%), dĺžka
 - **Náhodný film** — jedno kliknutie na náhodný výber
@@ -86,6 +88,16 @@
 </td>
 </tr>
 </table>
+
+### Rozhranie a odozva
+
+- Prehľadná hlavička s vyhľadávaním, radením a filtrami; označená navigácia a ovládanie prispôsobené úzkym obrazovkám.
+- Všetky tri zobrazenia zachovávajú šesť tém, klávesové/TV ovládanie a hromadný výber. **Označiť zobrazené** zahŕňa iba aktuálne vykreslené karty.
+- Filmy sa vykresľujú po **24 kartách** cez `requestAnimationFrame`; vysoká obrazovka sa doplní automaticky. Domovské riadky sa neprestavujú pri každom filtrovaní.
+- Presné vyhľadávanie nevytvára Fuse index. Fuzzy vyhľadávanie používa jeden lenivo vytvorený index a cache posledných **8 dopytov** zdieľanú medzi filtrami; úprava databázy cache zneplatní.
+- Pri návrate z detailu sa obnoví fokus na pôvodný film. Prázdna kolekcia ponúkne reset a použiteľný fokus; svetlé témy majú čitateľnejší tlmený text.
+
+**Kontrolné meranie (2026-10-02):** v izolovanom Chromium na Windows s 1 767 filmami klesol medián opakovaného fuzzy dopytu `star wras` z 95,1 ms na 1,8 ms. Prvé fuzzy hľadanie vrátane vytvorenia indexu trvalo 98,3 ms. Meraný bol synchrónny priebeh filtrovania a vynútený layout, medián posledných 7 z 9 vzoriek. Nejde o Core Web Vitals ani meranie na Android/TV hardvéri.
 
 ### Štatistiky
 
@@ -116,11 +128,11 @@ Pre **Portable** režim: stiahni `.reg` a `.bat` z nastavení → ulož do `W:\P
 
 | Funkcia | Popis |
 |---------|-------|
-| **GitHub Sync** | Push / pull `data.json` cez GitHub API (PAT token) |
+| **GitHub Sync** | Push / pull `data.json` (filmy a kolekcie) a `data-live.json` (metadáta) cez GitHub API; podmienený pull s ETag |
 | **Auto-sync** | Automatický pull pri štarte + plánovaný auto-push |
 | **Export** | CSV · JSON · HTML (baked-in dáta) · kolážové PNG |
 | **Import** | ZIP (EMDB) · PDF fallback · JSON restore |
-| **Hromadný výber** | Označenie viacerých filmov + hromadné akcie |
+| **Hromadný výber** | Výber filmov vo všetkých troch zobrazeniach, označenie zobrazených kariet a hromadné akcie |
 | **Rýchle pridanie** | Pridaj film priamo cez TMDB z nastavení |
 
 ---
@@ -176,7 +188,7 @@ Vlastná akcentová farba cez color picker v nastaveniach.
 **GitHub Actions:**
 Workflow **Android APK** zostaví debug APK pri PR, push do `main`, alebo manuálne cez **Run workflow**. Výsledok: artifact `filmy-debug-apk`.
 
-Gradle automaticky skopíruje web appku do Android assets.
+Gradle automaticky skopíruje web appku vrátane `src/` modulov do Android assets. Pozri [`android/BUILD.md`](android/BUILD.md).
 </details>
 
 <details>
@@ -199,11 +211,26 @@ Pozri [`desktop/BUILD.md`](desktop/BUILD.md) pre detaily.
 ```
 Filmy/
 ├── index.html               Hlavná stránka
-├── style.css                Všetky štýly + 7 skinov
-├── app.js                   Aplikačná logika (IIFE)
+├── style.css                Responzívne štýly + 6 tém a auto režim
+├── src/                     ES moduly so zdieľaným namespace S
+│   ├── main.js              Vstup aplikácie, udalosti a inicializácia
+│   ├── state.js             Zdieľaný stav a konfigurácia
+│   ├── render.js            Filtre, karty, stránkovanie a detail
+│   ├── ui.js                Témy, radenie a rozloženie
+│   ├── storage.js           Lokálne ukladanie a invalidácia vyhľadávania
+│   ├── sync.js              Rozdelený GitHub sync a ETag
+│   ├── settings.js          Nastavenia, importy a admin
+│   ├── players.js           Prehrávanie a cesty k filmom
+│   ├── tv.js                Navigácia diaľkovým ovládačom
+│   └── lib/                 Čisté, testovateľné helpery
+│       ├── browse.js         Vyhľadávanie, cache, debounce a stránkovanie
+│       └── …                Text, parsovanie, cesty, navigácia a sync
+├── test/                    Vitest unit testy
 ├── portable-handler.js      Portable prehrávač modul
-├── data.json                Databáza filmov (GitHub sync)
-├── sw.js                    Service Worker (Network-First)
+├── data.js                  Vložená databáza pre prvé načítanie
+├── data.json                Filmy a kolekcie (GitHub sync)
+├── data-live.json           Živé metadáta (GitHub sync)
+├── sw.js                    Offline shell, Network-First a cache posterov
 ├── manifest.webmanifest     PWA manifest
 ├── favicon.svg              Logo — filmový pás s "MFD"
 ├── vercel.json              Vercel deploy + cache headers
@@ -218,11 +245,13 @@ Filmy/
 │       ├── AndroidManifest.xml
 │       ├── java/.../MainActivity.java
 │       └── res/drawable/ic_launcher_foreground.xml
-├── android/                 TWA konfigurácia
+├── android/                 Build dokumentácia a historická TWA konfigurácia
+│   ├── BUILD.md
 │   └── twa-manifest.json
 └── desktop/                 Electron wrapper
     ├── main.js
     ├── preload.js
+    ├── embed-win.js         Win32 vnorenie MPC-HC/BE cez koffi
     └── package.json
 ```
 
@@ -230,12 +259,13 @@ Filmy/
 
 | Technológia | Použitie |
 |-------------|----------|
-| **Vanilla JS** | Žiadny framework — čistá IIFE architektúra |
-| **Fuse.js** | Fuzzy vyhľadávanie |
+| **Vanilla JS** | Žiadny framework, natívne ES moduly a zdieľaný namespace `S` |
+| **Fuse.js** | Lenivo vytvorený fuzzy index a cache dopytov |
+| **Vitest / ESLint** | Unit testy čistých helperov a kontrola kódu |
 | **Chart.js** | Interaktívne grafy v štatistikách |
 | **PDF.js** | PDF import fallback |
 | **JSZip** | ZIP import (EMDB) |
-| **Service Worker** | Offline cache, Network-First stratégia |
+| **Service Worker** | Offline shell a Fuse.js, Network-First pre lokálne súbory, samostatná cache posterov |
 | **Vercel** | Hosting + serverless API proxy |
 | **GitHub API** | Sync databázy cez PAT token |
 | **TMDB API** | Metadáta filmov, postery, trailery |
@@ -261,25 +291,38 @@ Filmy/
 
 | Klávesa | Akcia |
 |---------|-------|
-| `/` | Fokus na vyhľadávanie |
-| `Esc` | Zatvoriť detail / nastavenia |
-| `←` `→` | Predchádzajúci / nasledujúci film |
+| `/`, `Ctrl+K` / `Cmd+K` | Fokus na vyhľadávanie v knižnici |
+| `Enter` vo vyhľadávaní | Vyhľadať okamžite bez čakania na debounce |
+| `Enter` / `Space` | Aktivovať fokusovanú kartu alebo filter |
+| `Esc` | Zatvoriť detail, filtre alebo otvorený panel |
+| `←` `→` v detaile na PC | Predchádzajúci / nasledujúci film |
+
+Na TV šípky presúvajú fokus medzi ovládacími prvkami aj v detaile. Krátke stlačenie OK/Enter otvorí film, dlhé stlačenie na karte otvorí menu akcií.
 
 ---
 
 ## Vývoj
 
-Aplikácia je statická — bez build stepu. Stačí editovať súbory a commitnúť.
+Aplikácia je statická, bez build stepu pre web. Vývojové kontroly používajú Node.js 22 a npm:
 
 ```bash
-# Lokálne testovanie
+# Inštalácia vývojových závislostí
+npm ci
+
+# Kontroly (rovnaké ako CI)
+npm run lint
+npm test
+
+# Lokálny HTTP server, ES moduly neotváraj cez file://
 npx serve .
 
-# Deploy — push do main, Vercel sa automaticky redeployne
+# Deploy po overení zmien, Vercel sa automaticky redeployne
 git push origin main
 ```
 
-GitHub Action `.github/workflows/bump-sw-cache.yml` automaticky bumpne SW cache version pri každom push do `main`.
+CI spúšťa lint a unit testy pri pushi do `main` a pri PR. `.github/workflows/bump-sw-cache.yml` automaticky aktualizuje SW cache verziu pri zmenách webových zdrojov na `main`.
+
+Pri zmene rozhrania over všetky tri zobrazenia, svetlé/tmavé témy, klávesový fokus a offline režim. Responzívne testy v prehliadači nenahrádzajú kontrolu dotyku, TV ovládača ani natívnych Android/Electron balíkov na zariadení.
 
 ---
 

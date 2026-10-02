@@ -11,6 +11,8 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 ### Pridané
 - **Vnorené prehrávanie v MPC-HC/BE** — natívne vnorenie okna prehrávača priamo do desktop appky cez Win32 `SetParent` (koffi FFI), s fullscreen overlay UI (`desktop/embed-win.js`)
 - **CI workflow** — `npm ci && npm run lint && npm test` na každý push/PR (`.github/workflows/ci.yml`)
+- **Testy prehliadania knižnice**: 19 nových testov pre presné a fuzzy vyhľadávanie, invalidáciu cache, debounce a stránkovanie (`test/browse.test.js`)
+- **Skratka vyhľadávania**: `Ctrl+K` / `Cmd+K` dopĺňa `/` bez preberania fokusu z otvoreného detailu alebo panelu
 
 ### Opravené
 - **Bezpečnosť (XSS)** — escapovanie `poster_thumb` a `director` polí pri vykresľovaní (uložené XSS cez neescapovaný HTML atribút/`innerHTML`)
@@ -20,10 +22,17 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **desktop balík** — natívna binárka `koffi` je teraz vyňatá z `asar` archívu (`asarUnpack`), inak by nefungovala v zabalenej (installer) appke
 - **Android inštalácia** — `minSdk` znížený z 26 na 24 (opravuje zlyhanie inštalácie na starších zariadeniach ako Xiaomi Mi Pad 3)
 - **Android výkon** — debounce vyhľadávania (180 ms) a nižšia `PAGE_SIZE` (40 → 24) pre plynulejší chod na slabších zariadeniach
+- **Vyhľadávanie a fokus**: dokončenie IME zadávania spustí vyhľadávanie, Enter ho vykoná okamžite a vymazanie/reset zruší čakajúcu úlohu; návrat z detailu aj prázdna kolekcia zachovajú použiteľný fokus
+- **Posterwall a svetlé témy**: opravené prekrývanie riadkov plagátov na úzkych obrazovkách a zvýšený kontrast tlmeného textu v témach Linen a Paper
+- **Hromadný výber a filtre**: stav výberu sa zachová pri prekreslení, tlačidlá oznamujú svoj stav a označenie všetkých jasne zahŕňa iba zobrazené filmy
 
 ### Zmenené
 - **android/BUILD.md** — kompletne prepísaný, dokumentuje aktuálny natívny WebView shell (nie zastaraný Bubblewrap/TWA postup)
 - **android/twa-manifest.json** — odstránené heslo v plain texte z historického (nepoužívaného) konfiguračného súboru
+- **Responzívne rozhranie**: prehľadnejšia hlavička, navigácia, karty, filtre a prázdne stavy vo všetkých troch zobrazeniach; zachovaných všetkých šesť tém aj TV ovládanie
+- **Vyhľadávanie**: presné zhody bez Fuse indexu, jeden lenivo vytvorený index a cache ôsmich fuzzy dopytov zdieľaná medzi filtrami; úprava databázy cache zneplatní. Prvé fuzzy hľadanie stále vyžaduje vytvorenie indexu a nezacachované vyhľadávanie
+- **Vykresľovanie knižnice**: delegované udalosti, dávky po 24 kartách plánované cez `requestAnimationFrame` a opätovné použitie domovských riadkov; nový helper `src/lib/browse.js` je súčasťou offline cache
+- **README**: aktuálna ES-module architektúra, responzívne zobrazenia, rozdelený sync, klávesové ovládanie, offline obmedzenia a príkazy na lint/testy; meranie odozvy uvádza aj náklady prvého fuzzy hľadania
 
 ---
 

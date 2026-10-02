@@ -14,8 +14,9 @@ S.loadPrefs = function loadPrefs(){
   S.posterWall=(S.prefs.view==="posterwall");
   {var _iv=S.prefs.view||'list';var ml=document.getElementById("mlist");var vt=document.getElementById("viewTog");
     if(ml)ml.className=S.posterWall?'mlist posterwall':S.grid?'mlist grid':'mlist';
-    if(vt){vt.innerHTML=S.VIEW_ICONS[_iv]||S.VIEW_ICONS.list;vt.title=S.VIEW_TITLES[_iv]||'';}
+    if(vt){vt.innerHTML=S.VIEW_ICONS[_iv]||S.VIEW_ICONS.list;vt.title=S.VIEW_TITLES[_iv]||'';vt.setAttribute('aria-label',vt.title);}
   }
+  S.updateViewLabel();
   document.getElementById("sortSel").value=S.prefs.sort||"num";
   S.updateSortDirBtn(); if(typeof S.syncSortPill==="function") S.syncSortPill();
 };
@@ -138,7 +139,13 @@ S.syncSortPill = function syncSortPill(){
   if (dirBtn){
     dirBtn.innerHTML = asc ? '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="14" x2="8" y2="2"/><polyline points="4,6 8,2 12,6"/></svg>' : '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="2" x2="8" y2="14"/><polyline points="4,10 8,14 12,10"/></svg>';
     dirBtn.title = asc ? 'Zostupne' : 'Vzostupne';
+    dirBtn.setAttribute('aria-label', 'Zoradiť ' + (asc ? 'zostupne' : 'vzostupne'));
   }
+};
+
+S.updateViewLabel = function updateViewLabel(){
+  var label=document.getElementById('libraryView');
+  if(label)label.textContent=({list:'Zoznam',grid:'Karty',posterwall:'Plagáty'})[S.prefs.view]||'Zoznam';
 };
 
 S.initSortCycle = function initSortCycle(){
@@ -158,5 +165,17 @@ S.adjustScrnBody = function adjustScrnBody(){
   var sb=document.getElementById('scrnBody');
   if(!hdr||!sb)return;
   var h=hdr.offsetHeight;
-  sb.style.top=h+'px';
+  if(!h)return;
+  if(sb.style.top!==h+'px')sb.style.top=h+'px';
+  var root=document.documentElement.style;
+  if(root.getPropertyValue('--appbar-height')!==h+'px')root.setProperty('--appbar-height',h+'px');
+  if(S.queueMoreCards)S.queueMoreCards();
+};
+
+S.observeAppbar = function observeAppbar(){
+  var hdr=document.querySelector('#mainSc .hdr');
+  if(hdr&&typeof ResizeObserver!=='undefined'){
+    S._appbarObserver=new ResizeObserver(S.adjustScrnBody);
+    S._appbarObserver.observe(hdr);
+  }
 };

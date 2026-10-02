@@ -9,6 +9,7 @@ import './settings.js';
 import './tv.js';
 import { esc, levenshtein } from './lib/text.js';
 import { parseCsfdPercent, parseCsvLine } from './lib/parse.js';
+import { createDebouncedTask } from './lib/browse.js';
 
 if (S.debugMode) console.log("[FilmDB] v" + S.APP_VERSION + " loaded ✅");
 
@@ -404,22 +405,34 @@ S.toast(_modeLabel);
   });
 
   S.adjustScrnBody();
+  S.observeAppbar();
   setTimeout(S.adjustScrnBody,100);
   S.initTheme();
   S.initColorPicker();
   S.updatePathPreview();
   
-  var _srchDebounceTo=null;
-  document.getElementById("srchInp").addEventListener("input",function(){
-    document.getElementById("srchClr").style.display=this.value?"block":"none";
-    // Debounce only the filter/Fuse pass — it re-scans the whole library
-    // (incl. a fuzzy Fuse.js search) and is too costly to run on every
-    // keystroke on weak Android devices. The clear-button toggle above
-    // stays instant since it's a trivial DOM write.
-    if(_srchDebounceTo)clearTimeout(_srchDebounceTo);
-    _srchDebounceTo=setTimeout(S.applyFilters,180);
+  var searchTask=createDebouncedTask(S.applyFilters,180,function(pending){
+    document.getElementById("srchBox").classList.toggle("is-pending",pending);
+    document.getElementById("mlist").setAttribute("aria-busy",String(pending));
   });
-  document.getElementById("srchClr").addEventListener("click",function(){document.getElementById("srchInp").value="";this.style.display="none";S.applyFilters();});
+  S.cancelSearch=searchTask.cancel;
+  S.flushSearch=function(){if(!searchTask.flush())S.applyFilters();};
+  var searchInput=document.getElementById("srchInp");
+  function requestSearch(e){
+    document.getElementById("srchClr").style.display=searchInput.value?"flex":"none";
+    if(e.isComposing){searchTask.cancel();return;}
+    if(searchInput.value.trim())searchTask.schedule();
+    else{searchTask.cancel();S.applyFilters();}
+  }
+  searchInput.addEventListener("input",requestSearch);
+  searchInput.addEventListener("compositionstart",searchTask.cancel);
+  searchInput.addEventListener("compositionend",requestSearch);
+  searchInput.addEventListener("keydown",function(e){
+    if(e.key==="Enter"&&!e.isComposing&&e.keyCode!==229){e.preventDefault();S.flushSearch();}
+  });
+  document.getElementById("srchClr").addEventListener("click",function(){
+    searchTask.cancel();searchInput.value="";this.style.display="none";S.applyFilters();searchInput.focus();
+  });
   /* sortSel.change handled by initSortCycle */
   var _eviewTo=document.getElementById("viewTog");if(_eviewTo)_eviewTo.addEventListener("click",function(){
     var cur=S.prefs.view||'list';
@@ -427,6 +440,10 @@ S.toast(_modeLabel);
     S.settSetView(S.VIEW_MODES[(ni+1)%S.VIEW_MODES.length]);
   });
   var _ebtnSet=document.getElementById("btnSett");if(_ebtnSet)_ebtnSet.addEventListener("click",S.openSett);
+  ["btnAll","resetBrowse","noResReset"].forEach(function(id){
+    var btn=document.getElementById(id);
+    if(btn)btn.addEventListener("click",S.resetBrowse);
+  });
 
   // Custom "Install app" button — hidden until the browser tells us install
   // is possible, then triggers the native prompt instead of a URL bar icon.
@@ -455,7 +472,7 @@ S.toast(_modeLabel);
   });
   document.getElementById("btnStat").addEventListener("click",S.showStats);
   document.getElementById("btnFav").addEventListener("click",function(){
-    S.favMode=!S.favMode;S.wlMode=false;
+    S.favMode=!S.favMode;S.wlMode=false;S.watchedMode=false;
     this.className="hdr-act hdr-act-fav"+(S.favMode?" active":"");
     document.getElementById("btnWl").className="hdr-act hdr-act-wl";
     document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("active");});
@@ -463,7 +480,7 @@ S.toast(_modeLabel);
     S.applyFilters();
   });
   document.getElementById("btnWl").addEventListener("click",function(){
-    S.wlMode=!S.wlMode;S.favMode=false;
+    S.wlMode=!S.wlMode;S.favMode=false;S.watchedMode=false;
     this.className="hdr-act hdr-act-wl"+(S.wlMode?" active":"");
     document.getElementById("btnFav").className="hdr-act hdr-act-fav";
     document.querySelectorAll(".chip").forEach(function(c){c.classList.remove("active");});
@@ -872,14 +889,23 @@ S.toast(_modeLabel);
 
 S.initKeyboard = function initKeyboard() {
   document.addEventListener('keydown', function(e) {
+    if(e.isComposing||e.keyCode===229)return;
     var tag = (e.target.tagName || '').toLowerCase();
     var inInput = (tag === 'input' || tag === 'textarea' || tag === 'select');
 
-    // / → focus search
-    if (e.key === '/' && !inInput) {
+    // / or Ctrl/Cmd+K → search, without stealing focus from an open panel.
+    var searchKey=(e.key==='/'&&!inInput)||((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k');
+    if (searchKey && !document.querySelector('#detSc:not(.hidden),#statSc:not(.hidden),#settPanel:not(.hidden),#fpPanel.open,.m-ov:not(.hidden),.tr-ov:not(.hidden)') && document.getElementById('adminPanelSc').offsetParent===null) {
       e.preventDefault();
       var inp = document.getElementById('srchInp');
       if (inp) { inp.focus(); inp.select(); }
+      return;
+    }
+
+    if(!S._tvOn&&!inInput&&(e.key==='Enter'||e.key===' ')&&
+      e.target.matches('[role="button"]:not(button):not(a[href])')){
+      e.preventDefault();
+      if(!e.repeat)e.target.click();
       return;
     }
 
@@ -1044,6 +1070,12 @@ S.toggleBulkMode = function toggleBulkMode() {
     btn.classList.remove('on');
     ml.querySelectorAll('.bulk-sel').forEach(function(c) { c.classList.remove('bulk-sel'); });
   }
+  btn.setAttribute('aria-pressed',String(S.bulkMode));
+  ml.querySelectorAll('[data-id]').forEach(function(card){
+    if(S.bulkMode)card.setAttribute('aria-pressed',String(S.bulkSel.has(parseInt(card.dataset.id,10))));
+    else card.removeAttribute('aria-pressed');
+  });
+  ml.querySelectorAll('.mcard').forEach(function(card){card.draggable=!S.bulkMode;});
   S.updateBulkCnt();
 };
 
@@ -1056,6 +1088,7 @@ S.bulkToggleCard = function bulkToggleCard(card) {
   var id = parseInt(card.dataset.id, 10);
   if (S.bulkSel.has(id)) { S.bulkSel.delete(id); card.classList.remove('bulk-sel'); }
   else { S.bulkSel.add(id); card.classList.add('bulk-sel'); }
+  card.setAttribute('aria-pressed',String(S.bulkSel.has(id)));
   S.updateBulkCnt();
 };
 
@@ -1075,11 +1108,12 @@ document.addEventListener('DOMContentLoaded', function() {
   if (bulkSelAllBtn) bulkSelAllBtn.addEventListener('click', function() {
     var ml = document.getElementById('mlist');
     var cards = ml.querySelectorAll('[data-id]');
-    var allSelected = S.bulkSel.size >= cards.length;
+    var allSelected = Array.from(cards).every(function(c){return S.bulkSel.has(parseInt(c.dataset.id,10));});
     cards.forEach(function(c) {
       var id = parseInt(c.dataset.id, 10);
       if (allSelected) { S.bulkSel.delete(id); c.classList.remove('bulk-sel'); }
       else { S.bulkSel.add(id); c.classList.add('bulk-sel'); }
+      c.setAttribute('aria-pressed',String(S.bulkSel.has(id)));
     });
     S.updateBulkCnt();
   });
@@ -1088,6 +1122,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (bulkFav) bulkFav.addEventListener('click', function() {
     S.bulkSel.forEach(function(id) { S.favs.add(id); });
     S.safeSave(S.FK, JSON.stringify(Array.from(S.favs)));
+    S.applyFilters();
     S.toast(S.bulkSel.size + ' filmov pridanych do oblubenych');
     S.scheduleAutoPush('bulk-fav');
   });
@@ -1096,6 +1131,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (bulkWl) bulkWl.addEventListener('click', function() {
     S.bulkSel.forEach(function(id) { S.wl.add(id); });
     S.safeSave(S.WK, JSON.stringify(Array.from(S.wl)));
+    S.applyFilters();
     S.toast(S.bulkSel.size + ' filmov pridanych do watchlistu');
     S.scheduleAutoPush('bulk-wl');
   });
@@ -1105,6 +1141,7 @@ document.addEventListener('DOMContentLoaded', function() {
     S.bulkSel.forEach(function(id) { S.watched.add(id); S.watchedDates[id] = new Date().toISOString().slice(0,10); });
     S.safeSave(S.VK, JSON.stringify(Array.from(S.watched)));
     S.safeSave(S.VDK, JSON.stringify(S.watchedDates));
+    S.applyFilters();
     S.toast(S.bulkSel.size + ' filmov oznacenych ako videne');
     S.scheduleAutoPush('bulk-watched');
   });
@@ -1443,18 +1480,6 @@ document.addEventListener('DOMContentLoaded', function() {
     S.dragSrcId = null;
   });
 });
-
-(function patchCards() {
-  var origAppend = S.appendCards;
-  S.appendCards = function(list, ml) {
-    origAppend(list, ml);
-    if (!S.posterWall) {
-      ml.querySelectorAll('[data-id]:not([draggable])').forEach(function(c) {
-        c.setAttribute('draggable', 'true');
-      });
-    }
-  };
-})();
 
 S.openSharePanel = function openSharePanel(movieId) {
   var m = S.all.find(function(x) { return x.id === movieId; });

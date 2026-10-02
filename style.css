@@ -17,7 +17,6 @@
    3000       : .tr-ov (trailer overlay)
    8000       : .batch-bar (TMDB progress bar — needs to cover everything)
    9000       : .m-ov (modal overlay)
-   9999       : body::before (theme background layer)
    ══════════════════════════════════════════════════════ */
 
 /* Global reduced-motion kill-switch — collapses every transition/animation
@@ -66,8 +65,6 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;touch-action:pan-y;background:var(--bg);color:var(--text);font-family:var(--font)}
-body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.3}
 
 /* ══════════════════════════════════════════════════════════════════
    SCREEN LAYOUT
@@ -98,8 +95,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   color:var(--text);font-family:var(--font-mono);font-size:13px;padding:9px 0}
 .srch-inp::placeholder{color:var(--text3);font-size:12px}
 .srch-clr{background:none;border:none;color:var(--text3);cursor:pointer;
-  padding:4px;display:none;opacity:.6;transition:opacity .15s;
-  display:flex;align-items:center}
+  padding:4px;display:none;opacity:.6;transition:opacity .15s;align-items:center}
 .srch-clr:hover{opacity:1;color:var(--text2)}
 
 .srch-mode-badge{font-family:var(--font-mono);font-size:8px;letter-spacing:.5px;
@@ -119,6 +115,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
 .hdr-btn-sett:hover{box-shadow:0 4px 18px rgba(var(--gold-rgb),.5)}
 
 .hdr-btn-install{background:var(--card2);color:var(--text2);border:1px solid var(--border2)}
+.hdr-btn-install.hidden{display:none}
 .hdr-btn-install:hover{color:var(--gold);border-color:var(--gold)}
 
 /* ── Row 2 ──────────────────────────────────────────────────────── */
@@ -438,7 +435,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   --surface:#f7f2e8;--surface-1:#f1ebde;--surface-2:#ece4d4;--surface-3:#e5dcc8;--surface-4:#ded3bb;
   --on-surface:#1e1a12;--on-surface-variant:#4c4636;--outline:#7d7660;--outline-variant:#d0c7b2;
   --bg:var(--surface);--card:var(--surface-2);--card2:var(--surface-3);
-  --text:var(--on-surface);--text2:var(--on-surface-variant);--text3:var(--outline);
+  --text:var(--on-surface);--text2:var(--on-surface-variant);--text3:#68604e;
   --border:var(--outline-variant);--border2:#c0b69c;
   --hdr-bg:var(--surface-1);--hdr-border:var(--outline-variant)
 }
@@ -450,7 +447,7 @@ body::before{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
   --surface:#f4f7fb;--surface-1:#eaf0f7;--surface-2:#e2eaf3;--surface-3:#d8e2ee;--surface-4:#cdd9e8;
   --on-surface:#0c1a28;--on-surface-variant:#3a4c5e;--outline:#6a7d90;--outline-variant:#c2d0de;
   --bg:var(--surface);--card:var(--surface-2);--card2:var(--surface-3);
-  --text:var(--on-surface);--text2:var(--on-surface-variant);--text3:var(--outline);
+  --text:var(--on-surface);--text2:var(--on-surface-variant);--text3:#53667a;
   --border:var(--outline-variant);--border2:#aebfce;
   --hdr-bg:var(--surface-1);--hdr-border:var(--outline-variant)
 }
@@ -1098,9 +1095,9 @@ input,textarea,.tmdb-inp,select{
 .bulk-sel-all{color:var(--gold) !important}
 .bulk-act-rm{color:#e53935 !important}
 .bulk-act-rm:hover{color:#ff6659 !important}
-.mlist.bulk-mode .mcard{cursor:pointer;position:relative}
-.mlist.bulk-mode .mcard::after{content:'';position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:4px;border:2px solid var(--gold);background:rgba(0,0,0,.5);transition:all .15s;z-index:3;box-sizing:border-box}
-.mlist.bulk-mode .mcard.bulk-sel::after{background:var(--gold);border-color:var(--gold);content:'\2713';color:var(--on-primary);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
+.mlist.bulk-mode .mcard,.mlist.bulk-mode .pwcard{cursor:pointer;position:relative}
+.mlist.bulk-mode .mcard::after,.mlist.bulk-mode .pwcard::after{content:'';position:absolute;top:8px;left:8px;width:20px;height:20px;border-radius:4px;border:2px solid var(--gold);background:rgba(0,0,0,.5);transition:all .15s;z-index:3;box-sizing:border-box}
+.mlist.bulk-mode .mcard.bulk-sel::after,.mlist.bulk-mode .pwcard.bulk-sel::after{background:var(--gold);border-color:var(--gold);content:'\2713';color:var(--on-primary);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
 .mlist.bulk-mode .pwcard::after{top:4px;left:4px;width:16px;height:16px;font-size:11px}
 
 /* ══ Feature: Film map ══ */
@@ -1261,44 +1258,197 @@ html.tv .mlist{scroll-padding:80px 0}
 html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold-rgb),.14);outline:2px solid var(--primary);outline-offset:2px;box-shadow:var(--el3)}
 
 
-/* ══════════════════════════════════════════════════════════════════
-   DESKTOP / WIDE-SCREEN MD3 ADAPTIVE LAYOUT (Now-in-Android case study:
-   mobile bottom bars become a left navigation rail on tablet/desktop)
-   Applies only on wide viewports with a precise pointer — phones,
-   tablets and TVs (touch / D-pad) keep the mobile top-bar layout.
-   ══════════════════════════════════════════════════════════════════ */
-@media (min-width:1100px) and (pointer:fine){
-  /* Action buttons become a vertical MD3 navigation rail under the header */
-  .hdr-row2-left{
-    position:fixed;left:0;top:50px;bottom:0;width:80px;z-index:45;
-    flex-direction:column;align-items:center;justify-content:flex-start;
-    gap:10px;padding:14px 0;
-    background:var(--card);border-right:1px solid var(--border);
-    overflow-y:auto;overflow-x:hidden;
-    scrollbar-width:none;-ms-overflow-style:none}
-  .hdr-row2-left::-webkit-scrollbar{display:none}
+/* Library workspace: clearer hierarchy, readable metadata and real touch
+   targets. All colours inherit the active skin and custom accent. */
+.hdr-row1{padding:12px 16px;gap:12px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:rgba(var(--gold-rgb),.12);color:var(--primary)}
+.logo-copy{display:flex;flex-direction:column;gap:5px}
+.logo-s{font-size:8px;font-weight:700;letter-spacing:2px}
+.logo-t{font-size:16px;letter-spacing:-.2px;line-height:1.1}
+.srch-box{min-height:44px;padding:0 14px;gap:10px;border-radius:14px}
+.srch-inp{font-size:14px;padding:12px 0}
+.srch-inp::placeholder{font-size:13px}
+.srch-inp::-webkit-search-cancel-button{display:none}
+.srch-clr{width:32px;height:32px;justify-content:center;border-radius:8px}
+.srch-clr:hover{background:var(--surface-4)}
+.srch-shortcut{font:12px var(--font);color:var(--text3);border:1px solid var(--border2);border-radius:6px;padding:3px 7px}
+.srch-box:focus-within .srch-shortcut{display:none}
+.srch-mode-badge{font-size:9px;padding:3px 7px}
+.srch-mode-badge:empty{display:none}
+.srch-mode-badge.exact{background:rgba(var(--gold-rgb),.12);border-color:rgba(var(--gold-rgb),.25);color:var(--primary)}
+.srch-box.is-pending .srch-ic{color:var(--primary)}
+.hdr-btn{width:44px;height:44px;border-radius:14px}
+.hdr-row2{min-height:54px}
+.hdr-row2-left{gap:8px;padding:6px 16px}
+.hdr-row2-right{gap:8px;padding:6px 16px}
+.hdr-act{width:40px;height:40px;border-radius:12px;background:transparent;border-color:transparent}
+.hdr-act svg{width:18px;height:18px}
+.hdr-act.active,.hdr-act.on{background:rgba(var(--gold-rgb),.14);border-color:rgba(var(--gold-rgb),.25);color:var(--primary)}
+.ctrl-btn{height:40px;min-width:40px;border-radius:12px;gap:7px;padding:0 12px}
+.ctrl-label{font:500 12px var(--font)}
+.sort-sel{height:40px;min-width:98px;border-radius:12px;font-size:12px;padding-left:12px}
+#sortDir,.view-tog{width:40px;padding:0}
+.fp-pills:not(:empty){padding:0 16px 10px;gap:6px}
+.fp-pills:empty{display:none}
+.fp-pill{padding:2px 4px 2px 10px;font-size:11px;border-radius:10px;min-height:32px}
+.fp-pill-x{display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:none;border:none;border-radius:6px;color:inherit;font:14px var(--font)}
+.fp-pill-x:hover{background:rgba(var(--gold-rgb),.12)}
+.fp-panel{visibility:hidden;transition:transform .2s cubic-bezier(.32,1,.23,1),visibility .2s}
+.fp-panel.open{visibility:visible}
+.fp-genre-chip{font-family:var(--font);min-height:36px}
+.fp-close{min-height:40px}
+.fp-year-inp,.fp-sel,.fp-inp{min-height:40px;font-size:14px}
+.library-bar{display:flex;align-items:center;gap:14px;padding:20px 20px 14px;flex-shrink:0}
+.library-copy{flex:1;min-width:0}
+.library-title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.library-title{font-size:24px;font-weight:700;line-height:1.2;letter-spacing:-.6px}
+.res-cnt{font-size:11px;font-weight:500;color:var(--text2);padding:5px 9px;background:var(--surface-3);border-radius:8px;font-variant-numeric:tabular-nums}
+.res-cnt:empty{display:none}
+.library-hint{font-size:12px;color:var(--text3);line-height:1.5;margin-top:6px}
+.library-view{font-size:11px;color:var(--text3);padding:6px 10px;border:1px solid var(--border);border-radius:8px}
+.library-reset{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 12px;border:1px solid var(--border2);border-radius:12px;background:var(--surface-2);color:var(--text2);font:500 12px var(--font);cursor:pointer}
+.library-reset:hover{border-color:var(--primary);color:var(--primary)}
+.library-reset.hidden{display:none}
+.mlist{padding:4px 20px 48px;scroll-padding:12px}
+.mlist.grid{grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;padding:4px 20px 48px;align-content:start}
+.mlist.grid .mcard{height:192px;border-radius:18px}
+.mlist.grid .cpost-wrap,.mlist.grid .cpost-ph{width:126px;border-radius:0;background:var(--surface-3)}
+.cbody{padding:12px 14px}
+.ctitle{font-size:17px;line-height:1.3;letter-spacing:-.15px;-webkit-line-clamp:2;margin-bottom:6px}
+.cmeta{font-size:12px;color:var(--text2);margin-bottom:6px}
+.cdir{font-size:12px;color:var(--text3);margin-bottom:7px}
+.cgenres{gap:4px}
+.gtag{font-size:9px;letter-spacing:0;padding:3px 7px;background:var(--surface-3);border-color:var(--outline-variant);color:var(--text2);border-radius:6px}
+.cbot{margin-top:4px;min-height:36px}
+.cfav,.lfav{width:36px;height:36px;border-radius:10px;background:transparent;border-color:transparent}
+.cfav[aria-pressed="true"],.lfav[aria-pressed="true"]{color:var(--primary);background:rgba(var(--gold-rgb),.12)}
+.pct-badge{border-radius:8px;padding:4px 8px;gap:2px}
+.pct-badge-lbl{font-size:8px;letter-spacing:.3px}
+.pct-badge-val{font-size:16px}
+.pct-g{background:#176438}.pct-a{background:#766010}.pct-b{background:#8a3030}
+.cpost-play{width:38px;height:38px;bottom:10px;right:10px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.lcard{height:64px;border-radius:12px;margin-bottom:3px}
+.lnum{width:54px;min-width:54px;font-size:12px}
+.lbody{gap:5px;padding:0 12px}
+.ltitle{font-size:16px}
+.lmeta{font-size:11px;color:var(--text3)}
+.lright{gap:8px;padding-right:10px}
+/* Max-content rows keep overflow-clipped aspect-ratio cards from collapsing
+   into overlapping strips inside the fixed-height scrolling grid. */
+.mlist.posterwall{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));grid-auto-rows:max-content;gap:12px;padding:4px 20px 48px;align-content:start}
+.pwcard{position:relative;width:100%;min-width:0;border-radius:12px;aspect-ratio:2/3;background:var(--surface-2)}
+.pw-poster{height:auto}
+.pw-info{position:absolute;inset:auto 0 0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,.9));color:#fff;opacity:0;transition:opacity .15s;pointer-events:none}
+.pw-title{font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pw-meta{font-size:10px;color:#d5d5d5;margin-top:4px}
+.pwcard:hover .pw-info,.pwcard:focus-visible .pw-info,html.tv .pwcard:focus .pw-info{opacity:1}
+.home-rows{padding:0 20px 12px;max-height:35%;overflow-y:auto;overscroll-behavior:contain}
+.home-rows .sec{margin-top:4px;font-size:12px;letter-spacing:.4px;color:var(--text2)}
+.home-rows .similar-row{gap:12px;padding-top:3px;padding-bottom:6px}
+.sim-card:hover{transform:translateY(-2px)}
+.estate{gap:14px}
+.estate-ic{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:24px;background:var(--surface-3);color:var(--primary);opacity:1}
+.estate-t{font-size:24px;letter-spacing:-.3px}
+.estate-s{max-width:360px;font-size:14px;color:var(--text2)}
+.estate-btn{min-height:44px;font-size:13px;letter-spacing:0}
+.det-body{scrollbar-width:thin}
+.sett-title{position:sticky;top:0;background:var(--bg);z-index:2;padding-top:16px;margin-top:0;font-size:16px;letter-spacing:0;text-transform:none}
+.sett-tabs{gap:8px;padding-bottom:14px}
+.sett-tab{font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;min-height:40px;padding:8px 14px}
+.sett-row{min-height:40px}
+.sett-sec{font-size:15px;text-transform:none;letter-spacing:0;margin-top:24px}
+.sett-grp{border-radius:16px;padding:16px}
+.sett-grp-title{font-size:11px;letter-spacing:.7px}
+.sett-btn{font-size:12px;min-height:44px}
+.sett-btn-hint{font-size:12px;line-height:1.6}
+.sett-key-inp,.sett-sel{font-size:13px;min-height:42px}
+.skel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;padding:4px 20px;overflow:hidden}
+.skel-card{height:192px;border-radius:18px}
 
-  /* Rail destinations — MD3 sized icon targets */
-  .hdr-row2-left .hdr-act{width:48px;height:48px;border-radius:var(--r-full)}
-  .hdr-row2-left .hdr-act.active{
-    background:rgba(var(--gold-rgb),.18);
-    box-shadow:0 1px 3px rgba(0,0,0,.35)}
-  .hdr-row2-left .bulk-cnt{font-size:11px}
-
-  /* Row 2 leaves the layout flow: its sort cluster is overlaid on row 1,
-     right of the search box — the empty band under the header disappears.
-     adjustScrnBody() measures the shrunken header and moves content up. */
-  .hdr-row2{position:absolute;top:0;left:auto;right:96px;z-index:2;
-    height:49px;min-height:0;border-top:none;
-    align-items:center;justify-content:flex-end}
+@media(hover:hover){
+  .mlist.grid .mcard:hover{border-color:rgba(var(--gold-rgb),.45);box-shadow:var(--el1)}
+  .pwcard:hover{transform:translateY(-3px);box-shadow:var(--el2)}
+}
+@media(hover:none){
+  .pw-info{opacity:1}
+  .cfav,.lfav,.cpost-play{width:44px;height:44px}
+}
+/* Off-screen cards skip inner layout/paint on modern browsers. TV opts out:
+   spatial navigation needs reliable geometry for every focus stop. */
+@supports(content-visibility:auto){
+  html:not(.tv) .mlist.grid .mcard{content-visibility:auto;contain-intrinsic-size:auto 192px}
+  html:not(.tv) .mlist:not(.grid):not(.posterwall) .mcard{content-visibility:auto;contain-intrinsic-size:auto 64px}
+}
+@media(max-width:700px){
+  .hdr-row1{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px 8px;padding:12px 12px 10px;overflow:visible}
+  .logo{grid-column:1;grid-row:1;gap:8px}
+  .logo-t{font-size:15px}
+  .logo-s{font-size:7px}
+  .logo-mark{width:34px;height:34px;border-radius:10px}
+  .hdr-btn-install{grid-column:2;grid-row:1}
+  .hdr-btn-sett{grid-column:3;grid-row:1}
+  .hdr-srch{grid-column:1/-1;grid-row:2;width:100%;margin:0}
+  .srch-inp{font-size:16px;padding:11px 0}
+  .srch-inp::placeholder{font-size:14px}
+  .srch-shortcut{display:none}
+  .hdr-row2{flex-wrap:wrap;border-top:none;gap:8px;padding:0 12px 10px}
+  .hdr-row2-left{flex:1 1 100%;padding:0;gap:4px;min-height:40px;scroll-snap-type:x proximity;scroll-padding:4px}
   .hdr-row2-div{display:none}
-  .hdr-row2-right{position:static;background:transparent;padding:0;
-    flex:0;justify-content:flex-end}
-  .hdr-srch{margin-right:320px}
-
-  /* Content area makes room for the rail and starts right below row 1
-     (JS adjustScrnBody refines the top offset from the real header height) */
-  .scrn-body{left:80px;top:50px}
+  .hdr-row2-right{width:100%;padding:0;gap:8px;background:transparent}
+  .hdr-act{width:40px;height:40px;scroll-snap-align:start}
+  .sort-sel{flex:1;min-width:0}
+  .srch-mode-badge{font-size:8px;padding:3px 5px}
+  .library-bar{padding:14px 12px 12px;gap:8px;flex-wrap:wrap}
+  .library-title{font-size:20px}
+  .library-title-row{gap:8px}
+  .library-hint{font-size:11px;margin-top:4px}
+  .library-view{display:none}
+  .library-reset{min-height:36px;font-size:11px;padding:0 9px}
+  .res-cnt{font-size:10px;padding:4px 7px}
+  .mlist,.mlist.grid{padding:4px 12px 28px}
+  .mlist.grid{grid-template-columns:1fr;gap:10px}
+  .mlist.grid .mcard{height:174px;border-radius:16px}
+  .mlist.grid .cpost-wrap,.mlist.grid .cpost-ph{width:114px}
+  .cbody{padding:10px 12px}
+  .ctitle{font-size:16px;margin-bottom:5px}
+  .cmeta,.cdir{font-size:11px;margin-bottom:5px}
+  .gtag{font-size:8px;padding:2px 6px}
+  .cfav,.lfav{width:40px;height:40px}
+  .cpost-play{width:40px;height:40px;bottom:8px;right:8px}
+  .lright .gtag{display:none}
+  .lnum{width:42px;min-width:42px}
+  .mlist.posterwall{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:4px 12px 28px}
+  .home-rows{padding:0 12px 10px;max-height:30%}
+  .fp-pills:not(:empty){padding:0 12px 10px}
+  .skel-grid{grid-template-columns:1fr;padding:4px 12px;gap:10px}
+  .skel-card{height:174px}
+}
+@media(min-width:900px){
+  .sett-panel{padding-left:calc((100% - 820px)/2);padding-right:calc((100% - 820px)/2)}
+}
+/* Grid placement replaces the old absolute sort cluster. Search, controls
+   and optional install button now reserve their own space at every width. */
+@media(min-width:1100px) and (pointer:fine){
+  .hdr{display:grid;grid-template-columns:auto minmax(180px,1fr) auto auto auto;align-items:center;gap:12px;padding:16px 20px}
+  .hdr-row1,.hdr-row2{display:contents}
+  .logo{grid-column:1;grid-row:1}
+  .hdr-srch{grid-column:2;grid-row:1;min-width:0;margin:0}
+  .hdr-row2-right{grid-column:3;grid-row:1;position:static;background:transparent;padding:0;gap:8px}
+  .hdr-btn-install{grid-column:4;grid-row:1}
+  .hdr-btn-sett{grid-column:5;grid-row:1}
+  .hdr-row2-div{display:none}
+  .fp-pills{grid-column:1/-1}
+  .fp-pills:not(:empty){padding:0}
+  .hdr-row2-left{position:fixed;left:0;top:var(--appbar-height,76px);bottom:0;width:108px;z-index:45;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;background:var(--surface-1);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden}
+  .hdr-row2-left .hdr-act{width:88px;min-height:60px;height:auto;gap:6px;flex-direction:column;border-radius:14px;padding:9px 4px}
+  .hdr-row2-left > .hdr-act::after{content:attr(aria-label);font:500 10px var(--font);line-height:1.2;color:inherit}
+  .hdr-row2-left > .hdr-act svg{width:20px;height:20px}
+  .hdr-row2-left .bulk-inline{flex-wrap:wrap;justify-content:center;gap:4px;padding:8px 0;margin:0;border-left:0;border-top:1px solid var(--border)}
+  .hdr-row2-left .bulk-inline .hdr-act{width:38px;min-height:38px;padding:0}
+  .hdr-row2-left .bulk-cnt{width:100%}
+  .scrn-body{left:108px;top:76px}
+  .srch-shortcut{display:block}
 }
 
 /* ══════════════════════════════════════════════════════════════════

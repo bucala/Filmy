@@ -45,6 +45,7 @@ const SHELL  = [
   "./src/lib/sync-helpers.js",
   "./src/lib/paths.js",
   "./src/lib/nav.js",
+  "./src/lib/browse.js",
   "./portable-handler.js",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",

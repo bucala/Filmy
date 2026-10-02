@@ -39,6 +39,9 @@ S.saveAllData = function saveAllData(){
 };
 
 S.safeSave = function safeSave(key,val){
+  // Central invalidation also covers in-place edits, tags, import merges and
+  // drag reordering. Ratings/collection saves do not discard the search cache.
+  if(key===S.SK&&S.invalidateSearch)S.invalidateSearch();
   try{localStorage.setItem(key,val);}
   catch(e){if(e.name==='QuotaExceededError')S.toast('Úložisko je plné — niektoré dáta sa neuložili');console.warn('localStorage save failed:',key,e);}
 };

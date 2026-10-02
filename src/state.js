@@ -66,7 +66,7 @@ S.VIEW_ICONS = {
   grid:'<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>',
   posterwall:'<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="1" y="1" width="4" height="6" rx="1"/><rect x="6" y="1" width="4" height="6" rx="1"/><rect x="11" y="1" width="4" height="6" rx="1"/><rect x="1" y="9" width="4" height="6" rx="1"/><rect x="6" y="9" width="4" height="6" rx="1"/><rect x="11" y="9" width="4" height="6" rx="1"/></svg>'
 };
-S.VIEW_TITLES = {list:'Prepnúť na grid',grid:'Prepnúť na poster wall',posterwall:'Prepnúť na zoznam'};
+S.VIEW_TITLES = {list:'Zobraziť karty',grid:'Zobraziť plagáty',posterwall:'Zobraziť zoznam'};
 S.adminPending = null;
 S.matchMovieId = null;
 S.matchPendingData = null;

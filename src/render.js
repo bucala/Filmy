@@ -1,6 +1,20 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
 import { esc, tmdbSrcset } from './lib/text.js';
+import { createLibrarySearch, pageRange, needsMoreCards } from './lib/browse.js';
+
+const librarySearch=createLibrarySearch(movies=>{
+  S.fuseInst=new Fuse(movies,S.FUSE_OPTS);
+  return S.fuseInst;
+});
+let recentMovies=null;
+let moreCardsFrame=null;
+
+S.invalidateSearch = function invalidateSearch(){
+  librarySearch.reset();
+  S.fuseInst=null;
+  recentMovies=null;
+};
 
 function prefersReducedMotion(){
   return typeof window!=='undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -43,7 +57,9 @@ S.setGenre = function setGenre(g,el){
 };
 
 S.buildFuse = function buildFuse(){
-  S.fuseInst=new Fuse(S.all,S.FUSE_OPTS);
+  // Existing import/sync callers invalidate here. Build the index only if a
+  // query has no exact matches, never on the critical first-render path.
+  S.invalidateSearch();
 };
 
 /* Builds one horizontal-scroll poster row (reuses the detail screen's
@@ -52,7 +68,7 @@ S.buildFuse = function buildFuse(){
 S.buildHomeRow = function buildHomeRow(title,movies,rowId){
   const cards=movies.map(m=>{
     const poster=m.poster_thumb&&m.poster_thumb.length>10
-      ?`<img class="sim-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="76px" alt="" loading="lazy">`
+      ?`<img class="sim-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="76px" alt="" loading="lazy" decoding="async" width="76" height="114">`
       :'<div class="sim-poster-ph">🎬</div>';
     return `<div class="sim-card" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title)}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
   }).join("");
@@ -69,17 +85,22 @@ S.buildHomeRows = function buildHomeRows(){
   let html="";
   if(continuing.length)html+=S.buildHomeRow("POKRAČOVAŤ V SLEDOVANÍ",continuing,"homeContinueRow");
   if(S.prefs.showRecent){
-    const recent=S.all.slice().sort((a,b)=>(b.num||0)-(a.num||0)).slice(0,12);
-    if(recent.length)html+=S.buildHomeRow("NAPOSLEDY PRIDANÉ",recent,"homeRecentRow");
+    if(!recentMovies)recentMovies=S.all.slice().sort((a,b)=>(b.num||0)-(a.num||0)).slice(0,12);
+    if(recentMovies.length)html+=S.buildHomeRow("NAPOSLEDY PRIDANÉ",recentMovies,"homeRecentRow");
   }
-  el.innerHTML=html;
+  if(el._homeMarkup!==html){el.innerHTML=html;el._homeMarkup=html;}
   el.style.display=html?"block":"none";
-  el.querySelectorAll(".sim-card").forEach(c=>{
-    c.onclick=function(){S.openDet(parseInt(c.dataset.id,10));};
-  });
+  if(!el._delegated){
+    el._delegated=function(e){
+      const card=e.target.closest('[data-id]');
+      if(card)S.openDet(parseInt(card.dataset.id,10));
+    };
+    el.addEventListener('click',el._delegated);
+  }
 };
 
 S.applyFilters = function applyFilters(){
+  if(S.cancelSearch)S.cancelSearch();
   const raw=(document.getElementById("srchInp")||{}).value||"";
   const q=raw.trim();
   const badge=document.getElementById("srchModeBadge");
@@ -110,32 +131,14 @@ S.applyFilters = function applyFilters(){
     return true;
   });
 
-  let list;
-  if(!q){
-    list=pool;
-    if(badge){badge.className="srch-mode-badge";badge.textContent="";}
-  } else {
-    const ql=q.toLowerCase();
-    const exactMatches=pool.filter(m=>
-      (m.title||"").toLowerCase().includes(ql)||
-      (m.director||"").toLowerCase().includes(ql)||
-      String(m.year||"").includes(ql)||
-      (m.genres||[]).join(" ").toLowerCase().includes(ql)||
-      (m._tags||[]).join(" ").toLowerCase().includes(ql)
-    );
-    if(exactMatches.length>0){
-      list=exactMatches;
-      if(badge){badge.className="srch-mode-badge exact";badge.textContent="PRESNE";}
-      exactMatches.forEach(m=>{S.fuseHighlights[m.id]=S.buildExactHighlights(m,ql);});
-    } else {
-      if(!S.fuseInst)S.buildFuse();
-      var noFilters=!S.favMode&&!S.wlMode&&!S.watchedMode&&S.fpActiveCount()===0;
-      var searchInst=noFilters?S.fuseInst:new Fuse(pool,S.FUSE_OPTS);
-      const results=searchInst.search(q);
-      list=results.map(r=>r.item);
-      if(badge){badge.className="srch-mode-badge fuzzy";badge.textContent="FUZZY ~";}
-      results.forEach(r=>{S.fuseHighlights[r.item.id]=S.parseFuseMatches(r.matches);});
-    }
+  const result=librarySearch.search(S.all,pool,q);
+  const list=result.items;
+  S._searchMode=result.mode;
+  S._searchQuery=result.query;
+  S._searchMatches=result.matches;
+  if(badge){
+    badge.className="srch-mode-badge"+(result.mode?" "+result.mode:"");
+    badge.textContent=result.mode==="exact"?"Presné":result.mode==="fuzzy"?"Podobné":"";
   }
 
   S.sortList(list);
@@ -150,6 +153,16 @@ S.applyFilters = function applyFilters(){
   if(S.favMode&&!q&&!fpN)label=`Obľúbené: ${list.length} filmov`;
   if(S.watchedMode&&!q&&!fpN)label=`Videné: ${list.length} filmov`;
   const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
+  const title=document.getElementById("libraryTitle");
+  if(title)title.textContent=q?"Výsledky vyhľadávania":S.favMode?"Obľúbené filmy":S.wlMode?"Chcem si pozrieť":S.watchedMode?"Videné filmy":"Moja knižnica";
+  const hint=document.getElementById("libraryHint");
+  if(hint)hint.textContent=q?`Výsledky pre „${q}“.`:fpN?"Zobrazené filmy zodpovedajú vašim filtrom.":S.favMode?"Vaše obľúbené filmy na jednom mieste.":S.wlMode?"Filmy, ktoré čakajú na svoj večer.":S.watchedMode?"Prehľad filmov, ktoré už poznáte.":"Vyberte si film na dnešný večer.";
+  const reset=document.getElementById("resetBrowse");
+  if(reset)reset.classList.toggle("hidden",!modeActive);
+  [["btnAll",!S.favMode&&!S.wlMode&&!S.watchedMode],["btnFav",S.favMode],["btnWl",S.wlMode],["btnWatched",S.watchedMode]].forEach(([id,on])=>{
+    const btn=document.getElementById(id);
+    if(btn){btn.classList.toggle("active",on);btn.setAttribute("aria-pressed",String(on));}
+  });
 };
 
 S.buildExactHighlights = function buildExactHighlights(m,ql){
@@ -196,6 +209,11 @@ S.applyHL = function applyHL(text,ranges){
 S.hlField = function hlField(m,field){
   var val=m[field]||"";
   var hl=S.fuseHighlights[m.id];
+  if(!hl){
+    hl=S._searchMode==="exact"?S.buildExactHighlights(m,S._searchQuery):
+      S.parseFuseMatches(S._searchMatches&&S._searchMatches.get(m.id));
+    S.fuseHighlights[m.id]=hl;
+  }
   var ranges=hl&&hl[field]?hl[field]:null;
   return S.applyHL(val,ranges);
 };
@@ -259,8 +277,19 @@ S.sortList = function sortList(list){
 S.renderList = function renderList(list){
   var ml=document.getElementById("mlist"),em=document.getElementById("emptySt"),nr=document.getElementById("noRes");
   if(!ml)return; // guard: DOM not ready
+  if(moreCardsFrame!==null){cancelAnimationFrame(moreCardsFrame);moreCardsFrame=null;}
+  var focused=document.activeElement;
+  var focusedCard=focused&&focused.closest('#mlist [data-id]');
+  var focusId=focusedCard&&focusedCard.dataset.id;
+  var focusButton=focusedCard&&focused!==focusedCard?
+    (focused.matches('.cfav,.lfav')?'.cfav,.lfav':focused.matches('.cpost-play')?'.cpost-play':null):null;
+  ml._list=list;
+  S.curPage=0;
+  ml.innerHTML="";
+  ml.scrollTop=0;
   if(!S.all.length){
     if(em)em.style.display="flex"; ml.style.display="none"; if(nr)nr.style.display="none";
+    if(focusId)document.getElementById('btnAll').focus();
     return;
   }
   if(em)em.style.display="none";
@@ -268,41 +297,50 @@ S.renderList = function renderList(list){
     ml.style.display="none"; if(nr)nr.style.display="flex";
     var q=(document.getElementById("srchInp")||{}).value||"";
     var nrt=document.getElementById("noResTxt");
-    if(nrt)nrt.textContent=q?"Nic pre \""+q+"\"":S.favMode?"Ziadne oblubene":"Ziadne filmy v zanri";
+    if(nrt)nrt.textContent=q?`Pre „${q}“ sa nenašiel žiadny film. Skúste kratší názov alebo zrušte filtre.`:S.favMode?"Zatiaľ tu nemáte obľúbené filmy. Pridajte ich pomocou hviezdičky.":S.wlMode?"Váš watchlist je zatiaľ prázdny.":S.watchedMode?"Zatiaľ nemáte žiadne filmy označené ako videné.":"Žiadny film nezodpovedá filtrom. Skúste ich upraviť alebo zrušiť.";
+    if(focusId)document.getElementById('noResReset').focus();
     return;
   }
-  nr.style.display="none";ml.style.display=""; ml.className = S.posterWall ? "mlist posterwall" : (S.grid ? "mlist grid" : "mlist");
-  S.curPage=0;ml.innerHTML="";
-  // FIX2b: Event delegation — one listener replaces per-card listeners (1750+ → 1)
-  if(ml._delegated) ml.removeEventListener("click",ml._delegated);
-  ml._delegated=function(e){
-    var pb=e.target.closest(".cpost-play");
-    if(pb){e.preventDefault();e.stopPropagation();var pid=parseInt(pb.closest("[data-id]").dataset.id,10);S.playMovie(pid);return;}
-    var fb=e.target.closest(".cfav,.lfav");
-    if(fb){e.stopPropagation();var cid=parseInt(fb.closest("[data-id]").dataset.id,10);S.togFav(cid,fb);return;}
-    var card=e.target.closest("[data-id]");
-    if(card){S.openDet(parseInt(card.dataset.id,10));}
-  };
-  ml.addEventListener("click",ml._delegated);
+  nr.style.display="none";ml.style.display="";
+  ml.className=(S.posterWall?"mlist posterwall":S.grid?"mlist grid":"mlist")+(S.bulkMode?" bulk-mode":"");
+  if(!ml._delegated){
+    ml._delegated=function(e){
+      if(S.bulkMode)return;
+      var pb=e.target.closest(".cpost-play");
+      if(pb){e.preventDefault();e.stopPropagation();var pid=parseInt(pb.closest("[data-id]").dataset.id,10);S.playMovie(pid);return;}
+      var fb=e.target.closest(".cfav,.lfav");
+      if(fb){e.stopPropagation();var cid=parseInt(fb.closest("[data-id]").dataset.id,10);S.togFav(cid,fb);return;}
+      var card=e.target.closest("[data-id]");
+      if(card)S.openDet(parseInt(card.dataset.id,10));
+    };
+    ml.addEventListener("click",ml._delegated);
+    ml.addEventListener("scroll",S.queueMoreCards,{passive:true});
+  }
   S.appendCards(list,ml);
-
-  // Scroll listener na mlist (overflow-y:auto) nie na scrnBody (overflow:hidden)
-  if(ml._scrollHandler) ml.removeEventListener("scroll",ml._scrollHandler);
-  ml._scrollHandler=function(){
-    if(ml.scrollTop+ml.clientHeight>=ml.scrollHeight-300){S.curPage++;S.appendCards(list,ml);}
-  };
-  ml.addEventListener("scroll",ml._scrollHandler);
+  if(focusId){
+    var next=Array.from(ml.children).find(card=>card.dataset.id===focusId)||ml.firstElementChild;
+    if(next){if(focusButton)next=next.querySelector(focusButton)||next;next.focus({preventScroll:true});}
+  }
+  S.queueMoreCards();
 };
 
 S.appendCards = function appendCards(list,ml){
-  var start=S.curPage*S.PAGE_SIZE,end=Math.min(start+S.PAGE_SIZE,list.length);
+  var {start,end}=pageRange(S.curPage,S.PAGE_SIZE,list.length);
   if(start>=list.length)return;
-  var frag=document.createDocumentFragment();
-  for(var i=start;i<end;i++){
-    var w=document.createElement("div");w.innerHTML=S.cardHTML(list[i]);
-    frag.appendChild(w.firstChild);
-  }
-  ml.appendChild(frag);
+  // Parse each page once, not once per card. Existing cards/focus stay intact.
+  ml.insertAdjacentHTML("beforeend",list.slice(start,end).map(S.cardHTML).join(""));
+};
+
+S.queueMoreCards = function queueMoreCards(){
+  if(moreCardsFrame!==null)return;
+  moreCardsFrame=requestAnimationFrame(function(){
+    moreCardsFrame=null;
+    var ml=document.getElementById("mlist");
+    if(!ml||!ml._list||!needsMoreCards(ml.scrollTop,ml.clientHeight,ml.scrollHeight,ml._list.length-ml.children.length))return;
+    S.curPage++;
+    S.appendCards(ml._list,ml);
+    S.queueMoreCards();
+  });
 };
 
 S.pctBadge = function pctBadge(cached,m){
@@ -315,32 +353,34 @@ S.pctBadge = function pctBadge(cached,m){
 
 S.cardHTML = function cardHTML(m){
   const fav=S.favs.has(m.id), cached=S.liveCache[m.id];
+  const selected=S.bulkMode&&S.bulkSel.has(m.id)?" bulk-sel":"";
+  const bulkPressed=S.bulkMode?` aria-pressed="${S.bulkSel.has(m.id)}"`:"";
   const genres=(m.genres||[]).slice(0,2).map(g=>`<span class="gtag">${esc(g)}</span>`).join("");
   const ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
   const badge=S.pctBadge(cached,m);
   const titleH=S.hlField(m,"title");
   const dirH=m.director?S.hlField(m,"director"):"";
-  const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
+  const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}" aria-pressed="${fav}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
   if(S.posterWall){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
-    return `<div class="pwcard" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:520px) 33vw, (max-width:1000px) 140px, 160px" alt="${esc(m.title||'')}" loading="lazy">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}</div>`;
+    return `<div class="pwcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 33vw, 180px" alt="" loading="lazy" decoding="async" width="200" height="300">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}<div class="pw-info"><div class="pw-title">${titleH}</div><div class="pw-meta">${esc(ym)}</div></div></div>`;
   }
   if(S.grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
-      ?`<div class="cpost-wrap"><img class="cpost" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="128px" alt="${esc(m.title||'')}" loading="lazy"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
+      ?`<div class="cpost-wrap"><img class="cpost" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 114px, 126px" alt="" loading="lazy" decoding="async" width="200" height="300"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${S.FILM_ICO}</div>`;
-    return `<div class="mcard" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title||'')} (${m.year||''})">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
+    return `<div class="mcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
-  const lfavBtn=`<button class="lfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
-  return `<div class="mcard lcard" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title||'')} (${m.year||''})"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
+  const lfavBtn=`<button class="lfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}" aria-pressed="${fav}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
+  return `<div class="mcard lcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 };
 
 S.togFav = function togFav(id,btn){
   if(S.favs.has(id))S.favs.delete(id);else S.favs.add(id);
   S.safeSave(S.FK,JSON.stringify(Array.from(S.favs)));
   S.scheduleAutoPush('togFav');
-  if(btn)btn.innerHTML=S.favs.has(id)?S.STAR_ON:S.STAR_OFF;
+  if(btn){btn.innerHTML=S.favs.has(id)?S.STAR_ON:S.STAR_OFF;btn.setAttribute("aria-pressed",String(S.favs.has(id)));btn.setAttribute("aria-label",S.favs.has(id)?"Odstrániť z obľúbených":"Pridať do obľúbených");}
   var db=document.getElementById("dfavBtn");if(db&&S.curId===id)S.updFavBtn(db,id);
   if(S.favMode)S.applyFilters();
 };
@@ -360,6 +400,7 @@ S.updFavBtn = function updFavBtn(btn,id){var f=S.favs.has(id);btn.innerHTML=f?"&
 
 S.openDet = function openDet(id){
   const m=S.all.find(x=>x.id===id); if(!m)return;
+  if(!document.getElementById("mainSc").classList.contains("hidden"))S._detailReturnFocus=document.activeElement;
   S.curId=id;
   const cached=S.liveCache[id];
   document.getElementById("detTitle").textContent=m.title;
@@ -452,7 +493,7 @@ S.openDet = function openDet(id){
   S.updWlBtn(document.getElementById("dwlBtn"),id);
   S.updWatchedBtn(document.getElementById("dwatchedBtn"),id);
   document.getElementById("dwatchedBtn").onclick=function(){S.togWatched(id,null);S.updWatchedBtn(document.getElementById("dwatchedBtn"),id);};
-  document.querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){S.openDet(parseInt(c.dataset.sid));};});
+  document.getElementById("detBody").querySelectorAll(".sim-card").forEach(c=>{c.onclick=function(){S.openDet(parseInt(c.dataset.sid,10));};});
   const playBtn=document.getElementById("playMovieBtn");
   if(playBtn){
     playBtn.querySelector('.sett-btn-label').textContent = 'Prehráť · ' + S.getPlayModeLabel();
@@ -500,16 +541,26 @@ S.openDet = function openDet(id){
     detEl.classList.remove("hidden");
   }
   document.getElementById("detBody").scrollTop=0;
+  if(!S._tvOn)document.getElementById("btnBack").focus({preventScroll:true});
   if(!cached)S.fetchLiveData(id);
 };
 
 S.closeDet = function closeDet(){
   var detEl=document.getElementById("detSc");
   var mainEl=document.getElementById("mainSc");
+  function restoreMain(){
+    mainEl.classList.remove("hidden");
+    if(!S._tvOn){
+      var target=S._detailReturnFocus;
+      if(!target||!target.isConnected)target=mainEl.querySelector('#mlist [data-id]')||document.getElementById('btnAll');
+      target.focus({preventScroll:true});
+    }
+    S.queueMoreCards();
+  }
   if(detEl.classList.contains("hidden")){ mainEl.classList.remove("hidden"); return; }
   if(prefersReducedMotion()){
     detEl.classList.add("hidden");
-    mainEl.classList.remove("hidden");
+    restoreMain();
     return;
   }
   var done=false;
@@ -517,7 +568,7 @@ S.closeDet = function closeDet(){
     if(done)return; done=true;
     detEl.classList.add("hidden");
     detEl.classList.remove("det-anim-init");
-    mainEl.classList.remove("hidden");
+    restoreMain();
   }
   detEl.addEventListener("transitionend",finish,{once:true});
   setTimeout(finish,260);
@@ -746,11 +797,15 @@ S.openFp = function openFp() {
     ch.className = 'fp-genre-chip' + (S.fpState.genres.indexOf(g) >= 0 ? ' on' : '');
     ch.textContent = g + ' (' + cnt + ')';
     ch.dataset.genre = g;
+    ch.tabIndex=0;
+    ch.setAttribute('role','button');
+    ch.setAttribute('aria-pressed',String(S.fpState.genres.includes(g)));
     ch.addEventListener('click', function() {
       var idx = S.fpState.genres.indexOf(g);
       if (idx >= 0) S.fpState.genres.splice(idx, 1);
       else          S.fpState.genres.push(g);
       ch.classList.toggle('on', S.fpState.genres.indexOf(g) >= 0);
+      ch.setAttribute('aria-pressed',String(S.fpState.genres.includes(g)));
     });
     gBox.appendChild(ch);
   });
@@ -766,13 +821,17 @@ S.openFp = function openFp() {
 
   overlay.classList.add('open');
   panel.classList.add('open');
+  document.getElementById('fpBtn').setAttribute('aria-expanded','true');
   document.body.style.overflow = 'hidden';
 };
 
 S.closeFp = function closeFp() {
+  var restoreFocus=document.getElementById('fpPanel').contains(document.activeElement);
   document.getElementById('fpPanel').classList.remove('open');
   document.getElementById('fpOverlay').classList.remove('open');
+  document.getElementById('fpBtn').setAttribute('aria-expanded','false');
   document.body.style.overflow = '';
+  if(restoreFocus)document.getElementById('fpBtn').focus();
 };
 
 S.applyFp = function applyFp() {
@@ -809,12 +868,23 @@ S.resetFp = function resetFp() {
   document.getElementById('fpCsfdVal').textContent = '0%';
   document.getElementById('fpCountry').value      = '';
   var tagInp=document.getElementById('fpTag');if(tagInp)tagInp.value='';
-  document.querySelectorAll('.fp-genre-chip').forEach(function(c) { c.classList.remove('on'); });
+  document.querySelectorAll('.fp-genre-chip').forEach(function(c) { c.classList.remove('on');c.setAttribute('aria-pressed','false'); });
   S.buildChips();
   S.closeFp();
   S.updateFpBadge();
   S.updateFpPills();
   S.applyFilters();
+};
+
+S.resetBrowse = function resetBrowse() {
+  const focusWasInResults=document.getElementById('noRes').contains(document.activeElement) ||
+    document.activeElement===document.getElementById('resetBrowse');
+  if(S.cancelSearch)S.cancelSearch();
+  document.getElementById('srchInp').value='';
+  document.getElementById('srchClr').style.display='none';
+  S.favMode=false;S.wlMode=false;S.watchedMode=false;
+  S.resetFp();
+  if(focusWasInResults)document.getElementById('btnAll').focus();
 };
 
 S.updateFpBadge = function updateFpBadge() {
@@ -833,10 +903,12 @@ S.updateFpPills = function updateFpPills() {
   function pill(label, resetFn) {
     var p  = document.createElement('div');
     p.className = 'fp-pill';
-    var x  = document.createElement('span');
+    var x  = document.createElement('button');
     x.className = 'fp-pill-x';
+    x.type='button';
+    x.setAttribute('aria-label','Zrušiť filter: '+label);
     x.textContent = '✕';
-    x.addEventListener('click', resetFn);
+    x.addEventListener('click', function(){resetFn();document.getElementById('fpBtn').focus();});
     p.appendChild(document.createTextNode(label));
     p.appendChild(x);
     pills.appendChild(p);
@@ -854,6 +926,9 @@ S.updateFpPills = function updateFpPills() {
   }
   if (S.fpState.country) {
     pill('🌍 ' + S.fpState.country, function() { S.fpState.country=''; S.updateFpBadge(); S.updateFpPills(); S.applyFilters(); });
+  }
+  if (S.fpState.tag) {
+    pill('Tag: ' + S.fpState.tag, function() { S.fpState.tag=''; S.updateFpBadge(); S.updateFpPills(); S.applyFilters(); });
   }
   S.fpState.genres.forEach(function(g) {
     pill('🎬 ' + g, function() {
@@ -953,7 +1028,7 @@ S.buildSimilarHtml = function buildSimilarHtml(movie){
   if(!similar.length)return "";
   const cards=similar.map(m=>{
     const poster=m.poster_thumb&&m.poster_thumb.length>10
-      ?`<img class="sim-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="76px" alt="" loading="lazy">`
+      ?`<img class="sim-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="76px" alt="" loading="lazy" decoding="async" width="76" height="114">`
       :'<div class="sim-poster-ph">🎬</div>';
     return `<div class="sim-card" data-sid="${m.id}" tabindex="0" role="button" aria-label="${esc(m.title)}">${poster}<div class="sim-title">${esc(m.title)}</div></div>`;
   }).join("");
