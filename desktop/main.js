@@ -18,6 +18,13 @@ let mainWindow = null;
 let tray = null;
 let usingLocal = false;
 
+// Use software rendering on Windows to avoid GPU presentation flicker on
+// high-refresh/VRR (e.g. G-Sync) displays. Electron requires this before ready.
+// The native MPC/VLC player keeps its own video-rendering configuration.
+if (process.platform === 'win32') {
+  app.disableHardwareAcceleration();
+}
+
 // The app:// scheme must be privileged (secure + standard) before the app is
 // ready so the ES-module web app, localStorage and fetch work exactly like
 // on https — the file:// fallback could never support type="module".

@@ -13,8 +13,10 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **CI workflow** — `npm ci && npm run lint && npm test` na každý push/PR (`.github/workflows/ci.yml`)
 - **Testy prehliadania knižnice**: 19 nových testov pre presné a fuzzy vyhľadávanie, invalidáciu cache, debounce a stránkovanie (`test/browse.test.js`)
 - **Skratka vyhľadávania**: `Ctrl+K` / `Cmd+K` dopĺňa `/` bez preberania fokusu z otvoreného detailu alebo panelu
+- **Testy štartu desktopu**: overenie vypnutia GPU akcelerácie pred pripravenosťou Electronu na Windows a zachovania predvoleného vykresľovania na Linux/macOS (`test/desktop-startup.test.js`).
 
 ### Opravené
+- **Windows blikanie — opatrenie**: Electron pred inicializáciou aplikácie vypína hardvérovú akceleráciu iba na Windows, aby obmedzil blikanie pri GPU vykresľovaní na monitoroch s vysokou frekvenciou/VRR (napr. G-Sync, 180 Hz). Účinok na konkrétnom monitore ešte vyžaduje overenie; natívny MPC/VLC používa vlastný renderer.
 - **Bezpečnosť (XSS)** — escapovanie `poster_thumb` a `director` polí pri vykresľovaní (uložené XSS cez neescapovaný HTML atribút/`innerHTML`)
 - **Bezpečnosť (Electron IPC)** — validácia cesty k súboru (`isSafeMoviePath`) pred spustením prehrávača z renderer procesu
 - **Bezpečnosť (protokol handler)** — `mpc://`/`vlc://` handlery (`setup/MPC-Handler`, `setup/VLC-Handler`) už nikdy nespustia neoverenú cestu z URL, keď prehrávač nie je nájdený v známych cestách ani v `PATH` — predtým šlo o spustenie ľubovoľného kódu cez vlastnú URL schému
@@ -28,6 +30,8 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Hromadný výber a filtre**: stav výberu sa zachová pri prekreslení, tlačidlá oznamujú svoj stav a označenie všetkých jasne zahŕňa iba zobrazené filmy
 
 ### Zmenené
+- **Kompaktná hlavička (do 700 px)**: vyhľadávanie, inštalácia a nastavenia vedľa seba; navigačné ikony sú posúvateľné v spoločnom riadku s radením, filtrom a prepínačom zobrazenia. Odstránený opakovaný názov databázy pri logu a pomocná veta pod názvom kolekcie vo webovej, Android aj desktop verzii.
+- **Offline cache**: nová verzia shell cache pre aktualizovanú hlavičku; cache posterov zostáva zachovaná.
 - **android/BUILD.md** — kompletne prepísaný, dokumentuje aktuálny natívny WebView shell (nie zastaraný Bubblewrap/TWA postup)
 - **android/twa-manifest.json** — odstránené heslo v plain texte z historického (nepoužívaného) konfiguračného súboru
 - **Responzívne rozhranie**: prehľadnejšia hlavička, navigácia, karty, filtre a prázdne stavy vo všetkých troch zobrazeniach; zachovaných všetkých šesť tém aj TV ovládanie

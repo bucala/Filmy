@@ -91,7 +91,8 @@
 
 ### Rozhranie a odozva
 
-- Prehľadná hlavička s vyhľadávaním, radením a filtrami; označená navigácia a ovládanie prispôsobené úzkym obrazovkám.
+- Kompaktná hlavička na obrazovkách do **700 px** má dva riadky: vyhľadávanie vedľa inštalácie/nastavení a posúvateľné navigačné ikony vedľa radenia, filtra a zobrazenia. Opakovaný názov pri logu a pomocná veta pod názvom kolekcie sú odstránené na všetkých platformách; názov kolekcie a počet filmov zostávajú.
+- Windows Electron používa **softvérové vykresľovanie rozhrania** ako opatrenie proti blikaniu pri GPU vykresľovaní na monitoroch s vysokou frekvenciou/VRR (G-Sync, napr. 180 Hz). Účinok treba overiť na konkrétnom zariadení; softvérové vykresľovanie môže zvýšiť záťaž CPU. MPC/VLC si zachováva vlastné vykresľovanie videa. Aktualizácia vyžaduje nový desktop build, nestačí obnoviť webovú stránku.
 - Všetky tri zobrazenia zachovávajú šesť tém, klávesové/TV ovládanie a hromadný výber. **Označiť zobrazené** zahŕňa iba aktuálne vykreslené karty.
 - Filmy sa vykresľujú po **24 kartách** cez `requestAnimationFrame`; vysoká obrazovka sa doplní automaticky. Domovské riadky sa neprestavujú pri každom filtrovaní.
 - Presné vyhľadávanie nevytvára Fuse index. Fuzzy vyhľadávanie používa jeden lenivo vytvorený index a cache posledných **8 dopytov** zdieľanú medzi filtrami; úprava databázy cache zneplatní.

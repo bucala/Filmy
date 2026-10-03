@@ -155,8 +155,6 @@ S.applyFilters = function applyFilters(){
   const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
   const title=document.getElementById("libraryTitle");
   if(title)title.textContent=q?"Výsledky vyhľadávania":S.favMode?"Obľúbené filmy":S.wlMode?"Chcem si pozrieť":S.watchedMode?"Videné filmy":"Moja knižnica";
-  const hint=document.getElementById("libraryHint");
-  if(hint)hint.textContent=q?`Výsledky pre „${q}“.`:fpN?"Zobrazené filmy zodpovedajú vašim filtrom.":S.favMode?"Vaše obľúbené filmy na jednom mieste.":S.wlMode?"Filmy, ktoré čakajú na svoj večer.":S.watchedMode?"Prehľad filmov, ktoré už poznáte.":"Vyberte si film na dnešný večer.";
   const reset=document.getElementById("resetBrowse");
   if(reset)reset.classList.toggle("hidden",!modeActive);
   [["btnAll",!S.favMode&&!S.wlMode&&!S.watchedMode],["btnFav",S.favMode],["btnWl",S.wlMode],["btnWatched",S.watchedMode]].forEach(([id,on])=>{
