@@ -1,0 +1,146 @@
+name: Signed release
+
+# Release keys are never used by pull-request builds.
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        type: choice
+        options: [both, windows, android]
+        default: both
+      version:
+        description: Release version (e.g. 1.0.1)
+        type: string
+        required: true
+      android_version_code:
+        description: Android version code (increase for every release)
+        type: string
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    if: github.ref == 'refs/heads/main' && inputs.platform != 'android'
+    runs-on: windows-latest
+    environment: release-signing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - name: Install dependencies
+        working-directory: desktop
+        run: npm ci
+      - name: Build and verify signed Windows packages
+        shell: pwsh
+        working-directory: desktop
+        env:
+          FILMY_RELEASE_VERSION: ${{ inputs.version }}
+          CSC_LINK: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:FILMY_RELEASE_VERSION -notmatch '^\d+\.\d+\.\d+$') {
+            throw 'Version must have the form 1.0.1'
+          }
+          if (-not $env:CSC_LINK -or -not $env:CSC_KEY_PASSWORD) {
+            throw 'Configure WINDOWS_CERTIFICATE_BASE64 and WINDOWS_CERTIFICATE_PASSWORD in release-signing'
+          }
+          npx electron-builder --win --publish never -c.forceCodeSigning=true "-c.extraMetadata.version=$env:FILMY_RELEASE_VERSION"
+          if ($LASTEXITCODE -ne 0) { throw 'Signed Windows build failed' }
+          $packages = @(Get-ChildItem dist -Filter '*.exe' -File)
+          if ($packages.Count -ne 2) { throw 'Expected installer and portable exe' }
+          $appExe = Join-Path 'dist' 'win-unpacked/Filmy.exe'
+          foreach ($file in @($packages.FullName) + @($appExe)) {
+            $signature = Get-AuthenticodeSignature -FilePath $file
+            if ($signature.Status -ne 'Valid' -or -not $signature.TimeStamperCertificate) {
+              throw "Missing valid timestamped signature: $file"
+            }
+            Write-Output "Verified: $file; publisher: $($signature.SignerCertificate.Subject)"
+          }
+          Get-FileHash $packages.FullName -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash)  $([IO.Path]::GetFileName($_.Path))" } |
+            Set-Content dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: filmy-windows-signed-${{ inputs.version }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+  android:
+    if: github.ref == 'refs/heads/main' && inputs.platform != 'windows'
+    runs-on: ubuntu-latest
+    environment: release-signing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools"
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+          cache-disabled: true
+      - name: Build and verify signed Android release
+        env:
+          FILMY_RELEASE_VERSION: ${{ inputs.version }}
+          FILMY_ANDROID_VERSION_CODE: ${{ inputs.android_version_code }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/filmy-release.jks
+        run: |
+          set -euo pipefail
+          [[ "$FILMY_RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Invalid release version'; exit 1; }
+          [[ "$FILMY_ANDROID_VERSION_CODE" =~ ^[1-9][0-9]*$ ]] || { echo 'Invalid Android version code'; exit 1; }
+          for key in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            [[ -n "${!key}" ]] || { echo "Missing signing variable: $key"; exit 1; }
+          done
+          umask 077
+          trap 'rm -f "$ANDROID_KEYSTORE_PATH"' EXIT
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          gradle :android-app:assembleRelease :android-app:bundleRelease --no-daemon --no-configuration-cache
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          apk="android-app/build/outputs/apk/release/android-app-release.apk"
+          aab="android-app/build/outputs/bundle/release/android-app-release.aab"
+          "$tools/apksigner" verify --verbose --print-certs "$apk"
+          # Check the APK signer matches the persistent release key, rather
+          # than accepting any valid signature (e.g. an accidental debug key).
+          keytool -exportcert -keystore "$ANDROID_KEYSTORE_PATH" -alias "$ANDROID_KEY_ALIAS" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD -file "$RUNNER_TEMP/release-cert.der"
+          expected=$(sha256sum "$RUNNER_TEMP/release-cert.der" | cut -d ' ' -f 1)
+          actual=$("$tools/apksigner" verify --print-certs "$apk" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          [[ "$actual" == "$expected" ]] || { echo 'APK signer does not match release key'; exit 1; }
+          "$tools/aapt" dump badging "$apk" > "$RUNNER_TEMP/apk-badging.txt"
+          if grep -q '^application-debuggable' "$RUNNER_TEMP/apk-badging.txt"; then
+            echo 'Release APK must not be debuggable'; exit 1
+          fi
+          # AAB files use a JAR signature; trust comes from the persistent
+          # Android key, not from a public Windows-style certificate authority.
+          jarsigner -verify "$aab" > "$RUNNER_TEMP/aab-verification.txt"
+          grep -q 'jar verified\.' "$RUNNER_TEMP/aab-verification.txt"
+          mkdir -p signed-artifacts
+          cp "$apk" "$aab" signed-artifacts/
+          (cd signed-artifacts && sha256sum *.apk *.aab > SHA256SUMS.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: filmy-android-signed-${{ inputs.version }}
+          path: signed-artifacts/*
+          if-no-files-found: error

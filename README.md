@@ -199,11 +199,28 @@ Gradle automaticky skopíruje web appku vrátane `src/` modulov do Android asset
 cd desktop
 npm install
 npm start          # dev režim
-npm run build      # produkčný build
+npm run build:win  # Windows build (bez nastaveného podpisu nepodpísaný)
 ```
 
 Pozri [`desktop/BUILD.md`](desktop/BUILD.md) pre detaily.
 </details>
+
+---
+
+## Podpisovanie a inštalácia
+
+Workflow **Signed release** pripravuje podpísané Windows EXE a Android release
+APK/AAB, overuje podpisy a vytvára SHA-256 kontrolné súčty. Spúšťa sa manuálne z
+`main`; kľúče sú v GitHub prostredí `release-signing`, nikdy v repozitári.
+Windows potrebuje dôveryhodný Code Signing certifikát (pripravená cesta PFX/P12;
+hardvérový/cloudový poskytovateľ potrebuje vlastnú integráciu). Android potrebuje
+trvalý release keystore. Bez ich nastavenia podpísané vydanie nevznikne.
+
+Bežné CI artefakty sú stále vývojové: Windows nepodpísaný, Android debug
+(`sk.bucala.filmy.debug`). Staré debug APK s pôvodným ID nemožno aktualizovať
+release kľúčom; pred odinštalovaním exportujte dáta. Podpis sám nezaručuje
+odstránenie SmartScreen/Play Protect upozornení. Postup a požadované secrets:
+[SIGNING.md](SIGNING.md).
 
 ---
 

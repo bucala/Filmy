@@ -9,6 +9,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 ## [Unreleased]
 
 ### Pridané
+- **Podpísané vydania**: manuálny workflow `Signed release` pre Windows (PFX/P12) a Android release APK/AAB; podpisové secrets sú oddelené od PR buildov, podpisy sa overujú pred nahraním artefaktov a pribudli SHA-256 súčty. Aktivácia vyžaduje certifikát/keystore, postup v `SIGNING.md`.
 - **Vnorené prehrávanie v MPC-HC/BE** — natívne vnorenie okna prehrávača priamo do desktop appky cez Win32 `SetParent` (koffi FFI), s fullscreen overlay UI (`desktop/embed-win.js`)
 - **CI workflow** — `npm ci && npm run lint && npm test` na každý push/PR (`.github/workflows/ci.yml`)
 - **Testy prehliadania knižnice**: 19 nových testov pre presné a fuzzy vyhľadávanie, invalidáciu cache, debounce a stránkovanie (`test/browse.test.js`)
@@ -30,6 +31,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Hromadný výber a filtre**: stav výberu sa zachová pri prekreslení, tlačidlá oznamujú svoj stav a označenie všetkých jasne zahŕňa iba zobrazené filmy
 
 ### Zmenené
+- **Android distribúcia**: release signing z premenných prostredia, odmietnutie balenia nepodpísaného release a samostatné debug ID `.debug`; vypnutý WebView file access a explicitne vypnutý debugging v release. Staré debug inštalácie vyžadujú export dát a reinštaláciu pred prechodom na iný kľúč.
 - **Odstránený riadok nad filmami**: názov kolekcie (napr. „Moja knižnica“), počet filmov a označenie zobrazenia už nezaberajú samostatný riadok na žiadnej platforme; odstránené aj súvisiace štýly a aktualizácie textov. Reset zostáva cez ikonu knižnice a pri prázdnych výsledkoch.
 - **Kompaktná hlavička (do 700 px)**: vyhľadávanie, inštalácia a nastavenia vedľa seba; navigačné ikony sú posúvateľné v spoločnom riadku s radením, filtrom a prepínačom zobrazenia. Odstránený opakovaný názov databázy pri logu a pomocná veta pod názvom kolekcie vo webovej, Android aj desktop verzii.
 - **Offline cache**: nová verzia shell cache pre aktualizovanú hlavičku; cache posterov zostáva zachovaná.

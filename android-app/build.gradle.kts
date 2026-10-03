@@ -4,6 +4,16 @@ plugins {
     id("com.android.application")
 }
 
+// Signing material comes from the build environment, never from source control.
+val releaseSigningEnv = listOf(
+    "ANDROID_KEYSTORE_PATH", "ANDROID_KEYSTORE_PASSWORD",
+    "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"
+).associateWith { providers.environmentVariable(it).orNull }
+val hasReleaseSigning = releaseSigningEnv.values.all { !it.isNullOrBlank() }
+if (releaseSigningEnv.values.any { !it.isNullOrBlank() } && !hasReleaseSigning) {
+    throw GradleException("Incomplete Android signing configuration; set all four ANDROID signing variables.")
+}
+
 android {
     namespace = "sk.bucala.filmy"
     compileSdk = 35
@@ -14,14 +24,61 @@ android {
         // and it covers older unsupported devices (e.g. Xiaomi Mi Pad 3).
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = providers.environmentVariable("FILMY_ANDROID_VERSION_CODE")
+            .orElse("1").get().toInt().also {
+                require(it in 1..2100000000) { "Invalid Android version code" }
+            }
+        versionName = providers.environmentVariable("FILMY_RELEASE_VERSION").orElse("1.0.0").get()
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(releaseSigningEnv.getValue("ANDROID_KEYSTORE_PATH")!!)
+                storePassword = releaseSigningEnv.getValue("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = releaseSigningEnv.getValue("ANDROID_KEY_ALIAS")
+                keyPassword = releaseSigningEnv.getValue("ANDROID_KEY_PASSWORD")
+                enableV1Signing = true
+                enableV2Signing = true
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+        getByName("release") {
+            isDebuggable = false
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
+        }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+abstract class ValidateReleaseSigning : DefaultTask() {
+    @get:Input
+    abstract val signingConfigured: Property<Boolean>
+
+    @TaskAction
+    fun validate() {
+        if (!signingConfigured.get()) {
+            throw GradleException("Release signing is required; configure ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD.")
+        }
+    }
+}
+
+// Refuse to package an unsigned release, including when invoked via `build`.
+val validateReleaseSigning = tasks.register<ValidateReleaseSigning>("validateReleaseSigning") {
+    signingConfigured.set(hasReleaseSigning)
+}
+tasks.matching { it.name in listOf("packageRelease", "signReleaseBundle") }.configureEach {
+    dependsOn(validateReleaseSigning)
 }
 
 dependencies {

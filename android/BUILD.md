@@ -62,8 +62,8 @@ install: `gradle :android-app:assembleDebug`.)
 
 Output: `android-app/build/outputs/apk/debug/*.apk`
 
-There is currently no `:android-app:assembleRelease` signing config wired
-up — see "Signing / release" below.
+Debug builds use applicationId `sk.bucala.filmy.debug`. For signed release
+APK/AAB, see "Signing / release" below.
 
 ## How CI builds it
 
@@ -92,11 +92,11 @@ section, so this doc can't drift from CI again.
 
 ## Signing / release
 
-There is currently **no release-signing configuration** in
-`android-app/build.gradle.kts` — only the default debug build type is
-usable (`assembleDebug`, matching what CI produces). If you need a signed
-release APK/AAB in the future, you'll need to add a `signingConfigs`
-block and a release keystore yourself; nothing from the old
-`android/twa-manifest.json` signing block is valid or usable here (it was
-for a different, unused packaging approach and its keystore file never
-existed in the repo).
+Release signing is configured through `ANDROID_KEYSTORE_PATH`,
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD`.
+Partial configuration or packaging an unsigned release fails explicitly.
+Release is not debuggable; debug uses a separate `.debug` application ID.
+
+The manual **Signed release** workflow builds and verifies release APK/AAB
+using environment secrets. Setup, key backup, version codes, and migration
+from older debug installations: [SIGNING.md](../SIGNING.md).

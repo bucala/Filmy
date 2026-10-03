@@ -21,7 +21,10 @@ npm run build:win
 npm run build:linux
 ```
 
-Output is in `desktop/dist/`.
+Output is in `desktop/dist/`. These builds are unsigned unless a signing
+provider has been configured. For the manual **Signed release** workflow,
+required trusted certificate, and signature verification, see
+[SIGNING.md](../SIGNING.md).
 
 ## Configuration
 

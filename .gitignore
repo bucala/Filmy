@@ -15,6 +15,12 @@ build/
 android-app/build/
 android-app/src/main/assets/web/
 local.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
 
 # Desktop (Electron) build output
 desktop/dist/
