@@ -497,7 +497,7 @@ S.settSetView = function settSetView(v){
   var tg = document.getElementById('ttabGrid');
   if (tl) tl.className = 'ttab' + (v==='list' ? ' on' : '');
   if (tg) tg.className = 'ttab' + (v==='grid' ? ' on' : '');
-  S.prefs.view = v; S.savePrefs(); S.updateViewLabel(); S.renderList(S.filt);
+  S.prefs.view = v; S.savePrefs(); S.renderList(S.filt);
 };
 
 S.settSetSort = function settSetSort(v){S.prefs.sort=v;S.savePrefs();document.getElementById("sortSel").value=v;S.syncSortPill();S.applyFilters();};

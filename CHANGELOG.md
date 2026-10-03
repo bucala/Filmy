@@ -30,6 +30,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Hromadný výber a filtre**: stav výberu sa zachová pri prekreslení, tlačidlá oznamujú svoj stav a označenie všetkých jasne zahŕňa iba zobrazené filmy
 
 ### Zmenené
+- **Odstránený riadok nad filmami**: názov kolekcie (napr. „Moja knižnica“), počet filmov a označenie zobrazenia už nezaberajú samostatný riadok na žiadnej platforme; odstránené aj súvisiace štýly a aktualizácie textov. Reset zostáva cez ikonu knižnice a pri prázdnych výsledkoch.
 - **Kompaktná hlavička (do 700 px)**: vyhľadávanie, inštalácia a nastavenia vedľa seba; navigačné ikony sú posúvateľné v spoločnom riadku s radením, filtrom a prepínačom zobrazenia. Odstránený opakovaný názov databázy pri logu a pomocná veta pod názvom kolekcie vo webovej, Android aj desktop verzii.
 - **Offline cache**: nová verzia shell cache pre aktualizovanú hlavičku; cache posterov zostáva zachovaná.
 - **android/BUILD.md** — kompletne prepísaný, dokumentuje aktuálny natívny WebView shell (nie zastaraný Bubblewrap/TWA postup)

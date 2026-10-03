@@ -16,7 +16,6 @@ S.loadPrefs = function loadPrefs(){
     if(ml)ml.className=S.posterWall?'mlist posterwall':S.grid?'mlist grid':'mlist';
     if(vt){vt.innerHTML=S.VIEW_ICONS[_iv]||S.VIEW_ICONS.list;vt.title=S.VIEW_TITLES[_iv]||'';vt.setAttribute('aria-label',vt.title);}
   }
-  S.updateViewLabel();
   document.getElementById("sortSel").value=S.prefs.sort||"num";
   S.updateSortDirBtn(); if(typeof S.syncSortPill==="function") S.syncSortPill();
 };
@@ -141,11 +140,6 @@ S.syncSortPill = function syncSortPill(){
     dirBtn.title = asc ? 'Zostupne' : 'Vzostupne';
     dirBtn.setAttribute('aria-label', 'Zoradiť ' + (asc ? 'zostupne' : 'vzostupne'));
   }
-};
-
-S.updateViewLabel = function updateViewLabel(){
-  var label=document.getElementById('libraryView');
-  if(label)label.textContent=({list:'Zoznam',grid:'Karty',posterwall:'Plagáty'})[S.prefs.view]||'Zoznam';
 };
 
 S.initSortCycle = function initSortCycle(){

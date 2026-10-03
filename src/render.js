@@ -148,15 +148,6 @@ S.applyFilters = function applyFilters(){
   const modeActive=q||S.favMode||S.wlMode||S.watchedMode||fpN>0;
   const hr=document.getElementById("homeRows");
   if(hr){if(modeActive){hr.style.display="none";}else{S.buildHomeRows();}}
-  let label=modeActive?`${list.length} z ${S.all.length} filmov`:`${S.all.length} filmov`;
-  if(S.wlMode&&!q&&!fpN)label=`Watchlist: ${list.length} filmov`;
-  if(S.favMode&&!q&&!fpN)label=`Obľúbené: ${list.length} filmov`;
-  if(S.watchedMode&&!q&&!fpN)label=`Videné: ${list.length} filmov`;
-  const rc=document.getElementById("resCnt"); if(rc)rc.textContent=label;
-  const title=document.getElementById("libraryTitle");
-  if(title)title.textContent=q?"Výsledky vyhľadávania":S.favMode?"Obľúbené filmy":S.wlMode?"Chcem si pozrieť":S.watchedMode?"Videné filmy":"Moja knižnica";
-  const reset=document.getElementById("resetBrowse");
-  if(reset)reset.classList.toggle("hidden",!modeActive);
   [["btnAll",!S.favMode&&!S.wlMode&&!S.watchedMode],["btnFav",S.favMode],["btnWl",S.wlMode],["btnWatched",S.watchedMode]].forEach(([id,on])=>{
     const btn=document.getElementById(id);
     if(btn){btn.classList.toggle("active",on);btn.setAttribute("aria-pressed",String(on));}
@@ -875,8 +866,7 @@ S.resetFp = function resetFp() {
 };
 
 S.resetBrowse = function resetBrowse() {
-  const focusWasInResults=document.getElementById('noRes').contains(document.activeElement) ||
-    document.activeElement===document.getElementById('resetBrowse');
+  const focusWasInResults=document.getElementById('noRes').contains(document.activeElement);
   if(S.cancelSearch)S.cancelSearch();
   document.getElementById('srchInp').value='';
   document.getElementById('srchClr').style.display='none';

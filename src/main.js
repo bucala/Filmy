@@ -440,7 +440,7 @@ S.toast(_modeLabel);
     S.settSetView(S.VIEW_MODES[(ni+1)%S.VIEW_MODES.length]);
   });
   var _ebtnSet=document.getElementById("btnSett");if(_ebtnSet)_ebtnSet.addEventListener("click",S.openSett);
-  ["btnAll","resetBrowse","noResReset"].forEach(function(id){
+  ["btnAll","noResReset"].forEach(function(id){
     var btn=document.getElementById(id);
     if(btn)btn.addEventListener("click",S.resetBrowse);
   });
