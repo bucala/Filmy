@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-10-06T17:01:47.874Z",
+  "updated": "2026-10-06T17:03:04.354Z",
   "movies": [
     {
       "id": 1,
@@ -48010,25 +48010,6 @@
       "_rtScore": 86,
       "_csfdUrl": "https://www.csfd.cz/film/1508810-konec-oak-street/prehled/",
       "_pctCsfd": 64
-    },
-    {
-      "id": 1768,
-      "num": 1768,
-      "title": "Spider-Man: Nový deň",
-      "year": 2026,
-      "director": "Destin Daniel Cretton",
-      "cast": "Tom Holland, Sadie Sink, Tramell Tillman, Zendaya, Jacob Batalon, Jon Bernthal, Mark Ruffalo, Florence Pugh, Liza Colón-Zayas, Marisa Tomei",
-      "genres": [
-        "Science Fiction",
-        "Akčný",
-        "Dobrodružný"
-      ],
-      "country": "US",
-      "duration": "145 min",
-      "description": "Bojovať proti zločinu na plný úväzok ako Spider-Man vo svete, ktorý si naňho nepamätá – a tlak z toho, že vidí svojich starých priateľov žiť ďalej bez neho – vyvoláva v Petrovi Parkerovi zmenu, ktorú možno nedokáže udržať pod kontrolou. Táto transformácia však môže byť zároveň tým jediným, čo dokáže zastaviť šokujúcu novú hrozbu pre mesto a jeho blízkych – mocného zloducha, ktorého nikto nedokáže ani vidieť.",
-      "poster_thumb": "https://image.tmdb.org/t/p/w185/iOAzTObtb5lzNynR4aG0FtVpmqb.jpg",
-      "rating": 0,
-      "tmdbId": 969681
     }
   ],
   "favourites": [],
