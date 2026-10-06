@@ -21,6 +21,7 @@ local.properties
 *.pfx
 *.pem
 *.key
+keystore-base64.txt
 
 # Desktop (Electron) build output
 desktop/dist/

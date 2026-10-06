@@ -45,6 +45,10 @@ Timestamp umožňuje overovať podpis aj po vypršaní podpisového certifikátu
 
 ## Android: trvalý release kľúč
 
+**Lokálne Android Studio:** GitHub secrets nie sú potrebné. Otvor celý projekt
+a použi **Build → Generate Signed App Bundle or APK → APK** so svojím bezpečným
+keystore. Podrobný postup: [ANDROID_STUDIO.md](ANDROID_STUDIO.md).
+
 Android APK musí byť podpísaný. Pre distribúciu sa používa **vlastný trvalý
 release keystore**, nie nový debug kľúč pri každom CI behu. Nie je potrebné
 kupovať Windows-style certifikát od verejnej certifikačnej autority.

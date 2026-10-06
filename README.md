@@ -182,9 +182,12 @@ Vlastná akcentová farba cez color picker v nastaveniach.
 <summary><b>Android build</b></summary>
 
 **Lokálne:**
-1. Otvor koreň repozitára v Android Studio
-2. Počkaj na Gradle sync
-3. Spusti `:android-app:assembleDebug`
+1. Stiahni **Code → Download ZIP**, rozbaľ ho a otvor celý koreň projektu v Android Studio.
+2. Počkaj na Gradle sync; použi SDK 35, Build-Tools 35.0.0 a zabudované JDK 17/21.
+3. Pre testovacie APK vyber variant `debug` a **Build APK(s)**. Vlastný keystore ani GitHub secrets netreba.
+4. Pre release APK použi **Build → Generate Signed App Bundle or APK → APK** a svoj bezpečný lokálny keystore.
+
+Podrobný postup a cesty k hotovým APK: **[ANDROID_STUDIO.md](ANDROID_STUDIO.md)**.
 
 **GitHub Actions:**
 Workflow **Android APK** zostaví debug APK pri PR, push do `main`, alebo manuálne cez **Run workflow**. Výsledok: artifact `filmy-debug-apk`.
@@ -215,6 +218,8 @@ APK/AAB, overuje podpisy a vytvára SHA-256 kontrolné súčty. Spúšťa sa man
 Windows potrebuje dôveryhodný Code Signing certifikát (pripravená cesta PFX/P12;
 hardvérový/cloudový poskytovateľ potrebuje vlastnú integráciu). Android potrebuje
 trvalý release keystore. Bez ich nastavenia podpísané vydanie nevznikne.
+Android APK môžeš zostaviť aj lokálne v Android Studio bez GitHub secrets,
+vrátane podpísaného release cez jeho sprievodcu: [ANDROID_STUDIO.md](ANDROID_STUDIO.md).
 
 Bežné CI artefakty sú stále vývojové: Windows nepodpísaný, Android debug
 (`sk.bucala.filmy.debug`). Staré debug APK s pôvodným ID nemožno aktualizovať

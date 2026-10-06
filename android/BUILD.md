@@ -9,6 +9,10 @@ and serves them from `https://appassets.androidplatform.net` via
 live Vercel deployment, and no Digital Asset Links / `assetlinks.json`
 concept involved.
 
+For downloading the repository and building debug or signed release APKs
+directly in Android Studio, follow [ANDROID_STUDIO.md](../ANDROID_STUDIO.md).
+Local IDE builds do not require GitHub signing secrets.
+
 > The old `android/` folder (this file's own directory) is a leftover from
 > an earlier Bubblewrap-TWA approach that is **no longer used**. See
 > `twa-manifest.json.README.md` in this same folder for details. This
@@ -57,8 +61,11 @@ From the repo root (`C:\GitHub\Filmy`):
 ./gradlew :android-app:assembleDebug
 ```
 
-(On Windows without the wrapper set up, use a local Gradle 8.10.2
-install: `gradle :android-app:assembleDebug`.)
+On Windows, use the checked-in wrapper:
+
+```powershell
+.\gradlew.bat :android-app:assembleDebug
+```
 
 Output: `android-app/build/outputs/apk/debug/*.apk`
 
@@ -92,10 +99,17 @@ section, so this doc can't drift from CI again.
 
 ## Signing / release
 
-Release signing is configured through `ANDROID_KEYSTORE_PATH`,
-`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD`.
-Partial configuration or packaging an unsigned release fails explicitly.
+Release signing accepts either Android Studio's **Generate Signed App Bundle
+or APK** wizard or `ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`,
+`ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD` from the build environment.
+Incomplete signing fails when packaging a release, not during a normal
+debug build or IDE sync. An unsigned release is still rejected explicitly.
 Release is not debuggable; debug uses a separate `.debug` application ID.
+
+For local versions, edit `FILMY_RELEASE_VERSION` and
+`FILMY_ANDROID_VERSION_CODE` in the root `gradle.properties`. CI environment
+variables with the same names take priority. The configuration cache is off
+by default so local signing credentials are not serialized into it.
 
 The manual **Signed release** workflow builds and verifies release APK/AAB
 using environment secrets. Setup, key backup, version codes, and migration

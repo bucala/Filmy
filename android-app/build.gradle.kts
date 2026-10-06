@@ -10,9 +10,14 @@ val releaseSigningEnv = listOf(
     "ANDROID_KEY_ALIAS", "ANDROID_KEY_PASSWORD"
 ).associateWith { providers.environmentVariable(it).orNull }
 val hasReleaseSigning = releaseSigningEnv.values.all { !it.isNullOrBlank() }
-if (releaseSigningEnv.values.any { !it.isNullOrBlank() } && !hasReleaseSigning) {
-    throw GradleException("Incomplete Android signing configuration; set all four ANDROID signing variables.")
-}
+
+// Generate Signed App Bundle / APK injects these properties. AGP handles
+// the actual signing; only check completeness here, without saving secrets.
+val studioSigningProperties = listOf(
+    "android.injected.signing.store.file", "android.injected.signing.store.password",
+    "android.injected.signing.key.alias", "android.injected.signing.key.password"
+).associateWith { providers.gradleProperty(it).orNull }
+val hasStudioSigning = studioSigningProperties.values.all { !it.isNullOrBlank() }
 
 android {
     namespace = "sk.bucala.filmy"
@@ -24,11 +29,18 @@ android {
         // and it covers older unsupported devices (e.g. Xiaomi Mi Pad 3).
         minSdk = 24
         targetSdk = 35
-        versionCode = providers.environmentVariable("FILMY_ANDROID_VERSION_CODE")
-            .orElse("1").get().toInt().also {
+        versionCode = (providers.environmentVariable("FILMY_ANDROID_VERSION_CODE")
+            .orNull?.takeIf { it.isNotBlank() }
+            ?: providers.gradleProperty("FILMY_ANDROID_VERSION_CODE")
+                .orNull?.takeIf { it.isNotBlank() }
+            ?: "1").toInt().also {
                 require(it in 1..2100000000) { "Invalid Android version code" }
             }
-        versionName = providers.environmentVariable("FILMY_RELEASE_VERSION").orElse("1.0.0").get()
+        versionName = providers.environmentVariable("FILMY_RELEASE_VERSION")
+            .orNull?.takeIf { it.isNotBlank() }
+            ?: providers.gradleProperty("FILMY_RELEASE_VERSION")
+                .orNull?.takeIf { it.isNotBlank() }
+            ?: "1.0.0"
     }
 
     signingConfigs {
@@ -68,14 +80,14 @@ abstract class ValidateReleaseSigning : DefaultTask() {
     @TaskAction
     fun validate() {
         if (!signingConfigured.get()) {
-            throw GradleException("Release signing is required; configure ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD.")
+            throw GradleException("Release signing is required. Use Android Studio's Generate Signed App Bundle / APK wizard, or configure ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD.")
         }
     }
 }
 
 // Refuse to package an unsigned release, including when invoked via `build`.
 val validateReleaseSigning = tasks.register<ValidateReleaseSigning>("validateReleaseSigning") {
-    signingConfigured.set(hasReleaseSigning)
+    signingConfigured.set(hasReleaseSigning || hasStudioSigning)
 }
 tasks.matching { it.name in listOf("packageRelease", "signReleaseBundle") }.configureEach {
     dependsOn(validateReleaseSigning)
