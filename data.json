@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-10-06T17:03:59.180Z",
+  "updated": "2026-10-06T19:04:24.708Z",
   "movies": [
     {
       "id": 1,
@@ -48028,7 +48028,10 @@
       "description": "Bojovať proti zločinu na plný úväzok ako Spider-Man vo svete, ktorý si naňho nepamätá – a tlak z toho, že vidí svojich starých priateľov žiť ďalej bez neho – vyvoláva v Petrovi Parkerovi zmenu, ktorú možno nedokáže udržať pod kontrolou. Táto transformácia však môže byť zároveň tým jediným, čo dokáže zastaviť šokujúcu novú hrozbu pre mesto a jeho blízkych – mocného zloducha, ktorého nikto nedokáže ani vidieť.",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/iOAzTObtb5lzNynR4aG0FtVpmqb.jpg",
       "rating": 0,
-      "tmdbId": 969681
+      "tmdbId": 969681,
+      "_localPath": "W:\\Movies\\2026 - Spider-Man - Zbrusu novy den",
+      "_csfdUrl": "https://www.csfd.cz/film/1591126-spider-man-zbrusu-novy-den/prehled/",
+      "_pctCsfd": 82
     }
   ],
   "favourites": [],
