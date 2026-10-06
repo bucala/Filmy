@@ -959,7 +959,7 @@ if (!S.smbSources.length) {
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'hidden' && S.autoPushTimer) {
     clearTimeout(S.autoPushTimer); S.autoPushTimer = null;
-    if (!S.ghPushInProgress && S.ghToken && S.all && S.all.length) S.ghPush();
+    if (!S.ghPushInProgress && S.ghToken && S.all && S.all.length && !S.needsRecoveredLibraryReview()) S.ghPush();
   }
 });
 

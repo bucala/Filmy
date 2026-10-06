@@ -143,6 +143,9 @@ zmeny sa označia aj pre ďalší štart; pull ich neprepíše. Najprv použi
 Ak je lokálne úložisko plné, pridanie oznámi chybu namiesto úspechu.
 Manuálne načítanie môže lokálne zmeny nahradiť iba po výslovnom potvrdení;
 pred nahradením si ich môžeš zálohovať cez **Export JSON**.
+Ak sa pri aktualizácii obnovila knižnica skrytá starým príznakom prázdnej
+databázy, auto-push je pre ňu pozastavený. Najprv ju skontroluj a prípadne
+exportuj; na GitHub sa odošle až po výslovnom **Uložiť na GitHub**.
 
 ---
 

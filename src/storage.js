@@ -11,9 +11,14 @@ S.getSyncRevision = function getSyncRevision(){
   catch(e){return S._syncRevision;}
 };
 
-S.markSyncPending = function markSyncPending(){
+S.needsRecoveredLibraryReview = function needsRecoveredLibraryReview(){
+  return S.getSyncRevision().indexOf('review:')===0;
+};
+
+S.markSyncPending = function markSyncPending(options){
+  var review=(options&&options.recovered)||S.needsRecoveredLibraryReview();
   S._syncEpoch++;
-  S._syncRevision = Date.now() + '-' + S._syncEpoch + '-' + Math.random().toString(36).slice(2);
+  S._syncRevision = (review?'review:':'') + Date.now() + '-' + S._syncEpoch + '-' + Math.random().toString(36).slice(2);
   try{localStorage.setItem(S.SYNC_PENDING_KEY,S._syncRevision);return true;}
   catch(e){return false;}
 };
@@ -32,7 +37,7 @@ S.loadMovies = function loadMovies(){
     if(movies.length){
       // Recover libraries hidden by the old clear-all sentinel, and protect
       // these recovered local records from the automatic startup pull.
-      if(localStorage.getItem('mdb_empty')!=='1'||S.markSyncPending()){
+      if(localStorage.getItem('mdb_empty')!=='1'||S.markSyncPending({recovered:true})){
         try{localStorage.removeItem('mdb_empty');}catch(e){}
       }
     }

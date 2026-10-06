@@ -221,6 +221,63 @@ describe('acknowledging the actual uploaded snapshot', () => {
 });
 
 describe('pending auto-sync after reload', () => {
+  it('does not automatically upload a legacy recovered library that may be partial', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('document', { getElementById: () => null });
+    localStorage.setItem(S.SK, JSON.stringify(S.all));
+    localStorage.setItem('mdb_empty', '1');
+    localStorage.setItem('mdb_gh_token', 'unit-test-only');
+    S.prefs.autoPush = true;
+    S.all = S.loadMovies();
+    expect(S.needsRecoveredLibraryReview()).toBe(true);
+    S.initGhSync();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(S.ghPutFile).not.toHaveBeenCalled();
+    expect(S.getSyncRevision()).not.toBe('');
+  });
+
+  it('keeps the recovery review guard through further edits and another page restart', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('document', { getElementById: () => null });
+    localStorage.setItem(S.SK, JSON.stringify(S.all));
+    localStorage.setItem('mdb_empty', '1');
+    localStorage.setItem('mdb_gh_token', 'unit-test-only');
+    S.prefs.autoPush = true;
+    S.all = S.loadMovies();
+    S.all.push({ id: 2, num: 2, title: 'Added after recovery' });
+    S.saveMovies();
+    S._syncRevision = '';
+    S.all = S.loadMovies();
+    S.initGhSync();
+    S.scheduleAutoPush('add-after-recovery');
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(S.needsRecoveredLibraryReview()).toBe(true);
+    expect(S.all).toHaveLength(2);
+    expect(S.ghPutFile).not.toHaveBeenCalled();
+  });
+
+  it('cancels the effect of an already queued auto-push when recovery becomes guarded', async () => {
+    vi.useFakeTimers();
+    S.prefs.autoPush = true;
+    S.saveMovies();
+    S.scheduleAutoPush('queued-before-recovery');
+    localStorage.setItem('mdb_empty', '1');
+    S.all = S.loadMovies();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(S.needsRecoveredLibraryReview()).toBe(true);
+    expect(S.ghPutFile).not.toHaveBeenCalled();
+  });
+
+  it('allows an explicit push to confirm the recovered library and release its review guard', async () => {
+    localStorage.setItem(S.SK, JSON.stringify(S.all));
+    localStorage.setItem('mdb_empty', '1');
+    S.all = S.loadMovies();
+    expect(S.needsRecoveredLibraryReview()).toBe(true);
+    expect(await S.ghPush()).toBe(true);
+    expect(S.needsRecoveredLibraryReview()).toBe(false);
+    expect(S.getSyncRevision()).toBe('');
+  });
+
   it('resumes a pending upload only with a saved token and auto-push enabled', async () => {
     vi.useFakeTimers();
     vi.stubGlobal('document', { getElementById: () => null });

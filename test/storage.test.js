@@ -45,6 +45,7 @@ describe('loading saved movies', () => {
     expect(S.loadMovies()).toEqual([{ ...movies[0], year: 2016 }]);
     expect(localStorage.getItem('mdb_empty')).toBeNull();
     expect(S.getSyncRevision()).not.toBe('');
+    expect(S.needsRecoveredLibraryReview()).toBe(true);
   });
 
   it('keeps an intentionally empty library empty', () => {

@@ -402,9 +402,13 @@ S.autoCheckGitHub = function autoCheckGitHub() {
 
 S.scheduleAutoPush = function scheduleAutoPush(reason) {
   if (!S.ghToken || S.prefs.autoPush === false) return;
+  // Legacy recovery may contain only a small part of the remote library.
+  // Keep it local until the user explicitly chooses a push or replacement.
+  if (S.needsRecoveredLibraryReview()) return;
   if (S.autoPushTimer) clearTimeout(S.autoPushTimer);
   S.autoPushTimer = setTimeout(function() {
     S.autoPushTimer = null;
+    if (S.needsRecoveredLibraryReview()) return;
     if (S.ghPushInProgress) { S.scheduleAutoPush('deferred'); return; }
     if (S.all && S.all.length) S.ghPush();
   }, 5000);

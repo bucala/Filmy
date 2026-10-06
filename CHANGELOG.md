@@ -19,6 +19,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Testy štartu desktopu**: overenie vypnutia GPU akcelerácie pred pripravenosťou Electronu na Windows a zachovania predvoleného vykresľovania na Linux/macOS (`test/desktop-startup.test.js`).
 
 ### Opravené
+- **Bezpečná obnova starej knižnice**: lokálne dáta obnovené zo starého príznaku prázdnej databázy vyžadujú výslovné uloženie na GitHub; auto-push nesmie možnou čiastočnou knižnicou nahradiť vzdialenú databázu.
 - **Miznúce pridané filmy**: platná uložená knižnica má pri štarte prednosť pred starým príznakom prázdnej databázy; rýchle pridanie aj admin používajú spoločné trvalé uloženie a nehlásia úspech pri zlyhaní úložiska.
 - **Rýchle pridanie**: otvorenie správne zatvorí Nastavenia bez chyby `classList`; obe TMDB cesty používajú rovnaké identity, kontrolu duplicít, plagáty a trailerové metadáta.
 - **Ochrana GitHub sync**: neuložené lokálne zmeny prežijú reload, pull ani oneskorená staršia odpoveď ich neprepíšu a úspešný push potvrdzuje iba skutočne odoslaný snapshot; prázdna lokálna knižnica nezostane uviaznutá na starých ETag.
