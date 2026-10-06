@@ -136,6 +136,14 @@ Pre **Portable** režim: stiahni `.reg` a `.bat` z nastavení → ulož do `W:\P
 | **Hromadný výber** | Výber filmov vo všetkých troch zobrazeniach, označenie zobrazených kariet a hromadné akcie |
 | **Rýchle pridanie** | Pridaj film priamo cez TMDB z nastavení |
 
+Rýchle pridanie aj admin ukladajú film najprv do prehliadača. Nové filmy zostanú
+v knižnici aj po obnovení stránky pred dokončením auto-pushu. Neuložené lokálne
+zmeny sa označia aj pre ďalší štart; pull ich neprepíše. Najprv použi
+**Uložiť na GitHub**, alebo nechaj dokončiť zapnutý auto-push s platným tokenom.
+Ak je lokálne úložisko plné, pridanie oznámi chybu namiesto úspechu.
+Manuálne načítanie môže lokálne zmeny nahradiť iba po výslovnom potvrdení;
+pred nahradením si ich môžeš zálohovať cez **Export JSON**.
+
 ---
 
 ## Témy
@@ -247,6 +255,7 @@ Filmy/
 │   ├── tv.js                Navigácia diaľkovým ovládačom
 │   └── lib/                 Čisté, testovateľné helpery
 │       ├── browse.js         Vyhľadávanie, cache, debounce a stránkovanie
+│       ├── library.js        Trvalé uloženie, identity filmov a TMDB metadáta
 │       └── …                Text, parsovanie, cesty, navigácia a sync
 ├── test/                    Vitest unit testy
 ├── portable-handler.js      Portable prehrávač modul

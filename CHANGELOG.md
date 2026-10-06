@@ -9,6 +9,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 ## [Unreleased]
 
 ### Pridané
+- **Testy uloženia a sync**: regresie pre obnovu skrytej knižnice, obe TMDB cesty, plné úložisko, oneskorený pull, potvrdené nahradenie, snapshot pushu a pokračovanie auto-pushu po reloade.
 - **APK v Android Studio**: slovenský návod `ANDROID_STUDIO.md` na otvorenie stiahnutého projektu, debug APK bez secrets a podpísané release APK cez sprievodcu IDE; lokálna verzia a version code sa nastavujú v `gradle.properties`.
 - **Podpísané vydania**: manuálny workflow `Signed release` pre Windows (PFX/P12) a Android release APK/AAB; podpisové secrets sú oddelené od PR buildov, podpisy sa overujú pred nahraním artefaktov a pribudli SHA-256 súčty. Aktivácia vyžaduje certifikát/keystore, postup v `SIGNING.md`.
 - **Vnorené prehrávanie v MPC-HC/BE** — natívne vnorenie okna prehrávača priamo do desktop appky cez Win32 `SetParent` (koffi FFI), s fullscreen overlay UI (`desktop/embed-win.js`)
@@ -18,6 +19,9 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Testy štartu desktopu**: overenie vypnutia GPU akcelerácie pred pripravenosťou Electronu na Windows a zachovania predvoleného vykresľovania na Linux/macOS (`test/desktop-startup.test.js`).
 
 ### Opravené
+- **Miznúce pridané filmy**: platná uložená knižnica má pri štarte prednosť pred starým príznakom prázdnej databázy; rýchle pridanie aj admin používajú spoločné trvalé uloženie a nehlásia úspech pri zlyhaní úložiska.
+- **Rýchle pridanie**: otvorenie správne zatvorí Nastavenia bez chyby `classList`; obe TMDB cesty používajú rovnaké identity, kontrolu duplicít, plagáty a trailerové metadáta.
+- **Ochrana GitHub sync**: neuložené lokálne zmeny prežijú reload, pull ani oneskorená staršia odpoveď ich neprepíšu a úspešný push potvrdzuje iba skutočne odoslaný snapshot; prázdna lokálna knižnica nezostane uviaznutá na starých ETag.
 - **Lokálny Android release build**: kontrola podpisu akceptuje údaje zo sprievodcu Android Studio, nielen premenné prostredia; neúplné release nastavenie už neblokuje debug build a Gradle sync, nepodpísaný release zostáva zakázaný.
 - **Windows blikanie — opatrenie**: Electron pred inicializáciou aplikácie vypína hardvérovú akceleráciu iba na Windows, aby obmedzil blikanie pri GPU vykresľovaní na monitoroch s vysokou frekvenciou/VRR (napr. G-Sync, 180 Hz). Účinok na konkrétnom monitore ešte vyžaduje overenie; natívny MPC/VLC používa vlastný renderer.
 - **Bezpečnosť (XSS)** — escapovanie `poster_thumb` a `director` polí pri vykresľovaní (uložené XSS cez neescapovaný HTML atribút/`innerHTML`)

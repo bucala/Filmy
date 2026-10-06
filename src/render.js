@@ -961,8 +961,8 @@ S.togWatched = function togWatched(id, btn) {
     S.watched.add(id);
     S.watchedDates[id] = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   }
-  try { localStorage.setItem(S.VK,  JSON.stringify(Array.from(S.watched))); }    catch(e) {}
-  try { localStorage.setItem(S.VDK, JSON.stringify(S.watchedDates)); }           catch(e) {}
+  S.safeSave(S.VK, JSON.stringify(Array.from(S.watched)));
+  S.safeSave(S.VDK, JSON.stringify(S.watchedDates));
   S.scheduleAutoPush('togWatched');
   if (btn) S.updWatchedBtn(btn, id);
   // Update detail view badge if open

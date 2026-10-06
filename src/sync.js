@@ -121,17 +121,16 @@ S.ghPutFile = function ghPutFile(path, jsonStr, _retried) {
 };
 
 S.ghPush = function ghPush() {
-  if (!S.ghToken) { S.ghSetStatus('Nastav GitHub token.', 'err'); return; }
-  if (S.ghPushInProgress) { S.scheduleAutoPush('busy'); return; }
-  S.ghPushInProgress = true;
+  if (!S.ghToken) { S.ghSetStatus('Nastav GitHub token.', 'err'); return Promise.resolve(false); }
+  if (S.ghPushInProgress) { S.scheduleAutoPush('busy'); return S._ghPushPromise || Promise.resolve(false); }
   if (!S.all || !S.all.length) {
-    S.ghPushInProgress = false;
     S.ghSetStatus('Žiadne dáta na uloženie. Najprv importuj alebo načítaj.', 'err');
     S.toast('Databáza je prázdna');
-    return;
+    return Promise.resolve(false);
   }
-  S.ghSetStatus('Pripravujem ' + S.all.length + ' filmov na upload...', 'info');
 
+  var revision = S.getSyncRevision();
+  var movieCount = S.all.length;
   // Split model: data.json = core (movies + collections),
   //              data-live.json = liveCache (ratings/posters/trailers).
   var coreJson = JSON.stringify(buildCorePayload({
@@ -142,33 +141,46 @@ S.ghPush = function ghPush() {
     watchedDates: S.watchedDates
   }), null, 2);
   var liveJson = JSON.stringify(buildLivePayload(S.liveCache), null, 2);
+  S.ghPushInProgress = true;
+  S._syncEpoch++; // Any pull started before this upload now has an older snapshot.
+  S.ghSetStatus('Pripravujem ' + movieCount + ' filmov na upload...', 'info');
 
   // Core first (small, critical). If the live write fails afterwards, the
   // movie list + collections are already safely saved and liveCache is
   // re-derivable from TMDB — so a partial failure never loses user data.
   S.ghSetStatus('Nahrávam dáta (1/2)…', 'info');
-  S.ghPutFile(S.GH_FILE, coreJson)
+  S._ghPushPromise = S.ghPutFile(S.GH_FILE, coreJson)
     .then(function () {
+      // A completed core write confirms this exact library, not edits made
+      // while the request was running. Even a later media failure is safe.
+      S.acknowledgeSync(revision);
+      try { localStorage.removeItem(S.GH_ETAG_KEY); } catch (e) {}
       S.ghSetStatus('Nahrávam hodnotenia (2/2)…', 'info');
       return S.ghPutFile(S.GH_LIVE_FILE, liveJson);
     })
     .then(function () {
-      S.ghPushInProgress = false;
-      // Our own writes invalidate cached ETags → drop them so the next pull refetches.
-      try { localStorage.removeItem(S.GH_ETAG_KEY); } catch (e) {}
       var ts = new Date().toLocaleTimeString('sk');
-      S.ghSetStatus('✓ Uložené ' + ts + ' · ' + S.all.length + ' filmov', 'ok');
-      S.toast('Databáza uložená na GitHub!');
+      var pending = S.getSyncRevision();
+      S.ghSetStatus('✓ Uložené ' + ts + ' · ' + movieCount + ' filmov' +
+        (pending ? ' · Novšie lokálne zmeny ešte čakajú na uloženie.' : ''), 'ok');
+      S.toast(pending ? 'Snapshot uložený na GitHub. Novšie zmeny ešte čakajú.' : 'Databáza uložená na GitHub!');
+      if (pending) S.scheduleAutoPush('newer-changes');
+      return true;
     })
     .catch(function (e) {
-      S.ghPushInProgress = false;
       if (e.message === '401') {
         S.ghSetStatus('❌ Token odmietnutý (401). Skontroluj: oprávnenie, expiráciu, SSO.', 'err');
         S.toast('GitHub 401: Token neplatný. Vygeneruj nový fine-grained PAT.');
       } else {
         S.ghSetStatus('Chyba: ' + e.message, 'err');
       }
+      return false;
+    })
+    .finally(function () {
+      S.ghPushInProgress = false;
+      S._ghPushPromise = null;
     });
+  return S._ghPushPromise;
 };
 
 S.ghFetchFile = function ghFetchFile(path, useEtag) {
@@ -207,23 +219,45 @@ S.ghFetchFile = function ghFetchFile(path, useEtag) {
   });
 };
 
-S.ghPull = function ghPull() {
-  if (S._ghPullRunning) return;
+S.ghPull = function ghPull(options) {
+  if (S._ghPullRunning) return S._ghPullPromise || Promise.resolve(false);
+  if (S.ghPushInProgress) {
+    S.ghSetStatus('Prebieha ukladanie na GitHub. Načítanie skús po dokončení.', 'info');
+    return Promise.resolve(false);
+  }
+  var pullRevision = S.getSyncRevision();
+  if (pullRevision && !(options && options.manual === true && confirm(
+    'Lokálne zmeny ešte nie sú uložené na GitHub.\n\nNačítanie ich nahradí verziou z GitHubu. ' +
+    'Ak ich chceš zachovať, zruš načítanie a použi Uložiť na GitHub alebo Export JSON.\n\nNaozaj nahradiť lokálne dáta?'
+  ))) {
+    S.ghSetStatus('Lokálne zmeny čakajú na uloženie. Najprv ich ulož na GitHub; načítanie ich neprepíše.', 'err');
+    return Promise.resolve(false);
+  }
   S._ghPullRunning = true;
+  var pullEpoch = S._syncEpoch;
   S.ghPullProgress(10);
   S.ghSetStatus('Načítavam z GitHubu…', 'info');
+
+  var hasNewerLocalState = function () {
+    return S.ghPushInProgress || S.getSyncRevision() !== pullRevision || S._syncEpoch !== pullEpoch;
+  };
+  var keepLocalState = function () {
+    S.ghSetStatus('Lokálne dáta sa počas načítania zmenili. Staršia odpoveď z GitHubu ich neprepíše.', 'err');
+    return false;
+  };
 
   var ghPullAttempt = function (attempt) {
     // Conditional GET both files; If-None-Match lets GitHub answer 304 (no body)
     // when nothing changed → skips re-downloading the large data-live.json.
-    Promise.all([S.ghFetchFile(S.GH_FILE, true), S.ghFetchFile(S.GH_LIVE_FILE, true)])
+    var hasLocalMovies = !!(S.all && S.all.length && !pullRevision);
+    return Promise.all([S.ghFetchFile(S.GH_FILE, hasLocalMovies), S.ghFetchFile(S.GH_LIVE_FILE, hasLocalMovies)])
       .then(function (res) {
+        if (hasNewerLocalState()) return keepLocalState();
         var coreRes = res[0], liveRes = res[1];
 
         if (coreRes.status === 404) {
           S.ghSetStatus('data.json ešte neexistuje — najprv ulož (Push).', 'err');
-          S._ghPullRunning = false;
-          return;
+          return false;
         }
 
         var coreUnchanged = coreRes.status === 304;
@@ -231,8 +265,7 @@ S.ghPull = function ghPull() {
         if (coreUnchanged && liveUnchanged) {
           S.ghPullProgress(100);
           S.ghSetStatus('✓ Už aktuálne — nič sa nezmenilo', 'ok');
-          S._ghPullRunning = false;
-          return;
+          return true;
         }
 
         S.ghPullProgress(40);
@@ -242,14 +275,14 @@ S.ghPull = function ghPull() {
           : (liveRes.status === 404 ? Promise.resolve({ status: 404 }) : S.ghFetchFile(S.GH_LIVE_FILE, false));
 
         return Promise.all([needCore, needLive]).then(function (full) {
+          if (hasNewerLocalState()) return keepLocalState();
           var core = full[0].payload || {};
           var live = (full[1] && full[1].payload) ? full[1].payload : null;
           var merged = mergeSyncPayloads(core, live);
 
           if (!merged.movies || !merged.movies.length) {
             S.ghSetStatus('Súbor data.json je prázdny — najprv ulož (Push).', 'err');
-            S._ghPullRunning = false;
-            return;
+            return false;
           }
 
           // Rescue posters from baked-in / current data
@@ -261,13 +294,23 @@ S.ghPull = function ghPull() {
           merged.movies.forEach(function (m) { if ((!m.poster_thumb || m.poster_thumb.length < 10) && bakedMap[m.num]) m.poster_thumb = bakedMap[m.num]; });
 
           S.ghPullProgress(60);
+          // Persist the critical movie list before applying or caching the
+          // response. A failed save must not look like a durable successful pull.
+          var previousMovies = S.all;
           S.all = merged.movies;
+          var moviesSaved = S.saveMovies({ synced: true });
+          if (!moviesSaved) {
+            S.all = previousMovies;
+            S.ghSetStatus('Načítané filmy sa nepodarilo uložiť do prehliadača. Uvoľni lokálne úložisko.', 'err');
+            return false;
+          }
           Object.assign(S.liveCache, merged.liveCache || {});
-          S.saveLiveCache();
-          S.favs = new Set(merged.favourites); S.safeSave(S.FK, JSON.stringify(merged.favourites));
-          S.wl = new Set(merged.watchlist); S.safeSave(S.WK, JSON.stringify(merged.watchlist));
-          S.watched = new Set(merged.watched); S.safeSave(S.VK, JSON.stringify(merged.watched));
-          S.watchedDates = merged.watchedDates || {}; S.safeSave(S.VDK, JSON.stringify(S.watchedDates));
+          var liveSaved = S.saveLiveCache();
+          var synced = { synced: true };
+          S.favs = new Set(merged.favourites); var favsSaved = S.safeSave(S.FK, JSON.stringify(merged.favourites), synced);
+          S.wl = new Set(merged.watchlist); var wlSaved = S.safeSave(S.WK, JSON.stringify(merged.watchlist), synced);
+          S.watched = new Set(merged.watched); var watchedSaved = S.safeSave(S.VK, JSON.stringify(merged.watched), synced);
+          S.watchedDates = merged.watchedDates || {}; var datesSaved = S.safeSave(S.VDK, JSON.stringify(S.watchedDates), synced);
 
           S.all.forEach(function (m) {
             if ((!m.poster_thumb || m.poster_thumb.length < 10) && S.liveCache[m.id] && S.liveCache[m.id].posterUrl) {
@@ -275,30 +318,27 @@ S.ghPull = function ghPull() {
             }
           });
 
-          try {
-            var toSave = S.all.map(function (m) {
-              var c = Object.assign({}, m);
-              if (c.poster_thumb && c.poster_thumb.indexOf('data:') === 0) c.poster_thumb = '';
-              return c;
-            });
-            S.safeSave(S.SK, JSON.stringify(toSave));
-          } catch (e) {}
-
           // Persist ETags only after a fully successful apply.
-          if (full[0].etag) S.ghSetEtag(S.GH_FILE, full[0].etag);
-          if (full[1] && full[1].etag) S.ghSetEtag(S.GH_LIVE_FILE, full[1].etag);
+          var fullySaved = liveSaved && favsSaved && wlSaved && watchedSaved && datesSaved;
+          if (fullySaved) {
+            S.acknowledgeSync(pullRevision);
+            if (full[0].etag) S.ghSetEtag(S.GH_FILE, full[0].etag);
+            if (full[1] && full[1].etag) S.ghSetEtag(S.GH_LIVE_FILE, full[1].etag);
+          }
 
           S.ghPullProgress(80);
           var ts2 = new Date().toLocaleTimeString('sk');
           S.buildFuse();
           S.renderAll();
           S.ghPullProgress(100);
-          S.ghSetStatus('✓ Načítané ' + ts2 + ' · ' + S.all.length + ' filmov', 'ok');
-          S.toast('Databáza načítaná z GitHubu!');
-          S._ghPullRunning = false;
+          S.ghSetStatus(fullySaved ? '✓ Načítané ' + ts2 + ' · ' + S.all.length + ' filmov' :
+            'Filmy načítané, ale časť kolekcií alebo hodnotení sa neuložila. Uvoľni lokálne úložisko.', fullySaved ? 'ok' : 'err');
+          if (fullySaved) S.toast('Databáza načítaná z GitHubu!');
+          return fullySaved;
         });
       })
       .catch(function (e) {
+        if (hasNewerLocalState()) return keepLocalState();
         var msg = (e && e.message) ? e.message : String(e);
         if (msg.indexOf('401_UNAUTH') >= 0) {
           S.ghSetStatus('⚠ Neplatný GitHub token — skontroluj nastavenia.', 'err');
@@ -309,15 +349,21 @@ S.ghPull = function ghPull() {
           S.ghSetStatus('⏳ GitHub rate limit — skús znova o chvíľu.', 'err');
         } else if (attempt < 2) {
           S.ghSetStatus('Opakujem pokus ' + (attempt + 1) + '/2…', 'info');
-          setTimeout(function () { ghPullAttempt(attempt + 1); }, 3000);
-          return;
+          return new Promise(function (resolve) { setTimeout(resolve, 3000); })
+            .then(function () {
+              return hasNewerLocalState() ? keepLocalState() : ghPullAttempt(attempt + 1);
+            });
         } else {
           S.ghSetStatus('Chyba: ' + msg, 'err');
         }
-        S._ghPullRunning = false;
+        return false;
       });
   };
-  ghPullAttempt(0);
+  S._ghPullPromise = ghPullAttempt(0).finally(function () {
+    S._ghPullRunning = false;
+    S._ghPullPromise = null;
+  });
+  return S._ghPullPromise;
 };
 
 S.initGhSync = function initGhSync() {
@@ -328,6 +374,7 @@ S.initGhSync = function initGhSync() {
   if (inp) inp.value = '';
   if (inp && S.ghToken) inp.placeholder = '••••••••••••••••••••••••••••••••••••••••';
   if (st && S.ghToken)  { st.textContent = '✓ Token je uložený'; st.className = 'sett-key-st ok'; }
+  if (S.getSyncRevision()) S.scheduleAutoPush('pending-after-reload');
 };
 
 S.validateGhToken = function validateGhToken(token, cb) {

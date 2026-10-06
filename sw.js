@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20261003-1426";
+const CACHE = "filmy-20261006-persistence";
 
 /* Runtime cache for TMDB posters/backdrops — separate from CACHE so it
    survives shell version bumps (posters rarely change; losing them on every
@@ -46,6 +46,7 @@ const SHELL  = [
   "./src/lib/paths.js",
   "./src/lib/nav.js",
   "./src/lib/browse.js",
+  "./src/lib/library.js",
   "./portable-handler.js",
   "./manifest.webmanifest",
   "./apple-touch-icon.png",

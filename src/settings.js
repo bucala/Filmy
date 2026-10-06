@@ -2,6 +2,7 @@
 import { S } from './state.js';
 import { esc, removeDiacritics, buildMovieFilename, levenshtein } from './lib/text.js';
 import { parseEMDB, parseEmdbCsv } from './lib/parse.js';
+import { createTmdbEntry, hasTmdbMovie } from './lib/library.js';
 
 S.fetchLiveData = function fetchLiveData(id){
   var m=S.all.find(function(x){return x.id===id;});if(!m||!S.tmdbKey)return;
@@ -733,7 +734,7 @@ S.adminShowResults = function adminShowResults(results) {
       : '<div class="admin-poster-ph">🎬</div>';
     var year = (r.release_date || '').slice(0, 4) || '?';
     var rating = r.vote_average ? Math.round(r.vote_average * 10) + '%' : '–';
-    var alreadyIn = S.all.some(function(m) { return m.tmdbId === r.id; });
+    var alreadyIn = hasTmdbMovie(S.all, r.id);
     return '<div class="admin-result-item" data-idx="' + idx + '">' +
       poster +
       '<div><div class="admin-ri-title">' + esc(r.title || r.name) +
@@ -759,7 +760,7 @@ S.adminFetchFullAndPreview = function adminFetchFullAndPreview(tmdbId) {
   S.adminSetStatus('Načítavam detaily...');
   fetch('https://api.themoviedb.org/3/movie/' + tmdbId + '?api_key=' + S.tmdbKey +
         '&language=sk&append_to_response=videos,external_ids,credits')
-    .then(function(r) { return r.json(); })
+    .then(function(r) { if(!r.ok)throw new Error('TMDB HTTP '+r.status);return r.json(); })
     .then(function(d) {
       S.adminSetStatus('');
       S.adminBuildPreview(d);
@@ -768,23 +769,14 @@ S.adminFetchFullAndPreview = function adminFetchFullAndPreview(tmdbId) {
 };
 
 S.adminBuildPreview = function adminBuildPreview(d) {
-  var posterUrl = d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : '';
-  var thumbUrl  = d.poster_path ? 'https://image.tmdb.org/t/p/w185' + d.poster_path : '';
-  var year      = (d.release_date || '').slice(0, 4) || 0;
-  var dur       = d.runtime ? d.runtime + ' min' : '';
-  var pct       = d.vote_average ? Math.round(d.vote_average * 10) : null;
-  var genres    = (d.genres || []).map(function(g) { return g.name; });
-  var videos    = (d.videos && d.videos.results) || [];
-  var trailer   = videos.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; })
-                  || videos.find(function(v) { return v.site === 'YouTube'; });
-  var imdbId    = d.external_ids && d.external_ids.imdb_id ? d.external_ids.imdb_id : null;
-  var cast      = (d.credits && d.credits.cast || []).slice(0, 10).map(function(a) { return a.name; }).join(', ');
-  var director  = '';
-  if (d.credits && d.credits.crew) {
-    var dir = d.credits.crew.find(function(c) { return c.job === 'Director'; });
-    if (dir) director = dir.name;
-  }
-  var countries = (d.production_countries || []).map(function(c) { return c.iso_3166_1; }).join(', ');
+  var entry = createTmdbEntry(d);
+  var posterUrl = entry.liveData.posterUrl;
+  var year = entry.movie.year;
+  var dur = entry.movie.duration;
+  var pct = entry.liveData.pct;
+  var genres = entry.movie.genres;
+  var director = entry.movie.director;
+  var countries = entry.movie.country;
 
   // Show preview card
   var pvPoster = document.getElementById('adminPvPoster');
@@ -792,79 +784,27 @@ S.adminBuildPreview = function adminBuildPreview(d) {
   pvPoster.style.display = posterUrl ? 'block' : 'none';
   document.getElementById('adminPvTitle').textContent = d.title || d.original_title;
   document.getElementById('adminPvMeta').innerHTML =
-    [year, dur, countries, pct != null ? '⭐ ' + pct + '%' : ''].filter(Boolean).join(' · ') +
+    [year, dur, countries, pct != null ? '⭐ ' + pct + '%' : ''].filter(Boolean).map(function(v){return esc(String(v));}).join(' · ') +
     (director ? '<br>🎬 ' + esc(director) : '');
   document.getElementById('adminPvGenres').innerHTML =
     genres.map(function(g) { return '<span class="admin-pv-tag">' + esc(g) + '</span>'; }).join('');
   document.getElementById('adminPvDesc').textContent = d.overview || '';
   document.getElementById('adminPreview').classList.add('show');
 
-  // Determine next available num (max + 1)
-  var nextNum = S.all.length ? Math.max.apply(null, S.all.map(function(m) { return m.num || 0; })) + 1 : 1;
-
-  // Build the movie object that will be inserted
-  S.adminPending = {
-    movie: {
-      id:          nextNum,
-      num:         nextNum,
-      title:       d.title || d.original_title,
-      year:        parseInt(year) || 0,
-      director:    director,
-      cast:        cast,
-      genres:      genres,
-      country:     countries,
-      duration:    dur,
-      description: (d.overview || '').substring(0, 500),
-      poster_thumb: thumbUrl,
-      rating:      0,
-      tmdbId:      d.id
-    },
-    liveData: {
-      pct:     pct,
-      ytKey:   trailer ? trailer.key : null,
-      backdropUrl: d.backdrop_path ? 'https://image.tmdb.org/t/p/w1280' + d.backdrop_path : null,
-      tmdbUrl: 'https://www.themoviedb.org/movie/' + d.id,
-      imdbUrl: imdbId ? 'https://www.imdb.com/title/' + imdbId + '/' : null
-    }
-  };
+  S.adminPending = entry;
 };
 
 S.adminAddMovie = function adminAddMovie() {
   if (!S.adminPending) return;
-  var m   = S.adminPending.movie;
-  var ld  = S.adminPending.liveData;
-
-  // Add to runtime array
-  S.all.push(m);
-
-  // Save live data (rating, trailer, links)
-  S.liveCache[m.id] = ld;
-  S.saveLiveCache();
-
-  // Persist the movie list (strip posters to stay under localStorage limit)
-  S.adminSaveAll();
+  var m = S.insertMovie(S.adminPending);
+  if(!m){S.adminSetStatus('Film sa nepridal. Skontroluj úložisko alebo duplicitu.', 'err');return;}
 
   S.toast(`✅ "${m.title}" pridaný do databázy!`);
-  S.buildFuse();   // rebuild search index
-  S.renderAll();
   S.closeAdmin();
-  if (S.ghToken && S.prefs.autoPush !== false) {
-    setTimeout(function() { S.toast('☁ Ukladám na GitHub...'); S.ghPush(); }, 800);
-  }
 };
 
 S.adminSaveAll = function adminSaveAll() {
-  try {
-    var toSave = S.all.map(function(m) {
-      var copy = Object.assign({}, m);
-      // Keep URL posters (TMDB), only strip base64 data URIs
-      if (copy.poster_thumb && copy.poster_thumb.indexOf('data:') === 0) copy.poster_thumb = '';
-      return copy;
-    });
-    S.safeSave(S.SK, JSON.stringify(toSave));
-  } catch(e) {
-    console.warn('[Admin] localStorage save failed:', e);
-  }
+  return S.saveMovies();
 };
 
 S.openMatchPanel = function openMatchPanel(id){
