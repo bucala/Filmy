@@ -147,6 +147,50 @@ Ak sa pri aktualizácii obnovila knižnica skrytá starým príznakom prázdnej
 databázy, auto-push je pre ňu pozastavený. Najprv ju skontroluj a prípadne
 exportuj; na GitHub sa odošle až po výslovnom **Uložiť na GitHub**.
 
+### Kopírovanie lokálnych filmov
+
+1. Zapni **Kopírovanie** v navigácii. Filmy označ samostatným tlačidlom v rohu
+   karty; kliknutím na jej zvyšok naďalej otvoríš detail. Výber zostane zachovaný
+   pri hľadaní, filtrovaní aj prepnutí zoznam/grid/posterwall. Na TV sa dá
+   šípkami prejsť z karty na tlačidlo výberu.
+2. V spodnej lište otvor panel a vyber **zdrojový aj cieľový priečinok na
+   tomto zariadení**, napríklad disk alebo USB. Windows cesta uložená pri filme
+   nie je automatickým oprávnením na prístup k súboru na inom zariadení.
+3. Stlač **Kopírovať vybrané**. Modul hľadá presný názov súboru a známe
+   relatívne časti jeho uloženej cesty v zvolenom zdroji. Bez lokálnej cesty
+   používa existujúci názov `rok - názov bez diakritiky.mkv`. Zdroj zvoľ tak,
+   aby obsahoval súbory alebo ich známu štruktúru; ľubovoľné priečinky
+   neprehľadáva a podobné názvy nepáruje.
+4. V cieli vznikne nový priečinok **Filmy-…** s vybranými súbormi.
+   Originály sa nemenia ani nemažú, existujúce súbory sa neprepisujú.
+   Opakované cieľové názvy sa preskočia; chýbajúce súbory a chyby sú vypísané
+   po jednotlivých filmoch. Kopírujú sa filmové súbory, nie automaticky
+   titulky, postery alebo celé adresáre.
+   Ak sa zdroj počas natívneho prenosu zväčší alebo skráti, neúplná kópia sa
+   neoznačí ako úspešná.
+
+Panel zobrazuje skutočne prenesené bajty, rýchlosť, uplynutý čas a priebežný
+odhad zostávajúceho času z posledných približne štyroch sekúnd. Odhad sa objaví
+až po merateľnom prenose; pri výpadku zápisu sa nezobrazuje zastaraná rýchlosť.
+Animácia nemení percentá umelo. Panel môžeš zavrieť a ďalej prezerať knižnicu;
+lišta zostane dostupná aj v detaile. **Zastaviť prenos** zachová už dokončené
+súbory a pokúsi sa odstrániť práve rozkopírovaný súbor. Ak disk/provider
+odmietne odstránenie, modul to oznámi. Pád procesu, odpojenie disku alebo
+výpadok napájania môžu zanechať neúplný súbor; automatické pokračovanie nie je
+podporované.
+
+| Variant | Prístup a obmedzenia |
+|---------|---------------------|
+| **Web / PWA na PC** | Aktuálny Chrome/Edge s `showDirectoryPicker` v bezpečnom kontexte (HTTPS alebo localhost). Oba priečinky vyberá používateľ. Nezatváraj/neobnovuj kartu počas prenosu. Safari, Firefox a mobilné prehliadače bez tejto API nemajú priamy zápis a zobrazia vysvetlenie, nie falošný prenos. |
+| **Windows Electron** | Natívny výber priečinkov a prenos na pozadí rozhrania cez overený IPC most. Zápis je obmedzený na zvolený cieľ; nie je potrebný VLC/MPC handler. Appku nechaj spustenú. |
+| **Android appka** | Storage Access Framework, iba priečinky udelené systémovým dialógom, bez plošného storage oprávnenia. Vyžaduje aktuálny System WebView s bezpečným mostom `WEB_MESSAGE_LISTENER` a zapisovateľného poskytovateľa dokumentov. Odchod appky do pozadia zastaví prenos. |
+| **Android / Google TV** | Rovnaký natívny prenos a D-pad výber. Zariadenie musí mať systémový výber priečinkov a prístup k disku/USB; TV bez tohto dialógu zobrazí konkrétnu chybu. |
+
+Nový most vyžaduje **nový Android APK aj nový Electron build**, nestačí obnoviť
+starú natívnu appku. Práva k priečinkom a fronta sú iba v pamäti daného
+spustenia, neukladajú sa do databázy ani neposielajú na GitHub. Veľkosť súboru
+musí byť dostupná, aby modul vedel uviesť skutočný celkový počet bajtov.
+
 ---
 
 ## Témy
@@ -256,9 +300,12 @@ Filmy/
 │   ├── settings.js          Nastavenia, importy a admin
 │   ├── players.js           Prehrávanie a cesty k filmom
 │   ├── tv.js                Navigácia diaľkovým ovládačom
+│   ├── copy.js              Výber, prenosová fronta a platformové adaptéry
 │   └── lib/                 Čisté, testovateľné helpery
 │       ├── browse.js         Vyhľadávanie, cache, debounce a stránkovanie
 │       ├── library.js        Trvalé uloženie, identity filmov a TMDB metadáta
+│       ├── copy.js           Bezpečné názvy a meranie rýchlosti/ETA
+│       ├── copy-web.js       Streamovanie medzi povolenými priečinkami webu
 │       └── …                Text, parsovanie, cesty, navigácia a sync
 ├── test/                    Vitest unit testy
 ├── portable-handler.js      Portable prehrávač modul
@@ -279,6 +326,8 @@ Filmy/
 │   └── src/main/
 │       ├── AndroidManifest.xml
 │       ├── java/.../MainActivity.java
+│       ├── java/.../MovieCopier.java
+│       ├── java/.../CopyPolicy.java
 │       └── res/drawable/ic_launcher_foreground.xml
 ├── android/                 Build dokumentácia a historická TWA konfigurácia
 │   ├── BUILD.md
@@ -287,6 +336,8 @@ Filmy/
     ├── main.js
     ├── preload.js
     ├── embed-win.js         Win32 vnorenie MPC-HC/BE cez koffi
+    ├── copy-engine.js       Prenos obmedzený na zvolené priečinky
+    ├── copy-ipc.js          Overenie pôvodu a hlavného frame
     └── package.json
 ```
 

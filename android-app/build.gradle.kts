@@ -97,6 +97,7 @@ dependencies {
     // Serves bundled assets over https://appassets.androidplatform.net so the
     // PWA's native ES modules load with correct MIME/CORS inside the WebView.
     implementation("androidx.webkit:webkit:1.11.0")
+    testImplementation("junit:junit:4.13.2")
 }
 
 val webAssetFiles = listOf(

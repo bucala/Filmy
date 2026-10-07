@@ -23,6 +23,7 @@ function startup(platform) {
     require: (name) => {
       if (name === 'electron') return { app, protocol: { registerSchemesAsPrivileged: () => {} } };
       if (name === './players-win' || name === './embed-win') return {};
+      if (name === './copy-ipc') return {};
       return nodeRequire(name);
     },
     __dirname: '/desktop',

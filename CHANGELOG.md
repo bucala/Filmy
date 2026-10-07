@@ -9,6 +9,9 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 ## [Unreleased]
 
 ### Pridané
+- **Kopírovanie lokálnych filmov**: samostatný výber v zozname/grid/posterwall bez blokovania detailu, zdrojový a cieľový priečinok na danom zariadení, nová cieľová zložka bez prepisovania originálov, skutočné bajty/rýchlosť/odhad času, animovaný priebeh a zrušenie s uprataním nedokončeného súboru.
+- **Platformové prenosy**: web/PWA cez podporovaný systémový výber Chrome/Edge, Electron cez overený hlavný frame a používateľom zvolené korene, Android/TV cez origin-scoped WebMessageListener a Storage Access Framework bez plošného prístupu k úložisku; obmedzenia nepodporovaných prehliadačov a TV dialógov sú uvedené v rozhraní aj README.
+- **Testy kopírovania**: meranie ETA a bezpečné cesty, natívne dočasné súbory s kontrolou bajtov, zrušenia a rastúceho zdroja, chyby webového zapisovania, ochrana existujúcich dát, obmedzenie aktualizácií veľkej fronty, TV dosah na neblokujúcu lištu a origin/frame kontrola IPC; Android testy názvov, relatívnych ciest a zatvorenia blokovaných streamov.
 - **Testy uloženia a sync**: regresie pre obnovu skrytej knižnice, obe TMDB cesty, plné úložisko, oneskorený pull, potvrdené nahradenie, snapshot pushu a pokračovanie auto-pushu po reloade.
 - **APK v Android Studio**: slovenský návod `ANDROID_STUDIO.md` na otvorenie stiahnutého projektu, debug APK bez secrets a podpísané release APK cez sprievodcu IDE; lokálna verzia a version code sa nastavujú v `gradle.properties`.
 - **Podpísané vydania**: manuálny workflow `Signed release` pre Windows (PFX/P12) a Android release APK/AAB; podpisové secrets sú oddelené od PR buildov, podpisy sa overujú pred nahraním artefaktov a pribudli SHA-256 súčty. Aktivácia vyžaduje certifikát/keystore, postup v `SIGNING.md`.

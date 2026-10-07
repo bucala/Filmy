@@ -19,6 +19,8 @@
       "preload.js",
       "players-win.js",
       "embed-win.js",
+      "copy-engine.js",
+      "copy-ipc.js",
       {
         "from": "..",
         "to": "web",

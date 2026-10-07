@@ -1,9 +1,10 @@
-const { app, BrowserWindow, Menu, Tray, shell, ipcMain, protocol, net } = require('electron');
+const { app, BrowserWindow, Menu, Tray, shell, ipcMain, protocol, net, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
 const playersWin = require('./players-win');
 const embedWin = require('./embed-win');
+const { registerCopyIpc } = require('./copy-ipc');
 
 const PROD_URL = 'https://filmy-iota.vercel.app';
 const LOCAL_SCHEME = 'app';
@@ -17,6 +18,8 @@ const WEB_ROOT = fs.existsSync(PKG_WEB_ROOT) ? PKG_WEB_ROOT : path.join(__dirnam
 let mainWindow = null;
 let tray = null;
 let usingLocal = false;
+let copyEngine = null;
+let copyShutdown = false;
 
 // Use software rendering on Windows to avoid GPU presentation flicker on
 // high-refresh/VRR (e.g. G-Sync) displays. Electron requires this before ready.
@@ -86,6 +89,7 @@ function isSafeMoviePath(p) {
 }
 
 function registerIpc() {
+  copyEngine = registerCopyIpc({ ipcMain, dialog, getWindow: () => mainWindow, productionUrl: PROD_URL });
   ipcMain.handle('filmy:detect-players', function () {
     return playersWin.detectPlayers();
   });
@@ -209,6 +213,7 @@ function createWindow() {
   });
 
   mainWindow.on('closed', function () {
+    if (copyEngine) copyEngine.cancel();
     embedWin.stop(); // do not leave an orphaned embedded MPC behind
     mainWindow = null;
   });
@@ -295,7 +300,13 @@ function buildMenu() {
   ]);
 }
 
-app.on('before-quit', function () {
+app.on('before-quit', function (event) {
+  if (copyEngine && !copyShutdown && ['scanning', 'copying', 'cancelling'].includes(copyEngine.status().phase)) {
+    event.preventDefault();
+    copyShutdown = true;
+    copyEngine.cancel();
+    copyEngine.wait().finally(() => app.quit());
+  }
   embedWin.stop();
 });
 

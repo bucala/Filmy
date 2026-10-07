@@ -7,6 +7,7 @@ import './players.js';
 import './sync.js';
 import './settings.js';
 import './tv.js';
+import './copy.js';
 import { esc, levenshtein } from './lib/text.js';
 import { parseCsfdPercent, parseCsvLine } from './lib/parse.js';
 import { createDebouncedTask } from './lib/browse.js';
@@ -1037,6 +1038,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 S.toggleBulkMode = function toggleBulkMode() {
+  if (!S.bulkMode && S.copyMode) S.toggleCopyMode(false);
   S.bulkMode = !S.bulkMode;
   S.bulkSel.clear();
   var ml = document.getElementById('mlist');

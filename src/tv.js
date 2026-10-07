@@ -38,13 +38,15 @@ function isVisible(el) {
 
 function visibleFocusable(scope) {
   var out = [];
-  var list = scope.querySelectorAll(FOCUSABLE);
+  var dock = document.getElementById('copyDock');
+  var roots = (scope.id === 'mainSc' || scope.id === 'detSc') && dock ? [scope, dock] : [scope];
+  var list = roots.flatMap(function (root) { return Array.from(root.querySelectorAll(FOCUSABLE)); });
   for (var i = 0; i < list.length; i++) {
     var el = list[i];
     // Treat each movie card as a single focus stop: skip focusable descendants
     // of a [data-id] card (inner play/fav buttons) — OK opens the detail.
     var card = el.closest('[data-id]');
-    if (card && card !== el) continue;
+    if (card && card !== el && !el.classList.contains('copy-select')) continue;
     if (!isVisible(el)) continue;
     out.push(el);
   }
@@ -53,6 +55,8 @@ function visibleFocusable(scope) {
 
 /* Topmost open overlay, else the main screen. */
 function activeScope() {
+  var copyOv = document.getElementById('copyOv');
+  if (copyOv && !copyOv.classList.contains('hidden')) return copyOv;
   var tvAct = document.getElementById('tvActOv');
   if (tvAct && !tvAct.classList.contains('hidden')) return tvAct;
   var ovs = document.querySelectorAll('.m-ov:not(.hidden), .tr-ov:not(.hidden)');
@@ -155,7 +159,8 @@ function onKey(e) {
   if (!cands.length) return;
 
   var active = document.activeElement;
-  var cur = (active && active !== document.body && scope.contains(active)) ? active : null;
+  // The nonmodal dock is outside the screen DOM, but belongs to its focus scope.
+  var cur = cands.indexOf(active) !== -1 ? active : null;
   if (!cur) { e.preventDefault(); focusEl(cands[0]); return; }
 
   var next = pick(dir, cur, cands);
@@ -167,6 +172,7 @@ function onKey(e) {
 var _lastFocus = null;
 var MODAL_IDS = ['settPanel', 'fpPanel', 'adminPanelSc', 'detSc', 'statSc',
   'trOv', 'mOv', 'matchOv', 'dupOv', 'mapOv', 'timelineOv', 'decadeOv', 'quickAddOv', 'shareOv'];
+MODAL_IDS.push('copyOv');
 
 function isOpen(el) {
   if (el.id === 'fpPanel') return el.classList.contains('open');
@@ -231,6 +237,8 @@ window.__enableTvMode = function () { applyTvMode(); };
 /* Back/OK from the TV remote: close the topmost open overlay and report
    whether anything was closed, so native only exits when nothing is open. */
 window.__tvBack = function () {
+  var copyOv = document.getElementById('copyOv');
+  if (copyOv && !copyOv.classList.contains('hidden')) { S.closeCopyPanel(); return true; }
   var tvAct = document.getElementById('tvActOv');
   if (tvAct && !tvAct.classList.contains('hidden')) { hideCardActions(); return true; }
   var ovs = document.querySelectorAll('.m-ov:not(.hidden), .tr-ov:not(.hidden)');

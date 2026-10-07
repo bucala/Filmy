@@ -19,7 +19,7 @@ const appGlobals = {
 
 export default [
   {
-    ignores: ['node_modules/**', 'build/**', 'android*/**', 'desktop/node_modules/**', 'data.json', 'data*.json']
+    ignores: ['node_modules/**', 'build/**', 'android*/**', 'desktop/node_modules/**', 'desktop/dist/**', 'data.json', 'data*.json']
   },
   js.configs.recommended,
 

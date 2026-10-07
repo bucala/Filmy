@@ -4,6 +4,15 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('filmyNative', {
   platform: process.platform,
+  copyPickFolder: role => ipcRenderer.invoke('filmy:copy-pick', role),
+  copyStart: items => ipcRenderer.invoke('filmy:copy-start', items),
+  copyStatus: () => ipcRenderer.invoke('filmy:copy-status'),
+  copyCancel: () => ipcRenderer.invoke('filmy:copy-cancel'),
+  onCopyProgress: callback => {
+    const listener = (event, snapshot) => callback(snapshot);
+    ipcRenderer.on('filmy:copy-progress', listener);
+    return () => ipcRenderer.removeListener('filmy:copy-progress', listener);
+  },
   // -> { vlc: <exe|null>, mpcHc: <exe|null>, mpcBe: <exe|null> }
   detectPlayers: function () {
     return ipcRenderer.invoke('filmy:detect-players');

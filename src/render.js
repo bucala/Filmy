@@ -271,7 +271,7 @@ S.renderList = function renderList(list){
   var focusedCard=focused&&focused.closest('#mlist [data-id]');
   var focusId=focusedCard&&focusedCard.dataset.id;
   var focusButton=focusedCard&&focused!==focusedCard?
-    (focused.matches('.cfav,.lfav')?'.cfav,.lfav':focused.matches('.cpost-play')?'.cpost-play':null):null;
+    (focused.matches('.cfav,.lfav')?'.cfav,.lfav':focused.matches('.copy-select')?'.copy-select':focused.matches('.cpost-play')?'.cpost-play':null):null;
   ml._list=list;
   S.curPage=0;
   ml.innerHTML="";
@@ -291,10 +291,12 @@ S.renderList = function renderList(list){
     return;
   }
   nr.style.display="none";ml.style.display="";
-  ml.className=(S.posterWall?"mlist posterwall":S.grid?"mlist grid":"mlist")+(S.bulkMode?" bulk-mode":"");
+  ml.className=(S.posterWall?"mlist posterwall":S.grid?"mlist grid":"mlist")+(S.bulkMode?" bulk-mode":"")+(S.copyMode?" copy-mode":"");
   if(!ml._delegated){
     ml._delegated=function(e){
       if(S.bulkMode)return;
+      var cb=e.target.closest(".copy-select");
+      if(cb){e.preventDefault();e.stopPropagation();S.toggleCopyCard(cb.closest("[data-id]"));return;}
       var pb=e.target.closest(".cpost-play");
       if(pb){e.preventDefault();e.stopPropagation();var pid=parseInt(pb.closest("[data-id]").dataset.id,10);S.playMovie(pid);return;}
       var fb=e.target.closest(".cfav,.lfav");
@@ -342,7 +344,8 @@ S.pctBadge = function pctBadge(cached,m){
 
 S.cardHTML = function cardHTML(m){
   const fav=S.favs.has(m.id), cached=S.liveCache[m.id];
-  const selected=S.bulkMode&&S.bulkSel.has(m.id)?" bulk-sel":"";
+  const selected=(S.bulkMode&&S.bulkSel.has(m.id)?" bulk-sel":"")+(S.copyMode&&S.copySel.has(m.id)?" copy-sel":"");
+  const copySelect=S.copySelectionHTML?S.copySelectionHTML(m):"";
   const bulkPressed=S.bulkMode?` aria-pressed="${S.bulkSel.has(m.id)}"`:"";
   const genres=(m.genres||[]).slice(0,2).map(g=>`<span class="gtag">${esc(g)}</span>`).join("");
   const ym=[m.year||"",m.duration].filter(Boolean).join(" · ");
@@ -352,17 +355,17 @@ S.cardHTML = function cardHTML(m){
   const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}" aria-pressed="${fav}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
   if(S.posterWall){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
-    return `<div class="pwcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${hp?`<img class="pw-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 33vw, 180px" alt="" loading="lazy" decoding="async" width="200" height="300">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}<div class="pw-info"><div class="pw-title">${titleH}</div><div class="pw-meta">${esc(ym)}</div></div></div>`;
+    return `<div class="pwcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${copySelect}${hp?`<img class="pw-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 33vw, 180px" alt="" loading="lazy" decoding="async" width="200" height="300">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}<div class="pw-info"><div class="pw-title">${titleH}</div><div class="pw-meta">${esc(ym)}</div></div></div>`;
   }
   if(S.grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
       ?`<div class="cpost-wrap"><img class="cpost" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 114px, 126px" alt="" loading="lazy" decoding="async" width="200" height="300"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${S.FILM_ICO}</div>`;
-    return `<div class="mcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
+    return `<div class="mcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${copySelect}${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
   const lfavBtn=`<button class="lfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}" aria-pressed="${fav}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
-  return `<div class="mcard lcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})"><div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
+  return `<div class="mcard lcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${copySelect}<div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 };
 
 S.togFav = function togFav(id,btn){
