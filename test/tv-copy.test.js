@@ -36,7 +36,7 @@ function setup() {
   const open = element('copyDockOpen', 100, 300, dock), exit = element('copyDockExit', 300, 300, dock);
   const close = element('copyClose', 100, 50, modal), start = element('copyStart', 100, 150, modal);
   const S = { _tvOn: true };
-  runInNewContext(source, { S, nearestInDirection, document, window: {}, navigator: { userAgent: '' },
+  runInNewContext(source, { S, nearestInDirection, document, window: { addEventListener: () => {} }, navigator: { userAgent: '' },
     setTimeout: () => 0, clearTimeout: () => {} });
   S.initTv();
   function press(key) {

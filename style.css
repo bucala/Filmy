@@ -1237,10 +1237,10 @@ input:focus-visible,textarea:focus-visible,.srch-inp:focus-visible{outline:none}
 .lcard:focus-visible{outline:none;background:rgba(var(--gold-rgb),.12)!important;box-shadow:inset 3px 0 0 var(--primary)}
 .sim-card:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;border-radius:8px}
 
-/* ══ Android TV / D-pad — always-visible focus (no :focus-visible), no cursor ══ */
-html.tv,html.tv *{cursor:none!important}
+/* ══ Android TV / D-pad — always-visible focus, with native mouse cursors ══ */
 html.tv :focus{outline:2px solid var(--primary);outline-offset:2px}
 html.tv input:focus,html.tv textarea:focus,html.tv .srch-inp:focus{outline:none}
+html.tv input.tv-input-idle:focus,html.tv textarea.tv-input-idle:focus{outline:2px solid var(--primary);outline-offset:2px;caret-color:transparent}
 html.tv .mcard:focus,html.tv .mlist.grid .mcard:focus{outline:2px solid var(--primary);outline-offset:-2px;box-shadow:var(--el3);z-index:2;position:relative}
 html.tv .skin-chip:focus{outline:2px solid var(--primary);outline-offset:-2px}
 html.tv .pwcard:focus{outline:2px solid var(--primary);outline-offset:2px;z-index:2;position:relative}

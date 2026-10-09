@@ -2,6 +2,7 @@
    Activated ONLY on TV (leanback flag from native, or TV user-agent), so the
    touch experience on phone/tablet is untouched. Provides:
    - spatial (arrow) navigation between focusable elements
+   - text-field selection without an IME, explicit OK/click to edit
    - OK/Enter -> click on non-native focusable cards
    - focus trap + auto-focus when a modal/overlay opens, restore on close
    - remote keys forwarded from native: guide -> search, info -> detail,
@@ -20,6 +21,93 @@ function clearLp() {
 var FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),' +
   'textarea:not([disabled]),[tabindex]:not([tabindex="-1"]),[data-id]';
+
+/* Focus selects a text field without opening the IME. Only OK or a pointer
+   click starts editing. Remember each field's own input mode and never unlock
+   fields that were already read-only. */
+var _inputStates = new WeakMap(), _editingInput = null, _inputEnterHeld = false;
+
+function isTextField(el) {
+  if (!el) return false;
+  var tag = (el.tagName || '').toLowerCase();
+  return tag === 'textarea' || (tag === 'input' && /^(text|search|password|email|number|tel|url)$/.test(el.type || 'text'));
+}
+
+function prepareInput(el) {
+  if (!isTextField(el) || _inputStates.has(el) || el.readOnly) return;
+  _inputStates.set(el, { inputMode: el.getAttribute('inputmode') });
+  el.readOnly = true;
+  el.setAttribute('inputmode', 'none');
+  el.classList.add('tv-input-idle');
+}
+
+function prepareInputs(root) {
+  if (!root || !root.querySelectorAll) return;
+  prepareInput(root);
+  root.querySelectorAll('input,textarea').forEach(prepareInput);
+}
+
+function endInputEdit(refocus) {
+  var el = _editingInput;
+  if (!el) return false;
+  _editingInput = null;
+  el.readOnly = true;
+  el.setAttribute('inputmode', 'none');
+  el.classList.add('tv-input-idle');
+  if (refocus && document.contains(el) && isVisible(el)) {
+    el.blur();
+    focusEl(el);
+  }
+  return true;
+}
+
+function beginInputEdit(el) {
+  prepareInput(el);
+  var state = _inputStates.get(el);
+  if (!state || el.disabled || _editingInput === el) return;
+  endInputEdit(false);
+  // Refocusing an editable field inside the user gesture lets Android WebView
+  // open its keyboard even though the remote had already focused it read-only.
+  el.blur();
+  _editingInput = el;
+  el.readOnly = false;
+  if (state.inputMode === null) el.removeAttribute('inputmode');
+  else el.setAttribute('inputmode', state.inputMode);
+  el.classList.remove('tv-input-idle');
+  focusEl(el);
+}
+
+function consumeEvent(e) {
+  e.preventDefault();
+  e.stopImmediatePropagation();
+}
+
+function onInputFocus(e) {
+  if (S._tvOn) prepareInput(e.target);
+}
+
+function onInputBlur(e) {
+  if (e.target === _editingInput) endInputEdit(false);
+  if (e.target === _lpCard) clearLp();
+}
+
+function onClick(e) {
+  if (!S._tvOn) return;
+  // Some WebViews also synthesize a click while OK is held on the new menu.
+  if ((_lpFired || _inputEnterHeld) && e.detail === 0) { consumeEvent(e); return; }
+  if (isTextField(e.target)) beginInputEdit(e.target);
+}
+
+function observeInputs() {
+  if (typeof MutationObserver === 'undefined') return;
+  var obs = new MutationObserver(function (muts) {
+    if (!S._tvOn) return;
+    muts.forEach(function (mut) {
+      mut.addedNodes.forEach(prepareInputs);
+    });
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+}
 
 /* ── TV detection ── */
 function detectTv() {
@@ -92,7 +180,7 @@ function groupOf(el) {
 function pick(dir, cur, cands) {
   var vertical = (dir === 'up' || dir === 'down');
   var curGroup = groupOf(cur);
-  var cr = curGroup ? curGroup.getBoundingClientRect() : cur.getBoundingClientRect();
+  var cr = (vertical && curGroup) ? curGroup.getBoundingClientRect() : cur.getBoundingClientRect();
   var cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
   var points = [];
   for (var i = 0; i < cands.length; i++) {
@@ -116,22 +204,41 @@ function pick(dir, cur, cands) {
 
 function onKey(e) {
   if (!S._tvOn) return;
+  if (e.isComposing || e.keyCode === 229) return;
   var t = e.target || document.activeElement;
   var tag = (t && t.tagName || '').toLowerCase();
-  var typing = (tag === 'input' && !/^(button|checkbox|radio|submit|range)$/.test(t.type || 'text')) || tag === 'textarea';
+  var editing = isTextField(t) && _editingInput === t;
   var key = e.key;
+
+  if (key === 'Escape') {
+    if (endInputEdit(true)) { consumeEvent(e); return; }
+    var tvAct = document.getElementById('tvActOv');
+    if (tvAct && !tvAct.classList.contains('hidden')) { consumeEvent(e); hideCardActions(); return; }
+    clearLp();
+    return;
+  }
 
   // Enter on a card: short press → open detail; hold 1.5 s → quick-action menu.
   if (key === 'Enter') {
+    // Keep the opening press latched until keyup, even after focus moves to a
+    // menu button. Repeats must not activate the newly focused control.
+    if (_lpFired || _inputEnterHeld || e.repeat) { consumeEvent(e); return; }
+    if (isTextField(t) && !editing && _inputStates.has(t)) {
+      consumeEvent(e);
+      _inputEnterHeld = true;
+      beginInputEdit(t);
+      return;
+    }
     if (t && t.hasAttribute && t.hasAttribute('data-id') &&
         !t.matches('button,a,input,select,textarea')) {
-      e.preventDefault();
+      consumeEvent(e);
       if (_lpCard !== t) { clearLp(); _lpCard = t; }
       if (!_lpTimer) {
         _lpTimer = setTimeout(function () {
-          _lpFired = true;
           var card = _lpCard;
           _lpCard = null; _lpTimer = null;
+          if (!card || document.activeElement !== card || !document.contains(card) || !isVisible(card)) return;
+          _lpFired = true;
           showCardActions(card);
         }, 1500);
       }
@@ -142,15 +249,18 @@ function onKey(e) {
     // automatically for real <button>/<a href> elements.
     if (t && t.getAttribute && t.getAttribute('role') === 'button' &&
         !t.matches('button,a[href],input,select,textarea')) {
-      e.preventDefault();
+      consumeEvent(e);
       t.click();
     }
     return;
   }
 
   if (key !== 'ArrowUp' && key !== 'ArrowDown' && key !== 'ArrowLeft' && key !== 'ArrowRight') return;
-  if (tag === 'select') return;                 // let dropdown change its value
-  if (typing && (key === 'ArrowLeft' || key === 'ArrowRight')) return; // caret movement
+  if (editing && (tag === 'textarea' || key === 'ArrowLeft' || key === 'ArrowRight')) return; // caret movement
+  if (tag === 'input' && t.type === 'range' && (key === 'ArrowLeft' || key === 'ArrowRight')) return;
+  // A closed select is a navigation stop; OK opens its native chooser.
+  // Letting every arrow change the closed select would trap the remote there.
+  if (_lpCard) clearLp();
 
   var dir = key === 'ArrowUp' ? 'up' : key === 'ArrowDown' ? 'down' : key === 'ArrowLeft' ? 'left' : 'right';
   var scope = activeScope();
@@ -225,6 +335,7 @@ function applyTvMode() {
   if (S._tvOn) return;
   S._tvOn = true;
   document.documentElement.classList.add('tv');
+  prepareInputs(document);
   setTimeout(function () {
     var f = initialTarget(activeScope());
     if (f) focusEl(f);
@@ -237,6 +348,7 @@ window.__enableTvMode = function () { applyTvMode(); };
 /* Back/OK from the TV remote: close the topmost open overlay and report
    whether anything was closed, so native only exits when nothing is open. */
 window.__tvBack = function () {
+  if (endInputEdit(true)) return true;
   var copyOv = document.getElementById('copyOv');
   if (copyOv && !copyOv.classList.contains('hidden')) { S.closeCopyPanel(); return true; }
   var tvAct = document.getElementById('tvActOv');
@@ -270,7 +382,7 @@ window.__tvKey = function (name) {
   if (!S._tvOn) applyTvMode();
   if (name === 'guide') {
     var inp = document.getElementById('srchInp');
-    if (inp) { inp.focus(); if (inp.select) inp.select(); }
+    if (inp) { focusEl(inp); if (inp.select) inp.select(); }
   } else if (name === 'info') {
     var a = document.activeElement;
     if (a && a.hasAttribute && a.hasAttribute('data-id')) a.click();
@@ -312,7 +424,9 @@ function showCardActions(card) {
   ov.addEventListener('click', function (e) {
     if (e.target === ov) hideCardActions();
   }, { once: true });
-  setTimeout(function () { focusEl(document.getElementById('tvActPlay')); }, 50);
+  setTimeout(function () {
+    if (!ov.classList.contains('hidden') && activeScope() === ov) focusEl(document.getElementById('tvActPlay'));
+  }, 50);
 }
 
 function hideCardActions() {
@@ -326,21 +440,32 @@ function hideCardActions() {
 function onKeyUp(e) {
   if (!S._tvOn) return;
   var key = e.key;
-  if (key === 'Escape') { hideCardActions(); clearLp(); return; }
   if (key === 'Enter') {
-    if (_lpCard && !_lpFired) {
-      var card = _lpCard;
-      clearLp();
-      card.click();
-    } else {
-      clearLp();
+    if (_inputEnterHeld) {
+      consumeEvent(e);
+      _inputEnterHeld = false;
+      return;
     }
+    var card = _lpCard;
+    if (card || _lpFired) consumeEvent(e);
+    clearLp();
+    if (card && document.activeElement === card && document.contains(card) && isVisible(card)) card.click();
   }
 }
 
 S.initTv = function initTv() {
   document.addEventListener('keydown', onKey, true); // capture: run before app handlers
   document.addEventListener('keyup', onKeyUp, true);
+  document.addEventListener('focusin', onInputFocus, true);
+  document.addEventListener('focusout', onInputBlur, true);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('blur', function () {
+    clearLp();
+    _inputEnterHeld = false;
+    endInputEdit(false);
+  });
+  observeInputs();
   observeModals();
   if (detectTv()) applyTvMode();
+  else if (S._tvOn) prepareInputs(document);
 };

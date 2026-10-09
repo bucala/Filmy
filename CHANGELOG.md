@@ -9,6 +9,7 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 ## [Unreleased]
 
 ### Pridané
+- **Regresné TV testy**: prechody v širokých prepínačoch a medzi poľom/OK, výber textového poľa bez písania, prvé potvrdenie bez odoslania, ukončenie písania, dynamické polia, mobilný režim, dlhé stlačenie a zachovanie kurzora myši (`test/tv.test.js`).
 - **Kopírovanie lokálnych filmov**: samostatný výber v zozname/grid/posterwall bez blokovania detailu, zdrojový a cieľový priečinok na danom zariadení, nová cieľová zložka bez prepisovania originálov, skutočné bajty/rýchlosť/odhad času, animovaný priebeh a zrušenie s uprataním nedokončeného súboru.
 - **Platformové prenosy**: web/PWA cez podporovaný systémový výber Chrome/Edge, Electron cez overený hlavný frame a používateľom zvolené korene, Android/TV cez origin-scoped WebMessageListener a Storage Access Framework bez plošného prístupu k úložisku; obmedzenia nepodporovaných prehliadačov a TV dialógov sú uvedené v rozhraní aj README.
 - **Testy kopírovania**: meranie ETA a bezpečné cesty, natívne dočasné súbory s kontrolou bajtov, zrušenia a rastúceho zdroja, chyby webového zapisovania, ochrana existujúcich dát, obmedzenie aktualizácií veľkej fronty, TV dosah na neblokujúcu lištu a origin/frame kontrola IPC; Android testy názvov, relatívnych ciest a zatvorenia blokovaných streamov.
@@ -22,6 +23,9 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Testy štartu desktopu**: overenie vypnutia GPU akcelerácie pred pripravenosťou Electronu na Windows a zachovania predvoleného vykresľovania na Linux/macOS (`test/desktop-startup.test.js`).
 
 ### Opravené
+- **Android TV ovládanie**: doľava/doprava používa polohu konkrétnej možnosti prepínača, nie stred celého riadka; textové polia sa dajú označiť bez klávesnice a písanie sa aktivuje až OK/klikom, Späť/Esc ho ukončí; zatvorené selecty neuväznia navigáciu.
+- **Myš na TV**: odstránené plošné skrývanie kurzora v TV štýloch, zachované viditeľné označenie fokusu ovládača.
+- **Dlhé stlačenie OK na filme**: menu ignoruje opakovania, syntetické kliknutia aj uvoľnenie otváracieho stlačenia; akciu potvrdí až nové stlačenie. Zmena fokusu či odchod z okna zruší čakajúce dlhé stlačenie.
 - **Bezpečná obnova starej knižnice**: lokálne dáta obnovené zo starého príznaku prázdnej databázy vyžadujú výslovné uloženie na GitHub; auto-push nesmie možnou čiastočnou knižnicou nahradiť vzdialenú databázu.
 - **Miznúce pridané filmy**: platná uložená knižnica má pri štarte prednosť pred starým príznakom prázdnej databázy; rýchle pridanie aj admin používajú spoločné trvalé uloženie a nehlásia úspech pri zlyhaní úložiska.
 - **Rýchle pridanie**: otvorenie správne zatvorí Nastavenia bez chyby `classList`; obe TMDB cesty používajú rovnaké identity, kontrolu duplicít, plagáty a trailerové metadáta.

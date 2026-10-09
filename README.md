@@ -383,7 +383,18 @@ Filmy/
 | `Esc` | Zatvoriť detail, filtre alebo otvorený panel |
 | `←` `→` v detaile na PC | Predchádzajúci / nasledujúci film |
 
-Na TV šípky presúvajú fokus medzi ovládacími prvkami aj v detaile. Krátke stlačenie OK/Enter otvorí film, dlhé stlačenie na karte otvorí menu akcií.
+Na TV šípky presúvajú fokus medzi ovládacími prvkami aj v detaile. V nastaveniach
+sa medzi jednotlivými možnosťami prepínača pohybuješ doľava/doprava; pri vstupe
+zhora/zdola sa označí aktívna možnosť. Textové pole sa najprv iba označí bez
+otvorenia klávesnice. **OK/Enter alebo klik myšou** zapne písanie; **Späť/Esc**
+ho ukončí bez zatvorenia panelu. Počas písania slúžia šípky doľava/doprava na
+pohyb kurzora. Pripojená myš zostáva viditeľná aj v TV režime.
+
+Krátke stlačenie OK/Enter na karte otvorí film, dlhé stlačenie otvorí menu
+akcií. Po otvorení menu **najprv uvoľni OK**, potom vyber akciu šípkami a potvrď
+novým stlačením. Držanie ani uvoľnenie pôvodného stlačenia film nespustí.
+Opravy sú v zdieľanom webovom rozhraní; Android appka s pribalenými súbormi
+vyžaduje zostavenie a inštaláciu nového APK.
 
 ---
 
