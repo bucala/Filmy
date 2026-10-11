@@ -37,4 +37,31 @@ describe('nearestInDirection', () => {
     var far = { x: -20, y: 0 };
     expect(nearestInDirection('left', 0, 0, [near, far])).toBe(near);
   });
+
+  it('does not skip a full-width play button whose center is far to the side', () => {
+    const source = { left: 100, top: 100, width: 80, height: 40 };
+    const play = { x: 500, y: 190, rect: { left: 20, top: 170, width: 960, height: 40 } };
+    const copy = { x: 140, y: 260, rect: { left: 100, top: 240, width: 80, height: 40 } };
+    expect(nearestInDirection('down', 140, 120, [copy, play], source)).toBe(play);
+    expect(nearestInDirection('up', 140, 260, [play, { x: 140, y: 120, rect: source }], copy.rect)).toBe(play);
+  });
+
+  it('prefers the next row of cards without losing horizontal alignment', () => {
+    const source = { left: 100, top: 100, width: 120, height: 180 };
+    const aligned = { x: 160, y: 390, rect: { left: 100, top: 300, width: 120, height: 180 } };
+    const adjacent = { x: 300, y: 390, rect: { left: 240, top: 300, width: 120, height: 180 } };
+    expect(nearestInDirection('down', 160, 190, [adjacent, aligned], source)).toBe(aligned);
+  });
+  it('does not move sideways on Down when same-row controls have different heights', () => {
+    const source = { left: 100, top: 100, width: 80, height: 40 };
+    const sameRow = { x: 228, y: 130, rect: { left: 188, top: 100, width: 80, height: 60 } };
+    const nextRow = { x: 140, y: 200, rect: { left: 100, top: 180, width: 80, height: 40 } };
+    expect(nearestInDirection('down', 140, 120, [sameRow, nextRow], source)).toBe(nextRow);
+  });
+  it('does not move down on Right when same-column controls have different widths', () => {
+    const source = { left: 100, top: 100, width: 80, height: 40 };
+    const sameColumn = { x: 150, y: 168, rect: { left: 100, top: 148, width: 100, height: 40 } };
+    const nextColumn = { x: 260, y: 120, rect: { left: 220, top: 100, width: 80, height: 40 } };
+    expect(nearestInDirection('right', 140, 120, [sameColumn, nextColumn], source)).toBe(nextColumn);
+  });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esc, hexDim, removeDiacritics, normalizeSlashes, buildMovieFilename, levenshtein, tmdbSrcset } from '../src/lib/text.js';
+import { esc, castPreview, hexDim, removeDiacritics, normalizeSlashes, buildMovieFilename, levenshtein, tmdbSrcset } from '../src/lib/text.js';
 
 describe('esc', () => {
   it('escapes HTML-sensitive characters', () => {
@@ -20,6 +20,15 @@ describe('hexDim', () => {
   });
 });
 
+describe('castPreview', () => {
+  it('keeps the first three nonempty names in their original order', () => {
+    expect(castPreview(' Actor One, , Actor Two, Actor Three, Actor Four ')).toBe('Actor One, Actor Two, Actor Three');
+    expect(castPreview('Actor One, Actor Two')).toBe('Actor One, Actor Two');
+  });
+  it('handles absent or invalid cast without displaying placeholders', () => {
+    for (const cast of [undefined, null, {}, '', ' , , ']) expect(castPreview(cast)).toBe('');
+  });
+});
 describe('removeDiacritics', () => {
   it('maps Slovak/Czech diacritics to ASCII', () => {
     expect(removeDiacritics('Žltý kôň Ľubomír')).toBe('Zlty kon Lubomir');

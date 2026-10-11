@@ -397,7 +397,7 @@ S.autoCheckGitHub = function autoCheckGitHub() {
   // If autoPull is enabled, init() already scheduled a ghPull — don't double-fetch.
   if (S.autoPull) return;
   S.toast('Žiadne lokálne dáta. Načítavam z GitHubu...');
-  setTimeout(function() { S.ghPull(); }, 600);
+  S._autoPullTimer = setTimeout(function() { S._autoPullTimer = null; S.ghPull(); }, 600);
 };
 
 S.scheduleAutoPush = function scheduleAutoPush(reason) {

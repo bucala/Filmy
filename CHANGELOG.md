@@ -9,6 +9,9 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 ## [Unreleased]
 
 ### Pridané
+- **Prenos nastavení**: verzovaný JSON so všetkými aktuálnymi voľbami, API kľúčmi, GitHub tokenom, SMB zdrojmi/mapovaním a portable cestami; export upozorní na nezašifrované prístupové údaje. Import validuje celý súbor do 256 KiB, vyžaduje potvrdenie a nemení filmy, kolekcie, metadáta ani sync guardy; nespúšťa synchronizáciu. Android/TV používa systémový výber dokumentov, web systémové uloženie alebo stiahnutie a výber súboru.
+- **Herci na kartách**: prvé tri mená pod režisérom v zozname, grid aj posterwall; ošetrené HTML a upravená výška kompaktných kariet.
+- **Regresie nových funkcií**: zvislý dosah na Prehráť a správny smer medzi rôzne veľkými prvkami, YouTube target/bridge vrátane neplatných odpovedí, karty/herci, predvolené hodnotenia, úplný round-trip nastavení, odmietnutie filmových záloh, storage rollback, zrušenia, súbežné pickery, izolácia od sync a úplnosť offline modulov; JVM testy bezpečných YouTube cieľov a ohraničeného UTF-8 I/O.
 - **Regresné TV testy**: prechody v širokých prepínačoch a medzi poľom/OK, výber textového poľa bez písania, prvé potvrdenie bez odoslania, ukončenie písania, dynamické polia, mobilný režim, dlhé stlačenie a zachovanie kurzora myši (`test/tv.test.js`).
 - **Kopírovanie lokálnych filmov**: samostatný výber v zozname/grid/posterwall bez blokovania detailu, zdrojový a cieľový priečinok na danom zariadení, nová cieľová zložka bez prepisovania originálov, skutočné bajty/rýchlosť/odhad času, animovaný priebeh a zrušenie s uprataním nedokončeného súboru.
 - **Platformové prenosy**: web/PWA cez podporovaný systémový výber Chrome/Edge, Electron cez overený hlavný frame a používateľom zvolené korene, Android/TV cez origin-scoped WebMessageListener a Storage Access Framework bez plošného prístupu k úložisku; obmedzenia nepodporovaných prehliadačov a TV dialógov sú uvedené v rozhraní aj README.
@@ -23,6 +26,9 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Testy štartu desktopu**: overenie vypnutia GPU akcelerácie pred pripravenosťou Electronu na Windows a zachovania predvoleného vykresľovania na Linux/macOS (`test/desktop-startup.test.js`).
 
 ### Opravené
+- **Zvislá TV navigácia**: výber smeru používa aj hranice a prekrytie prvkov namiesto samotných stredov, vrátane širokého tlačidla Prehráť v detaile. Oneskorený autofocus nepreberá platný fokus a neotvára už zavretý panel.
+- **YouTube trailery na TV**: nový dôveryhodný main-frame bridge otvára oficiálnu YouTube TV/mobilnú aplikáciu s overeným video ID alebo vyhľadávaním namiesto problematického iframe; web/telefón ostávajú pri vloženom prehrávaní.
+- **Obnovené nastavenia**: vlastná akcentová farba sa pri štarte nestratí a výslovne vymazané API kľúče/SMB adresa sa nenahradia historickým predvoleným obsahom.
 - **Android TV ovládanie**: doľava/doprava používa polohu konkrétnej možnosti prepínača, nie stred celého riadka; textové polia sa dajú označiť bez klávesnice a písanie sa aktivuje až OK/klikom, Späť/Esc ho ukončí; zatvorené selecty neuväznia navigáciu.
 - **Myš na TV**: odstránené plošné skrývanie kurzora v TV štýloch, zachované viditeľné označenie fokusu ovládača.
 - **Dlhé stlačenie OK na filme**: menu ignoruje opakovania, syntetické kliknutia aj uvoľnenie otváracieho stlačenia; akciu potvrdí až nové stlačenie. Zmena fokusu či odchod z okna zruší čakajúce dlhé stlačenie.
@@ -45,6 +51,10 @@ Formát vychádza z [Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
 - **Hromadný výber a filtre**: stav výberu sa zachová pri prekreslení, tlačidlá oznamujú svoj stav a označenie všetkých jasne zahŕňa iba zobrazené filmy
 
 ### Zmenené
+- **Predvolené hodnotenia ČSFD**: nové alebo neplatné preferencie používajú ČSFD; existujúca platná voľba TMDB/IMDb/ČSFD sa neprepisuje.
+- **Tlačidlá nastavení**: pôvodné Uložiť všetky nastavenia nahradené uložením do súboru a pridané načítanie zo súboru; filmové exporty/importy zostávajú oddelené.
+- **Offline moduly**: aktualizovaná shell cache zahŕňa nové preferencie, trailerový bridge a prenos nastavení; cache posterov zostáva zachovaná.
+- **Dokumentácia a overenie (2026-10-11)**: README dopĺňa potrebu aktuálneho Android System WebView, samostatnej zálohy filmov pred reinštaláciou a nové natívne helpery. Prešlo 292 JS a 7 JVM testov; lint má 0 chýb a 19 existujúcich varovaní. Prenos nastavení overený v prehliadači s testovacím pickerom bez zmeny filmových dát; APK a reálny TV neoverené pre chýbajúci SDK/zariadenie.
 - **Bezpečnosť lokálneho podpisovania**: konfiguračná cache Gradlu je predvolene vypnutá, aby neukladala podpisové údaje; `keystore-base64.txt` je ignorovaný Gitom.
 - **Android distribúcia**: release signing z premenných prostredia, odmietnutie balenia nepodpísaného release a samostatné debug ID `.debug`; vypnutý WebView file access a explicitne vypnutý debugging v release. Staré debug inštalácie vyžadujú export dát a reinštaláciu pred prechodom na iný kľúč.
 - **Odstránený riadok nad filmami**: názov kolekcie (napr. „Moja knižnica“), počet filmov a označenie zobrazenia už nezaberajú samostatný riadok na žiadnej platforme; odstránené aj súvisiace štýly a aktualizácie textov. Reset zostáva cez ikonu knižnice a pri prázdnych výsledkoch.

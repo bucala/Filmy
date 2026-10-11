@@ -189,9 +189,9 @@ function pick(dir, cur, cands) {
     var elGroup = groupOf(el);
     if (vertical && elGroup && elGroup === curGroup) continue; // same row — not a vertical target
     var r = (vertical && elGroup) ? elGroup.getBoundingClientRect() : el.getBoundingClientRect();
-    points.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, el: el, group: elGroup });
+    points.push({ x: r.left + r.width / 2, y: r.top + r.height / 2, rect: r, el: el, group: elGroup });
   }
-  var winner = nearestInDirection(dir, cx, cy, points);
+  var winner = nearestInDirection(dir, cx, cy, points, cr);
   if (!winner) return null;
   var best = winner.el, bestGroup = winner.group;
   // Entering a toggle group vertically always lands on its active member.
@@ -301,8 +301,9 @@ function observeModals() {
         el._tvOpen = true;
         _lastFocus = document.activeElement;
         setTimeout(function (node) {
-          var f = visibleFocusable(node)[0];
-          if (f) focusEl(f);
+          if (!isOpen(node) || activeScope() !== node) return;
+          var stops = visibleFocusable(node);
+          if (stops.length && stops.indexOf(document.activeElement) < 0) focusEl(stops[0]);
         }.bind(null, el), 80);
       } else if (!open && el._tvOpen) {
         el._tvOpen = false;

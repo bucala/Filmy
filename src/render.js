@@ -1,7 +1,8 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
-import { esc, tmdbSrcset } from './lib/text.js';
+import { esc, tmdbSrcset, castPreview } from './lib/text.js';
 import { createLibrarySearch, pageRange, needsMoreCards } from './lib/browse.js';
+import { trailerTarget } from './lib/trailer.js';
 
 const librarySearch=createLibrarySearch(movies=>{
   S.fuseInst=new Fuse(movies,S.FUSE_OPTS);
@@ -338,7 +339,7 @@ S.pctBadge = function pctBadge(cached,m){
   var p=m?S.getMoviePct(m):(cached&&cached.pct!=null?cached.pct:null);
   if(p==null)return "";
   var cls=p>=70?"pct-g":p>=50?"pct-a":"pct-b";
-  var lbl=S.RATING_LABELS[S.ratingSource]||'TMDB';
+  var lbl=S.RATING_LABELS[S.ratingSource]||'ČSFD';
   return '<div class="pct-badge '+cls+'"><div class="pct-badge-lbl">'+lbl+'</div><div class="pct-badge-val">'+p+'%</div></div>';
 };
 
@@ -352,20 +353,22 @@ S.cardHTML = function cardHTML(m){
   const badge=S.pctBadge(cached,m);
   const titleH=S.hlField(m,"title");
   const dirH=m.director?S.hlField(m,"director"):"";
+  const cast=castPreview(m.cast);
+  const castH=cast?`<div class="ccast" title="${esc(cast)}">${esc(cast)}</div>`:"";
   const favBtn=`<button class="cfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}" aria-pressed="${fav}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
   if(S.posterWall){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
-    return `<div class="pwcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${copySelect}${hp?`<img class="pw-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 33vw, 180px" alt="" loading="lazy" decoding="async" width="200" height="300">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}<div class="pw-info"><div class="pw-title">${titleH}</div><div class="pw-meta">${esc(ym)}</div></div></div>`;
+    return `<div class="pwcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} aria-label="${esc(m.title||'')} (${m.year||''})" title="${esc(m.title||'')} (${m.year||''})">${copySelect}${hp?`<img class="pw-poster" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 33vw, 180px" alt="" loading="lazy" decoding="async" width="200" height="300">`:`<div class="pw-ph">${esc((m.title||'').substring(0,20))}</div>`}<div class="pw-info"><div class="pw-title">${titleH}</div><div class="pw-meta">${esc(ym)}</div>${m.director?`<div class="pw-dir">${dirH}</div>`:""}${castH}</div></div>`;
   }
   if(S.grid){
     const hp=m.poster_thumb&&m.poster_thumb.length>10;
     const post=hp
       ?`<div class="cpost-wrap"><img class="cpost" src="${esc(m.poster_thumb)}" srcset="${esc(tmdbSrcset(m.poster_thumb))}" sizes="(max-width:700px) 114px, 126px" alt="" loading="lazy" decoding="async" width="200" height="300"><a class="cpost-play" href="#" title="Prehráť" aria-label="Prehráť ${esc(m.title||'')}"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg></a></div>`
       :`<div class="cpost-ph"><div class="cpost-n">#${m.num}</div>${S.FILM_ICO}</div>`;
-    return `<div class="mcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${copySelect}${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
+    return `<div class="mcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${copySelect}${post}<div class="cbody"><div class="cmain"><div class="ctitle">${titleH}</div><div class="cmeta">${esc(ym)}</div>${m.director?`<div class="cdir">${dirH}</div>`:""}${castH}<div class="cgenres">${genres}</div></div><div class="cbot">${badge}${favBtn}</div></div></div>`;
   }
   const lfavBtn=`<button class="lfav" aria-label="${fav?'Odstrániť z obľúbených':'Pridať do obľúbených'}" aria-pressed="${fav}">${fav?S.STAR_ON:S.STAR_OFF}</button>`;
-  return `<div class="mcard lcard${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${copySelect}<div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div></div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
+  return `<div class="mcard lcard${m.director||cast?" has-people":""}${selected}" data-id="${m.id}" tabindex="0" role="button"${bulkPressed} draggable="${!S.bulkMode}" aria-label="${esc(m.title||'')} (${m.year||''})">${copySelect}<div class="lnum">${m.num}</div><div class="lbody"><div class="ltitle">${titleH}</div><div class="lmeta">${esc(ym)}</div>${m.director?`<div class="ldir">${dirH}</div>`:""}${cast?`<div class="lcast" title="${esc(cast)}">${esc(cast)}</div>`:""}</div><div class="lright">${genres}${badge}</div>${lfavBtn}</div>`;
 };
 
 S.togFav = function togFav(id,btn){
@@ -432,7 +435,7 @@ S.openDet = function openDet(id){
   // Rating pill
   let ratingHtml;
   var detPct=S.getMoviePct(m);
-  var detLbl=S.RATING_LABELS[S.ratingSource]||'TMDB';
+  var detLbl=S.RATING_LABELS[S.ratingSource]||'ČSFD';
   if(!cached&&S.ratingSource==='tmdb'){
     ratingHtml=`<div class="rating-pill-na" id="ratingBox">${S.tmdbKey?"Načítavam…":"–"}</div>`;
   } else if(detPct!=null){
@@ -569,17 +572,27 @@ S.closeDet = function closeDet(){
 
 S.openTrailer = function openTrailer(id){
   var m=S.all.find(function(x){return x.id===id;});if(!m)return;
-  var cached=S.liveCache[id];
-  var ytKey=m._yt||(cached&&cached.ytKey)||null;
-  if(!ytKey&&cached&&cached.ytKey) ytKey=cached.ytKey;
-  if(ytKey){
+  var target=trailerTarget(m,S.liveCache[id]);
+  if(S._tvOn){
+    if(S.hasNativeAppBridge&&S.hasNativeAppBridge()){
+      return S.nativeAppRequest('youtube',{videoId:target.videoId,query:target.query})
+        .catch(function(){S.toast('YouTube sa nepodarilo otvoriť. Skontroluj nainštalovanú aplikáciu.');});
+    }
+    if(S._isAndroid){
+      // Older APKs already handle intent://, but have no FilmyApp bridge.
+      window.location.href=target.url.replace('https://','intent://')+
+        '#Intent;scheme=https;package=com.google.android.youtube.tv;end';
+    } else window.open(target.url,'_blank','noopener,noreferrer');
+    return;
+  }
+  if(target.videoId){
     var ov=document.getElementById("trOv");
     var fr=document.getElementById("trFrame");
-    fr.src="https://www.youtube.com/embed/"+ytKey+"?autoplay=1";
+    fr.src="https://www.youtube.com/embed/"+target.videoId+"?autoplay=1";
     ov.classList.remove("hidden");
     ov.style.display="flex";
   } else {
-    window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(m.title+" "+(m.year||"")+" trailer"),"_blank");
+    window.open(target.url,"_blank","noopener,noreferrer");
   }
 };
 

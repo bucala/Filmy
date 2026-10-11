@@ -4,6 +4,12 @@ export function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+export function castPreview(cast) {
+  return typeof cast === 'string' ? cast.split(',').map(function(name) {
+    return name.trim();
+  }).filter(Boolean).slice(0, 3).join(', ') : '';
+}
+
 export function hexDim(hex) {
   try {
     var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);

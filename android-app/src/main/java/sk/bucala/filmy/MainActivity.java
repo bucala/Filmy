@@ -1,6 +1,7 @@
 package sk.bucala.filmy;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.app.UiModeManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -35,6 +36,9 @@ import androidx.webkit.JavaScriptReplyProxy;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,6 +55,11 @@ public class MainActivity extends Activity {
     private JavaScriptReplyProxy copyReply, pickerReply;
     private String pickerId, pickerRole;
     private static final int COPY_PICKER = 7301;
+    private static final int SETTINGS_CREATE = 7302, SETTINGS_OPEN = 7303;
+    private final CopyResources settingsResources = new CopyResources();
+    private JavaScriptReplyProxy settingsReply;
+    private String settingsRequestId, settingsExport;
+    private volatile boolean settingsBusy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,8 +171,147 @@ public class MainActivity extends Activity {
             }
         });
         webView.setWebChromeClient(new WebChromeClient());
+        installAppBridge();
         installCopyBridge();
         webView.loadUrl(APP_URL);
+    }
+
+    private boolean isTrustedAppPage(WebView view, Uri origin, boolean mainFrame) {
+        return mainFrame && "https".equals(origin.getScheme()) &&
+                "appassets.androidplatform.net".equals(origin.getHost()) &&
+                view.getUrl() != null && view.getUrl().startsWith(
+                        "https://appassets.androidplatform.net/assets/web/");
+    }
+
+    private void installAppBridge() {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
+        WebViewCompat.addWebMessageListener(webView, "FilmyApp",
+                Collections.singleton("https://appassets.androidplatform.net"),
+                (view, message, origin, mainFrame, reply) -> {
+                    if (!isTrustedAppPage(view, origin, mainFrame) || copyDestroyed) return;
+                    String data = message.getData(), id = "";
+                    if (data == null || data.length() > 512 * 1024) return;
+                    try {
+                        JSONObject request = new JSONObject(data);
+                        id = request.getString("id");
+                        if (!id.matches("[A-Za-z0-9-]{1,100}")) return;
+                        if ("youtube".equals(request.getString("action"))) {
+                            openYouTube(request.optString("videoId"), request.optString("query"));
+                            bridgeResponse(reply, id, new JSONObject().put("ok", true));
+                        } else if ("saveSettings".equals(request.getString("action"))) {
+                            String content = request.getString("content");
+                            SettingsFileIO.encode(content);
+                            JSONObject file = new JSONObject(content);
+                            if (!"filmy-settings".equals(file.optString("format")) || file.optInt("version") != 1 ||
+                                    file.optJSONObject("settings") == null) {
+                                throw new IllegalArgumentException("Neplatný súbor nastavení.");
+                            }
+                            pickSettingsFile(true, content, request.optString("filename"), id, reply);
+                        } else if ("loadSettings".equals(request.getString("action"))) {
+                            pickSettingsFile(false, null, "", id, reply);
+                        } else {
+                            throw new IllegalArgumentException("Neplatná požiadavka.");
+                        }
+                    } catch (Exception error) {
+                        // JSON/parser errors can contain the submitted text, including
+                        // credentials. Never echo that text into UI or logs.
+                        bridgeFailure(reply, id, error instanceof IllegalArgumentException ||
+                                error instanceof IllegalStateException ? error.getMessage() :
+                                "Operáciu sa nepodarilo dokončiť.");
+                    }
+                });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void pickSettingsFile(boolean save, String content, String filename, String id, JavaScriptReplyProxy reply) {
+        if (copyStopped || settingsBusy || pickerReply != null || (movieCopier != null && movieCopier.busy())) {
+            throw new IllegalStateException("Počkaj na dokončenie prenosu alebo výberu súboru.");
+        }
+        Intent intent = new Intent(save ? Intent.ACTION_CREATE_DOCUMENT : Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType(save ? "application/json" : "*/*");
+        if (!save) intent.putExtra(Intent.EXTRA_MIME_TYPES,
+                new String[]{"application/json", "text/plain", "application/octet-stream"});
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        intent.addFlags(save ? Intent.FLAG_GRANT_WRITE_URI_PERMISSION : Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (save) {
+            intent.putExtra(Intent.EXTRA_TITLE, filename.matches("filmy-nastavenia-\\d{4}-\\d{2}-\\d{2}\\.json")
+                    ? filename : "filmy-nastavenia.json");
+        }
+        settingsBusy = true; settingsReply = reply; settingsRequestId = id; settingsExport = content;
+        try { startActivityForResult(intent, save ? SETTINGS_CREATE : SETTINGS_OPEN); }
+        catch (RuntimeException error) {
+            settingsBusy = false; settingsReply = null; settingsExport = null; settingsRequestId = null;
+            throw new IllegalStateException(error instanceof ActivityNotFoundException
+                    ? "Na tomto TV nie je systémový výber súborov. Skús prenos nastavení na inom zariadení."
+                    : "Systémový výber súborov sa nepodarilo otvoriť.");
+        }
+    }
+
+    private void settingsFileResult(int requestCode, int resultCode, Intent data) {
+        if (settingsReply == null || copyDestroyed) return;
+        JavaScriptReplyProxy reply = settingsReply;
+        String id = settingsRequestId, content = settingsExport;
+        settingsReply = null; settingsRequestId = null; settingsExport = null;
+        if (resultCode != RESULT_OK || data == null || data.getData() == null) {
+            settingsBusy = false;
+            try { bridgeResponse(reply, id, new JSONObject().put("ok", false).put("cancelled", true)); }
+            catch (Exception ignored) { bridgeFailure(reply, id, "Výber súboru sa nepodaril."); }
+            return;
+        }
+        Uri uri = data.getData();
+        if (!"content".equals(uri.getScheme())) {
+            settingsBusy = false; bridgeFailure(reply, id, "Súbor neudelil systémový výber dokumentov."); return;
+        }
+        copyWorker.execute(() -> {
+            try {
+                JSONObject result = new JSONObject().put("ok", true);
+                if (requestCode == SETTINGS_CREATE) {
+                    OutputStream raw = getContentResolver().openOutputStream(uri, "wt");
+                    if (raw == null) throw new IOException("Nedostupný zápis.");
+                    OutputStream output = settingsResources.track(raw);
+                    try (output) { SettingsFileIO.write(output, content); }
+                    finally { settingsResources.release(output); }
+                } else {
+                    InputStream raw = getContentResolver().openInputStream(uri);
+                    if (raw == null) throw new IOException("Nedostupné čítanie.");
+                    InputStream input = settingsResources.track(raw);
+                    String loaded;
+                    try (input) { loaded = SettingsFileIO.read(input); }
+                    finally { settingsResources.release(input); }
+                    result.put("content", loaded);
+                }
+                bridgeResponse(reply, id, result);
+            } catch (Exception error) {
+                bridgeFailure(reply, id, "Súbor nastavení sa nepodarilo prečítať alebo zapísať (platné UTF-8, najviac 256 KiB).");
+            } finally { runOnUiThread(() -> settingsBusy = false); }
+        });
+    }
+
+    private void openYouTube(String videoId, String query) {
+        Uri uri = Uri.parse(YouTubeTarget.url(videoId, query));
+        String[] packages = isTvDevice()
+                ? new String[]{"com.google.android.youtube.tv", "com.google.android.youtube"}
+                : new String[]{"com.google.android.youtube", "com.google.android.youtube.tv"};
+        for (String packageName : packages) {
+            if (videoId.isEmpty()) {
+                try {
+                    startActivity(new Intent(Intent.ACTION_SEARCH).setPackage(packageName)
+                            .putExtra(SearchManager.QUERY, query));
+                    return;
+                } catch (ActivityNotFoundException ignored) { /* Try the app's HTTPS handler. */ }
+            }
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, uri).setPackage(packageName));
+                return;
+            } catch (ActivityNotFoundException ignored) { /* Try the other YouTube variant. */ }
+        }
+        // Also supports alternative clients/default handlers without guessing
+        // a package or replacing the library with a YouTube WebView page.
+        try { startActivity(new Intent(Intent.ACTION_VIEW, uri)); }
+        catch (ActivityNotFoundException error) {
+            throw new IllegalStateException("Nie je nainštalovaná aplikácia na otvorenie YouTube.");
+        }
     }
 
     private void installCopyBridge() {
@@ -188,10 +336,7 @@ public class MainActivity extends Activity {
         WebViewCompat.addWebMessageListener(webView, "FilmyCopy",
                 Collections.singleton("https://appassets.androidplatform.net"),
                 (view, message, origin, mainFrame, reply) -> {
-                    if (!mainFrame || !"https".equals(origin.getScheme()) ||
-                            !"appassets.androidplatform.net".equals(origin.getHost()) ||
-                            view.getUrl() == null || !view.getUrl().startsWith(
-                                    "https://appassets.androidplatform.net/assets/web/")) return;
+                    if (!isTrustedAppPage(view, origin, mainFrame)) return;
                     String data = message.getData();
                     if (data == null || data.length() > 1024 * 1024 || copyDestroyed) return;
                     copyReply = reply;
@@ -210,33 +355,34 @@ public class MainActivity extends Activity {
                                     return;
                                 case "start":
                                     if (copyStopped) throw new IllegalStateException("Appka musí zostať otvorená.");
-                                    copyResponse(reply, id, movieCopier.start(request.getJSONArray("items")));
+                                    if (settingsBusy) throw new IllegalStateException("Počkaj na dokončenie prenosu nastavení.");
+                                    bridgeResponse(reply, id, movieCopier.start(request.getJSONArray("items")));
                                     // onStop may race the queued request. Never leave a new job running in the background.
                                     if (copyStopped) movieCopier.cancel();
                                     return;
                                 case "status":
-                                    copyResponse(reply, id, movieCopier.status());
+                                    bridgeResponse(reply, id, movieCopier.status());
                                     return;
                                 case "cancel":
                                     movieCopier.cancel();
-                                    copyResponse(reply, id, movieCopier.status());
+                                    bridgeResponse(reply, id, movieCopier.status());
                                     return;
                                 default:
                                     throw new IllegalArgumentException("Neplatná požiadavka.");
                             }
-                        } catch (Exception error) { copyFailure(reply, id, error.getMessage()); }
+                        } catch (Exception error) { bridgeFailure(reply, id, error.getMessage()); }
                     });
                 });
     }
 
     @SuppressWarnings("deprecation")
     private void pickCopyFolder(String role, String id, JavaScriptReplyProxy reply) {
-        if (copyStopped) { copyFailure(reply, id, "Appka musí zostať otvorená."); return; }
-        if (movieCopier.busy() || pickerReply != null) {
-            copyFailure(reply, id, "Kopírovanie alebo výber priečinka už prebieha."); return;
+        if (copyStopped) { bridgeFailure(reply, id, "Appka musí zostať otvorená."); return; }
+        if (movieCopier.busy() || pickerReply != null || settingsBusy) {
+            bridgeFailure(reply, id, "Kopírovanie alebo výber priečinka už prebieha."); return;
         }
         if (!role.equals("source") && !role.equals("destination")) {
-            copyFailure(reply, id, "Neplatný priečinok."); return;
+            bridgeFailure(reply, id, "Neplatný priečinok."); return;
         }
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -246,7 +392,7 @@ public class MainActivity extends Activity {
         try { startActivityForResult(intent, COPY_PICKER); }
         catch (ActivityNotFoundException error) {
             pickerReply = null;
-            copyFailure(reply, id, "Na tomto zariadení nie je systémový výber priečinkov. Niektoré TV ho nemajú.");
+            bridgeFailure(reply, id, "Na tomto zariadení nie je systémový výber priečinkov. Niektoré TV ho nemajú.");
         }
     }
 
@@ -254,41 +400,46 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SETTINGS_CREATE || requestCode == SETTINGS_OPEN) {
+            settingsFileResult(requestCode, resultCode, data); return;
+        }
         if (requestCode != COPY_PICKER || pickerReply == null || copyDestroyed) return;
         JavaScriptReplyProxy reply = pickerReply;
         String id = pickerId, role = pickerRole;
         if (resultCode != RESULT_OK || data == null || data.getData() == null) {
             pickerReply = null;
             try {
-                copyResponse(reply, id, new JSONObject().put("ok", false).put("cancelled", true));
-            } catch (Exception error) { copyFailure(reply, id, error.getMessage()); }
+                bridgeResponse(reply, id, new JSONObject().put("ok", false).put("cancelled", true));
+            } catch (Exception error) { bridgeFailure(reply, id, error.getMessage()); }
             return;
         }
         Uri tree = data.getData();
         copyWorker.execute(() -> {
             try {
                 String name = movieCopier.setRoot(role, tree);
-                copyResponse(reply, id, new JSONObject().put("ok", true).put("name", name));
-            } catch (Exception error) { copyFailure(reply, id, "Priečinok sa nepodarilo sprístupniť. " + error.getMessage()); }
+                bridgeResponse(reply, id, new JSONObject().put("ok", true).put("name", name));
+            } catch (Exception error) { bridgeFailure(reply, id, "Priečinok sa nepodarilo sprístupniť. " + error.getMessage()); }
             finally { runOnUiThread(() -> { if (pickerReply == reply) pickerReply = null; }); }
         });
     }
 
-    private void copyResponse(JavaScriptReplyProxy reply, String id, JSONObject result) {
+    private void bridgeResponse(JavaScriptReplyProxy reply, String id, JSONObject result) {
         final String message;
         try { message = new JSONObject().put("id", id).put("result", result).toString(); }
         catch (Exception ignored) { return; }
         runOnUiThread(() -> {
             if (copyDestroyed || webView == null) return;
+            if (webView.getUrl() == null || !webView.getUrl().startsWith(
+                    "https://appassets.androidplatform.net/assets/web/")) return;
             if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) return;
             try { reply.postMessage(message); }
             catch (Exception ignored) { /* The requester may have navigated away. */ }
         });
     }
 
-    private void copyFailure(JavaScriptReplyProxy reply, String id, String error) {
-        try { copyResponse(reply, id, new JSONObject().put("ok", false).put("error",
-                error == null ? "Kopírovanie sa nepodarilo." : error)); }
+    private void bridgeFailure(JavaScriptReplyProxy reply, String id, String error) {
+        try { bridgeResponse(reply, id, new JSONObject().put("ok", false).put("error",
+                error == null ? "Operáciu sa nepodarilo dokončiť." : error)); }
         catch (Exception ignored) { /* JSONObject contains only strings and booleans. */ }
     }
 
@@ -420,8 +571,10 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         copyDestroyed = true;
         copyWorker.shutdownNow();
+        new Thread(settingsResources.cancel(), "FilmySettingsClose").start();
         if (movieCopier != null) movieCopier.close();
         pickerReply = null; copyReply = null;
+        settingsReply = null; settingsRequestId = null; settingsExport = null;
         if (webView != null) {
             webView.destroy();
             webView = null;

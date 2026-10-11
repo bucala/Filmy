@@ -1,4 +1,5 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
+import { DEFAULT_PREFS, normalizeRatingSource } from './lib/preferences.js';
 export const S = {};
 
 S.APP_VERSION = "6.3.0";
@@ -25,6 +26,10 @@ S.fpState = {yearFrom:0,yearTo:0,minRating:0,minRatingCsfd:0,country:"",genres:[
 S.tmdbKey = localStorage.getItem("tmdb_key")||"bfbcf6821a57eed36cb07c1217d4ac1f";
 S.omdbKey = localStorage.getItem("omdb_key")||"9ff40e48";
 S.SK = "mdb_v5";
+// An explicitly cleared key must stay empty after settings import/reload,
+// rather than being replaced by the legacy bundled default.
+if (localStorage.getItem('tmdb_key') === '') S.tmdbKey = '';
+if (localStorage.getItem('omdb_key') === '') S.omdbKey = '';
 S.FK = "mdb_fav5";
 S.WK = "mdb_wl1";
 S.VK = "mdb_watched1";
@@ -37,8 +42,8 @@ S.csfdMatcherUrl = localStorage.getItem(S.CSFD_MATCHER_URL_KEY)||S.DEFAULT_CSFD_
 S.liveCache = {};
 S.liveRunning = false;
 S.tmdbAbortCtrl = null;
-S.prefs = {view:"grid",sort:"num",sortDir:"desc",showRecent:false};
-S.ratingSource = localStorage.getItem('mdb_ratingsrc')||'tmdb';
+S.prefs = { ...DEFAULT_PREFS };
+S.ratingSource = normalizeRatingSource(localStorage.getItem('mdb_ratingsrc'));
 S.RATING_LABELS = {tmdb:'TMDB',imdb:'IMDB',csfd:'ČSFD'};
 S.fuseInst = null;
 S.fuseHighlights = {};
@@ -99,7 +104,7 @@ S.PLAYER_PROTO_KEY = 'mdb_player_proto';
 S.playerProto = localStorage.getItem(S.PLAYER_PROTO_KEY) || 'mpc';
 S.PATH_MODE_KEY = 'mdb_path_mode';
 S.SMB_URL_MODE_KEY = 'mdb_smb_url_mode';
-S.smbBase = localStorage.getItem(S.SMB_KEY) || 'smb://DESKTOP-EGOG348/Movies/';
+S.smbBase = localStorage.getItem(S.SMB_KEY) ?? 'smb://DESKTOP-EGOG348/Movies/';
 S.pathMode = localStorage.getItem(S.PATH_MODE_KEY) || 'smb';
 S.smbUrlMode = localStorage.getItem(S.SMB_URL_MODE_KEY) || 'proto';
 S.SMB_MAP_KEY = 'mdb_smb_map';

@@ -625,9 +625,15 @@
     <div class="sett-key-st" id="repairSt" style="margin-top:4px"></div>
     <button class="sett-btn" id="settBtnSaveAll" style="margin-top:8px;background:var(--gold);color:#0a0a0f;border-color:var(--gold)">
       <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></span>
-      <span class="sett-btn-label">Uložiť všetky nastavenia</span>
+      <span class="sett-btn-label">Uložiť nastavenia do súboru</span>
     </button>
-    <div class="sett-key-st" id="saveAllSt" style="margin-top:4px"></div>
+    <button class="sett-btn secondary" id="settBtnLoadSettings" type="button" style="margin-top:6px">
+      <span class="sett-btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+      <span class="sett-btn-label">Načítať nastavenia zo súboru</span>
+    </button>
+    <input type="file" id="settingsFileInp" accept=".json,application/json" hidden>
+    <div class="sett-btn-hint">Prenesie vzhľad, hodnotenia, prehrávanie, SMB, synchronizáciu a API kľúče. Filmy a kolekcie zostanú nezmenené. Súbor obsahuje prístupové údaje bez šifrovania, chráň ho a nezdieľaj verejne.</div>
+    <div class="sett-key-st" id="saveAllSt" role="status" aria-live="polite" style="margin-top:4px"></div>
     </div>
 
   </div>

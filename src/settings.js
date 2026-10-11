@@ -17,7 +17,7 @@ S.applyLive = function applyLive(id,data){
   if(rbox){
     var mv=S.all.find(function(x){return x.id===id;});
     var p=mv?S.getMoviePct(mv):(data&&data.pct!=null?data.pct:null);
-    var lbl=S.RATING_LABELS[S.ratingSource]||'TMDB';
+    var lbl=S.RATING_LABELS[S.ratingSource]||'ČSFD';
     if(p!=null){
       var col=p>=70?"#00c853":p>=50?"#ffd600":"#e53935";
       rbox.outerHTML='<div class="rating-pill"><div class="rating-pill-lbl">'+lbl+'</div><div class="rating-pill-val" style="color:'+col+'">'+p+'%</div></div>';

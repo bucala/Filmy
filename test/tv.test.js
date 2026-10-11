@@ -247,6 +247,23 @@ describe('TV settings navigation', () => {
     qa.press('ArrowUp');
     expect(qa.document.activeElement).toBe(select);
   });
+
+  it('visits the wide play button between favorites and copy in both directions', () => {
+    const qa = setup();
+    qa.main.classList.add('hidden');
+    const detail = qa.make({ id: 'detSc', width: 1100, height: 800 });
+    const favorite = qa.make({ tag: 'BUTTON', x: 100, y: 100, width: 100 }, detail);
+    const play = qa.make({ id: 'playMovieBtn', tag: 'BUTTON', x: 20, y: 180, width: 1000 }, detail);
+    const copy = qa.make({ id: 'btnPlayCopy', tag: 'BUTTON', x: 100, y: 260, width: 100 }, detail);
+    favorite.focus(); qa.press('ArrowDown');
+    expect(qa.document.activeElement).toBe(play);
+    qa.press('ArrowDown');
+    expect(qa.document.activeElement).toBe(copy);
+    qa.press('ArrowUp');
+    expect(qa.document.activeElement).toBe(play);
+    qa.press('ArrowUp');
+    expect(qa.document.activeElement).toBe(favorite);
+  });
 });
 
 describe('TV text field activation', () => {

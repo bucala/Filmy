@@ -82,7 +82,7 @@
 - Automatické hodnotenia, postery, backdrops a trailery
 - Admin panel — pridaj film cez TMDB ID
 - Manuálne párovanie existujúcich filmov
-- Zdroje hodnotení: **TMDB** · **IMDb** (OMDB) · **ČSFD**
+- Zdroje hodnotení: **ČSFD** (predvolené) · **TMDB** · **IMDb** (OMDB). Platná skôr uložená voľba zostáva zachovaná.
 - **ČSFD Matcher** — import CSV/JSON s hodnoteniami
 
 </td>
@@ -94,6 +94,7 @@
 - Kompaktná hlavička na obrazovkách do **700 px** má dva riadky: vyhľadávanie vedľa inštalácie/nastavení a posúvateľné navigačné ikony vedľa radenia, filtra a zobrazenia. Opakovaný názov pri logu a pomocná veta pod názvom kolekcie sú odstránené na všetkých platformách; samostatný riadok s názvom kolekcie, počtom filmov a názvom zobrazenia je tiež odstránený, takže filmy začínajú priamo pod ovládaním. Reset vyhľadávania a filtrov zostáva dostupný cez ikonu knižnice a tlačidlo pri prázdnych výsledkoch.
 - Windows Electron používa **softvérové vykresľovanie rozhrania** ako opatrenie proti blikaniu pri GPU vykresľovaní na monitoroch s vysokou frekvenciou/VRR (G-Sync, napr. 180 Hz). Účinok treba overiť na konkrétnom zariadení; softvérové vykresľovanie môže zvýšiť záťaž CPU. MPC/VLC si zachováva vlastné vykresľovanie videa. Aktualizácia vyžaduje nový desktop build, nestačí obnoviť webovú stránku.
 - Všetky tri zobrazenia zachovávajú šesť tém, klávesové/TV ovládanie a hromadný výber. **Označiť zobrazené** zahŕňa iba aktuálne vykreslené karty.
+- Karty v zozname, grid aj posterwall zobrazujú pod režisérom prvých **troch hercov**, ak sú dostupní.
 - Filmy sa vykresľujú po **24 kartách** cez `requestAnimationFrame`; vysoká obrazovka sa doplní automaticky. Domovské riadky sa neprestavujú pri každom filtrovaní.
 - Presné vyhľadávanie nevytvára Fuse index. Fuzzy vyhľadávanie používa jeden lenivo vytvorený index a cache posledných **8 dopytov** zdieľanú medzi filtrami; úprava databázy cache zneplatní.
 - Pri návrate z detailu sa obnoví fokus na pôvodný film. Prázdna kolekcia ponúkne reset a použiteľný fokus; svetlé témy majú čitateľnejší tlmený text.
@@ -135,6 +136,7 @@ Pre **Portable** režim: stiahni `.reg` a `.bat` z nastavení → ulož do `W:\P
 | **Import** | ZIP (EMDB) · PDF fallback · JSON restore |
 | **Hromadný výber** | Výber filmov vo všetkých troch zobrazeniach, označenie zobrazených kariet a hromadné akcie |
 | **Rýchle pridanie** | Pridaj film priamo cez TMDB z nastavení |
+| **Záloha nastavení** | Samostatný JSON iba s konfiguráciou aplikácie, bez filmov, kolekcií a metadát |
 
 Rýchle pridanie aj admin ukladajú film najprv do prehliadača. Nové filmy zostanú
 v knižnici aj po obnovení stránky pred dokončením auto-pushu. Neuložené lokálne
@@ -146,6 +148,31 @@ pred nahradením si ich môžeš zálohovať cez **Export JSON**.
 Ak sa pri aktualizácii obnovila knižnica skrytá starým príznakom prázdnej
 databázy, auto-push je pre ňu pozastavený. Najprv ju skontroluj a prípadne
 exportuj; na GitHub sa odošle až po výslovnom **Uložiť na GitHub**.
+
+### Prenos nastavení medzi zariadeniami
+
+V Nastaveniach použi **Uložiť nastavenia do súboru** a na druhom zariadení
+**Načítať nastavenia zo súboru**. Prenesú sa vzhľad a vlastná akcentová farba,
+zobrazenie a radenie, zdroj hodnotení, API kľúče a GitHub token, auto-pull/push,
+prehrávače vrátane portable ciest, SMB adresa/mapovanie/nazvané zdroje,
+ČSFD Matcher URL a debug režim. Export zahŕňa aj práve upravené vstupné polia.
+
+Súbor `filmy-nastavenia-YYYY-MM-DD.json` má samostatný verzovaný formát
+`filmy-settings`. **Obsahuje prístupové údaje bez šifrovania. Chráň ho a nezdieľaj
+verejne.** Import vyžaduje potvrdenie, validuje celý súbor a odmietne filmovú
+zálohu, neznáme položky, neplatné hodnoty či súbor väčší než 256 KiB.
+Nezmení filmy, obľúbené, watchlist, videné dátumy, metadáta ani stav rozpracovanej
+synchronizácie a sám nespustí pull/push. Importované voľby auto-sync platia
+pre ďalší bežný štart a úpravy knižnice.
+
+Na Android/TV sa použije systémový výber dokumentov, bez plošného prístupu
+k úložisku. Vyžaduje **nový APK** a dostupný systémový výber súborov na zariadení.
+Ak appka hlási nepodporovaný prenos, aktualizuj aj **Android System WebView**.
+Web použije podporovaný systémový výber uloženia alebo bežné stiahnutie JSON;
+načítanie funguje cez výber súboru.
+
+Pred odinštalovaním appky alebo zmenou podpisového kľúča zálohuj filmy
+samostatne cez **Export JSON**. Súbor nastavení nenahrádza zálohu knižnice.
 
 ### Kopírovanie lokálnych filmov
 
@@ -298,6 +325,8 @@ Filmy/
 │   ├── storage.js           Lokálne ukladanie a invalidácia vyhľadávania
 │   ├── sync.js              Rozdelený GitHub sync a ETag
 │   ├── settings.js          Nastavenia, importy a admin
+│   ├── settings-transfer.js Export/import výlučne nastavení
+│   ├── platform.js          Overená komunikácia s natívnym Android shellom
 │   ├── players.js           Prehrávanie a cesty k filmom
 │   ├── tv.js                Navigácia diaľkovým ovládačom
 │   ├── copy.js              Výber, prenosová fronta a platformové adaptéry
@@ -306,6 +335,9 @@ Filmy/
 │       ├── library.js        Trvalé uloženie, identity filmov a TMDB metadáta
 │       ├── copy.js           Bezpečné názvy a meranie rýchlosti/ETA
 │       ├── copy-web.js       Streamovanie medzi povolenými priečinkami webu
+│       ├── settings-file.js  Verzionovaný formát, validácia a allowlist nastavení
+│       ├── trailer.js        Normalizácia overených YouTube videí a vyhľadávania
+│       ├── preferences.js    Predvolené preferencie a zdroj hodnotení
 │       └── …                Text, parsovanie, cesty, navigácia a sync
 ├── test/                    Vitest unit testy
 ├── portable-handler.js      Portable prehrávač modul
@@ -328,6 +360,8 @@ Filmy/
 │       ├── java/.../MainActivity.java
 │       ├── java/.../MovieCopier.java
 │       ├── java/.../CopyPolicy.java
+│       ├── java/.../YouTubeTarget.java
+│       ├── java/.../SettingsFileIO.java
 │       └── res/drawable/ic_launcher_foreground.xml
 ├── android/                 Build dokumentácia a historická TWA konfigurácia
 │   ├── BUILD.md
@@ -389,6 +423,14 @@ zhora/zdola sa označí aktívna možnosť. Textové pole sa najprv iba označí
 otvorenia klávesnice. **OK/Enter alebo klik myšou** zapne písanie; **Späť/Esc**
 ho ukončí bez zatvorenia panelu. Počas písania slúžia šípky doľava/doprava na
 pohyb kurzora. Pripojená myš zostáva viditeľná aj v TV režime.
+Zvislé prechody porovnávajú aj okraje a prekrytie ovládacích prvkov, takže
+široké tlačidlo **Prehráť** sa nepreskočí kvôli vzdialenému stredu.
+
+Trailery v novej Android TV appke otvárajú nainštalovaný **YouTube TV** alebo
+YouTube; ak aplikácia nie je dostupná, použije sa podporovaný systémový handler.
+Ak trailerové ID chýba, otvorí sa vyhľadávanie filmu. Web a telefón zachovávajú
+vložený YouTube prehrávač. Starší APK používa intent fallback; plná podpora
+vyžaduje nový APK a skutočné spustenie YouTube treba overiť na konkrétnom TV.
 
 Krátke stlačenie OK/Enter na karte otvorí film, dlhé stlačenie otvorí menu
 akcií. Po otvorení menu **najprv uvoľni OK**, potom vyber akciu šípkami a potvrď
@@ -420,6 +462,23 @@ git push origin main
 CI spúšťa lint a unit testy pri pushi do `main` a pri PR. `.github/workflows/bump-sw-cache.yml` automaticky aktualizuje SW cache verziu pri zmenách webových zdrojov na `main`.
 
 Pri zmene rozhrania over všetky tri zobrazenia, svetlé/tmavé témy, klávesový fokus a offline režim. Responzívne testy v prehliadači nenahrádzajú kontrolu dotyku, TV ovládača ani natívnych Android/Electron balíkov na zariadení.
+
+### Overenie TV úprav a prenosu nastavení (2026-10-11)
+
+- `npm test`: **292 testov prešlo**, vrátane navigácie, trailerov, kariet,
+  nastavení, izolácie od filmových dát/sync a úplnosti offline modulov.
+- `npm run lint`: **0 chýb**, 19 existujúcich varovaní v nezmenených súboroch.
+- Priamo na JVM: **7 testov prešlo** v `YouTubeTargetTest` a
+  `SettingsFileIOTest`, bez potreby Android SDK.
+- V prehliadači: skutočný zápis a čítanie súboru s testovacím pickerom
+  obnovili vzhľad a nastavenia bez zmeny filmových dát či naplánovania sync.
+  Skutočný systémový výber súborov tým nie je overený.
+- Zostavenie APK a test na skutočnom TV neprebehli, v testovacom prostredí
+  chýbal Android SDK a zariadenie. Na TV ešte over D-pad dosah na Prehráť,
+  spustenie nainštalovaného YouTube a oba systémové dialógy nastavení.
+
+Pri inštalácii vývojových závislostí npm hlásilo 11 audit nálezov
+(3 stredné, 6 vysokých, 2 kritické). Ich aktualizácia nie je súčasťou tejto zmeny.
 
 ---
 

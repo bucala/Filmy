@@ -118,7 +118,13 @@ S.applyTheme = function applyTheme(skinId) {
 
 S.initTheme = function initTheme() {
   var saved = localStorage.getItem(S.THEME_KEY) || 'dark';
+  var accent = null;
+  try { accent = JSON.parse(localStorage.getItem(S.ACCENT_KEY) || 'null'); } catch(e) {}
   S.applyTheme(saved);
+  // Theme initialization must not erase a restored custom accent.
+  if(accent&&/^#[0-9a-f]{6}$/i.test(accent.gold)&&/^#[0-9a-f]{6}$/i.test(accent.gold2)){
+    S.applyAccentColor(accent.gold,accent.gold2);
+  }
   // Wire skin-chip clicks
   document.querySelectorAll('.skin-chip').forEach(function(s) {
     s.addEventListener('click', function() {

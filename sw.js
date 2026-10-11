@@ -5,7 +5,7 @@
    - CDN libs (versioned) → Cache-First (immutable)
    ══════════════════════════════════════════════════════════════════ */
 
-const CACHE = "filmy-20261009-1904";
+const CACHE = "filmy-20261009-2150";
 
 /* Runtime cache for TMDB posters/backdrops — separate from CACHE so it
    survives shell version bumps (posters rarely change; losing them on every
@@ -39,6 +39,8 @@ const SHELL  = [
   "./src/players.js",
   "./src/sync.js",
   "./src/settings.js",
+  "./src/settings-transfer.js",
+  "./src/platform.js",
   "./src/tv.js",
   "./src/copy.js",
   "./src/lib/text.js",
@@ -46,6 +48,9 @@ const SHELL  = [
   "./src/lib/sync-helpers.js",
   "./src/lib/paths.js",
   "./src/lib/nav.js",
+  "./src/lib/preferences.js",
+  "./src/lib/trailer.js",
+  "./src/lib/settings-file.js",
   "./src/lib/browse.js",
   "./src/lib/library.js",
   "./src/lib/copy.js",

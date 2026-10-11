@@ -1301,12 +1301,13 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
 .fp-year-inp,.fp-sel,.fp-inp{min-height:40px;font-size:14px}
 .mlist{padding:4px 20px 48px;scroll-padding:12px}
 .mlist.grid{grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;padding:4px 20px 48px;align-content:start}
-.mlist.grid .mcard{height:192px;border-radius:18px}
+.mlist.grid .mcard{height:224px;border-radius:18px}
 .mlist.grid .cpost-wrap,.mlist.grid .cpost-ph{width:126px;border-radius:0;background:var(--surface-3)}
 .cbody{padding:12px 14px}
 .ctitle{font-size:17px;line-height:1.3;letter-spacing:-.15px;-webkit-line-clamp:2;margin-bottom:6px}
 .cmeta{font-size:12px;color:var(--text2);margin-bottom:6px}
-.cdir{font-size:12px;color:var(--text3);margin-bottom:7px}
+.cdir{font-size:12px;color:var(--text3);margin-bottom:4px}
+.ccast{font-size:11px;line-height:1.35;color:var(--text3);margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cgenres{gap:4px}
 .gtag{font-size:9px;letter-spacing:0;padding:3px 7px;background:var(--surface-3);border-color:var(--outline-variant);color:var(--text2);border-radius:6px}
 .cbot{margin-top:4px;min-height:36px}
@@ -1318,10 +1319,12 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
 .pct-g{background:#176438}.pct-a{background:#766010}.pct-b{background:#8a3030}
 .cpost-play{width:38px;height:38px;bottom:10px;right:10px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 .lcard{height:64px;border-radius:12px;margin-bottom:3px}
+.lcard.has-people{height:auto;min-height:64px;padding-top:8px;padding-bottom:8px}
 .lnum{width:54px;min-width:54px;font-size:12px}
 .lbody{gap:5px;padding:0 12px}
 .ltitle{font-size:16px}
 .lmeta{font-size:11px;color:var(--text3)}
+.ldir,.lcast{font-size:11px;line-height:1.3;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lright{gap:8px;padding-right:10px}
 /* Max-content rows keep overflow-clipped aspect-ratio cards from collapsing
    into overlapping strips inside the fixed-height scrolling grid. */
@@ -1331,6 +1334,8 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
 .pw-info{position:absolute;inset:auto 0 0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,.9));color:#fff;opacity:0;transition:opacity .15s;pointer-events:none}
 .pw-title{font-size:12px;font-weight:600;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pw-meta{font-size:10px;color:#d5d5d5;margin-top:4px}
+.pw-dir{font-size:10px;color:#d5d5d5;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pw-info .ccast{font-size:10px;color:#d5d5d5;margin:4px 0 0}
 .pwcard:hover .pw-info,.pwcard:focus-visible .pw-info,html.tv .pwcard:focus .pw-info{opacity:1}
 .home-rows{padding:0 20px 12px;max-height:35%;overflow-y:auto;overscroll-behavior:contain}
 .home-rows .sec{margin-top:4px;font-size:12px;letter-spacing:.4px;color:var(--text2)}
@@ -1353,7 +1358,7 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
 .sett-btn-hint{font-size:12px;line-height:1.6}
 .sett-key-inp,.sett-sel{font-size:13px;min-height:42px}
 .skel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;padding:4px 20px;overflow:hidden}
-.skel-card{height:192px;border-radius:18px}
+.skel-card{height:224px;border-radius:18px}
 
 @media(hover:hover){
   .mlist.grid .mcard:hover{border-color:rgba(var(--gold-rgb),.45);box-shadow:var(--el1)}
@@ -1366,7 +1371,7 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
 /* Off-screen cards skip inner layout/paint on modern browsers. TV opts out:
    spatial navigation needs reliable geometry for every focus stop. */
 @supports(content-visibility:auto){
-  html:not(.tv) .mlist.grid .mcard{content-visibility:auto;contain-intrinsic-size:auto 192px}
+  html:not(.tv) .mlist.grid .mcard{content-visibility:auto;contain-intrinsic-size:auto 224px}
   html:not(.tv) .mlist:not(.grid):not(.posterwall) .mcard{content-visibility:auto;contain-intrinsic-size:auto 64px}
 }
 @media(max-width:700px){
@@ -1390,7 +1395,7 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
   .srch-mode-badge{font-size:8px;padding:3px 5px}
   .mlist,.mlist.grid{padding:4px 12px 28px}
   .mlist.grid{grid-template-columns:1fr;gap:10px}
-  .mlist.grid .mcard{height:174px;border-radius:16px}
+  .mlist.grid .mcard{height:216px;border-radius:16px}
   .mlist.grid .cpost-wrap,.mlist.grid .cpost-ph{width:114px}
   .cbody{padding:10px 12px}
   .ctitle{font-size:16px;margin-bottom:5px}
@@ -1404,7 +1409,7 @@ html.tv .tv-act-btn:focus{border-color:var(--primary);background:rgba(var(--gold
   .home-rows{padding:0 12px 10px;max-height:30%}
   .fp-pills:not(:empty){padding:0 12px 10px}
   .skel-grid{grid-template-columns:1fr;padding:4px 12px;gap:10px}
-  .skel-card{height:174px}
+  .skel-card{height:216px}
 }
 @media(min-width:900px){
   .sett-panel{padding-left:calc((100% - 820px)/2);padding-right:calc((100% - 820px)/2)}

@@ -1,11 +1,13 @@
 /* AUTO-SPLIT from app.js. Shared state/functions live on the S namespace. */
 import { S } from './state.js';
+import './platform.js';
 import './storage.js';
 import './ui.js';
 import './render.js';
 import './players.js';
 import './sync.js';
 import './settings.js';
+import './settings-transfer.js';
 import './tv.js';
 import './copy.js';
 import { esc, levenshtein } from './lib/text.js';
@@ -58,7 +60,9 @@ S.init = function init(){
   S.renderAll();
   // Auto-pull from GitHub on startup if enabled and token is set
   if (S.autoPull && typeof S.ghPull === "function") {
-    setTimeout(function() {
+    S._autoPullTimer = setTimeout(function() {
+      S._autoPullTimer = null;
+      if (!S.autoPull) return;
       S.ghSetStatus("Automatické načítanie z GitHubu…", "info");
       S.ghPull();
     }, 800);
@@ -540,46 +544,7 @@ S.toast(_modeLabel);
   var _apApply=document.getElementById('adminAutoPairApplyBtn');
   if(_apApply) _apApply.addEventListener('click',S.adminAutoPairApply);
 
-  // Uložiť všetky nastavenia
-  var _eSaveAll = document.getElementById('settBtnSaveAll');
-  if (_eSaveAll) _eSaveAll.addEventListener('click', function() {
-    // GitHub token
-    var ghInp = document.getElementById('ghTokenInp');
-    if (ghInp && ghInp.value.trim()) { S.ghToken = ghInp.value.trim(); localStorage.setItem(S.GH_KEY, S.ghToken); }
-    // TMDB key
-    var tmdbInp = document.getElementById('tmdbKeyInp');
-    if (tmdbInp && tmdbInp.value.trim()) { S.tmdbKey = tmdbInp.value.trim(); localStorage.setItem('tmdb_key', S.tmdbKey); }
-    // SMB base
-    var smbInp = document.getElementById('smbPathInp');
-    if (smbInp && smbInp.value.trim()) {
-      var sv = smbInp.value.trim();
-      if (sv[sv.length-1] !== '/') sv += '/';
-      S.smbBase = sv; localStorage.setItem(S.SMB_KEY, sv);
-    }
-    // Local path
-    var locInp = document.getElementById('localPathInp');
-    if (locInp && locInp.value.trim()) {
-      var lv = locInp.value.trim();
-      if (lv[lv.length-1] !== '\\' && lv[lv.length-1] !== '/') lv += '\\';
-      var nm = {}; nm[lv] = S.smbBase; S.smbMap = nm;
-      localStorage.setItem(S.SMB_MAP_KEY, JSON.stringify(nm));
-    }
-    // Player proto is saved on click, no extra save needed here
-    // Auto pull toggle
-    var apTog = document.getElementById('autoPullTog');
-    if (apTog) { localStorage.setItem(S.AUTO_PULL_KEY, apTog.checked ? '1' : '0'); }
-    var matcherInp = document.getElementById('csfdMatcherUrlInp');
-    if (matcherInp && matcherInp.value.trim()) {
-      var mv = matcherInp.value.trim();
-      if (mv.indexOf('http') !== 0) mv = 'https://' + mv;
-      S.csfdMatcherUrl = mv;
-      localStorage.setItem(S.CSFD_MATCHER_URL_KEY, mv);
-    }
-    // Status
-    var st = document.getElementById('saveAllSt');
-    if (st) { st.textContent = '✓ Nastavenia uložené'; st.className = 'sett-key-st ok'; setTimeout(function(){ st.textContent=''; }, 3000); }
-    S.toast('Nastavenia uložené ✓');
-  });
+  S.initSettingsTransfer();
   var _eExcel=document.getElementById('settBtnExcel');
   if(_eExcel) _eExcel.addEventListener('click',function(){
     var bom='﻿';
