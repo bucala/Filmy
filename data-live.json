@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-10-24T14:51:45.469Z",
+  "updated": "2026-10-24T14:52:10.540Z",
   "liveCache": {
     "1": {
       "pct": 74,
@@ -14049,6 +14049,22 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/eSvYccJm5ejJXFtJTqM2dIqrhK7.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/969681",
       "imdbUrl": "https://www.imdb.com/title/tt22084616/"
+    },
+    "1769": {
+      "pct": 77,
+      "ytKey": "gXjurDkYnEM",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/8tEfEhuV1YrYTHAlaTRGOnv4wnm.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/p40lmrdI4blcAPZQMTPaiy5v5Ym.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1291595",
+      "imdbUrl": "https://www.imdb.com/title/tt32393988/"
+    },
+    "1770": {
+      "pct": 62,
+      "ytKey": "4g8OciWNJn4",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/uxlNnYlJ9ZuNcuT8KDqURzeQcPP.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/3eUyLEF5M0ky3h6KJsWiWzaakB8.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/1159559",
+      "imdbUrl": "https://www.imdb.com/title/tt27047903/"
     }
   }
 }
