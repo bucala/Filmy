@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-10-24T14:54:50.833Z",
+  "updated": "2026-10-24T14:55:35.782Z",
   "movies": [
     {
       "id": 1,
@@ -48084,7 +48084,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1159559",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Vriskot 7.mkv",
-      "_rtScore": 30
+      "_rtScore": 30,
+      "_csfdUrl": "https://www.csfd.cz/film/1448507-vriskot-7/prehled/",
+      "_pctCsfd": 55
     }
   ],
   "favourites": [],
