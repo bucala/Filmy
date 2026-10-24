@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-10-24T14:53:06.441Z",
+  "updated": "2026-10-24T14:54:50.833Z",
   "movies": [
     {
       "id": 1,
@@ -48057,7 +48057,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1291595",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Insidious - Jsou mezi nami.mkv",
-      "_rtScore": 57
+      "_rtScore": 57,
+      "_csfdUrl": "https://www.csfd.cz/film/1792220-insidious-jsou-mezi-nami/prehled/",
+      "_pctCsfd": 64
     },
     {
       "id": 1770,
