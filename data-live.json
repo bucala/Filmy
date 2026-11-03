@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-10-30T17:04:32.881Z",
+  "updated": "2026-11-03T12:25:16.702Z",
   "liveCache": {
     "1": {
       "pct": 74,
@@ -1938,6 +1938,14 @@
       "tmdbUrl": "https://www.themoviedb.org/movie/2671",
       "imdbUrl": "https://www.imdb.com/title/tt0178868/"
     },
+    "243": {
+      "pct": 68,
+      "ytKey": "A96-OMejbys",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/xI5BkObQm7UtYEFTw7ZmiDGF7gT.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/33kRnZfiYd6WPKpMge5OQhzxYGN.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/15347",
+      "imdbUrl": "https://www.imdb.com/title/tt0060182/"
+    },
     "244": {
       "pct": 84,
       "ytKey": "dcUOO4Itgmw",
@@ -2777,6 +2785,14 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/lVSj3d2dvTaK3qO9K2aD1W4L7R0.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/9969",
       "imdbUrl": "https://www.imdb.com/title/tt0790604/"
+    },
+    "349": {
+      "pct": 56,
+      "ytKey": "cnnAD1eWHGg",
+      "posterUrl": "https://image.tmdb.org/t/p/w300/ud4A2xRAa6j92dTuOy2B2Glv5xY.jpg",
+      "backdropUrl": "https://image.tmdb.org/t/p/w1280/9MIVMcFo5B8R5pNuCg9gkc82mzZ.jpg",
+      "tmdbUrl": "https://www.themoviedb.org/movie/7483",
+      "imdbUrl": "https://www.imdb.com/title/tt0441761/"
     },
     "350": {
       "pct": 49,
@@ -14049,22 +14065,6 @@
       "backdropUrl": "https://image.tmdb.org/t/p/w1280/eSvYccJm5ejJXFtJTqM2dIqrhK7.jpg",
       "tmdbUrl": "https://www.themoviedb.org/movie/969681",
       "imdbUrl": "https://www.imdb.com/title/tt22084616/"
-    },
-    "1769": {
-      "pct": 77,
-      "ytKey": "gXjurDkYnEM",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/8tEfEhuV1YrYTHAlaTRGOnv4wnm.jpg",
-      "backdropUrl": "https://image.tmdb.org/t/p/w1280/p40lmrdI4blcAPZQMTPaiy5v5Ym.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/1291595",
-      "imdbUrl": "https://www.imdb.com/title/tt32393988/"
-    },
-    "1770": {
-      "pct": 62,
-      "ytKey": "4g8OciWNJn4",
-      "posterUrl": "https://image.tmdb.org/t/p/w300/uxlNnYlJ9ZuNcuT8KDqURzeQcPP.jpg",
-      "backdropUrl": "https://image.tmdb.org/t/p/w1280/3eUyLEF5M0ky3h6KJsWiWzaakB8.jpg",
-      "tmdbUrl": "https://www.themoviedb.org/movie/1159559",
-      "imdbUrl": "https://www.imdb.com/title/tt27047903/"
     }
   }
 }
