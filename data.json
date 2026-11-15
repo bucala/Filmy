@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:40:27.578Z",
+  "updated": "2026-11-15T16:41:02.348Z",
   "movies": [
     {
       "id": 1,
@@ -9651,16 +9651,16 @@
       "director": "Tom Tykwer",
       "genres": [
         "Kriminálny",
-        "Rozprávka",
+        "Fantasy",
         "Dráma"
       ],
-      "country": "Germanyút",
+      "country": "DE, FR, ES, US, BE",
       "duration": "147 min",
-      "cast": "Ben Whishaw, Alan Rickman, Rachel Hurd-Wood, Dustin Hoffman, John Hurt (hlas)",
-      "description": "Jean-Baptiste Grenouille má vlastnost génia – svým nosem dokáže zachytit, detailně popsat a charakterizovat všechny vůně, které se kolem něj mihnou. Okamžitě rozpozná jejich složení, míru použitých komponentů, čehož využívá pro výrobu těch nejúžasnějších parfémů na světě. Zoufale však touží po vytvoření dokonalé vůně. Naprosto zbavený citu se rozhodne vytvořit démonickou vůni, jejíž základní esencí bude vůně mladé dívky, nevinné a čisté. A učiní pro to vše... Vytlačené pomocou EMDB V5.41 na 15. ",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/ud4A2xRAa6j92dTuOy2B2Glv5xY.jpg",
+      "cast": "Ben Whishaw, Alan Rickman, Rachel Hurd-Wood, Dustin Hoffman, John Hurt, Karoline Herfurth, David Calder, Simon Chandler, Sian Thomas, Jessica Schwarz",
+      "description": "Jean- Babtiste Grenouille má vlastnosť génia - vie zachytiť, detailne opísať a charakterizovať všetky vône, ktoré sa okolo neho mihnú. Okamžite poznáva ich zloženie, mieru použitých komponentov a nosom ako jemným, citlivým radarom \"vidí\", kam a pokiaľ siaha ktorá vôňa a kde sa začína ďalšia. Načisto zbavený citu sa rozhodne vytvoriť démonickú vôňu, ktorej základnou esenciou bude vôňa mladých dievčat, nevinných a čistých. A urobí pre to všetko, aby mohol milovať a byť milovaný.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/80yxLcVHtwKXUQqJ0wBEcwjejuR.jpg",
       "rating": 0,
-      "tmdbId": 963502,
+      "tmdbId": 1427,
       "moods": [],
       "_yt": null,
       "_tmdbUrl": null,
