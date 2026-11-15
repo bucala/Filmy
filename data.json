@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:35:44.240Z",
+  "updated": "2026-11-15T16:36:30.147Z",
   "movies": [
     {
       "id": 1,
@@ -48082,7 +48082,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1159559",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\Vriskot\\2026 - Vriskot 7.mkv",
-      "_rtScore": 30
+      "_rtScore": 30,
+      "_csfdUrl": "https://www.csfd.cz/film/1448507-vriskot-7/recenz",
+      "_pctCsfd": 54
     },
     {
       "id": 1771,
