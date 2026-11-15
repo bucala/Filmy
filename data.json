@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:29:21.736Z",
+  "updated": "2026-11-15T16:32:45.093Z",
   "movies": [
     {
       "id": 1,
@@ -6703,17 +6703,16 @@
       "num": 243,
       "title": "Souboj Titánů",
       "year": 1981,
-      "director": "Conrad Miles",
+      "director": "Desmond Davis",
       "genres": [
-        "Fantasy",
-        "Science Fiction",
-        "Dráma",
-        "Komédia"
+        "Dobrodružný",
+        "Rozprávka",
+        "Akčný"
       ],
-      "country": "United States",
-      "duration": "3 min",
-      "cast": "Jessy Leigh, Abby Brown, Michael Wendt, Ryan Kelly",
-      "description": "Short film by Antoni Padrós",
+      "country": "United Statesút",
+      "duration": "117 min",
+      "cast": "Harry Hamlin, Judi Bowker, Burgess Meredith, Maggie Smith, Ursula Andress",
+      "description": "Perseus, syn boha Dia a pozemské krásky je nevědomky zatažen do intrik žárlivé Diovy manželky Héry a více či méně malicherných konfliktů ostatních bohů. A tak Perseus na své cestě za štěstím (a krásnou Andromedou) musí překonat nejen mýtické nestvůry, včetně Gorgony Medusy, ale i lidské vrtochy božských vládců Olympu. Vytlačené pomocou EMDB V5.41 na 15. novembra 2026 Strana 1 / 1EMDB - Eric's Movie Database",
       "poster_thumb": "https://image.tmdb.org/t/p/w300/xI5BkObQm7UtYEFTw7ZmiDGF7gT.jpg",
       "rating": 0,
       "tmdbId": 963502,
@@ -9647,17 +9646,16 @@
       "num": 349,
       "title": "Parfém: Příběh vraha",
       "year": 2006,
-      "director": "Conrad Miles",
+      "director": "Tom Tykwer",
       "genres": [
-        "Fantasy",
-        "Science Fiction",
-        "Dráma",
-        "Komédia"
+        "Kriminálny",
+        "Rozprávka",
+        "Dráma"
       ],
-      "country": ",",
-      "duration": "3 min",
-      "cast": "Jessy Leigh, Abby Brown, Michael Wendt, Ryan Kelly",
-      "description": "",
+      "country": "Germanyút",
+      "duration": "147 min",
+      "cast": "Ben Whishaw, Alan Rickman, Rachel Hurd-Wood, Dustin Hoffman, John Hurt (hlas)",
+      "description": "Jean-Baptiste Grenouille má vlastnost génia – svým nosem dokáže zachytit, detailně popsat a charakterizovat všechny vůně, které se kolem něj mihnou. Okamžitě rozpozná jejich složení, míru použitých komponentů, čehož využívá pro výrobu těch nejúžasnějších parfémů na světě. Zoufale však touží po vytvoření dokonalé vůně. Naprosto zbavený citu se rozhodne vytvořit démonickou vůni, jejíž základní esencí bude vůně mladé dívky, nevinné a čisté. A učiní pro to vše... Vytlačené pomocou EMDB V5.41 na 15. ",
       "poster_thumb": "https://image.tmdb.org/t/p/w300/ud4A2xRAa6j92dTuOy2B2Glv5xY.jpg",
       "rating": 0,
       "tmdbId": 963502,
@@ -13880,7 +13878,7 @@
         "Rozprávka",
         "Akčný"
       ],
-      "country": "United States",
+      "country": "United Statesút",
       "duration": "106 min",
       "cast": "Sam Worthington, Gemma Arterton, Mads Mikkelsen, Alexa Davalos, Jason Flemyng",
       "description": "Ve filmu Souboj titánů staví boj o moc muže proti králům a krále proti bohům. Boj mezi bohy samotnými může zničit celý svět. Perseus – syn boha vychovávaný člověkem – neuspěje v záchraně své rodiny před Hadem, pomstychtivým bohem podsvětí. Když už nemá co ztratit, rozhodne se pro nebezpečnou misi, jejímž cílem je zničit Hada dřív, než se jemu podaří zničit Dia a rozpoutat peklo na zemi. Perseus se spolu s dalšími neohroženými bojovníky vydává na nebezpečnou cestu hluboko do zakázaných světů. Mus",
