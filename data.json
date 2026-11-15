@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:36:30.147Z",
+  "updated": "2026-11-15T16:37:24.490Z",
   "movies": [
     {
       "id": 1,
@@ -48109,7 +48109,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1325734",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Drama.mkv",
-      "_rtScore": 76
+      "_rtScore": 76,
+      "_csfdUrl": "https://www.csfd.cz/film/1556355-drama/prehled/",
+      "_pctCsfd": 77
     },
     {
       "id": 1772,
