@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:39:40.224Z",
+  "updated": "2026-11-15T16:40:15.883Z",
   "movies": [
     {
       "id": 1,
@@ -6721,7 +6721,9 @@
       "_tmdbUrl": null,
       "_imdbUrl": null,
       "_localPath": "",
-      "_pctImdb": 72
+      "_pctImdb": 72,
+      "_csfdUrl": "https://www.csfd.cz/film/17962-souboj-titanu/prehled/",
+      "_pctCsfd": 83
     },
     {
       "id": 244,
