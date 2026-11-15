@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:25:29.894Z",
+  "updated": "2026-11-15T16:29:21.736Z",
   "movies": [
     {
       "id": 1,
@@ -6701,8 +6701,8 @@
     {
       "id": 243,
       "num": 243,
-      "title": "Free",
-      "year": 1966,
+      "title": "Souboj Titánů",
+      "year": 1981,
       "director": "Conrad Miles",
       "genres": [
         "Fantasy",
@@ -9645,7 +9645,7 @@
     {
       "id": 349,
       "num": 349,
-      "title": "free",
+      "title": "Parfém: Příběh vraha",
       "year": 2006,
       "director": "Conrad Miles",
       "genres": [
@@ -47960,8 +47960,8 @@
     {
       "id": 1766,
       "num": 1766,
-      "title": "Jackass: Best and Last",
-      "year": 2026,
+      "title": "Predátor: Nebezpečné území",
+      "year": 2025,
       "director": "Jeff Tremaine",
       "genres": [
         "Akčný",
@@ -48014,24 +48014,123 @@
     {
       "id": 1768,
       "num": 1768,
-      "title": "Spider-Man: Nový deň",
+      "title": "Spider-Man: Zbrusu nový den",
       "year": 2026,
       "director": "Destin Daniel Cretton",
-      "cast": "Tom Holland, Sadie Sink, Tramell Tillman, Zendaya, Jacob Batalon, Jon Bernthal, Mark Ruffalo, Florence Pugh, Liza Colón-Zayas, Marisa Tomei",
+      "cast": "Tom Holland, Sadie Sink, Tramell Tillman, Zendaya, Jacob Batalon",
       "genres": [
-        "Science Fiction",
+        "Scifi",
         "Akčný",
         "Dobrodružný"
       ],
-      "country": "US",
+      "country": "United States",
       "duration": "145 min",
-      "description": "Bojovať proti zločinu na plný úväzok ako Spider-Man vo svete, ktorý si naňho nepamätá – a tlak z toho, že vidí svojich starých priateľov žiť ďalej bez neho – vyvoláva v Petrovi Parkerovi zmenu, ktorú možno nedokáže udržať pod kontrolou. Táto transformácia však môže byť zároveň tým jediným, čo dokáže zastaviť šokujúcu novú hrozbu pre mesto a jeho blízkych – mocného zloducha, ktorého nikto nedokáže ani vidieť.",
+      "description": "Peter Parker dnes žije osamělý život. Jeho oběť pro záchranu multivesmíru jej vymazala z paměti a srdcí nejbližších přátel, a tak se z něj stal Spider-Man na plný úvazek. Ochrana města si však vybírá svoji daň a Petr čelí nečekaným fyzickým následkům. Zatímco bojuje o holý život, ve městě se vynořuje temná hrozba s nevídanou mocí. Dokáže Peter zachránit New York, když riskuje, že ztratí i to poslední, co mu zbylo – sama sebe?",
       "poster_thumb": "https://image.tmdb.org/t/p/w185/iOAzTObtb5lzNynR4aG0FtVpmqb.jpg",
       "rating": 0,
       "tmdbId": 969681,
       "_localPath": "W:\\Movies\\2026 - Spider-Man - Zbrusu novy den.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1591126-spider-man-zbrusu-novy-den/prehled/",
-      "_pctCsfd": 82
+      "_pctCsfd": 82,
+      "_yt": "liCG0MbBw3M",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/969681"
+    },
+    {
+      "id": 1769,
+      "num": 1769,
+      "title": "Insidious: Jsou mezi námi",
+      "year": 2026,
+      "director": "Jacob Chase",
+      "genres": [
+        "Horor",
+        "Thriller"
+      ],
+      "country": "United States",
+      "duration": "105 min",
+      "cast": "Amelia Eve, Island Austin, Brandon Perea, Lin Shaye, Maisie Richardson-Sellers",
+      "description": "Gemma je mladá matka, která vychovává svou dceru v domě, kde sama vyrůstala, ajistí však, že dokáže vstupovat do Dálavy, tajemné říše ztracených duší na pomezí života a smrti, která tvoří samotné srdce univerza Insidious. Když Gemmu začne ohrožovat temná síla, odhalí schopnost, která všechno změní: do Dálavy dokáže nejen vstoupit, ale také z ní přivést bytosti zpět do skutečného světa. Jakmile démoni odhalí její moc, náš svět se stane místem jejich děsivé hry.",
+      "poster_thumb": "",
+      "rating": 0,
+      "tmdbId": 1291595,
+      "moods": [],
+      "_yt": "jxU8FU3o75A",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1291595",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\Insidious\\2026 - Insidious - Jsou mezi nami.mkv",
+      "_rtScore": 57
+    },
+    {
+      "id": 1770,
+      "num": 1770,
+      "title": "Vřískot 7",
+      "year": 2026,
+      "director": "Kevin Williamson",
+      "genres": [
+        "Horor",
+        "Mysteriózny",
+        "Kriminálny"
+      ],
+      "country": "United States",
+      "duration": "113 min",
+      "cast": "Neve Campbell, Courteney Cox, Isabel May, Jasmin Savoy Brown, Mason Gooding",
+      "description": "V poklidném městečku, kde si Sidney Prescott vybudovala nový život, se objeví nový vrah v masce Ghostface. Psychopatický vrah se tentokrát vůbec neskrývá – je chorobně posedlý zničit Sidney celý její život. Nejtemnější obavy Sidney se naplní, když se její dcera stane jeho dalším cílem. Od­hod­laná chránit svou rodinu, musí Sidney čelit hrůzám své minulosti, aby jednou provždy ukončila krveprolití.",
+      "poster_thumb": "",
+      "rating": 0,
+      "tmdbId": 1159559,
+      "moods": [],
+      "_yt": "UJrghaPJ0RY",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1159559",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\Vriskot\\2026 - Vriskot 7.mkv",
+      "_rtScore": 30
+    },
+    {
+      "id": 1771,
+      "num": 1771,
+      "title": "Drama",
+      "year": 2026,
+      "director": "Kristoffer Borgli",
+      "genres": [
+        "Romantický",
+        "Komédia",
+        "Dráma"
+      ],
+      "country": "United States",
+      "duration": "101 min",
+      "cast": "Zendaya, Robert Pattinson, Alana Haim, Mamoudou Athie, Hailey Benton Gates",
+      "description": "Vztah snoubenců projde týden před svatbou nečekanou zkouškou. Zdánlivě dokonalý pár je tak vystaven nečekanému dramatu a krizi.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/w2lJiI8h6RLzOE8t2ojL18uBZTA.jpg",
+      "rating": 0,
+      "tmdbId": 1325734,
+      "moods": [],
+      "_yt": "0ZDzsH3XGFA",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1325734",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - Drama.mkv",
+      "_rtScore": 76
+    },
+    {
+      "id": 1772,
+      "num": 1772,
+      "title": "V srdci divočiny",
+      "year": 2026,
+      "director": "David Ayer",
+      "genres": [
+        "Dobrodružný",
+        "Thriller"
+      ],
+      "country": "United States",
+      "duration": "104 min",
+      "cast": "Brad Pitt, J.K. Simmons, Anna Lambe, Justin Melnick, Shaun DeZern",
+      "description": "James Belmont, penzionovaný vojenský expert, se se svým psem Odinem, taktéž válečným veteránem, vydává na výlet do aljašské divočiny. Jejich výprava se povážlivě zkomplikuje, když James vinou zdravotní indispozice nezvládne pilotování malého letadla a havaruje. Ti dva už v minulosti ve válečné zóně dokázali, že se jeden na druhého můžou stoprocentně spolehnout. Zvládnou ale spolu zdolat nástrahy aljašské divočiny, kde číhá smrtelné nebezpečí na každém kroku? A poté, co oba letecká havárie nepěkn",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/4cO1DNFm5boOcwhPP4ukLkZquYX.jpg",
+      "rating": 0,
+      "tmdbId": 1263337,
+      "moods": [],
+      "_yt": "UkMuGKqAux4",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1263337",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - V srdci divociny.mkv"
     }
   ],
   "favourites": [],
