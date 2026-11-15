@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:37:24.490Z",
+  "updated": "2026-11-15T16:38:11.448Z",
   "movies": [
     {
       "id": 1,
@@ -48134,7 +48134,9 @@
       "_yt": "UkMuGKqAux4",
       "_tmdbUrl": "https://www.themoviedb.org/movie/1263337",
       "_imdbUrl": null,
-      "_localPath": "W:\\Movies\\2026 - V srdci divociny.mkv"
+      "_localPath": "W:\\Movies\\2026 - V srdci divociny.mkv",
+      "_csfdUrl": "https://www.csfd.cz/film/1679576-v-srdci-divociny/prehled/",
+      "_pctCsfd": 71
     }
   ],
   "favourites": [],
