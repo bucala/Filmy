@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:41:02.348Z",
+  "updated": "2026-11-15T16:41:41.459Z",
   "movies": [
     {
       "id": 1,
@@ -6706,16 +6706,16 @@
       "director": "Desmond Davis",
       "genres": [
         "Dobrodružný",
-        "Rozprávka",
+        "Fantasy",
         "Akčný"
       ],
-      "country": "United Statesút",
-      "duration": "117 min",
-      "cast": "Harry Hamlin, Judi Bowker, Burgess Meredith, Maggie Smith, Ursula Andress",
-      "description": "Perseus, syn boha Dia a pozemské krásky je nevědomky zatažen do intrik žárlivé Diovy manželky Héry a více či méně malicherných konfliktů ostatních bohů. A tak Perseus na své cestě za štěstím (a krásnou Andromedou) musí překonat nejen mýtické nestvůry, včetně Gorgony Medusy, ale i lidské vrtochy božských vládců Olympu. Vytlačené pomocou EMDB V5.41 na 15. novembra 2026 Strana 1 / 1EMDB - Eric's Movie Database",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/xI5BkObQm7UtYEFTw7ZmiDGF7gT.jpg",
+      "country": "GB, US",
+      "duration": "118 min",
+      "cast": "Harry Hamlin, Judi Bowker, Burgess Meredith, Maggie Smith, Ursula Andress, Claire Bloom, Siân Phillips, Flora Robson, Laurence Olivier, Tim Pigott-Smith",
+      "description": "Perzeus bojuje s čarami, s antickými bohmi a príšerami, aby zachránil krásnu Andromedu pred morským netvorom. Ako syn boha Dia a pozemskej krásky je však nevedomky zatiahnutý do žiarlivých scén Diovej manželky Héry a hnevlivých konfliktov ostatných bohov. Perzeus využije magické zbrane, ktorými ho vyzbrojili bohovia na príkaz Dia, a v nebezpečnej nočnej výprave sa mu podarí odhaliť odpoveď na novú hádanku Andromedy, ktorú musí uhádnuť ten, kto si ju chce vziať za ženu. Radosť však netrvá dlho, l",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/c3w7w7ORoKnqgJKu4qA2TrDCfE4.jpg",
       "rating": 0,
-      "tmdbId": 963502,
+      "tmdbId": 10323,
       "moods": [],
       "_yt": null,
       "_tmdbUrl": null,
