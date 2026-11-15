@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:38:11.448Z",
+  "updated": "2026-11-15T16:39:40.224Z",
   "movies": [
     {
       "id": 1,
@@ -9664,7 +9664,9 @@
       "_tmdbUrl": null,
       "_imdbUrl": null,
       "_localPath": "",
-      "_pctImdb": 57
+      "_pctImdb": 57,
+      "_csfdUrl": "https://www.csfd.cz/film/221840-parfem-pribeh-vraha/prehled/",
+      "_pctCsfd": 78
     },
     {
       "id": 350,
