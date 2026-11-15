@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:41:41.459Z",
+  "updated": "2026-11-15T16:42:06.223Z",
   "movies": [
     {
       "id": 1,
@@ -13879,14 +13879,14 @@
       "director": "Louis Leterrier",
       "genres": [
         "Dobrodružný",
-        "Rozprávka",
+        "Fantasy",
         "Akčný"
       ],
-      "country": "United Statesút",
+      "country": "US, GB",
       "duration": "106 min",
-      "cast": "Sam Worthington, Gemma Arterton, Mads Mikkelsen, Alexa Davalos, Jason Flemyng",
-      "description": "Ve filmu Souboj titánů staví boj o moc muže proti králům a krále proti bohům. Boj mezi bohy samotnými může zničit celý svět. Perseus – syn boha vychovávaný člověkem – neuspěje v záchraně své rodiny před Hadem, pomstychtivým bohem podsvětí. Když už nemá co ztratit, rozhodne se pro nebezpečnou misi, jejímž cílem je zničit Hada dřív, než se jemu podaří zničit Dia a rozpoutat peklo na zemi. Perseus se spolu s dalšími neohroženými bojovníky vydává na nebezpečnou cestu hluboko do zakázaných světů. Mus",
-      "poster_thumb": "https://image.tmdb.org/t/p/w300/c3w7w7ORoKnqgJKu4qA2TrDCfE4.jpg",
+      "cast": "Sam Worthington, Gemma Arterton, Mads Mikkelsen, Alexa Davalos, Jason Flemyng, Ralph Fiennes, Liam Neeson, Pete Postlethwaite, Polly Walker, Ashraf Barhom",
+      "description": "Vo filme Súboj titanov stavia boj o moc muža proti kráľom a kráľov proti bohom. Boj medzi bohmi samotnými môže zničiť celý svet. Perseus - syn boha vychovávaný človekom - neuspeje v záchrane svojej rodiny pred Hadom, pomstychtivým bohom podsvetia. Keď už nemá čo stratiť, rozhodne sa pre nebezpečnú misiu, cieľom ktorej je zničiť Háda skôr, než sa jemu podarí zničiť Dia a rozpútať peklo na zemi. Perseus sa s vernými spolubojovníkmi vydáva na nebezpečnú cestu hlboko do zakázaných svetov. Musí sa st",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/wSuTdioMTsFLfN8XLbRNzd2kqnk.jpg",
       "rating": 0,
       "tmdbId": 18823,
       "moods": [],
