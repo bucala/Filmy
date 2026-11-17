@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-17T18:50:49.426Z",
+  "updated": "2026-11-17T18:51:38.918Z",
   "movies": [
     {
       "id": 1,
@@ -48165,7 +48165,9 @@
       "_tmdbUrl": "https://www.themoviedb.org/movie/1368337",
       "_imdbUrl": null,
       "_localPath": "W:\\Movies\\2026 - Odysea.mkv",
-      "_rtScore": 94
+      "_rtScore": 94,
+      "_csfdUrl": "https://www.csfd.cz/film/1580037-odyssea/prehled/",
+      "_pctCsfd": 85
     }
   ],
   "favourites": [],
