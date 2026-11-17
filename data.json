@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-11-15T16:42:17.208Z",
+  "updated": "2026-11-17T18:50:49.426Z",
   "movies": [
     {
       "id": 1,
@@ -48051,7 +48051,7 @@
       "duration": "105 min",
       "cast": "Amelia Eve, Island Austin, Brandon Perea, Lin Shaye, Maisie Richardson-Sellers",
       "description": "Gemma je mladá matka, která vychovává svou dceru v domě, kde sama vyrůstala, ajistí však, že dokáže vstupovat do Dálavy, tajemné říše ztracených duší na pomezí života a smrti, která tvoří samotné srdce univerza Insidious. Když Gemmu začne ohrožovat temná síla, odhalí schopnost, která všechno změní: do Dálavy dokáže nejen vstoupit, ale také z ní přivést bytosti zpět do skutečného světa. Jakmile démoni odhalí její moc, náš svět se stane místem jejich děsivé hry.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/8tEfEhuV1YrYTHAlaTRGOnv4wnm.jpg",
       "rating": 0,
       "tmdbId": 1291595,
       "moods": [],
@@ -48078,7 +48078,7 @@
       "duration": "113 min",
       "cast": "Neve Campbell, Courteney Cox, Isabel May, Jasmin Savoy Brown, Mason Gooding",
       "description": "V poklidném městečku, kde si Sidney Prescott vybudovala nový život, se objeví nový vrah v masce Ghostface. Psychopatický vrah se tentokrát vůbec neskrývá – je chorobně posedlý zničit Sidney celý její život. Nejtemnější obavy Sidney se naplní, když se její dcera stane jeho dalším cílem. Od­hod­laná chránit svou rodinu, musí Sidney čelit hrůzám své minulosti, aby jednou provždy ukončila krveprolití.",
-      "poster_thumb": "",
+      "poster_thumb": "https://image.tmdb.org/t/p/w300/uxlNnYlJ9ZuNcuT8KDqURzeQcPP.jpg",
       "rating": 0,
       "tmdbId": 1159559,
       "moods": [],
@@ -48141,6 +48141,31 @@
       "_localPath": "W:\\Movies\\2026 - V srdci divociny.mkv",
       "_csfdUrl": "https://www.csfd.cz/film/1679576-v-srdci-divociny/prehled/",
       "_pctCsfd": 71
+    },
+    {
+      "id": 1774,
+      "num": 1774,
+      "title": "Odyssea",
+      "year": 2026,
+      "director": "Christopher Nolan",
+      "genres": [
+        "Dobrodružný",
+        "Akčný",
+        "Fantasy"
+      ],
+      "country": "GB, US",
+      "duration": "172 min",
+      "cast": "Matt Damon, Tom Holland, Anne Hathawayová, Robert Pattinson, Himesh Patel, Charlize Theron, John Leguizamo, Travis Scott, Corey Hawkins, Jarreth J. Merz",
+      "description": "Filmové spracovanie starogréckej epickej básne „Odysea“, ktorú napísal Homér a ktorá rozpráva príbeh ithackého kráľa Odysea (Matt Damon), vracajúceho sa domov po trójskej vojne. Počas svojej desaťročnej púte sa stretáva s množstvom mýtických bytostí a nebezpečných prekážok, aby sa mohol znovu stretnúť so svojou manželkou Penelopé.",
+      "poster_thumb": "https://image.tmdb.org/t/p/w185/5rhTDKUhPYvpdQIijFIs5VoWsON.jpg",
+      "rating": 0,
+      "tmdbId": 1368337,
+      "moods": [],
+      "_yt": "AyIZ9tiiN8I",
+      "_tmdbUrl": "https://www.themoviedb.org/movie/1368337",
+      "_imdbUrl": null,
+      "_localPath": "W:\\Movies\\2026 - Odysea.mkv",
+      "_rtScore": 94
     }
   ],
   "favourites": [],
